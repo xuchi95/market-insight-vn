@@ -1,19 +1,74 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ForexRateTable } from "@/components/site/ForexRateTable";
 import { ConverterTool } from "@/components/site/ConverterTool";
 
+const SITE = "https://market-insight-vn.lovable.app";
+const URL = `${SITE}/forex`;
+const TITLE = "Giá USD hôm nay — Tỷ giá EUR, JPY, CNY, GBP, KRW realtime";
+const DESC = "Giá USD hôm nay, tỷ giá EUR, JPY, CNY, GBP, KRW, AUD sang VND cập nhật realtime — giá mua, giá bán, công cụ quy đổi nhanh ngoại tệ sang VND.";
+
+const FAQ = [
+  { q: "Giá USD hôm nay bao nhiêu VND?", a: "Giá USD hôm nay được MarketWatch cập nhật realtime mỗi 10 giây theo tỷ giá thị trường — bao gồm giá mua vào và bán ra quy đổi sang VND." },
+  { q: "Tỷ giá EUR, JPY, CNY, GBP hôm nay tại MarketWatch lấy từ đâu?", a: "Tỷ giá được tổng hợp từ thị trường ngoại hối quốc tế và tham chiếu theo tỷ giá liên ngân hàng, cập nhật liên tục trong giờ giao dịch." },
+  { q: "Giá mua và giá bán ngoại tệ khác nhau như thế nào?", a: "Giá mua là mức ngân hàng/đại lý mua ngoại tệ từ bạn; giá bán là mức họ bán ngoại tệ ra. Chênh lệch mua – bán là chi phí giao dịch bạn cần lưu ý." },
+  { q: "Làm sao quy đổi nhanh USD, EUR sang VND?", a: "Sử dụng công cụ quy đổi ngoại tệ ngay trên trang này — nhập số tiền, chọn loại tiền và xem kết quả VND theo tỷ giá realtime." },
+];
+
 export const Route = createFileRoute("/forex")({
   head: () => ({
     meta: [
-      { title: "Tỷ giá ngoại tệ USD, EUR, CNY realtime — MarketWatch" },
-      { name: "description", content: "Cập nhật tỷ giá USD, EUR, JPY, CNY, GBP, KRW, AUD và nhiều ngoại tệ khác theo thời gian thực." },
-      { property: "og:title", content: "Tỷ giá ngoại tệ realtime — MarketWatch" },
-      { property: "og:description", content: "Bảng tỷ giá ngoại tệ cập nhật liên tục, quy đổi nhanh sang VND." },
+      { title: TITLE },
+      { name: "description", content: DESC },
+      { name: "keywords", content: "giá usd hôm nay, tỷ giá usd, tỷ giá eur, tỷ giá yên nhật, tỷ giá nhân dân tệ, tỷ giá cny, tỷ giá gbp, tỷ giá won, quy đổi ngoại tệ, tỷ giá ngoại tệ hôm nay" },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESC },
+      { property: "og:url", content: URL },
+      { property: "og:type", content: "website" },
+      { property: "og:locale", content: "vi_VN" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
     ],
-    links: [{ rel: "canonical", href: "/forex" }],
+    links: [{ rel: "canonical", href: URL }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQ.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE + "/" },
+            { "@type": "ListItem", position: 2, name: "Tỷ giá ngoại tệ", item: URL },
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: TITLE,
+          description: DESC,
+          url: URL,
+          inLanguage: "vi-VN",
+          about: ["Tỷ giá USD", "Tỷ giá EUR", "Tỷ giá JPY", "Tỷ giá CNY"],
+        }),
+      },
+    ],
   }),
   component: ForexPage,
 });
@@ -25,14 +80,48 @@ function ForexPage() {
       <Header onSearch={setSearch} />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-10 space-y-8">
+          <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
+            <ol className="flex items-center gap-2">
+              <li><Link to="/" className="hover:text-foreground">Trang chủ</Link></li>
+              <li aria-hidden>/</li>
+              <li className="text-foreground">Tỷ giá ngoại tệ</li>
+            </ol>
+          </nav>
           <header className="space-y-2">
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Tỷ giá ngoại tệ realtime</h1>
+            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Giá USD hôm nay — Tỷ giá EUR, JPY, CNY, GBP realtime</h1>
             <p className="text-muted-foreground max-w-2xl">
-              Cập nhật tỷ giá USD, EUR, JPY, CNY, GBP, KRW, AUD… và công cụ quy đổi nhanh sang VND.
+              Cập nhật <strong>giá USD hôm nay</strong>, tỷ giá EUR, JPY, CNY, GBP, KRW, AUD… sang VND theo thời gian thực, kèm công cụ quy đổi nhanh và chính xác.
             </p>
           </header>
           <ForexRateTable search={search} />
           <ConverterTool />
+
+          <section aria-labelledby="forex-info" className="prose prose-invert max-w-none space-y-4">
+            <h2 id="forex-info" className="text-2xl font-bold tracking-tight">Bảng tỷ giá ngoại tệ hôm nay</h2>
+            <p className="text-muted-foreground">
+              MarketWatch cập nhật <strong>giá USD</strong>, EUR, JPY, CNY (Nhân dân tệ), GBP, KRW (Won Hàn Quốc), AUD và nhiều ngoại tệ khác sang VND, làm mới mỗi 10 giây trong giờ giao dịch.
+            </p>
+            <h3 className="text-xl font-semibold">Quy đổi USD, EUR, CNY sang VND</h3>
+            <p className="text-muted-foreground">
+              Sử dụng công cụ quy đổi để tính nhanh số tiền cần đổi giữa các loại ngoại tệ và VND theo tỷ giá realtime — phù hợp khi gửi tiền, du lịch hay nhập hàng quốc tế.
+            </p>
+            <h3 className="text-xl font-semibold">Vì sao tỷ giá ngoại tệ thay đổi liên tục?</h3>
+            <p className="text-muted-foreground">
+              Tỷ giá phụ thuộc vào cung – cầu, lãi suất, chính sách tiền tệ và thị trường thế giới. Theo dõi tỷ giá realtime giúp bạn chọn thời điểm giao dịch ngoại tệ tối ưu nhất.
+            </p>
+          </section>
+
+          <section aria-labelledby="forex-faq" className="space-y-4">
+            <h2 id="forex-faq" className="text-2xl font-bold tracking-tight">Câu hỏi thường gặp về tỷ giá ngoại tệ</h2>
+            <div className="divide-y divide-border rounded-xl border border-border/60 bg-card">
+              {FAQ.map((f) => (
+                <details key={f.q} className="group p-4">
+                  <summary className="cursor-pointer font-semibold marker:hidden">{f.q}</summary>
+                  <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </section>
         </div>
       </main>
       <Footer />
