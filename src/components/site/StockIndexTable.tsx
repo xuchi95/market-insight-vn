@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { LineChart } from "lucide-react";
+import { LineChart, Loader2 } from "lucide-react";
 import { fetchStockIndices } from "@/lib/services/stockIndexService";
-import { fmtNum } from "@/lib/format";
+import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,13 +15,28 @@ function fmtVol(n: number) {
 }
 
 export function StockIndexTable() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ["stocks-indices"],
     queryFn: fetchStockIndices,
     refetchInterval: 5 * 60 * 1000,
     staleTime: 60_000,
   });
   const rows = data ?? [];
+  const updatedAt = rows.length ? Math.max(...rows.map((r) => r.updatedAt)) : 0;
+
+  const meta = (
+    <span className="flex items-center gap-2">
+      {updatedAt > 0 && (
+        <span>Cập nhật {fmtDate(updatedAt)} · {fmtTime(updatedAt)}</span>
+      )}
+      {isFetching && !isLoading && (
+        <span className="inline-flex items-center gap-1.5 text-xs text-[var(--up)] animate-pulse">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          Đang cập nhật…
+        </span>
+      )}
+    </span>
+  );
 
   return (
     <SectionCard
@@ -29,6 +44,7 @@ export function StockIndexTable() {
       icon={<LineChart className="h-4 w-4" />}
       title="Chỉ số chứng khoán Việt Nam"
       description="VN-Index, VN30, HNX, UPCOM • cập nhật mỗi 5 phút • nguồn: VNDirect"
+      meta={meta}
     >
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
