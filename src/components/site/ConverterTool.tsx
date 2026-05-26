@@ -140,27 +140,78 @@ export function ConverterTool() {
         </div>
       </div>
       {result && result.a.key !== result.b.key && (
-        <div className="px-4 lg:px-6 pb-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-lg border bg-muted/30 p-3">
-            <div className="text-[11px] uppercase text-muted-foreground font-semibold">Theo giá giữa (mid)</div>
-            <div className="mt-1 tabular font-semibold">
-              {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)}{" "}
-              <span className="text-xs text-muted-foreground">{codeLabel(result.b)}</span>
+        <div className="px-4 lg:px-6 pb-4 space-y-3">
+          {/* Giá mua / giá bán rõ ràng */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-[11px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
+                <TrendingDown className="h-3.5 w-3.5 text-blue-500" />
+                Giá mua vào <span className="text-muted-foreground/60 font-normal">(bạn bán {codeLabel(result.a)})</span>
+              </div>
+              <div className="mt-1.5 tabular font-semibold text-lg">
+                1 {codeLabel(result.a)} = {fmtVND(result.a.buyVnd)}
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">
+                Bán {fmtAmount(result.n, result.a.kind, result.a.key)} {codeLabel(result.a)} → nhận {fmtVND(result.vndFromSelling)}
+              </div>
+            </div>
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-[11px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
+                <TrendingUp className="h-3.5 w-3.5 text-orange-500" />
+                Giá bán ra <span className="text-muted-foreground/60 font-normal">(bạn mua {codeLabel(result.b)})</span>
+              </div>
+              <div className="mt-1.5 tabular font-semibold text-lg">
+                1 {codeLabel(result.b)} = {fmtVND(result.b.sellVnd)}
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">
+                Mua {fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)} {codeLabel(result.b)} → trả {fmtVND(result.vndFromSelling)}
+              </div>
             </div>
           </div>
-          <div className="rounded-lg border bg-muted/30 p-3">
-            <div className="text-[11px] uppercase text-muted-foreground font-semibold">Thực nhận (mua/bán)</div>
-            <div className="mt-1 tabular font-semibold text-gold">
-              {fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)}{" "}
-              <span className="text-xs text-muted-foreground">{codeLabel(result.b)}</span>
+
+          {/* Tổng kết so sánh */}
+          <div className="rounded-xl border bg-primary/5 p-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <div className="text-[11px] uppercase text-muted-foreground font-semibold">Thực nhận</div>
+                <div className="mt-1 tabular font-bold text-xl text-gold">
+                  {fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)}{" "}
+                  <span className="text-sm text-muted-foreground font-semibold">{codeLabel(result.b)}</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[11px] uppercase text-muted-foreground font-semibold">So với giá giữa (mid)</div>
+                <div className={cn(
+                  "mt-1 tabular font-semibold flex items-center justify-end gap-1",
+                  result.loss >= 0 ? "text-emerald-500" : "text-red-500"
+                )}>
+                  {result.loss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                  {result.loss >= 0 ? "+" : ""}{fmtAmount(result.loss, result.b.kind, result.b.key)}{" "}
+                  <span className="text-xs">({result.lossPct >= 0 ? "+" : ""}{result.lossPct.toFixed(2)}%)</span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="rounded-lg border bg-muted/30 p-3">
-            <div className="text-[11px] uppercase text-muted-foreground font-semibold">Chênh lệch do spread</div>
-            <div className={"mt-1 tabular font-semibold flex items-center gap-1 " + (result.loss >= 0 ? "text-emerald-500" : "text-red-500")}>
-              {result.loss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-              {result.loss >= 0 ? "+" : ""}{fmtAmount(result.loss, result.b.kind, result.b.key)}{" "}
-              <span className="text-xs">({result.lossPct >= 0 ? "+" : ""}{result.lossPct.toFixed(2)}%)</span>
+
+            {/* Thanh spread trực quan */}
+            <div className="mt-3">
+              <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
+                <span>Giá giữa (mid): {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)} {codeLabel(result.b)}</span>
+                <span>Spread: {Math.abs(result.lossPct).toFixed(2)}%</span>
+              </div>
+              <div className="h-2 w-full bg-muted rounded-full overflow-hidden relative">
+                <div
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-primary to-orange-500 rounded-full"
+                  style={{ width: "100%" }}
+                />
+                <div
+                  className="absolute top-0 h-full w-1.5 bg-white rounded-full shadow"
+                  style={{ left: `${Math.min(100, Math.max(0, 50 - (result.lossPct / 2)))}%`, transform: "translateX(-50%)" }}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                <span>Bạn bán rẻ hơn</span>
+                <span>Bạn mua đắt hơn</span>
+              </div>
             </div>
           </div>
         </div>
