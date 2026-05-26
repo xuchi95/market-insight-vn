@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as GoldRouteImport } from './routes/gold'
@@ -29,6 +30,11 @@ import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StocksRoute = StocksRouteImport.update({
+  id: '/stocks',
+  path: '/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/gold': typeof GoldRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/gold': typeof GoldRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/gold': typeof GoldRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/gold'
     | '/privacy'
     | '/sitemap.xml'
+    | '/stocks'
     | '/terms'
     | '/asset/$symbol'
     | '/api/public/bank-rates'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/gold'
     | '/privacy'
     | '/sitemap.xml'
+    | '/stocks'
     | '/terms'
     | '/asset/$symbol'
     | '/api/public/bank-rates'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/gold'
     | '/privacy'
     | '/sitemap.xml'
+    | '/stocks'
     | '/terms'
     | '/asset/$symbol'
     | '/api/public/bank-rates'
@@ -228,6 +240,7 @@ export interface RootRouteChildren {
   GoldRoute: typeof GoldRoute
   PrivacyRoute: typeof PrivacyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StocksRoute: typeof StocksRoute
   TermsRoute: typeof TermsRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
@@ -245,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stocks': {
+      id: '/stocks'
+      path: '/stocks'
+      fullPath: '/stocks'
+      preLoaderRoute: typeof StocksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -364,6 +384,7 @@ const rootRouteChildren: RootRouteChildren = {
   GoldRoute: GoldRoute,
   PrivacyRoute: PrivacyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StocksRoute: StocksRoute,
   TermsRoute: TermsRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
@@ -376,3 +397,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
