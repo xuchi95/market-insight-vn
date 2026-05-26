@@ -23,6 +23,7 @@ export function Footer() {
               <li><Link to="/crypto" className="hover:text-foreground">Crypto</Link></li>
               <li><Link to="/forex" className="hover:text-foreground">Ngoại tệ</Link></li>
               <li><Link to="/bank-rates" className="hover:text-foreground">Tỷ giá ngân hàng</Link></li>
+              <li><Link to="/converter" className="hover:text-foreground">Đổi ngoại tệ</Link></li>
             </ul>
           </div>
           <div className="md:col-span-2">
