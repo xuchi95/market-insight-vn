@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { LineChart, Loader2 } from "lucide-react";
+import { keepPreviousData } from "@tanstack/react-query";
+import { AlertTriangle, LineChart, Loader2 } from "lucide-react";
 import { fetchStockIndices } from "@/lib/services/stockIndexService";
 import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
@@ -15,14 +16,18 @@ function fmtVol(n: number) {
 }
 
 export function StockIndexTable() {
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["stocks-indices"],
     queryFn: fetchStockIndices,
     refetchInterval: 5 * 60 * 1000,
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
+    retry: 2,
   });
   const rows = data ?? [];
   const updatedAt = rows.length ? Math.max(...rows.map((r) => r.updatedAt)) : 0;
+  const showStaleBanner = isError && rows.length > 0;
+  const showErrorOnly = isError && rows.length === 0;
 
   const meta = (
     <span className="flex items-center gap-2">
@@ -46,6 +51,15 @@ export function StockIndexTable() {
       description="VN-Index, VN30, HNX, UPCOM • cập nhật mỗi 5 phút • nguồn: VNDirect"
       meta={meta}
     >
+      {showStaleBanner && (
+        <div className="flex items-start gap-2 px-4 py-2.5 text-xs bg-[var(--down)]/10 text-[var(--down)] border-b border-border">
+          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>
+            Không thể cập nhật dữ liệu mới ({error instanceof Error ? error.message : "lỗi không xác định"}). Đang hiển thị dữ liệu phiên gần nhất.{" "}
+            <button onClick={() => refetch()} className="underline font-medium hover:opacity-80">Thử lại</button>
+          </span>
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
@@ -81,8 +95,22 @@ export function StockIndexTable() {
                 </tr>
               );
             })}
-            {!isLoading && rows.length === 0 && (
-              <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Không có dữ liệu chỉ số.</td></tr>
+            {!isLoading && rows.length === 0 && !showErrorOnly && (
+              <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Không có dữ liệu chỉ số trong phiên này.</td></tr>
+            )}
+            {showErrorOnly && (
+              <tr>
+                <td colSpan={8} className="px-4 py-10 text-center">
+                  <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
+                    <AlertTriangle className="h-6 w-6 text-[var(--down)]" />
+                    <p className="text-sm">Không thể tải dữ liệu chỉ số chứng khoán.</p>
+                    <p className="text-xs opacity-70">{error instanceof Error ? error.message : ""}</p>
+                    <button onClick={() => refetch()} className="mt-2 px-3 py-1.5 text-xs rounded-md bg-gold/15 text-gold font-medium hover:bg-gold/25 transition-colors">
+                      Thử lại
+                    </button>
+                  </div>
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
