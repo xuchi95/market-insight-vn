@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
+import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const AssetSymbolRoute = AssetSymbolRouteImport.update({
   path: '/asset/$symbol',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
+  id: '/api/public/gold',
+  path: '/api/public/gold',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/gold': typeof ApiPublicGoldRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/gold': typeof ApiPublicGoldRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/gold': typeof ApiPublicGoldRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/asset/$symbol'
+  fullPaths: '/' | '/asset/$symbol' | '/api/public/gold'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/asset/$symbol'
-  id: '__root__' | '/' | '/asset/$symbol'
+  to: '/' | '/asset/$symbol' | '/api/public/gold'
+  id: '__root__' | '/' | '/asset/$symbol' | '/api/public/gold'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
+  ApiPublicGoldRoute: typeof ApiPublicGoldRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssetSymbolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/gold': {
+      id: '/api/public/gold'
+      path: '/api/public/gold'
+      fullPath: '/api/public/gold'
+      preLoaderRoute: typeof ApiPublicGoldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssetSymbolRoute: AssetSymbolRoute,
+  ApiPublicGoldRoute: ApiPublicGoldRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
