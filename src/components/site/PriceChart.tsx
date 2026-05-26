@@ -9,6 +9,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type Asset = "btc" | "eth" | "gold-sjc" | "usd-vnd" | "eur-vnd" | "gbp-vnd" | "jpy-vnd" | "cny-vnd" | "krw-vnd" | "sgd-vnd" | "aud-vnd" | "cad-vnd" | "chf-vnd" | "hkd-vnd" | "thb-vnd";
 type Range = "1" | "7" | "30";
+type AssetGroup = "crypto" | "gold" | "forex";
+
+const ASSET_GROUPS: Record<AssetGroup, Asset[]> = {
+  crypto: ["btc", "eth"],
+  gold: ["gold-sjc"],
+  forex: ["usd-vnd", "eur-vnd", "gbp-vnd", "jpy-vnd", "cny-vnd", "krw-vnd", "sgd-vnd", "aud-vnd", "cad-vnd", "chf-vnd", "hkd-vnd", "thb-vnd"],
+};
+
+function groupOf(a: Asset): AssetGroup {
+  if (a === "btc" || a === "eth") return "crypto";
+  if (a === "gold-sjc") return "gold";
+  return "forex";
+}
 
 const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" };
 
@@ -81,12 +94,22 @@ export function PriceChart({
   defaultAsset?: Asset;
   assets?: Asset[];
 } = {}) {
-  const available = useMemo(
-    () => (assets && assets.length ? ASSETS.filter((a) => assets.includes(a.value)) : ASSETS),
-    [assets]
-  );
+  // Lock the chart to a single coherent asset group derived from defaultAsset.
+  // This prevents BTC/ETH from leaking into the gold or forex sections even if
+  // a caller passes a mixed `assets` array by mistake.
+  const group = groupOf(defaultAsset);
+  const allowed = ASSET_GROUPS[group];
+  const available = useMemo(() => {
+    const requested = assets && assets.length ? assets.filter((a) => allowed.includes(a)) : allowed;
+    const final = requested.length ? requested : allowed;
+    return ASSETS.filter((a) => final.includes(a.value));
+  }, [assets, allowed]);
   const initial = available.some((a) => a.value === defaultAsset) ? defaultAsset : available[0].value;
   const [asset, setAsset] = useState<Asset>(initial);
+  // If the parent swaps the group at runtime, snap back to a valid asset.
+  if (!available.some((a) => a.value === asset)) {
+    setAsset(initial);
+  }
   const [range, setRange] = useState<Range>("7");
 
   const { data, isLoading, dataUpdatedAt } = useQuery({
