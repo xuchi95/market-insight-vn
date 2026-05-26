@@ -17,11 +17,11 @@ const ID_ALIAS: Record<string, string> = {
   "avalanche-2": "avalanche",
 };
 
-function ccHeaders() {
+function withKey(u: string): string {
   const key = process.env.COINCAP_API_KEY;
-  const h: Record<string, string> = { accept: "application/json" };
-  if (key) h.Authorization = `Bearer ${key}`;
-  return h;
+  const url = new URL(u);
+  if (key) url.searchParams.set("apiKey", key);
+  return url.toString();
 }
 
 function intervalFor(days: number): string {
@@ -51,8 +51,8 @@ export const Route = createFileRoute("/api/public/crypto-chart")({
             const end = Date.now();
             const start = end - dn * 24 * 60 * 60 * 1000;
             const interval = intervalFor(dn);
-            const up = `https://rest.coincap.io/v3/assets/${id}/history?interval=${interval}&start=${start}&end=${end}`;
-            const r = await fetch(up, { headers: ccHeaders() });
+            const up = withKey(`https://rest.coincap.io/v3/assets/${id}/history?interval=${interval}&start=${start}&end=${end}`);
+            const r = await fetch(up, { headers: { accept: "application/json" } });
             if (!r.ok) throw new Error(`upstream ${r.status}`);
             const j: any = await r.json();
             const arr: any[] = Array.isArray(j?.data) ? j.data : [];
