@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
@@ -30,6 +31,11 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoldRoute = GoldRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
+  '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
+  '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
+  '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/forex'
     | '/gold'
+    | '/privacy'
     | '/sitemap.xml'
     | '/terms'
     | '/asset/$symbol'
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/forex'
     | '/gold'
+    | '/privacy'
     | '/sitemap.xml'
     | '/terms'
     | '/asset/$symbol'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/forex'
     | '/gold'
+    | '/privacy'
     | '/sitemap.xml'
     | '/terms'
     | '/asset/$symbol'
@@ -177,6 +189,7 @@ export interface RootRouteChildren {
   DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
   GoldRoute: typeof GoldRoute
+  PrivacyRoute: typeof PrivacyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gold': {
@@ -281,6 +301,7 @@ const rootRouteChildren: RootRouteChildren = {
   DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
   GoldRoute: GoldRoute,
+  PrivacyRoute: PrivacyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   AssetSymbolRoute: AssetSymbolRoute,
