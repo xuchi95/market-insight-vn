@@ -95,7 +95,7 @@ function GoldPage() {
             </p>
           </header>
           <GoldPriceTable search={search} />
-          <PriceChart defaultAsset="gold-sjc" assets={["gold-sjc", "usd-vnd"]} />
+          <PriceChart defaultAsset="gold-sjc" assets={["gold-sjc"]} />
 
           <section aria-labelledby="gold-info" className="prose prose-invert max-w-none space-y-4">
             <h2 id="gold-info" className="text-2xl font-bold tracking-tight">Bảng giá vàng hôm nay cập nhật liên tục</h2>
