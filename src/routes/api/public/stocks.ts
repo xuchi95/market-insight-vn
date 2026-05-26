@@ -54,13 +54,9 @@ async function fetchOne(code: string): Promise<DchartResponse | null> {
         signal: ctrl.signal,
       },
     );
-    if (!res.ok) {
-      console.error(`[stocks] ${code} upstream status=${res.status}`);
-      return null;
-    }
+    if (!res.ok) return null;
     return (await res.json()) as DchartResponse;
-  } catch (e) {
-    console.error(`[stocks] ${code} fetch error`, (e as Error).message);
+  } catch {
     return null;
   } finally {
     clearTimeout(t);
