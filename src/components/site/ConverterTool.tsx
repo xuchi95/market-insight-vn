@@ -10,6 +10,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ConverterPairChart, type PairChartAsset } from "./ConverterPairChart";
 
 type AssetKind = "crypto" | "forex" | "gold";
 interface AssetOpt {
@@ -83,6 +84,15 @@ export function ConverterTool() {
   };
 
   const codeLabel = (a: AssetOpt) => a.label.split(" — ")[0];
+
+  const fromAsset = assets.find((x) => x.key === from) ?? null;
+  const toAsset = assets.find((x) => x.key === to) ?? null;
+  const chartFrom: PairChartAsset | null = fromAsset
+    ? { key: fromAsset.key, kind: fromAsset.kind, rateVnd: fromAsset.rateVnd, code: codeLabel(fromAsset) }
+    : null;
+  const chartTo: PairChartAsset | null = toAsset
+    ? { key: toAsset.key, kind: toAsset.kind, rateVnd: toAsset.rateVnd, code: codeLabel(toAsset) }
+    : null;
 
   return (
     <SectionCard
@@ -219,6 +229,9 @@ export function ConverterTool() {
       <div className="px-4 lg:px-6 pb-4 text-xs text-muted-foreground">
         Kết quả tính theo giá <strong>bán của bạn</strong> (thị trường mua vào) và <strong>mua của bạn</strong> (thị trường bán ra),
         phản ánh lãi/lỗ do chênh lệch mua–bán. Chỉ mang tính tham khảo, không bao gồm phí giao dịch.
+      </div>
+      <div className="px-4 lg:px-6 pb-6">
+        <ConverterPairChart from={chartFrom} to={chartTo} />
       </div>
     </SectionCard>
   );
