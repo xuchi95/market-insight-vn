@@ -115,8 +115,11 @@ export function ConverterTool() {
           variant="outline"
           size="icon"
           onClick={swap}
-          className="h-12 w-12 rounded-full mx-auto"
-          aria-label="Đảo cặp tiền"
+          className={cn(
+            "h-12 w-12 rounded-full mx-auto transition-transform duration-300 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/30",
+            swapped && "rotate-180"
+          )}
+          aria-label="Đảo chiều Từ ↔ Sang"
         >
           <ArrowRightLeft className="h-5 w-5" />
         </Button>
