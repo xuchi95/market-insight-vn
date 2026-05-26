@@ -1,39 +1,56 @@
 import type { GoldPrice } from "./types";
 
-// Base prices (VND per chỉ ~ 3.75g). Adapter is ready to be swapped for real APIs.
-const BASE: Omit<GoldPrice, "changePct" | "updatedAt">[] = [
-  { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L", buy: 8_320_000, sell: 8_420_000, unit: "VND/chỉ" },
-  { id: "doji-hh", brand: "DOJI", type: "Hưng Thịnh Vượng 9999", buy: 8_290_000, sell: 8_390_000, unit: "VND/chỉ" },
-  { id: "pnj-9999", brand: "PNJ", type: "Vàng miếng 9999", buy: 8_280_000, sell: 8_385_000, unit: "VND/chỉ" },
-  { id: "btmh-9999", brand: "Bảo Tín Minh Châu", type: "Vàng Rồng Thăng Long", buy: 8_300_000, sell: 8_395_000, unit: "VND/chỉ" },
-  { id: "phuquy-9999", brand: "Phú Quý", type: "Vàng miếng 9999", buy: 8_270_000, sell: 8_380_000, unit: "VND/chỉ" },
-  { id: "mihong-9999", brand: "Mi Hồng", type: "Vàng miếng 9999", buy: 8_260_000, sell: 8_370_000, unit: "VND/chỉ" },
-  { id: "nhan-9999", brand: "Vàng nhẫn", type: "Nhẫn tròn trơn 9999", buy: 8_240_000, sell: 8_340_000, unit: "VND/chỉ" },
-  { id: "24k", brand: "Vàng 24K", type: "Vàng nguyên liệu 24K", buy: 8_220_000, sell: 8_320_000, unit: "VND/chỉ" },
-  { id: "18k", brand: "Vàng 18K", type: "Vàng trang sức 18K", buy: 6_180_000, sell: 6_320_000, unit: "VND/chỉ" },
+// Supplemental rows: world XAU/USD and brands not covered by the BTMC feed.
+// These are jitter-simulated until a dedicated source is wired in.
+const SUPPLEMENTAL: Omit<GoldPrice, "changePct" | "updatedAt">[] = [
+  { id: "mihong-9999", brand: "Mi Hồng", type: "Vàng miếng 9999", buy: 15_780_000, sell: 16_080_000, unit: "VND/lượng" },
+  { id: "18k", brand: "Vàng 18K", type: "Vàng trang sức 18K", buy: 11_800_000, sell: 12_100_000, unit: "VND/lượng" },
   { id: "xauusd", brand: "Vàng thế giới", type: "XAU/USD (ounce)", buy: 2_640, sell: 2_645, unit: "USD/oz" },
 ];
 
-// Persisted live state — fluctuates around base
-const state = new Map<string, { buy: number; sell: number; prevMid: number; updatedAt: number }>();
+const fallbackState = new Map<string, { buy: number; sell: number; prevMid: number }>();
 
 function jitter(base: number, amplitude = 0.0015) {
-  const drift = (Math.random() - 0.5) * 2 * amplitude;
-  return base * (1 + drift);
+  return base * (1 + (Math.random() - 0.5) * 2 * amplitude);
 }
 
-export async function fetchGoldPrices(): Promise<GoldPrice[]> {
-  const now = Date.now();
-  return BASE.map((g) => {
-    const prev = state.get(g.id);
+function supplementalRows(now: number): GoldPrice[] {
+  return SUPPLEMENTAL.map((g) => {
+    const prev = fallbackState.get(g.id);
     const buy = prev ? jitter(prev.buy) : g.buy;
     const sell = prev ? jitter(prev.sell) : g.sell;
     const mid = (buy + sell) / 2;
-    const prevMid = prev?.prevMid ?? (g.buy + g.sell) / 2;
+    const prevMid = prev?.prevMid ?? mid;
     const changePct = ((mid - prevMid) / prevMid) * 100;
-    state.set(g.id, { buy, sell, prevMid: prev?.prevMid ?? mid, updatedAt: now });
-    // Update baseline slowly so changes accumulate
-    if (Math.random() < 0.15) state.get(g.id)!.prevMid = mid;
+    fallbackState.set(g.id, { buy, sell, prevMid: prev?.prevMid ?? mid });
+    if (Math.random() < 0.15) fallbackState.get(g.id)!.prevMid = mid;
     return { ...g, buy: Math.round(buy), sell: Math.round(sell), changePct, updatedAt: now };
   });
+}
+
+// Full fallback (used when API endpoint fails completely)
+const FALLBACK_BTMC: GoldPrice[] = [
+  { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L", buy: 15_850_000, sell: 16_150_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
+  { id: "btmc-vrtl", brand: "Bảo Tín Minh Châu", type: "Vàng miếng Rồng Thăng Long", buy: 15_850_000, sell: 16_150_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
+  { id: "btmc-nhan", brand: "Bảo Tín Minh Châu", type: "Nhẫn tròn trơn 9999", buy: 15_850_000, sell: 16_150_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
+  { id: "doji", brand: "DOJI", type: "Vàng miếng 9999", buy: 15_750_000, sell: 15_950_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
+  { id: "pnj", brand: "PNJ", type: "Vàng miếng 9999", buy: 15_730_000, sell: 15_930_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
+  { id: "phuquy", brand: "Phú Quý", type: "Vàng miếng 9999", buy: 15_710_000, sell: 15_910_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
+  { id: "nguyenlieu", brand: "Vàng 24K", type: "Vàng nguyên liệu 24K", buy: 14_350_000, sell: 14_550_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
+];
+
+export async function fetchGoldPrices(): Promise<GoldPrice[]> {
+  const now = Date.now();
+  try {
+    const res = await fetch("/api/public/gold", {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error(`gold api ${res.status}`);
+    const json = (await res.json()) as { items?: GoldPrice[] };
+    const live = (json.items ?? []) as GoldPrice[];
+    if (live.length === 0) throw new Error("empty");
+    return [...live, ...supplementalRows(now)];
+  } catch {
+    return [...FALLBACK_BTMC, ...supplementalRows(now)];
+  }
 }
