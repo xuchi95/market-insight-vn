@@ -18,6 +18,7 @@ import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as CryptoRouteImport } from './routes/crypto'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
@@ -72,6 +73,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BankRatesRoute = BankRatesRouteImport.update({
+  id: '/bank-rates',
+  path: '/bank-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -115,6 +121,7 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
@@ -154,6 +162,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bank-rates'
     | '/contact'
     | '/crypto'
     | '/disclaimer'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bank-rates'
     | '/contact'
     | '/crypto'
     | '/disclaimer'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bank-rates'
     | '/contact'
     | '/crypto'
     | '/disclaimer'
@@ -233,6 +245,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BankRatesRoute: typeof BankRatesRoute
   ContactRoute: typeof ContactRoute
   CryptoRoute: typeof CryptoRoute
   DisclaimerRoute: typeof DisclaimerRoute
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bank-rates': {
+      id: '/bank-rates'
+      path: '/bank-rates'
+      fullPath: '/bank-rates'
+      preLoaderRoute: typeof BankRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -377,6 +397,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BankRatesRoute: BankRatesRoute,
   ContactRoute: ContactRoute,
   CryptoRoute: CryptoRoute,
   DisclaimerRoute: DisclaimerRoute,
