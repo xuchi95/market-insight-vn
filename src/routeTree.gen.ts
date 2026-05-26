@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
+import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -59,6 +60,11 @@ const ApiPublicForexRoute = ApiPublicForexRouteImport.update({
   path: '/api/public/forex',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCryptoChartRoute = ApiPublicCryptoChartRouteImport.update({
+  id: '/api/public/crypto-chart',
+  path: '/api/public/crypto-chart',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCryptoRoute = ApiPublicCryptoRouteImport.update({
   id: '/api/public/crypto',
   path: '/api/public/crypto',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
+  '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
+  '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
+  '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/asset/$symbol'
     | '/api/public/crypto'
+    | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/asset/$symbol'
     | '/api/public/crypto'
+    | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/asset/$symbol'
     | '/api/public/crypto'
+    | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
+  ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
 }
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicForexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/crypto-chart': {
+      id: '/api/public/crypto-chart'
+      path: '/api/public/crypto-chart'
+      fullPath: '/api/public/crypto-chart'
+      preLoaderRoute: typeof ApiPublicCryptoChartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/crypto': {
       id: '/api/public/crypto'
       path: '/api/public/crypto'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
+  ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
 }

@@ -27,10 +27,10 @@ export const Route = createFileRoute("/asset/$symbol")({
 
 async function loadChart(id: string, days: string) {
   try {
-    const r = await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${days}`);
+    const r = await fetch(`/api/public/crypto-chart?id=${encodeURIComponent(id)}&days=${encodeURIComponent(days)}`);
     if (r.ok) {
       const j = await r.json();
-      return (j.prices as [number, number][]).map(([t, v]) => ({ t, v }));
+      if (Array.isArray(j?.prices)) return j.prices as { t: number; v: number }[];
     }
   } catch {}
   return [];
@@ -81,7 +81,7 @@ function AssetDetail() {
                 <img src={coin.image} alt={coin.name} className="h-14 w-14 rounded-full" />
                 <div>
                   <h1 className="text-3xl font-bold tracking-tight">{coin.name} <span className="text-muted-foreground text-xl font-medium">{coin.symbol}</span></h1>
-                  <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1"><LiveDot /> Realtime từ CoinGecko</div>
+                  <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1"><LiveDot /> Giá thị trường realtime</div>
                 </div>
                 <div className="ml-auto text-right">
                   <div className="text-4xl font-bold tabular tracking-tight">{fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)}</div>
