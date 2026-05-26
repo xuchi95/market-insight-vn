@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as GoldRouteImport } from './routes/gold'
@@ -17,16 +18,24 @@ import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as CryptoRouteImport } from './routes/crypto'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
+import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
+import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StocksRoute = StocksRouteImport.update({
+  id: '/stocks',
+  path: '/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -64,6 +73,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BankRatesRoute = BankRatesRouteImport.update({
+  id: '/bank-rates',
+  path: '/bank-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -72,6 +86,11 @@ const IndexRoute = IndexRouteImport.update({
 const AssetSymbolRoute = AssetSymbolRouteImport.update({
   id: '/asset/$symbol',
   path: '/asset/$symbol',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
+  id: '/api/public/stocks',
+  path: '/api/public/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
@@ -94,9 +113,15 @@ const ApiPublicCryptoRoute = ApiPublicCryptoRouteImport.update({
   path: '/api/public/crypto',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
+  id: '/api/public/bank-rates',
+  path: '/api/public/bank-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
@@ -104,15 +129,19 @@ export interface FileRoutesByFullPath {
   '/gold': typeof GoldRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/stocks': typeof ApiPublicStocksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
@@ -120,16 +149,20 @@ export interface FileRoutesByTo {
   '/gold': typeof GoldRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/stocks': typeof ApiPublicStocksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
@@ -137,17 +170,21 @@ export interface FileRoutesById {
   '/gold': typeof GoldRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/stocks': typeof ApiPublicStocksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bank-rates'
     | '/contact'
     | '/crypto'
     | '/disclaimer'
@@ -155,15 +192,19 @@ export interface FileRouteTypes {
     | '/gold'
     | '/privacy'
     | '/sitemap.xml'
+    | '/stocks'
     | '/terms'
     | '/asset/$symbol'
+    | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/stocks'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bank-rates'
     | '/contact'
     | '/crypto'
     | '/disclaimer'
@@ -171,15 +212,19 @@ export interface FileRouteTypes {
     | '/gold'
     | '/privacy'
     | '/sitemap.xml'
+    | '/stocks'
     | '/terms'
     | '/asset/$symbol'
+    | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/stocks'
   id:
     | '__root__'
     | '/'
+    | '/bank-rates'
     | '/contact'
     | '/crypto'
     | '/disclaimer'
@@ -187,16 +232,20 @@ export interface FileRouteTypes {
     | '/gold'
     | '/privacy'
     | '/sitemap.xml'
+    | '/stocks'
     | '/terms'
     | '/asset/$symbol'
+    | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/stocks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BankRatesRoute: typeof BankRatesRoute
   ContactRoute: typeof ContactRoute
   CryptoRoute: typeof CryptoRoute
   DisclaimerRoute: typeof DisclaimerRoute
@@ -204,12 +253,15 @@ export interface RootRouteChildren {
   GoldRoute: typeof GoldRoute
   PrivacyRoute: typeof PrivacyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StocksRoute: typeof StocksRoute
   TermsRoute: typeof TermsRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
+  ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
+  ApiPublicStocksRoute: typeof ApiPublicStocksRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -219,6 +271,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stocks': {
+      id: '/stocks'
+      path: '/stocks'
+      fullPath: '/stocks'
+      preLoaderRoute: typeof StocksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -270,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bank-rates': {
+      id: '/bank-rates'
+      path: '/bank-rates'
+      fullPath: '/bank-rates'
+      preLoaderRoute: typeof BankRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -282,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/asset/$symbol'
       fullPath: '/asset/$symbol'
       preLoaderRoute: typeof AssetSymbolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/stocks': {
+      id: '/api/public/stocks'
+      path: '/api/public/stocks'
+      fullPath: '/api/public/stocks'
+      preLoaderRoute: typeof ApiPublicStocksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/gold': {
@@ -312,11 +385,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCryptoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bank-rates': {
+      id: '/api/public/bank-rates'
+      path: '/api/public/bank-rates'
+      fullPath: '/api/public/bank-rates'
+      preLoaderRoute: typeof ApiPublicBankRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BankRatesRoute: BankRatesRoute,
   ContactRoute: ContactRoute,
   CryptoRoute: CryptoRoute,
   DisclaimerRoute: DisclaimerRoute,
@@ -324,12 +405,15 @@ const rootRouteChildren: RootRouteChildren = {
   GoldRoute: GoldRoute,
   PrivacyRoute: PrivacyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StocksRoute: StocksRoute,
   TermsRoute: TermsRoute,
   AssetSymbolRoute: AssetSymbolRoute,
+  ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
+  ApiPublicStocksRoute: ApiPublicStocksRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

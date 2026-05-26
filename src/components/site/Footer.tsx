@@ -19,8 +19,10 @@ export function Footer() {
             <h4 className="eyebrow mb-4">Mục</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li><Link to="/gold" className="hover:text-foreground">Giá vàng</Link></li>
+              <li><Link to="/stocks" className="hover:text-foreground">Chứng khoán</Link></li>
               <li><Link to="/crypto" className="hover:text-foreground">Crypto</Link></li>
               <li><Link to="/forex" className="hover:text-foreground">Ngoại tệ</Link></li>
+              <li><Link to="/bank-rates" className="hover:text-foreground">Tỷ giá ngân hàng</Link></li>
             </ul>
           </div>
           <div className="md:col-span-2">
