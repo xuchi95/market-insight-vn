@@ -96,7 +96,7 @@ function CryptoPage() {
           </header>
           <CryptoPriceTable search={search} />
           <PriceAlerts />
-          <PriceChart />
+          <PriceChart defaultAsset="btc" assets={["btc", "eth"]} />
 
           <section aria-labelledby="crypto-info" className="prose prose-invert max-w-none space-y-4">
             <h2 id="crypto-info" className="text-2xl font-bold tracking-tight">Theo dõi giá Bitcoin và altcoin realtime</h2>
