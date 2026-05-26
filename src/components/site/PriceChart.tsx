@@ -44,7 +44,7 @@ async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
   }
   // Synthesize plausible series for gold/forex or as fallback
   const n = Number(days) * 24;
-  const base = BASE_VALUES[asset] ?? 25_400;
+  const base = (BASE_VALUES as Record<string, number>)[asset] ?? 25_400;
   const now = Date.now();
   const step = (Number(days) * 24 * 3600 * 1000) / n;
   const out: Point[] = [];
