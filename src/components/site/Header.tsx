@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 const NAV = [
   { label: "Tổng quan", to: "/" as const },
   { label: "Vàng", to: "/gold" as const },
+  { label: "Chứng khoán", to: "/stocks" as const },
   { label: "Crypto", to: "/crypto" as const },
   { label: "Ngoại tệ", to: "/forex" as const },
+  { label: "Tỷ giá NH", to: "/bank-rates" as const },
 ];
 
 function useClock() {
