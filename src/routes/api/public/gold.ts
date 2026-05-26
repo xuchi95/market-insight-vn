@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 // In-memory state for change computation between fetches
 const prevMid = new Map<string, number>();
 let cache: { at: number; data: unknown[] } | null = null;
-const CACHE_TTL_MS = 30_000; // BTMC API is slow & price moves slowly
+const CACHE_TTL_MS = 30_000; // live gold API is slow & price moves slowly
 
 interface BtmcRow {
   [key: string]: string;
@@ -31,7 +31,7 @@ function mapBtmc(items: BtmcRow[]): MappedItem[] {
   const seen = new Set<string>();
   const latest: Record<string, MappedItem> = {};
 
-  // BTMC mapping: source name -> (brand, type, id)
+  // Live source mapping: source name -> (brand, type, id)
   const MAP: Record<string, { id: string; brand: string; type: string }> = {
     "VÀNG MIẾNG SJC": { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L" },
     "VÀNG MIẾNG VRTL": {
@@ -125,7 +125,7 @@ async function fetchBtmc(): Promise<MappedItem[]> {
     "http://api.btmc.vn/api/BTMCAPI/getpricebtmc?key=3kd8ub1llcg9t45hnoh8hmn7t5kc2v",
     { headers: { Accept: "application/json" } },
   );
-  if (!res.ok) throw new Error(`BTMC ${res.status}`);
+  if (!res.ok) throw new Error(`Live gold source ${res.status}`);
   const json = (await res.json()) as { DataList?: { Data?: BtmcRow[] } };
   const items = json?.DataList?.Data ?? [];
   return mapBtmc(items);
@@ -159,7 +159,7 @@ export const Route = createFileRoute("/api/public/gold")({
           }
 
           return Response.json(
-            { source: "BTMC", items: out, fetchedAt: Date.now() },
+            { items: out, fetchedAt: Date.now() },
             {
               headers: {
                 "Cache-Control": "public, max-age=15",
