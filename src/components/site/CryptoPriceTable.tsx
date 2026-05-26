@@ -47,7 +47,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       id="crypto"
       icon={<Bitcoin className="h-4 w-4" />}
       title="Bảng giá crypto"
-      description="Dữ liệu trực tiếp từ CoinGecko • cập nhật mỗi 15s"
+      description="Giá thị trường realtime • cập nhật mỗi 15s"
       meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
