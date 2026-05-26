@@ -120,7 +120,7 @@ function mapBtmc(items: BtmcRow[]): MappedItem[] {
   return Object.values(latest);
 }
 
-async function fetchBtmc(): Promise<MappedItem[]> {
+async function fetchLiveGold(): Promise<MappedItem[]> {
   const res = await fetch(
     "http://api.btmc.vn/api/BTMCAPI/getpricebtmc?key=3kd8ub1llcg9t45hnoh8hmn7t5kc2v",
     { headers: { Accept: "application/json" } },
@@ -128,7 +128,7 @@ async function fetchBtmc(): Promise<MappedItem[]> {
   if (!res.ok) throw new Error(`Live gold source ${res.status}`);
   const json = (await res.json()) as { DataList?: { Data?: BtmcRow[] } };
   const items = json?.DataList?.Data ?? [];
-  return mapBtmc(items);
+  return mapLiveRows(items);
 }
 
 export const Route = createFileRoute("/api/public/gold")({
