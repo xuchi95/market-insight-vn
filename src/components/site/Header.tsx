@@ -10,6 +10,7 @@ const NAV = [
   { label: "Crypto", to: "/crypto" as const },
   { label: "Ngoại tệ", to: "/forex" as const },
   { label: "Tỷ giá NH", to: "/bank-rates" as const },
+  { label: "Đổi tiền", to: "/converter" as const },
 ];
 
 function useClock() {

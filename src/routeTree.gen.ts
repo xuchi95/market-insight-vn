@@ -17,6 +17,7 @@ import { Route as GoldRouteImport } from './routes/gold'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as CryptoRouteImport } from './routes/crypto'
+import { Route as ConverterRouteImport } from './routes/converter'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
@@ -67,6 +68,11 @@ const DisclaimerRoute = DisclaimerRouteImport.update({
 const CryptoRoute = CryptoRouteImport.update({
   id: '/crypto',
   path: '/crypto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConverterRoute = ConverterRouteImport.update({
+  id: '/converter',
+  path: '/converter',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
+  '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
+  '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/bank-rates': typeof BankRatesRoute
   '/contact': typeof ContactRoute
+  '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bank-rates'
     | '/contact'
+    | '/converter'
     | '/crypto'
     | '/disclaimer'
     | '/forex'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bank-rates'
     | '/contact'
+    | '/converter'
     | '/crypto'
     | '/disclaimer'
     | '/forex'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bank-rates'
     | '/contact'
+    | '/converter'
     | '/crypto'
     | '/disclaimer'
     | '/forex'
@@ -259,6 +271,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BankRatesRoute: typeof BankRatesRoute
   ContactRoute: typeof ContactRoute
+  ConverterRoute: typeof ConverterRoute
   CryptoRoute: typeof CryptoRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/crypto'
       fullPath: '/crypto'
       preLoaderRoute: typeof CryptoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/converter': {
+      id: '/converter'
+      path: '/converter'
+      fullPath: '/converter'
+      preLoaderRoute: typeof ConverterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -419,6 +439,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BankRatesRoute: BankRatesRoute,
   ContactRoute: ContactRoute,
+  ConverterRoute: ConverterRoute,
   CryptoRoute: CryptoRoute,
   DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
