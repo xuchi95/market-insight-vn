@@ -1,60 +1,13 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { LineChart as LCIcon } from "lucide-react";
+import { LineChart as LCIcon, Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fmtNum } from "@/lib/format";
 
 type Range = "1" | "7" | "30";
 
 interface Point { t: number; v: number }
-
-function hashStr(s: string): number {
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-function mulberry32(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6D2B79F5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function buildSeries(ratio: number, range: Range, pairKey: string, volatility: number): Point[] {
-  const days = Number(range);
-  const n = days === 1 ? 48 : days === 7 ? 84 : 60; // 30N hơi thưa
-  const now = Date.now();
-  const step = (days * 24 * 3600 * 1000) / n;
-  const rng = mulberry32(hashStr(pairKey + ":" + range));
-  const out: Point[] = [];
-  // Bắt đầu lệch nhẹ so với giá hiện tại để giá hiện tại đứng ở cuối chuỗi.
-  let v = ratio * (1 + (rng() - 0.5) * volatility * 4);
-  // Kéo chuỗi về đúng ratio ở điểm cuối bằng cách trộn drift về target.
-  for (let i = 0; i < n; i++) {
-    const noise = (rng() - 0.5) * volatility;
-    const pull = ((ratio - v) / Math.max(1, n - i)) * 0.6;
-    v = v * (1 + noise) + pull;
-    out.push({ t: now - (n - 1 - i) * step, v });
-  }
-  // Đảm bảo điểm cuối khớp giá hiện tại.
-  out[out.length - 1] = { t: now, v: ratio };
-  return out;
-}
-
-function volatilityFor(kind: string): number {
-  // biên độ noise mỗi bước
-  if (kind === "crypto") return 0.012;
-  if (kind === "gold") return 0.004;
-  return 0.002; // forex
-}
 
 export interface PairChartAsset {
   key: string;
@@ -64,15 +17,45 @@ export interface PairChartAsset {
   code: string;
 }
 
+interface HistoryResp {
+  from: string;
+  to: string;
+  days: number;
+  points: Point[];
+  source?: string;
+  error?: string;
+}
+
+async function fetchPairHistory(from: string, to: string, days: Range): Promise<HistoryResp> {
+  const u = `/api/public/pair-history?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&days=${days}`;
+  const r = await fetch(u, { headers: { accept: "application/json" } });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
 export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; to: PairChartAsset | null }) {
   const [range, setRange] = useState<Range>("7");
 
-  const ready = !!(from && to && from.rateVnd > 0 && to.rateVnd > 0 && from.key !== to.key);
+  const ready = !!(from && to && from.key !== to.key);
   const ratio = ready ? from!.rateVnd / to!.rateVnd : 0;
   const pairKey = ready ? `${from!.key}>${to!.key}` : "";
-  const vol = ready ? Math.max(volatilityFor(from!.kind), volatilityFor(to!.kind)) : 0;
 
-  const data = useMemo(() => (ready ? buildSeries(ratio, range, pairKey, vol) : []), [ready, ratio, range, pairKey, vol]);
+  const query = useQuery({
+    queryKey: ["pair-history", from?.key, to?.key, range],
+    queryFn: () => fetchPairHistory(from!.key, to!.key, range),
+    enabled: ready,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+
+  const data: Point[] = useMemo(() => {
+    const pts = query.data?.points ?? [];
+    if (!pts.length || !ready) return pts;
+    // Đính kèm giá hiện tại vào cuối để khớp với phần "1 X = Y" đang hiển thị bên trên.
+    const last = pts[pts.length - 1];
+    if (Math.abs(last.v - ratio) / ratio < 0.0005) return pts;
+    return [...pts, { t: Date.now(), v: ratio }];
+  }, [query.data, ready, ratio]);
 
   const stats = useMemo(() => {
     if (!data.length) return null;
@@ -86,7 +69,8 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
 
-  const dp = ratio === 0 ? 4 : ratio >= 1000 ? 0 : ratio >= 1 ? 4 : 8;
+  const refVal = stats?.last ?? ratio;
+  const dp = refVal === 0 ? 4 : refVal >= 1000 ? 0 : refVal >= 1 ? 4 : 8;
   const fmtVal = (v: number) => fmtNum(v, dp);
 
   if (!ready) {
@@ -98,6 +82,9 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   }
 
   const rangeLabel = range === "1" ? "24h" : range === "7" ? "7 ngày" : "30 ngày";
+  const source = query.data?.source;
+  const isLoading = query.isLoading || query.isFetching;
+  const hasError = !!query.error || (query.data && !query.data.points?.length);
 
   return (
     <div className="rounded-xl border bg-card/40">
@@ -106,7 +93,10 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           <LCIcon className="h-4 w-4 text-primary" />
           <div>
             <div className="text-sm font-semibold">Biến động {from!.code}/{to!.code}</div>
-            <div className="text-[11px] text-muted-foreground">Xu hướng tỷ giá {rangeLabel} (mô phỏng quanh giá hiện tại)</div>
+            <div className="text-[11px] text-muted-foreground">
+              Xu hướng tỷ giá {rangeLabel}
+              {source ? <> — Nguồn: {source}</> : null}
+            </div>
           </div>
         </div>
         <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
@@ -133,7 +123,17 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           </div>
         </div>
       )}
-      <div className="h-48 w-full px-2 pb-2 pt-2">
+      <div className="h-48 w-full px-2 pb-2 pt-2 relative">
+        {isLoading && !data.length && (
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" /> Đang tải dữ liệu lịch sử…
+          </div>
+        )}
+        {!isLoading && hasError && !data.length && (
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground text-center px-4">
+            Không có dữ liệu lịch sử cho cặp này ở khung {rangeLabel}.
+          </div>
+        )}
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <defs>

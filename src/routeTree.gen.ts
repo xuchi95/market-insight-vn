@@ -24,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
+import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
@@ -105,6 +106,11 @@ const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   path: '/api/public/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
+  id: '/api/public/pair-history',
+  path: '/api/public/pair-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
   id: '/api/public/gold',
   path: '/api/public/gold',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/pair-history'
     | '/api/public/stocks'
     | '/api/public/xau'
   fileRoutesByTo: FileRoutesByTo
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/pair-history'
     | '/api/public/stocks'
     | '/api/public/xau'
   id:
@@ -263,6 +274,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/pair-history'
     | '/api/public/stocks'
     | '/api/public/xau'
   fileRoutesById: FileRoutesById
@@ -286,6 +298,7 @@ export interface RootRouteChildren {
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
+  ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
 }
@@ -397,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStocksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/pair-history': {
+      id: '/api/public/pair-history'
+      path: '/api/public/pair-history'
+      fullPath: '/api/public/pair-history'
+      preLoaderRoute: typeof ApiPublicPairHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/gold': {
       id: '/api/public/gold'
       path: '/api/public/gold'
@@ -454,6 +474,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
+  ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
 }
