@@ -47,8 +47,19 @@ const ASSETS: { value: Asset; label: string }[] = [
   { value: "usd-vnd", label: "USD/VND" },
 ];
 
-export function PriceChart() {
-  const [asset, setAsset] = useState<Asset>("btc");
+export function PriceChart({
+  defaultAsset = "btc",
+  assets,
+}: {
+  defaultAsset?: Asset;
+  assets?: Asset[];
+} = {}) {
+  const available = useMemo(
+    () => (assets && assets.length ? ASSETS.filter((a) => assets.includes(a.value)) : ASSETS),
+    [assets]
+  );
+  const initial = available.some((a) => a.value === defaultAsset) ? defaultAsset : available[0].value;
+  const [asset, setAsset] = useState<Asset>(initial);
   const [range, setRange] = useState<Range>("7");
 
   const { data, isLoading, dataUpdatedAt } = useQuery({
@@ -83,10 +94,10 @@ export function PriceChart() {
       meta={<><LiveDot /> Cập nhật mỗi phút</>}
       action={
         <>
-          <Select value={asset} onValueChange={(v) => setAsset(v as Asset)}>
+          <Select value={asset} onValueChange={(v) => setAsset(v as Asset)} disabled={available.length <= 1}>
             <SelectTrigger className="h-9 w-[180px]"><SelectValue /></SelectTrigger>
             <SelectContent>
-              {ASSETS.map((a) => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
+              {available.map((a) => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
             </SelectContent>
           </Select>
           <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
