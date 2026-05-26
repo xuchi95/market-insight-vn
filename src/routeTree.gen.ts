@@ -19,6 +19,7 @@ import { Route as CryptoRouteImport } from './routes/crypto'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
+import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
@@ -74,6 +75,11 @@ const AssetSymbolRoute = AssetSymbolRouteImport.update({
   path: '/asset/$symbol',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
+  id: '/api/public/stocks',
+  path: '/api/public/stocks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
   id: '/api/public/gold',
   path: '/api/public/gold',
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/stocks': typeof ApiPublicStocksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/stocks': typeof ApiPublicStocksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/stocks': typeof ApiPublicStocksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/stocks'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/stocks'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/stocks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
+  ApiPublicStocksRoute: typeof ApiPublicStocksRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -284,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssetSymbolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/stocks': {
+      id: '/api/public/stocks'
+      path: '/api/public/stocks'
+      fullPath: '/api/public/stocks'
+      preLoaderRoute: typeof ApiPublicStocksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/gold': {
       id: '/api/public/gold'
       path: '/api/public/gold'
@@ -330,7 +350,18 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
+  ApiPublicStocksRoute: ApiPublicStocksRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
