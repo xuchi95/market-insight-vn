@@ -93,6 +93,17 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     return { first, last, min, max, change: ((last - first) / first) * 100 };
   }, [visibleData]);
 
+  const dragInfo = useMemo(() => {
+    if (dragLeft == null || dragRight == null || !visibleData.length) return null;
+    let leftBest = visibleData[0];
+    let rightBest = visibleData[0];
+    for (const p of visibleData) {
+      if (Math.abs(p.t - dragLeft) < Math.abs(leftBest.t - dragLeft)) leftBest = p;
+      if (Math.abs(p.t - dragRight) < Math.abs(rightBest.t - dragRight)) rightBest = p;
+    }
+    return { left: leftBest, right: rightBest };
+  }, [dragLeft, dragRight, visibleData]);
+
   const commitZoom = () => {
     const l = dragLeftRef.current;
     const r = dragRightRef.current;
@@ -257,6 +268,18 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
         {!isLoading && hasError && !data.length && (
           <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground text-center px-4">
             Không có dữ liệu lịch sử cho cặp này ở khung {rangeLabel}.
+          </div>
+        )}
+        {dragInfo && (
+          <div className="absolute top-2 left-0 right-0 flex justify-between px-10 pointer-events-none z-10">
+            <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-1 text-[11px] shadow-sm">
+              <div className="text-muted-foreground">{new Date(dragInfo.left.t).toLocaleString("vi-VN")}</div>
+              <div className="font-semibold tabular">{fmtVal(dragInfo.left.v)} {to!.code}</div>
+            </div>
+            <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-1 text-[11px] shadow-sm">
+              <div className="text-muted-foreground">{new Date(dragInfo.right.t).toLocaleString("vi-VN")}</div>
+              <div className="font-semibold tabular">{fmtVal(dragInfo.right.v)} {to!.code}</div>
+            </div>
           </div>
         )}
         <ResponsiveContainer width="100%" height="100%">
