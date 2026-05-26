@@ -1,19 +1,18 @@
 import { useMemo, useState } from "react";
-import { Coins, RefreshCw } from "lucide-react";
+import { Coins } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum, fmtTime } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
-import { SectionCard, LiveDot } from "./SectionCard";
-import { Button } from "@/components/ui/button";
+import { SectionCard } from "./SectionCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function GoldPriceTable({ search }: { search?: string }) {
-  const { data, isLoading, refetch, isFetching, dataUpdatedAt } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["gold"],
     queryFn: fetchGoldPrices,
-    refetchInterval: 5000,
+    refetchInterval: 15 * 60 * 1000,
   });
   const [brand, setBrand] = useState("all");
 
@@ -39,19 +38,13 @@ export function GoldPriceTable({ search }: { search?: string }) {
       icon={<Coins className="h-4 w-4" />}
       title="Bảng giá vàng"
       description="Giá vàng trong nước và quốc tế — đơn vị VND/chỉ (XAU/USD theo ounce)"
-      meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
       action={
-        <>
-          <Select value={brand} onValueChange={setBrand}>
+        <Select value={brand} onValueChange={setBrand}>
             <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder="Thương hiệu" /></SelectTrigger>
             <SelectContent>
               {brands.map((b) => <SelectItem key={b} value={b}>{b === "all" ? "Tất cả thương hiệu" : b}</SelectItem>)}
             </SelectContent>
-          </Select>
-          <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching} aria-label="Làm mới">
-            <RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} />
-          </Button>
-        </>
+        </Select>
       }
     >
       <div className="overflow-x-auto">
