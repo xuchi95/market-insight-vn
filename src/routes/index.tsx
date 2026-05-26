@@ -31,7 +31,7 @@ function Index() {
 
   const gold = useQuery({ queryKey: ["gold"], queryFn: fetchGoldPrices, refetchInterval: 5000 });
   const crypto = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), refetchInterval: 15000 });
-  const forex = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, refetchInterval: 10000 });
+  const forex = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, refetchInterval: 10 * 60 * 1000 });
 
   const sjc = gold.data?.find((g) => g.id === "sjc-1l");
   const btc = crypto.data?.find((c) => c.symbol === "BTC");
