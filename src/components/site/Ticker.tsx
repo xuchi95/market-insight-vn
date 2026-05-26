@@ -3,6 +3,18 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 
+async function fetchXau(): Promise<{ price: number; changePct: number } | null> {
+  try {
+    const res = await fetch("/api/public/xau", { headers: { accept: "application/json" } });
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (typeof j?.price !== "number") return null;
+    return { price: j.price, changePct: Number(j.changePct) || 0 };
+  } catch {
+    return null;
+  }
+}
+
 interface Tick {
   label: string;
   value: string;
@@ -19,14 +31,14 @@ export function Ticker() {
   useEffect(() => {
     let alive = true;
     async function load() {
-      const [gold, crypto, fx] = await Promise.all([
+      const [gold, crypto, fx, xau] = await Promise.all([
         fetchGoldPrices().catch(() => []),
         fetchCryptoPrices().catch(() => []),
         fetchForexRates().catch(() => []),
+        fetchXau(),
       ]);
       if (!alive) return;
       const sjc = gold.find((g) => g.id === "sjc-1l") ?? gold[0];
-      const xau = gold.find((g) => g.id === "xauusd");
       const btc = crypto.find((c) => c.symbol === "BTC");
       const eth = crypto.find((c) => c.symbol === "ETH");
       const usd = fx.find((r) => r.code === "USD");
@@ -35,7 +47,7 @@ export function Ticker() {
       const cny = fx.find((r) => r.code === "CNY");
       const list: Tick[] = [];
       if (sjc) list.push({ label: "SJC", value: `${fmt(sjc.sell / 1000)}K`, changePct: sjc.changePct });
-      if (xau) list.push({ label: "XAU/USD", value: `$${fmt(xau.sell, 0)}`, changePct: xau.changePct });
+      if (xau) list.push({ label: "XAU/USD", value: `$${fmt(xau.price, 0)}`, changePct: xau.changePct });
       if (btc) list.push({ label: "BTC", value: `$${fmt(btc.priceUsd, 0)}`, changePct: btc.change24h });
       if (eth) list.push({ label: "ETH", value: `$${fmt(eth.priceUsd, 0)}`, changePct: eth.change24h });
       if (usd) list.push({ label: "USD/VND", value: fmt(usd.mid), changePct: usd.changePct });
