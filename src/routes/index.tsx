@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
-import { NewsSection } from "@/components/site/NewsSection";
 import { Footer } from "@/components/site/Footer";
 import { Ticker } from "@/components/site/Ticker";
 import { BentoTiles } from "@/components/site/BentoTiles";
@@ -60,15 +59,6 @@ function Index() {
             <BentoTiles />
           </section>
 
-          {/* News — editorial */}
-          <section className="py-8 md:py-12 border-t border-border">
-            <div className="flex items-baseline justify-between mb-6">
-              <h2 className="font-display text-2xl md:text-3xl">Tin thị trường</h2>
-              <div className="hairline flex-1 mx-6 hidden md:block" />
-              <div className="eyebrow opacity-60">Mới nhất</div>
-            </div>
-            <NewsSection />
-          </section>
         </div>
       </main>
       <Footer />
