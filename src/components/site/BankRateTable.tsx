@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Landmark } from "lucide-react";
+import { Landmark, Loader2 } from "lucide-react";
 import { fetchBankRates } from "@/lib/services/bankRateService";
 import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { SectionCard } from "./SectionCard";
