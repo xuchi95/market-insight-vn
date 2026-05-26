@@ -230,6 +230,9 @@ export function ConverterTool() {
         Kết quả tính theo giá <strong>bán của bạn</strong> (thị trường mua vào) và <strong>mua của bạn</strong> (thị trường bán ra),
         phản ánh lãi/lỗ do chênh lệch mua–bán. Chỉ mang tính tham khảo, không bao gồm phí giao dịch.
       </div>
+      <div className="px-4 lg:px-6 pb-6">
+        <ConverterPairChart from={chartFrom} to={chartTo} />
+      </div>
     </SectionCard>
   );
 }
