@@ -277,6 +277,21 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
             onMouseLeave={() => {
               if (isDragging) commitZoom();
             }}
+            onDoubleClick={(e: any) => {
+              if (e?.activeLabel == null || !visibleData.length) return;
+              const center = Number(e.activeLabel);
+              const fullSpan = visibleData[visibleData.length - 1].t - visibleData[0].t;
+              const zoomSpan = Math.max(fullSpan * 0.3, 3600_000); // 30% domain or 1 hour
+              const lo = Math.max(center - zoomSpan / 2, visibleData[0].t);
+              const hi = Math.min(center + zoomSpan / 2, visibleData[visibleData.length - 1].t);
+              const inside = visibleData.filter((p) => p.t >= lo && p.t <= hi);
+              if (inside.length >= 2) {
+                setZoom({ from: lo, to: hi });
+              }
+              setIsDragging(false);
+              setDragLeft(null);
+              setDragRight(null);
+            }}
             style={{ cursor: isDragging ? "ew-resize" : "crosshair" }}
           >
             <defs>
