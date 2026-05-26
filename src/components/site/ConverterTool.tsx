@@ -9,6 +9,7 @@ import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type AssetKind = "crypto" | "forex" | "gold";
 interface AssetOpt {
