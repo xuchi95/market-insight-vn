@@ -53,17 +53,21 @@ async function fetchUsdVnd(): Promise<number> {
 }
 
 function ccHeaders() {
+  return { accept: "application/json" } as Record<string, string>;
+}
+
+function withKey(u: URL | string): string {
   const key = process.env.COINCAP_API_KEY;
-  const h: Record<string, string> = { accept: "application/json" };
-  if (key) h.Authorization = `Bearer ${key}`;
-  return h;
+  const url = typeof u === "string" ? new URL(u) : u;
+  if (key) url.searchParams.set("apiKey", key);
+  return url.toString();
 }
 
 async function fetchSparkline(id: string, priceUsd: number): Promise<number[]> {
   try {
     const end = Date.now();
     const start = end - 7 * 24 * 60 * 60 * 1000;
-    const u = `https://rest.coincap.io/v3/assets/${id}/history?interval=h6&start=${start}&end=${end}`;
+    const u = withKey(`https://rest.coincap.io/v3/assets/${id}/history?interval=h6&start=${start}&end=${end}`);
     const r = await fetch(u, { headers: ccHeaders() });
     if (!r.ok) throw new Error(String(r.status));
     const j: any = await r.json();
@@ -80,7 +84,7 @@ async function buildPayload() {
   url.searchParams.set("ids", COIN_IDS.join(","));
 
   const [res, usdVnd] = await Promise.all([
-    fetch(url.toString(), { headers: ccHeaders() }),
+    fetch(withKey(url), { headers: ccHeaders() }),
     fetchUsdVnd(),
   ]);
   if (!res.ok) throw new Error(`crypto upstream ${res.status}`);
