@@ -1,6 +1,6 @@
 import type { GoldPrice } from "./types";
 
-// Supplemental rows: world XAU/USD and brands not covered by the BTMC feed.
+// Supplemental rows: world XAU/USD and brands not covered by the live gold feed.
 // These are jitter-simulated until a dedicated source is wired in.
 const SUPPLEMENTAL: Omit<GoldPrice, "changePct" | "updatedAt">[] = [
   { id: "mihong-9999", brand: "Mi Hồng", type: "Vàng miếng 9999", buy: 15_780_000, sell: 16_080_000, unit: "VND/lượng" },
@@ -29,7 +29,7 @@ function supplementalRows(now: number): GoldPrice[] {
 }
 
 // Full fallback (used when API endpoint fails completely)
-const FALLBACK_BTMC: GoldPrice[] = [
+const FALLBACK_LIVE: GoldPrice[] = [
   { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L", buy: 15_850_000, sell: 16_150_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
   { id: "btmc-vrtl", brand: "Bảo Tín Minh Châu", type: "Vàng miếng Rồng Thăng Long", buy: 15_850_000, sell: 16_150_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
   { id: "btmc-nhan", brand: "Bảo Tín Minh Châu", type: "Nhẫn tròn trơn 9999", buy: 15_850_000, sell: 16_150_000, unit: "VND/lượng", changePct: 0, updatedAt: Date.now() },
@@ -51,6 +51,6 @@ export async function fetchGoldPrices(): Promise<GoldPrice[]> {
     if (live.length === 0) throw new Error("empty");
     return [...live, ...supplementalRows(now)];
   } catch {
-    return [...FALLBACK_BTMC, ...supplementalRows(now)];
+    return [...FALLBACK_LIVE, ...supplementalRows(now)];
   }
 }
