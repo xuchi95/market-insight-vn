@@ -1,31 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+// CoinCap v3 asset IDs
 const COIN_IDS = [
   "bitcoin",
   "ethereum",
   "tether",
-  "binancecoin",
+  "binance-coin",
   "solana",
-  "ripple",
+  "xrp",
   "dogecoin",
-  "the-open-network",
+  "toncoin",
   "cardano",
-  "avalanche-2",
+  "avalanche",
 ] as const;
 
-const CACHE_MS = 30 * 1000; // 30s (CoinGecko free tier friendly)
+const CACHE_MS = 30 * 1000;
 let cache: { at: number; payload: any } | null = null;
 
-interface CGMarket {
+interface CCAsset {
   id?: string;
   symbol?: string;
   name?: string;
-  image?: string;
-  current_price?: number | null;
-  market_cap?: number | null;
-  total_volume?: number | null;
-  price_change_percentage_24h?: number | null;
-  sparkline_in_7d?: { price?: number[] } | null;
+  priceUsd?: string | null;
+  marketCapUsd?: string | null;
+  volumeUsd24Hr?: string | null;
+  changePercent24Hr?: string | null;
 }
 
 const FALLBACK_USD_VND = 25_400;
@@ -53,42 +52,69 @@ async function fetchUsdVnd(): Promise<number> {
   return FALLBACK_USD_VND;
 }
 
+function ccHeaders() {
+  return { accept: "application/json" } as Record<string, string>;
+}
+
+function withKey(u: URL | string): string {
+  const key = process.env.COINCAP_API_KEY;
+  const url = typeof u === "string" ? new URL(u) : u;
+  if (key) url.searchParams.set("apiKey", key);
+  return url.toString();
+}
+
+async function fetchSparkline(id: string, priceUsd: number): Promise<number[]> {
+  try {
+    const end = Date.now();
+    const start = end - 7 * 24 * 60 * 60 * 1000;
+    const u = withKey(`https://rest.coincap.io/v3/assets/${id}/history?interval=h6&start=${start}&end=${end}`);
+    const r = await fetch(u, { headers: ccHeaders() });
+    if (!r.ok) throw new Error(String(r.status));
+    const j: any = await r.json();
+    const pts: number[] = Array.isArray(j?.data)
+      ? j.data.map((p: any) => Number(p?.priceUsd)).filter((n: number) => Number.isFinite(n))
+      : [];
+    if (pts.length > 0) return pts;
+  } catch { /* ignore */ }
+  return buildSparkline(undefined, priceUsd);
+}
+
 async function buildPayload() {
-  const url = new URL("https://api.coingecko.com/api/v3/coins/markets");
-  url.searchParams.set("vs_currency", "usd");
+  const url = new URL("https://rest.coincap.io/v3/assets");
   url.searchParams.set("ids", COIN_IDS.join(","));
-  url.searchParams.set("order", "market_cap_desc");
-  url.searchParams.set("sparkline", "true");
-  url.searchParams.set("price_change_percentage", "24h");
 
   const [res, usdVnd] = await Promise.all([
-    fetch(url.toString(), { headers: { accept: "application/json" } }),
+    fetch(withKey(url), { headers: ccHeaders() }),
     fetchUsdVnd(),
   ]);
   if (!res.ok) throw new Error(`crypto upstream ${res.status}`);
-  const raw = await res.json();
-  const data: CGMarket[] = Array.isArray(raw) ? raw : [];
+  const raw: any = await res.json();
+  const data: CCAsset[] = Array.isArray(raw?.data) ? raw.data : [];
 
-  const coins = data
-    .filter((m) => m && (m.id || m.symbol))
-    .map((m) => {
-      const id = String(m.id ?? m.symbol ?? "").toLowerCase();
-      const symbol = String(m.symbol ?? id).toUpperCase();
-      const name = String(m.name ?? symbol);
-      const priceUsd = toNum(m.current_price, 0);
-      return {
-        id,
-        symbol,
-        name,
-        image: typeof m.image === "string" ? m.image : "",
-        priceUsd,
-        priceVnd: priceUsd * usdVnd,
-        change24h: toNum(m.price_change_percentage_24h, 0),
-        marketCap: toNum(m.market_cap, 0),
-        volume24h: toNum(m.total_volume, 0),
-        sparkline: buildSparkline(m.sparkline_in_7d?.price, priceUsd),
-      };
-    });
+  const ordered = COIN_IDS
+    .map((id) => data.find((m) => m?.id === id))
+    .filter((m): m is CCAsset => !!m);
+
+  const base = ordered.map((m) => {
+    const id = String(m.id ?? m.symbol ?? "").toLowerCase();
+    const symbol = String(m.symbol ?? id).toUpperCase();
+    const name = String(m.name ?? symbol);
+    const priceUsd = toNum(m.priceUsd, 0);
+    return {
+      id,
+      symbol,
+      name,
+      image: `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`,
+      priceUsd,
+      priceVnd: priceUsd * usdVnd,
+      change24h: toNum(m.changePercent24Hr, 0),
+      marketCap: toNum(m.marketCapUsd, 0),
+      volume24h: toNum(m.volumeUsd24Hr, 0),
+    };
+  });
+
+  const sparks = await Promise.all(base.map((c) => fetchSparkline(c.id, c.priceUsd)));
+  const coins = base.map((c, i) => ({ ...c, sparkline: sparks[i] }));
 
   return { updatedAt: Date.now(), usdVnd, coins };
 }
