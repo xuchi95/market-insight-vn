@@ -4,6 +4,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { CryptoPriceTable } from "@/components/site/CryptoPriceTable";
 import { PriceChart } from "@/components/site/PriceChart";
+import { PriceAlerts } from "@/components/site/PriceAlerts";
 
 const SITE = "https://market-insight-vn.lovable.app";
 const URL = `${SITE}/crypto`;
@@ -94,6 +95,7 @@ function CryptoPage() {
             </p>
           </header>
           <CryptoPriceTable search={search} />
+          <PriceAlerts />
           <PriceChart />
 
           <section aria-labelledby="crypto-info" className="prose prose-invert max-w-none space-y-4">
