@@ -51,8 +51,10 @@ export function ConverterTool() {
   const [from, setFrom] = useState("f:USD");
   const [to, setTo] = useState("vnd");
   const [amount, setAmount] = useState("100");
+  const [swapped, setSwapped] = useState(false);
 
   const swap = () => {
+    setSwapped((s) => !s);
     setFrom(to);
     setTo(from);
   };
