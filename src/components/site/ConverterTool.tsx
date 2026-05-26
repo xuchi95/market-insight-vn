@@ -9,6 +9,7 @@ import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type AssetKind = "crypto" | "forex" | "gold";
 interface AssetOpt {
@@ -50,8 +51,10 @@ export function ConverterTool() {
   const [from, setFrom] = useState("f:USD");
   const [to, setTo] = useState("vnd");
   const [amount, setAmount] = useState("100");
+  const [swapped, setSwapped] = useState(false);
 
   const swap = () => {
+    setSwapped((s) => !s);
     setFrom(to);
     setTo(from);
   };
@@ -112,8 +115,11 @@ export function ConverterTool() {
           variant="outline"
           size="icon"
           onClick={swap}
-          className="h-12 w-12 rounded-full mx-auto"
-          aria-label="Đảo cặp tiền"
+          className={cn(
+            "h-12 w-12 rounded-full mx-auto transition-transform duration-300 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/30",
+            swapped && "rotate-180"
+          )}
+          aria-label="Đảo chiều Từ ↔ Sang"
         >
           <ArrowRightLeft className="h-5 w-5" />
         </Button>
