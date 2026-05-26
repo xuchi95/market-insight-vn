@@ -6,22 +6,14 @@ export interface BankRateResponse {
   source: string;
 }
 
-const FALLBACK: BankRateResponse = {
-  items: [],
-  updatedAt: Date.now(),
-  source: "Vietcombank",
-};
-
 export async function fetchBankRates(): Promise<BankRateResponse> {
-  try {
-    const res = await fetch("/api/public/bank-rates", { headers: { accept: "application/json" } });
-    if (!res.ok) throw new Error(String(res.status));
-    const j = await res.json();
-    if (Array.isArray(j?.items)) {
-      return { items: j.items as BankRate[], updatedAt: j.updatedAt ?? Date.now(), source: j.source ?? "Vietcombank" };
-    }
-  } catch {
-    /* fallback */
-  }
-  return FALLBACK;
+  const res = await fetch("/api/public/bank-rates", { headers: { accept: "application/json" } });
+  if (!res.ok) throw new Error(`Lỗi tải tỷ giá (HTTP ${res.status})`);
+  const j = await res.json();
+  if (!Array.isArray(j?.items)) throw new Error("Phản hồi không hợp lệ");
+  return {
+    items: j.items as BankRate[],
+    updatedAt: j.updatedAt ?? Date.now(),
+    source: j.source ?? "Vietcombank",
+  };
 }
