@@ -325,7 +325,7 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
         </ResponsiveContainer>
       </div>
       <div className="px-4 pb-3 text-[11px] text-muted-foreground">
-        Mẹo: kéo chuột hoặc chạm-kéo ngón tay ngang biểu đồ để phóng to một khoảng — bấm <em>Bỏ zoom</em> để xem toàn bộ.
+        Mẹo: kéo chuột/chạm-kéo để phóng to — <strong>nhấn đúp</strong> để zoom nhanh quanh điểm chọn — bấm <em>Bỏ zoom</em> để xem toàn bộ.
       </div>
     </div>
   );
