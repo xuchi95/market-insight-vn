@@ -41,3 +41,25 @@ export interface NewsItem {
   url: string;
   excerpt: string;
 }
+
+export interface StockIndex {
+  code: string;          // VNINDEX, VN30, HNX, HNX30, UPCOM
+  name: string;          // Display name
+  exchange: string;      // HOSE, HNX, UPCOM
+  value: number;         // Latest close
+  change: number;        // Absolute change vs prev close
+  changePct: number;     // % change vs prev close
+  high: number;
+  low: number;
+  volume: number;        // Last session volume (shares)
+  updatedAt: number;
+}
+
+export interface BankRate {
+  code: string;          // Currency code (USD, EUR, ...)
+  name: string;          // Currency display name
+  cash: number;          // Mua tiền mặt
+  transfer: number;      // Mua chuyển khoản
+  sell: number;          // Bán
+  updatedAt: number;
+}
