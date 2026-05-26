@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as ForexRouteImport } from './routes/forex'
+import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as CryptoRouteImport } from './routes/crypto'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
@@ -33,6 +34,11 @@ const GoldRoute = GoldRouteImport.update({
 const ForexRoute = ForexRouteImport.update({
   id: '/forex',
   path: '/forex',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimerRoute = DisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CryptoRoute = CryptoRouteImport.update({
@@ -74,6 +80,7 @@ const ApiPublicCryptoRoute = ApiPublicCryptoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/crypto': typeof CryptoRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/crypto': typeof CryptoRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/crypto': typeof CryptoRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/crypto'
+    | '/disclaimer'
     | '/forex'
     | '/gold'
     | '/sitemap.xml'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/crypto'
+    | '/disclaimer'
     | '/forex'
     | '/gold'
     | '/sitemap.xml'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/crypto'
+    | '/disclaimer'
     | '/forex'
     | '/gold'
     | '/sitemap.xml'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CryptoRoute: typeof CryptoRoute
+  DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
   GoldRoute: typeof GoldRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/forex'
       fullPath: '/forex'
       preLoaderRoute: typeof ForexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimer': {
+      id: '/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/disclaimer'
+      preLoaderRoute: typeof DisclaimerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crypto': {
@@ -238,6 +258,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CryptoRoute: CryptoRoute,
+  DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
   GoldRoute: GoldRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
