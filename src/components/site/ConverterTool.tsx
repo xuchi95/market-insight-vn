@@ -10,6 +10,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ConverterPairChart, type PairChartAsset } from "./ConverterPairChart";
 
 type AssetKind = "crypto" | "forex" | "gold";
 interface AssetOpt {
