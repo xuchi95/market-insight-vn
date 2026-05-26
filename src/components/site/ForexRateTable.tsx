@@ -12,7 +12,7 @@ export function ForexRateTable({ search }: { search?: string }) {
   const { data, isLoading, refetch, isFetching, dataUpdatedAt } = useQuery({
     queryKey: ["forex"],
     queryFn: fetchForexRates,
-    refetchInterval: 10000,
+    refetchInterval: 10 * 60 * 1000,
   });
   const rows = useMemo(() => {
     let r = data ?? [];
@@ -28,7 +28,7 @@ export function ForexRateTable({ search }: { search?: string }) {
       id="forex"
       icon={<DollarSign className="h-4 w-4" />}
       title="Tỷ giá ngoại tệ"
-      description="Quy đổi 1 đơn vị ngoại tệ sang VND • cập nhật mỗi 10s"
+      description="Quy đổi 1 đơn vị ngoại tệ sang VND • cập nhật mỗi 10 phút"
       meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
