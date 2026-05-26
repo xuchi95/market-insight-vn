@@ -14,7 +14,7 @@ interface AssetOpt { key: string; label: string; kind: AssetKind; rateVnd: numbe
 
 export function ConverterTool() {
   const crypto = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), refetchInterval: 15000 });
-  const forex = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, refetchInterval: 10000 });
+  const forex = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, refetchInterval: 10 * 60 * 1000 });
   const gold = useQuery({ queryKey: ["gold"], queryFn: fetchGoldPrices, refetchInterval: 5000 });
 
   const assets: AssetOpt[] = useMemo(() => {
