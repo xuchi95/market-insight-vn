@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { LineChart } from "lucide-react";
+import { LineChart, Loader2 } from "lucide-react";
 import { fetchStockIndices } from "@/lib/services/stockIndexService";
-import { fmtNum } from "@/lib/format";
+import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
