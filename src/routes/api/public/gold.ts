@@ -27,7 +27,7 @@ function parseVnDate(s: string): number {
   return new Date(`${y}-${mo}-${d}T${h}:${mi}:00+07:00`).getTime();
 }
 
-function mapBtmc(items: BtmcRow[]): MappedItem[] {
+function mapLiveRows(items: BtmcRow[]): MappedItem[] {
   const seen = new Set<string>();
   const latest: Record<string, MappedItem> = {};
 
@@ -141,7 +141,7 @@ export const Route = createFileRoute("/api/public/gold")({
           if (cache && now - cache.at < CACHE_TTL_MS) {
             items = cache.data as MappedItem[];
           } else {
-            items = await fetchBtmc();
+            items = await fetchLiveGold();
             cache = { at: now, data: items };
           }
 
