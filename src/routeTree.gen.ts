@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as CryptoRouteImport } from './routes/crypto'
@@ -16,6 +17,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GoldRoute = GoldRouteImport.update({
   id: '/gold',
   path: '/gold',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/crypto': typeof CryptoRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/crypto': typeof CryptoRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/crypto': typeof CryptoRoute
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/crypto'
     | '/forex'
     | '/gold'
+    | '/sitemap.xml'
     | '/asset/$symbol'
     | '/api/public/gold'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/crypto'
     | '/forex'
     | '/gold'
+    | '/sitemap.xml'
     | '/asset/$symbol'
     | '/api/public/gold'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/crypto'
     | '/forex'
     | '/gold'
+    | '/sitemap.xml'
     | '/asset/$symbol'
     | '/api/public/gold'
   fileRoutesById: FileRoutesById
@@ -104,12 +116,20 @@ export interface RootRouteChildren {
   CryptoRoute: typeof CryptoRoute
   ForexRoute: typeof ForexRoute
   GoldRoute: typeof GoldRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gold': {
       id: '/gold'
       path: '/gold'
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   CryptoRoute: CryptoRoute,
   ForexRoute: ForexRoute,
   GoldRoute: GoldRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
 }
