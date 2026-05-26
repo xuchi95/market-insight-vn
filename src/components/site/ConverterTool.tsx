@@ -85,6 +85,15 @@ export function ConverterTool() {
 
   const codeLabel = (a: AssetOpt) => a.label.split(" — ")[0];
 
+  const fromAsset = assets.find((x) => x.key === from) ?? null;
+  const toAsset = assets.find((x) => x.key === to) ?? null;
+  const chartFrom: PairChartAsset | null = fromAsset
+    ? { key: fromAsset.key, kind: fromAsset.kind, rateVnd: fromAsset.rateVnd, code: codeLabel(fromAsset) }
+    : null;
+  const chartTo: PairChartAsset | null = toAsset
+    ? { key: toAsset.key, kind: toAsset.kind, rateVnd: toAsset.rateVnd, code: codeLabel(toAsset) }
+    : null;
+
   return (
     <SectionCard
       id="converter"
