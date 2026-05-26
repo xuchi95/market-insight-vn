@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { LineChart as LCIcon, Loader2, ZoomOut } from "lucide-react";
@@ -62,12 +62,20 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   const [zoom, setZoom] = useState<{ from: number; to: number } | null>(null);
   const [dragLeft, setDragLeft] = useState<number | null>(null);
   const [dragRight, setDragRight] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const chartWrapRef = useRef<HTMLDivElement | null>(null);
+  const dragLeftRef = useRef<number | null>(null);
+  const dragRightRef = useRef<number | null>(null);
+
+  useEffect(() => { dragLeftRef.current = dragLeft; }, [dragLeft]);
+  useEffect(() => { dragRightRef.current = dragRight; }, [dragRight]);
 
   // Reset zoom khi đổi cặp tiền hoặc khung thời gian.
   useEffect(() => {
     setZoom(null);
     setDragLeft(null);
     setDragRight(null);
+    setIsDragging(false);
   }, [pairKey, range]);
 
   const visibleData = useMemo(() => {
@@ -86,12 +94,15 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   }, [visibleData]);
 
   const commitZoom = () => {
-    if (dragLeft == null || dragRight == null || dragLeft === dragRight) {
+    const l = dragLeftRef.current;
+    const r = dragRightRef.current;
+    setIsDragging(false);
+    if (l == null || r == null || l === r) {
       setDragLeft(null);
       setDragRight(null);
       return;
     }
-    const [lo, hi] = dragLeft < dragRight ? [dragLeft, dragRight] : [dragRight, dragLeft];
+    const [lo, hi] = l < r ? [l, r] : [r, l];
     // Chỉ zoom nếu khoảng chọn có ít nhất 2 điểm dữ liệu.
     const inside = data.filter((p) => p.t >= lo && p.t <= hi);
     if (inside.length >= 2) {
@@ -100,6 +111,60 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     setDragLeft(null);
     setDragRight(null);
   };
+
+  // ----- Touch support -----
+  // Map a touch X position to a timestamp using the current visible domain.
+  const touchToTime = (clientX: number): number | null => {
+    const el = chartWrapRef.current;
+    if (!el || !visibleData.length) return null;
+    const rect = el.getBoundingClientRect();
+    // Account for chart left padding (px-2 = 8px) and Y-axis width (~64px).
+    const padLeft = 8 + 64;
+    const padRight = 8 + 8;
+    const usable = Math.max(1, rect.width - padLeft - padRight);
+    const x = Math.min(Math.max(clientX - rect.left - padLeft, 0), usable);
+    const ratio = x / usable;
+    const tMin = visibleData[0].t;
+    const tMax = visibleData[visibleData.length - 1].t;
+    return tMin + (tMax - tMin) * ratio;
+  };
+
+  useEffect(() => {
+    const el = chartWrapRef.current;
+    if (!el) return;
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      const t = touchToTime(e.touches[0].clientX);
+      if (t == null) return;
+      e.preventDefault();
+      setIsDragging(true);
+      setDragLeft(t);
+      setDragRight(t);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const t = touchToTime(e.touches[0].clientX);
+      if (t == null) return;
+      e.preventDefault();
+      setDragRight(t);
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      commitZoom();
+    };
+    el.addEventListener("touchstart", onTouchStart, { passive: false });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd, { passive: false });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDragging, visibleData]);
 
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
@@ -180,7 +245,10 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           </div>
         </div>
       )}
-      <div className="h-48 w-full px-2 pb-2 pt-2 relative select-none">
+      <div
+        ref={chartWrapRef}
+        className="h-56 sm:h-48 w-full px-2 pb-2 pt-2 relative select-none touch-none"
+      >
         {isLoading && !data.length && (
           <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground gap-2">
             <Loader2 className="h-4 w-4 animate-spin" /> Đang tải dữ liệu lịch sử…
@@ -196,17 +264,20 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
             data={visibleData}
             margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
             onMouseDown={(e: any) => {
-              if (e?.activeLabel != null) setDragLeft(Number(e.activeLabel));
-              setDragRight(null);
+              if (e?.activeLabel != null) {
+                setIsDragging(true);
+                setDragLeft(Number(e.activeLabel));
+                setDragRight(Number(e.activeLabel));
+              }
             }}
             onMouseMove={(e: any) => {
-              if (dragLeft != null && e?.activeLabel != null) setDragRight(Number(e.activeLabel));
+              if (isDragging && e?.activeLabel != null) setDragRight(Number(e.activeLabel));
             }}
             onMouseUp={commitZoom}
             onMouseLeave={() => {
-              if (dragLeft != null) commitZoom();
+              if (isDragging) commitZoom();
             }}
-            style={{ cursor: dragLeft != null ? "ew-resize" : "crosshair" }}
+            style={{ cursor: isDragging ? "ew-resize" : "crosshair" }}
           >
             <defs>
               <linearGradient id={`pairFill-${pairKey}`} x1="0" y1="0" x2="0" y2="1">
@@ -247,14 +318,14 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
               formatter={(v: number) => [`${fmtVal(v)} ${to!.code}`, `1 ${from!.code}`]}
             />
             <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill={`url(#pairFill-${pairKey})`} />
-            {dragLeft != null && dragRight != null && (
-              <ReferenceArea x1={dragLeft} x2={dragRight} strokeOpacity={0.3} fill="var(--primary)" fillOpacity={0.15} />
+            {dragLeft != null && dragRight != null && Math.abs(dragRight - dragLeft) > 0 && (
+              <ReferenceArea x1={dragLeft} x2={dragRight} stroke="var(--primary)" strokeOpacity={0.5} fill="var(--primary)" fillOpacity={0.18} />
             )}
           </AreaChart>
         </ResponsiveContainer>
       </div>
       <div className="px-4 pb-3 text-[11px] text-muted-foreground">
-        Mẹo: kéo chuột (hoặc chạm và kéo) trên biểu đồ để phóng to một khoảng — bấm <em>Bỏ zoom</em> để xem toàn bộ.
+        Mẹo: kéo chuột hoặc chạm-kéo ngón tay ngang biểu đồ để phóng to một khoảng — bấm <em>Bỏ zoom</em> để xem toàn bộ.
       </div>
     </div>
   );
