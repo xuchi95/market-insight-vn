@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as ForexRouteImport } from './routes/forex'
@@ -21,6 +22,11 @@ import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/forex': typeof ForexRoute
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gold'
     | '/sitemap.xml'
+    | '/terms'
     | '/asset/$symbol'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gold'
     | '/sitemap.xml'
+    | '/terms'
     | '/asset/$symbol'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gold'
     | '/sitemap.xml'
+    | '/terms'
     | '/asset/$symbol'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -166,6 +178,7 @@ export interface RootRouteChildren {
   ForexRoute: typeof ForexRoute
   GoldRoute: typeof GoldRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
@@ -175,6 +188,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -262,6 +282,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForexRoute: ForexRoute,
   GoldRoute: GoldRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
