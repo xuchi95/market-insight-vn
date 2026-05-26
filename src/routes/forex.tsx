@@ -4,6 +4,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ForexRateTable } from "@/components/site/ForexRateTable";
 import { ConverterTool } from "@/components/site/ConverterTool";
+import { PriceChart } from "@/components/site/PriceChart";
 
 const SITE = "https://market-insight-vn.lovable.app";
 const URL = `${SITE}/forex`;
@@ -94,6 +95,10 @@ function ForexPage() {
             </p>
           </header>
           <ForexRateTable search={search} />
+          <PriceChart
+            defaultAsset="usd-vnd"
+            assets={["usd-vnd", "eur-vnd", "cny-vnd", "jpy-vnd", "gbp-vnd", "krw-vnd", "sgd-vnd", "aud-vnd"]}
+          />
           <ConverterTool />
 
           <section aria-labelledby="forex-info" className="prose prose-invert max-w-none space-y-4">

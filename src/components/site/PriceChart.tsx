@@ -7,12 +7,28 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type Asset = "btc" | "eth" | "gold-sjc" | "usd-vnd";
+type Asset = "btc" | "eth" | "gold-sjc" | "usd-vnd" | "eur-vnd" | "gbp-vnd" | "jpy-vnd" | "cny-vnd" | "krw-vnd" | "sgd-vnd" | "aud-vnd" | "cad-vnd" | "chf-vnd" | "hkd-vnd" | "thb-vnd";
 type Range = "1" | "7" | "30";
 
 const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" };
 
 interface Point { t: number; v: number; }
+
+const BASE_VALUES: Record<Exclude<Asset, "btc" | "eth">, number> = {
+  "gold-sjc": 8_400_000,
+  "usd-vnd": 25_400,
+  "eur-vnd": 27_500,
+  "gbp-vnd": 32_200,
+  "jpy-vnd": 168,
+  "cny-vnd": 3_520,
+  "krw-vnd": 18.5,
+  "sgd-vnd": 18_800,
+  "aud-vnd": 16_600,
+  "cad-vnd": 18_400,
+  "chf-vnd": 29_000,
+  "hkd-vnd": 3_260,
+  "thb-vnd": 720,
+};
 
 async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
   if (asset === "btc" || asset === "eth") {
@@ -26,9 +42,9 @@ async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
       }
     } catch {}
   }
-  // Synthesize plausible series for gold/usd or as fallback
+  // Synthesize plausible series for gold/forex or as fallback
   const n = Number(days) * 24;
-  const base = asset === "gold-sjc" ? 8_400_000 : asset === "usd-vnd" ? 25_400 : asset === "eth" ? 3_360 : 96_800;
+  const base = (BASE_VALUES as Record<string, number>)[asset] ?? 25_400;
   const now = Date.now();
   const step = (Number(days) * 24 * 3600 * 1000) / n;
   const out: Point[] = [];
@@ -45,6 +61,17 @@ const ASSETS: { value: Asset; label: string }[] = [
   { value: "eth", label: "Ethereum (ETH)" },
   { value: "gold-sjc", label: "Vàng SJC" },
   { value: "usd-vnd", label: "USD/VND" },
+  { value: "eur-vnd", label: "EUR/VND" },
+  { value: "gbp-vnd", label: "GBP/VND" },
+  { value: "jpy-vnd", label: "JPY/VND" },
+  { value: "cny-vnd", label: "CNY/VND" },
+  { value: "krw-vnd", label: "KRW/VND" },
+  { value: "sgd-vnd", label: "SGD/VND" },
+  { value: "aud-vnd", label: "AUD/VND" },
+  { value: "cad-vnd", label: "CAD/VND" },
+  { value: "chf-vnd", label: "CHF/VND" },
+  { value: "hkd-vnd", label: "HKD/VND" },
+  { value: "thb-vnd", label: "THB/VND" },
 ];
 
 export function PriceChart({
@@ -79,9 +106,10 @@ export function PriceChart({
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
 
+  const isForex = asset.endsWith("-vnd");
   const fmtVal = (v: number) => {
     if (asset === "gold-sjc") return new Intl.NumberFormat("vi-VN", { notation: "compact", maximumFractionDigits: 2 }).format(v);
-    if (asset === "usd-vnd") return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(v);
+    if (isForex) return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0 }).format(v);
     return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(v);
   };
 
