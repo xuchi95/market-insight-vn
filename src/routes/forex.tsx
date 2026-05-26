@@ -95,6 +95,10 @@ function ForexPage() {
             </p>
           </header>
           <ForexRateTable search={search} />
+          <PriceChart
+            defaultAsset="usd-vnd"
+            assets={["usd-vnd", "eur-vnd", "cny-vnd", "jpy-vnd", "gbp-vnd", "krw-vnd", "sgd-vnd", "aud-vnd"]}
+          />
           <ConverterTool />
 
           <section aria-labelledby="forex-info" className="prose prose-invert max-w-none space-y-4">
