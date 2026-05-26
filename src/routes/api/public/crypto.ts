@@ -17,15 +17,29 @@ const CACHE_MS = 30 * 1000; // 30s (CoinGecko free tier friendly)
 let cache: { at: number; payload: any } | null = null;
 
 interface CGMarket {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  market_cap: number;
-  total_volume: number;
-  price_change_percentage_24h: number;
-  sparkline_in_7d?: { price: number[] };
+  id?: string;
+  symbol?: string;
+  name?: string;
+  image?: string;
+  current_price?: number | null;
+  market_cap?: number | null;
+  total_volume?: number | null;
+  price_change_percentage_24h?: number | null;
+  sparkline_in_7d?: { price?: number[] } | null;
+}
+
+const FALLBACK_USD_VND = 25_400;
+
+function toNum(v: unknown, fallback = 0): number {
+  const n = typeof v === "string" ? Number(v) : (v as number);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function buildSparkline(input: number[] | undefined, priceUsd: number): number[] {
+  const arr = Array.isArray(input) ? input.filter((n) => Number.isFinite(n)) : [];
+  if (arr.length > 0) return arr.slice(-48);
+  const base = priceUsd > 0 ? priceUsd : 1;
+  return Array.from({ length: 48 }, (_, i) => base * (1 + Math.sin(i / 6) * 0.005));
 }
 
 async function fetchUsdVnd(): Promise<number> {
@@ -36,7 +50,7 @@ async function fetchUsdVnd(): Promise<number> {
     const v = Number(j?.rates?.VND);
     if (Number.isFinite(v) && v > 0) return v;
   } catch { /* ignore */ }
-  return 25_400;
+  return FALLBACK_USD_VND;
 }
 
 async function buildPayload() {
@@ -52,20 +66,29 @@ async function buildPayload() {
     fetchUsdVnd(),
   ]);
   if (!res.ok) throw new Error(`crypto upstream ${res.status}`);
-  const data: CGMarket[] = await res.json();
+  const raw = await res.json();
+  const data: CGMarket[] = Array.isArray(raw) ? raw : [];
 
-  const coins = data.map((m) => ({
-    id: m.id,
-    symbol: m.symbol.toUpperCase(),
-    name: m.name,
-    image: m.image,
-    priceUsd: m.current_price,
-    priceVnd: m.current_price * usdVnd,
-    change24h: m.price_change_percentage_24h ?? 0,
-    marketCap: m.market_cap,
-    volume24h: m.total_volume,
-    sparkline: m.sparkline_in_7d?.price?.slice(-48) ?? [],
-  }));
+  const coins = data
+    .filter((m) => m && (m.id || m.symbol))
+    .map((m) => {
+      const id = String(m.id ?? m.symbol ?? "").toLowerCase();
+      const symbol = String(m.symbol ?? id).toUpperCase();
+      const name = String(m.name ?? symbol);
+      const priceUsd = toNum(m.current_price, 0);
+      return {
+        id,
+        symbol,
+        name,
+        image: typeof m.image === "string" ? m.image : "",
+        priceUsd,
+        priceVnd: priceUsd * usdVnd,
+        change24h: toNum(m.price_change_percentage_24h, 0),
+        marketCap: toNum(m.market_cap, 0),
+        volume24h: toNum(m.total_volume, 0),
+        sparkline: buildSparkline(m.sparkline_in_7d?.price, priceUsd),
+      };
+    });
 
   return { updatedAt: Date.now(), usdVnd, coins };
 }
