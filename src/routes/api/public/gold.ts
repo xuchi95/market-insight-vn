@@ -2,8 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 
 // In-memory state for change computation between fetches
 const prevMid = new Map<string, number>();
-let cache: { at: number; data: unknown[] } | null = null;
-const CACHE_TTL_MS = 30_000; // live gold API is slow & price moves slowly
+let cache: { at: number; data: MappedItem[] } | null = null;
+let inflight: Promise<MappedItem[]> | null = null;
+const CACHE_FRESH_MS = 60_000; // serve cache without refetch
+const CACHE_SWR_MS = 10 * 60_000; // serve stale, refresh in background
+const UPSTREAM_TIMEOUT_MS = 4_000;
 
 interface BtmcRow {
   [key: string]: string;
@@ -121,14 +124,37 @@ function mapLiveRows(items: BtmcRow[]): MappedItem[] {
 }
 
 async function fetchLiveGold(): Promise<MappedItem[]> {
-  const res = await fetch(
-    "http://api.btmc.vn/api/BTMCAPI/getpricebtmc?key=3kd8ub1llcg9t45hnoh8hmn7t5kc2v",
-    { headers: { Accept: "application/json" } },
-  );
-  if (!res.ok) throw new Error(`Live gold source ${res.status}`);
-  const json = (await res.json()) as { DataList?: { Data?: BtmcRow[] } };
-  const items = json?.DataList?.Data ?? [];
-  return mapLiveRows(items);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
+  try {
+    const res = await fetch(
+      "http://api.btmc.vn/api/BTMCAPI/getpricebtmc?key=3kd8ub1llcg9t45hnoh8hmn7t5kc2v",
+      { headers: { Accept: "application/json" }, signal: ctrl.signal },
+    );
+    if (!res.ok) throw new Error(`Live gold source ${res.status}`);
+    const json = (await res.json()) as { DataList?: { Data?: BtmcRow[] } };
+    const items = json?.DataList?.Data ?? [];
+    return mapLiveRows(items);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function refreshInBackground() {
+  if (inflight) return inflight;
+  inflight = fetchLiveGold()
+    .then((items) => {
+      cache = { at: Date.now(), data: items };
+      return items;
+    })
+    .catch((err) => {
+      // keep existing cache on failure
+      throw err;
+    })
+    .finally(() => {
+      inflight = null;
+    });
+  return inflight;
 }
 
 export const Route = createFileRoute("/api/public/gold")({
@@ -138,11 +164,22 @@ export const Route = createFileRoute("/api/public/gold")({
         try {
           const now = Date.now();
           let items: MappedItem[];
-          if (cache && now - cache.at < CACHE_TTL_MS) {
-            items = cache.data as MappedItem[];
+          const age = cache ? now - cache.at : Infinity;
+          if (cache && age < CACHE_FRESH_MS) {
+            // Fresh cache — serve immediately.
+            items = cache.data;
+          } else if (cache && age < CACHE_SWR_MS) {
+            // Stale but acceptable — serve cache, refresh in background.
+            items = cache.data;
+            refreshInBackground().catch(() => {});
           } else {
-            items = await fetchLiveGold();
-            cache = { at: now, data: items };
+            // No usable cache — must wait for upstream (or fail).
+            try {
+              items = await refreshInBackground();
+            } catch (e) {
+              if (cache) items = cache.data;
+              else throw e;
+            }
           }
 
           const out = items.map((g) => {
@@ -162,7 +199,8 @@ export const Route = createFileRoute("/api/public/gold")({
             { items: out, fetchedAt: Date.now() },
             {
               headers: {
-                "Cache-Control": "public, max-age=15",
+                "Cache-Control":
+                  "public, max-age=30, s-maxage=60, stale-while-revalidate=600",
                 "Access-Control-Allow-Origin": "*",
               },
             },
