@@ -9,10 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as GoldRouteImport } from './routes/gold'
+import { Route as ForexRouteImport } from './routes/forex'
+import { Route as CryptoRouteImport } from './routes/crypto'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 
+const GoldRoute = GoldRouteImport.update({
+  id: '/gold',
+  path: '/gold',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForexRoute = ForexRouteImport.update({
+  id: '/forex',
+  path: '/forex',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CryptoRoute = CryptoRouteImport.update({
+  id: '/crypto',
+  path: '/crypto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +49,88 @@ const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/crypto': typeof CryptoRoute
+  '/forex': typeof ForexRoute
+  '/gold': typeof GoldRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/crypto': typeof CryptoRoute
+  '/forex': typeof ForexRoute
+  '/gold': typeof GoldRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/crypto': typeof CryptoRoute
+  '/forex': typeof ForexRoute
+  '/gold': typeof GoldRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/asset/$symbol' | '/api/public/gold'
+  fullPaths:
+    | '/'
+    | '/crypto'
+    | '/forex'
+    | '/gold'
+    | '/asset/$symbol'
+    | '/api/public/gold'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/asset/$symbol' | '/api/public/gold'
-  id: '__root__' | '/' | '/asset/$symbol' | '/api/public/gold'
+  to:
+    | '/'
+    | '/crypto'
+    | '/forex'
+    | '/gold'
+    | '/asset/$symbol'
+    | '/api/public/gold'
+  id:
+    | '__root__'
+    | '/'
+    | '/crypto'
+    | '/forex'
+    | '/gold'
+    | '/asset/$symbol'
+    | '/api/public/gold'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CryptoRoute: typeof CryptoRoute
+  ForexRoute: typeof ForexRoute
+  GoldRoute: typeof GoldRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/gold': {
+      id: '/gold'
+      path: '/gold'
+      fullPath: '/gold'
+      preLoaderRoute: typeof GoldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forex': {
+      id: '/forex'
+      path: '/forex'
+      fullPath: '/forex'
+      preLoaderRoute: typeof ForexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crypto': {
+      id: '/crypto'
+      path: '/crypto'
+      fullPath: '/crypto'
+      preLoaderRoute: typeof CryptoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,9 +157,22 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CryptoRoute: CryptoRoute,
+  ForexRoute: ForexRoute,
+  GoldRoute: GoldRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
