@@ -44,7 +44,15 @@ async function fetchOne(code: string): Promise<DchartResponse | null> {
   try {
     const res = await fetch(
       `https://dchart-api.vndirect.com.vn/dchart/history?resolution=1D&symbol=${code}&from=${from}&to=${now}`,
-      { headers: { accept: "application/json" }, signal: ctrl.signal },
+      {
+        headers: {
+          "Accept": "*/*",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+          "Referer": "https://dchart.vndirect.com.vn/",
+          "Origin": "https://dchart.vndirect.com.vn",
+        },
+        signal: ctrl.signal,
+      },
     );
     if (!res.ok) {
       console.error(`[stocks] ${code} upstream status=${res.status}`);
