@@ -21,6 +21,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
+import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
@@ -88,6 +89,11 @@ const AssetSymbolRoute = AssetSymbolRouteImport.update({
   path: '/asset/$symbol',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicXauRoute = ApiPublicXauRouteImport.update({
+  id: '/api/public/xau',
+  path: '/api/public/xau',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   id: '/api/public/stocks',
   path: '/api/public/stocks',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/xau': typeof ApiPublicXauRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/xau': typeof ApiPublicXauRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/xau': typeof ApiPublicXauRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/stocks'
+    | '/api/public/xau'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/stocks'
+    | '/api/public/xau'
   id:
     | '__root__'
     | '/'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/stocks'
+    | '/api/public/xau'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,6 +274,7 @@ export interface RootRouteChildren {
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
+  ApiPublicXauRoute: typeof ApiPublicXauRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssetSymbolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/xau': {
+      id: '/api/public/xau'
+      path: '/api/public/xau'
+      fullPath: '/api/public/xau'
+      preLoaderRoute: typeof ApiPublicXauRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/stocks': {
       id: '/api/public/stocks'
       path: '/api/public/stocks'
@@ -414,17 +434,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
+  ApiPublicXauRoute: ApiPublicXauRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
