@@ -106,9 +106,10 @@ export function PriceChart({
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
 
+  const isForex = asset.endsWith("-vnd");
   const fmtVal = (v: number) => {
     if (asset === "gold-sjc") return new Intl.NumberFormat("vi-VN", { notation: "compact", maximumFractionDigits: 2 }).format(v);
-    if (asset === "usd-vnd") return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(v);
+    if (isForex) return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0 }).format(v);
     return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(v);
   };
 
