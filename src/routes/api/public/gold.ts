@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 // In-memory state for change computation between fetches
-const prevMid = new Map<string, number>();
 let cache: { at: number; data: MappedItem[] } | null = null;
 let inflight: Promise<MappedItem[]> | null = null;
+// Baseline mids from yesterday's PNJ history, keyed by gold_type name ("SJC", "PNJ").
+// Values are normalized to the SAME unit as today's live mid (PNJ live = ngàn/chỉ).
+let baseline: { date: string; mids: Record<string, number> } | null = null;
+let baselineInflight: Promise<void> | null = null;
 const CACHE_FRESH_MS = 60_000; // serve cache without refetch
 const CACHE_SWR_MS = 10 * 60_000; // serve stale, refresh in background
 const UPSTREAM_TIMEOUT_MS = 3_000;
@@ -66,6 +69,110 @@ function mapLiveRows(items: PnjRow[], updatedAt: number): MappedItem[] {
   return out;
 }
 
+// PNJ history endpoint returns prices as Vietnamese-formatted strings in ngàn VND / lượng
+// (e.g. "163.000" → 163000). Today's live feed reports in ngàn VND / chỉ
+// (e.g. 16150). 1 lượng = 10 chỉ, so to compare both at the same scale we divide
+// the history value by 10.
+function parseVnNumber(s: string): number {
+  if (!s) return 0;
+  const cleaned = String(s).replace(/\./g, "").replace(/,/g, ".").trim();
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+
+interface HistoryPoint {
+  gia_ban: string;
+  gia_mua: string;
+  updated_at: string;
+}
+interface HistoryGoldType {
+  name: string;
+  data: HistoryPoint[];
+}
+interface HistoryLocation {
+  name: string;
+  gold_type: HistoryGoldType[];
+}
+interface HistoryResponse {
+  locations?: HistoryLocation[];
+}
+
+function ymdVN(date: Date): string {
+  // Format YYYYMMDD in Vietnam timezone (UTC+7)
+  const vn = new Date(date.getTime() + 7 * 3600_000);
+  const y = vn.getUTCFullYear();
+  const m = String(vn.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(vn.getUTCDate()).padStart(2, "0");
+  return `${y}${m}${d}`;
+}
+
+async function fetchHistoryFor(ymd: string): Promise<Record<string, number>> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
+  try {
+    const res = await fetch(
+      `https://edge-api.pnj.io/ecom-frontend/v1/get-gold-price-history?date=${ymd}`,
+      { headers: { Accept: "application/json" }, signal: ctrl.signal },
+    );
+    if (!res.ok) throw new Error(`PNJ history ${res.status}`);
+    const json = (await res.json()) as HistoryResponse;
+    const mids: Record<string, number> = {};
+    // Prefer TPHCM location; fall back to first location with data
+    const locs = json.locations ?? [];
+    const loc =
+      locs.find((l) => l.name === "TPHCM" && l.gold_type.some((g) => g.data.length))
+      ?? locs.find((l) => l.gold_type.some((g) => g.data.length));
+    if (!loc) return mids;
+    for (const gt of loc.gold_type) {
+      if (!gt.data?.length) continue;
+      // Use the last (closing) data point of the day
+      const last = gt.data[gt.data.length - 1];
+      const buy = parseVnNumber(last.gia_mua);
+      const sell = parseVnNumber(last.gia_ban);
+      if (!buy || !sell) continue;
+      // Convert from ngàn/lượng to ngàn/chỉ to match today's live unit.
+      mids[gt.name] = (buy + sell) / 2 / 10;
+    }
+    return mids;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function ensureBaseline(): Promise<void> {
+  const today = ymdVN(new Date());
+  if (baseline && baseline.date === today) return;
+  if (baselineInflight) return baselineInflight;
+  baselineInflight = (async () => {
+    // Try yesterday first, walking back up to 7 days if a day has no data (weekend/holiday).
+    const now = Date.now();
+    let found: Record<string, number> = {};
+    for (let i = 1; i <= 7; i++) {
+      const d = ymdVN(new Date(now - i * 86400_000));
+      try {
+        const mids = await fetchHistoryFor(d);
+        if (Object.keys(mids).length > 0) {
+          found = mids;
+          break;
+        }
+      } catch {
+        // try previous day
+      }
+    }
+    baseline = { date: today, mids: found };
+  })().finally(() => {
+    baselineInflight = null;
+  });
+  return baselineInflight;
+}
+
+// Map our row id/brand → which history gold_type to use as baseline.
+function baselineKeyFor(item: MappedItem): string {
+  if (item.brand === "SJC") return "SJC";
+  // All PNJ-branded rows and nữ trang/nguyên liệu use the PNJ baseline.
+  return "PNJ";
+}
+
 async function fetchLiveGold(): Promise<MappedItem[]> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
@@ -125,18 +232,20 @@ export const Route = createFileRoute("/api/public/gold")({
             }
           }
 
+          // Make sure we have yesterday's baseline (cached for the day).
+          // Don't block the response on this — if it isn't ready yet we
+          // return 0% and the next request will have it.
+          ensureBaseline().catch(() => {});
+
+          const mids = baseline?.mids ?? {};
           const out = items.map((g) => {
-            const mid = (g.buy + g.sell) / 2;
-            const prev = prevMid.get(g.id) ?? mid;
-            const changePct = prev === 0 ? 0 : ((mid - prev) / prev) * 100;
-            if (!prevMid.has(g.id)) prevMid.set(g.id, mid);
+            const todayMid = (g.buy + g.sell) / 2 / 1000; // back to ngàn/chỉ
+            const key = baselineKeyFor(g);
+            const prev = mids[key] ?? 0;
+            const changePct =
+              prev > 0 ? ((todayMid - prev) / prev) * 100 : 0;
             return { ...g, changePct };
           });
-
-          // Slowly update baseline so changes accumulate
-          if (Math.random() < 0.25) {
-            out.forEach((g) => prevMid.set(g.id, (g.buy + g.sell) / 2));
-          }
 
           return Response.json(
             { items: out, fetchedAt: Date.now() },
