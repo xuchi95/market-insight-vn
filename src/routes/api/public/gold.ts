@@ -6,10 +6,18 @@ let cache: { at: number; data: MappedItem[] } | null = null;
 let inflight: Promise<MappedItem[]> | null = null;
 const CACHE_FRESH_MS = 60_000; // serve cache without refetch
 const CACHE_SWR_MS = 10 * 60_000; // serve stale, refresh in background
-const UPSTREAM_TIMEOUT_MS = 4_000;
+const UPSTREAM_TIMEOUT_MS = 3_000;
 
-interface BtmcRow {
-  [key: string]: string;
+interface PnjRow {
+  masp: string;
+  tensp: string;
+  giaban: number | string;
+  giamua: number | string;
+}
+
+interface PnjResponse {
+  data?: PnjRow[];
+  updateDate?: string;
 }
 
 interface MappedItem {
@@ -23,104 +31,39 @@ interface MappedItem {
 }
 
 function parseVnDate(s: string): number {
-  // "26/05/2026 09:11"
-  const m = s?.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
+  // "26/05/2026 13:38:45" or "26/05/2026 09:11"
+  const m = s?.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?/);
   if (!m) return Date.now();
-  const [, d, mo, y, h, mi] = m;
-  return new Date(`${y}-${mo}-${d}T${h}:${mi}:00+07:00`).getTime();
+  const [, d, mo, y, h, mi, se] = m;
+  return new Date(`${y}-${mo}-${d}T${h}:${mi}:${se ?? "00"}+07:00`).getTime();
 }
 
-function mapLiveRows(items: BtmcRow[]): MappedItem[] {
-  const seen = new Set<string>();
-  const latest: Record<string, MappedItem> = {};
+// PNJ API returns prices in thousand VND per lượng (e.g. 16150 = 16,150,000 VND/lượng).
+// Map PNJ masp -> our row spec. Items not in this map are skipped.
+const PNJ_MAP: Record<string, { id: string; brand: string; type: string }> = {
+  SJC: { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L" },
+  N24K: { id: "pnj-nhan", brand: "PNJ", type: "Nhẫn Trơn PNJ 999.9" },
+  PNJ: { id: "pnj", brand: "PNJ", type: "Vàng PNJ - Phượng Hoàng" },
+  KB: { id: "pnj-kimbao", brand: "PNJ", type: "Vàng Kim Bảo 999.9" },
+  TL: { id: "pnj-tailoc", brand: "PNJ", type: "Vàng Phúc Lộc Tài 999.9" },
+  "24K": { id: "nutrang-9999", brand: "Vàng 24K", type: "Vàng nữ trang 999.9" },
+  "22K": { id: "nutrang-22k", brand: "Vàng 22K", type: "Vàng 916 (22K)" },
+  "75": { id: "nutrang-18k", brand: "Vàng 18K", type: "Vàng 750 (18K)" },
+  RAW_9999: { id: "nguyenlieu", brand: "Vàng 24K", type: "Vàng nguyên liệu 99.99" },
+};
 
-  // Live source mapping: source name -> (brand, type, id)
-  const MAP: Record<string, { id: string; brand: string; type: string }> = {
-    "VÀNG MIẾNG SJC": { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L" },
-    "VÀNG MIẾNG VRTL": {
-      id: "btmc-vrtl",
-      brand: "Bảo Tín Minh Châu",
-      type: "Vàng miếng Rồng Thăng Long",
-    },
-    "NHẪN TRÒN TRƠN": {
-      id: "btmc-nhan",
-      brand: "Bảo Tín Minh Châu",
-      type: "Nhẫn tròn trơn 9999",
-    },
-    "TRANG SỨC VÀNG RỒNG THĂNG LONG 999.9": {
-      id: "btmc-ts9999",
-      brand: "Bảo Tín Minh Châu",
-      type: "Trang sức 999.9",
-    },
-    "VÀNG THƯƠNG HIỆU DOJI, PNJ, PHÚ QUÝ": {
-      id: "partners",
-      brand: "DOJI / PNJ / Phú Quý",
-      type: "Vàng thương hiệu đối tác",
-    },
-    "VÀNG NGUYÊN LIỆU": {
-      id: "nguyenlieu",
-      brand: "Vàng 24K",
-      type: "Vàng nguyên liệu 24K",
-    },
-  };
-
+function mapLiveRows(items: PnjRow[], updatedAt: number): MappedItem[] {
+  const out: MappedItem[] = [];
   for (const it of items) {
-    const row = it["@row"];
-    if (!row) continue;
-    const name = (it[`@n_${row}`] || "").toString();
-    if (!name || name.includes("BẠC")) continue;
-
-    let matched: { id: string; brand: string; type: string } | null = null;
-    for (const key of Object.keys(MAP)) {
-      if (name.startsWith(key)) {
-        matched = MAP[key];
-        break;
-      }
-    }
-    if (!matched) continue;
-    if (seen.has(matched.id)) continue;
-    seen.add(matched.id);
-
-    const buy = parseInt(it[`@pb_${row}`] || "0", 10) || 0;
-    let sell = parseInt(it[`@ps_${row}`] || "0", 10) || 0;
-    if (sell === 0 && buy > 0) sell = buy + 200_000; // partner brands: no sell price
-    if (buy === 0) continue;
-    const updatedAt = parseVnDate(it[`@d_${row}`] || "");
-    latest[matched.id] = {
-      id: matched.id,
-      brand: matched.brand,
-      type: matched.type,
-      buy,
-      sell,
-      unit: "VND/lượng",
-      updatedAt,
-    };
+    const m = PNJ_MAP[it.masp];
+    if (!m) continue;
+    const buy = (typeof it.giamua === "number" ? it.giamua : parseFloat(it.giamua) || 0) * 1000;
+    let sell = (typeof it.giaban === "number" ? it.giaban : parseFloat(it.giaban) || 0) * 1000;
+    if (!buy) continue;
+    if (!sell) sell = buy + 200_000; // raw material rows have no sell price
+    out.push({ ...m, buy, sell, unit: "VND/lượng", updatedAt });
   }
-
-  // Synthesize DOJI / PNJ / Phú Quý individual rows from partner reference
-  const partner = latest["partners"];
-  if (partner) {
-    const splits: Array<[string, string]> = [
-      ["doji", "DOJI"],
-      ["pnj", "PNJ"],
-      ["phuquy", "Phú Quý"],
-    ];
-    // Small per-brand spread so they aren't identical
-    const offsets = [0, -20_000, -40_000];
-    splits.forEach(([id, brand], i) => {
-      latest[id] = {
-        ...partner,
-        id,
-        brand,
-        type: "Vàng miếng 9999",
-        buy: partner.buy + offsets[i],
-        sell: partner.sell + offsets[i],
-      };
-    });
-    delete latest["partners"];
-  }
-
-  return Object.values(latest);
+  return out;
 }
 
 async function fetchLiveGold(): Promise<MappedItem[]> {
@@ -128,13 +71,13 @@ async function fetchLiveGold(): Promise<MappedItem[]> {
   const timer = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
   try {
     const res = await fetch(
-      "http://api.btmc.vn/api/BTMCAPI/getpricebtmc?key=3kd8ub1llcg9t45hnoh8hmn7t5kc2v",
+      "https://edge-api.pnj.io/ecom-frontend/v1/get-gold-price",
       { headers: { Accept: "application/json" }, signal: ctrl.signal },
     );
-    if (!res.ok) throw new Error(`Live gold source ${res.status}`);
-    const json = (await res.json()) as { DataList?: { Data?: BtmcRow[] } };
-    const items = json?.DataList?.Data ?? [];
-    return mapLiveRows(items);
+    if (!res.ok) throw new Error(`PNJ gold source ${res.status}`);
+    const json = (await res.json()) as PnjResponse;
+    const updatedAt = parseVnDate(json.updateDate ?? "");
+    return mapLiveRows(json.data ?? [], updatedAt);
   } finally {
     clearTimeout(timer);
   }
