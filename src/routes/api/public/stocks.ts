@@ -46,9 +46,13 @@ async function fetchOne(code: string): Promise<DchartResponse | null> {
       `https://dchart-api.vndirect.com.vn/dchart/history?resolution=1D&symbol=${code}&from=${from}&to=${now}`,
       { headers: { accept: "application/json" }, signal: ctrl.signal },
     );
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[stocks] ${code} upstream status=${res.status}`);
+      return null;
+    }
     return (await res.json()) as DchartResponse;
-  } catch {
+  } catch (e) {
+    console.error(`[stocks] ${code} fetch error`, (e as Error).message);
     return null;
   } finally {
     clearTimeout(t);
