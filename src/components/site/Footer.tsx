@@ -26,15 +26,20 @@ export function Footer() {
           <div className="md:col-span-2">
             <h4 className="eyebrow mb-4">Pháp lý</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground">Điều khoản</a></li>
-              <li><a href="#" className="hover:text-foreground">Dữ liệu</a></li>
-              <li><a href="#" className="hover:text-foreground">Liên hệ</a></li>
+              <li><Link to="/terms" className="hover:text-foreground">Điều khoản sử dụng</Link></li>
+              <li><Link to="/privacy" className="hover:text-foreground">Chính sách dữ liệu</Link></li>
+              <li><Link to="/disclaimer" className="hover:text-foreground">Miễn trừ trách nhiệm</Link></li>
+              <li><Link to="/contact" className="hover:text-foreground">Liên hệ</Link></li>
             </ul>
           </div>
           <div className="md:col-span-3">
             <h4 className="eyebrow mb-4">Liên hệ</h4>
             <a href="mailto:contact@marketwatch.vn" className="text-sm text-foreground border-b border-[var(--gold)]/40 hover:border-[var(--gold)]">contact@marketwatch.vn</a>
           </div>
+        </div>
+
+        <div className="mt-10 rounded-lg border border-border bg-card/60 p-4 text-xs text-muted-foreground leading-relaxed">
+          <strong className="text-foreground">Lưu ý quan trọng:</strong> MarketWatch là kênh thông tin <em>tham khảo</em>. Dữ liệu giá vàng, tiền mã hoá và ngoại tệ được tổng hợp từ nguồn công khai của bên thứ ba, <strong>không phải báo giá chính thức</strong> và <strong>không cấu thành khuyến nghị đầu tư</strong>. Theo pháp luật Việt Nam, tiền ảo / tài sản mã hoá không phải phương tiện thanh toán hợp pháp; Website không tổ chức, môi giới hoặc cung cấp dịch vụ giao dịch. Xem chi tiết tại <Link to="/disclaimer" className="underline text-foreground">Tuyên bố miễn trừ trách nhiệm</Link>.
         </div>
 
         <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
