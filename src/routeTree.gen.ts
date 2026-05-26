@@ -24,6 +24,7 @@ import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
+import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -100,6 +101,11 @@ const ApiPublicCryptoRoute = ApiPublicCryptoRouteImport.update({
   path: '/api/public/crypto',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
+  id: '/api/public/bank-rates',
+  path: '/api/public/bank-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/asset/$symbol'
+    | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/asset/$symbol'
+    | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/asset/$symbol'
+    | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
@@ -218,6 +230,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
+  ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCryptoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bank-rates': {
+      id: '/api/public/bank-rates'
+      path: '/api/public/bank-rates'
+      fullPath: '/api/public/bank-rates'
+      preLoaderRoute: typeof ApiPublicBankRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -346,6 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   AssetSymbolRoute: AssetSymbolRoute,
+  ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
