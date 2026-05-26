@@ -1,17 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Coins, LineChart, Moon, Newspaper, Search, Sun, Wrench } from "lucide-react";
+import { Coins, Moon, Search, Sun } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
-  { label: "Giá vàng", href: "#gold" },
-  { label: "Crypto", href: "#crypto" },
-  { label: "Ngoại tệ", href: "#forex" },
-  { label: "Biểu đồ", href: "#chart" },
-  { label: "Công cụ", href: "#converter" },
-  { label: "Tin tức", href: "#news" },
+  { label: "Tổng quan", to: "/" as const },
+  { label: "Giá vàng", to: "/gold" as const },
+  { label: "Crypto", to: "/crypto" as const },
+  { label: "Ngoại tệ", to: "/forex" as const },
 ];
 
 export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
@@ -32,9 +30,14 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
         <nav className="hidden lg:flex items-center gap-1 ml-4">
           {NAV.map((n) => (
-            <a key={n.href} href={n.href} className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent">
+            <Link
+              key={n.to}
+              to={n.to}
+              activeOptions={{ exact: true }}
+              className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent data-[status=active]:text-foreground data-[status=active]:bg-accent"
+            >
               {n.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
