@@ -1,16 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { ArrowRight, Bitcoin, Coins, DollarSign } from "lucide-react";
 import { Header } from "@/components/site/Header";
-import { Hero } from "@/components/site/Hero";
-import { PriceChart } from "@/components/site/PriceChart";
-import { ConverterTool } from "@/components/site/ConverterTool";
 import { NewsSection } from "@/components/site/NewsSection";
 import { Footer } from "@/components/site/Footer";
-import { fetchGoldPrices } from "@/lib/services/goldPriceService";
-import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
-import { fetchForexRates } from "@/lib/services/forexRateService";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,25 +19,31 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [, setSearch] = useState("");
-
-  const gold = useQuery({ queryKey: ["gold"], queryFn: fetchGoldPrices, refetchInterval: 5000 });
-  const crypto = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), refetchInterval: 15000 });
-  const forex = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, refetchInterval: 10 * 60 * 1000 });
-
-  const sjc = gold.data?.find((g) => g.id === "sjc-1l");
-  const btc = crypto.data?.find((c) => c.symbol === "BTC");
-  const usd = forex.data?.find((f) => f.code === "USD");
-
   return (
     <div className="min-h-screen flex flex-col">
-      <Header onSearch={setSearch} />
+      <Header />
       <main className="flex-1">
-        <Hero
-          goldSjc={sjc ? { sell: sjc.sell, changePct: sjc.changePct } : undefined}
-          btc={btc ? { priceUsd: btc.priceUsd, change24h: btc.change24h } : undefined}
-          usd={usd ? { sell: usd.sell, changePct: usd.changePct } : undefined}
-        />
+        {/* Hero đơn giản, không hiển thị giá */}
+        <section className="relative overflow-hidden border-b border-border">
+          <div className="absolute inset-0 bg-grid opacity-30 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
+          <div className="container relative mx-auto px-4 py-12 lg:py-16">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-medium text-gold mb-5">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--up)] opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--up)]" />
+                </span>
+                Đang cập nhật realtime
+              </div>
+              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1]">
+                Theo dõi giá <span className="text-gold">vàng</span>, <span className="text-gold">crypto</span> và <span className="text-gold">tỷ giá ngoại tệ</span> realtime
+              </h1>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
+                Cập nhật liên tục giá SJC, DOJI, BTC, ETH, USDT, USD, CNY và nhiều tài sản khác — dashboard tài chính chuyên nghiệp ngay trên trình duyệt.
+              </p>
+            </div>
+          </div>
+        </section>
 
         <div className="container mx-auto px-4 py-8 lg:py-10 space-y-8">
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -68,8 +66,6 @@ function Index() {
               desc="USD, EUR, JPY, CNY, GBP, KRW, AUD… quy đổi VND."
             />
           </section>
-          <PriceChart />
-          <ConverterTool />
           <NewsSection />
         </div>
       </main>
