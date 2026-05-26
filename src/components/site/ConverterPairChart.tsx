@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { LineChart as LCIcon, Loader2 } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { LineChart as LCIcon, Loader2, ZoomOut } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { fmtNum } from "@/lib/format";
 
 type Range = "1" | "7" | "30";
@@ -57,14 +58,48 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     return [...pts, { t: Date.now(), v: ratio }];
   }, [query.data, ready, ratio]);
 
+  // ----- Drag-to-zoom state -----
+  const [zoom, setZoom] = useState<{ from: number; to: number } | null>(null);
+  const [dragLeft, setDragLeft] = useState<number | null>(null);
+  const [dragRight, setDragRight] = useState<number | null>(null);
+
+  // Reset zoom khi đổi cặp tiền hoặc khung thời gian.
+  useEffect(() => {
+    setZoom(null);
+    setDragLeft(null);
+    setDragRight(null);
+  }, [pairKey, range]);
+
+  const visibleData = useMemo(() => {
+    if (!zoom || !data.length) return data;
+    const [lo, hi] = zoom.from <= zoom.to ? [zoom.from, zoom.to] : [zoom.to, zoom.from];
+    return data.filter((p) => p.t >= lo && p.t <= hi);
+  }, [data, zoom]);
+
   const stats = useMemo(() => {
-    if (!data.length) return null;
-    const first = data[0].v;
-    const last = data[data.length - 1].v;
-    let min = data[0].v, max = data[0].v;
-    for (const d of data) { if (d.v < min) min = d.v; if (d.v > max) max = d.v; }
+    if (!visibleData.length) return null;
+    const first = visibleData[0].v;
+    const last = visibleData[visibleData.length - 1].v;
+    let min = visibleData[0].v, max = visibleData[0].v;
+    for (const d of visibleData) { if (d.v < min) min = d.v; if (d.v > max) max = d.v; }
     return { first, last, min, max, change: ((last - first) / first) * 100 };
-  }, [data]);
+  }, [visibleData]);
+
+  const commitZoom = () => {
+    if (dragLeft == null || dragRight == null || dragLeft === dragRight) {
+      setDragLeft(null);
+      setDragRight(null);
+      return;
+    }
+    const [lo, hi] = dragLeft < dragRight ? [dragLeft, dragRight] : [dragRight, dragLeft];
+    // Chỉ zoom nếu khoảng chọn có ít nhất 2 điểm dữ liệu.
+    const inside = data.filter((p) => p.t >= lo && p.t <= hi);
+    if (inside.length >= 2) {
+      setZoom({ from: lo, to: hi });
+    }
+    setDragLeft(null);
+    setDragRight(null);
+  };
 
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
@@ -85,6 +120,9 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   const source = query.data?.source;
   const isLoading = query.isLoading || query.isFetching;
   const hasError = !!query.error || (query.data && !query.data.points?.length);
+  const zoomedLabel = zoom
+    ? `${new Date(Math.min(zoom.from, zoom.to)).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })} → ${new Date(Math.max(zoom.from, zoom.to)).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
+    : null;
 
   return (
     <div className="rounded-xl border bg-card/40">
@@ -99,14 +137,33 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
             </div>
           </div>
         </div>
-        <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
-          <TabsList className="h-8">
-            <TabsTrigger value="1" className="text-xs px-2">24h</TabsTrigger>
-            <TabsTrigger value="7" className="text-xs px-2">7N</TabsTrigger>
-            <TabsTrigger value="30" className="text-xs px-2">30N</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex items-center gap-2">
+          {zoom && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-8 px-2 text-xs gap-1"
+              onClick={() => setZoom(null)}
+              aria-label="Bỏ zoom"
+            >
+              <ZoomOut className="h-3.5 w-3.5" /> Bỏ zoom
+            </Button>
+          )}
+          <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
+            <TabsList className="h-8">
+              <TabsTrigger value="1" className="text-xs px-2">24h</TabsTrigger>
+              <TabsTrigger value="7" className="text-xs px-2">7N</TabsTrigger>
+              <TabsTrigger value="30" className="text-xs px-2">30N</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
+      {zoomedLabel && (
+        <div className="px-4 pt-2 text-[11px] text-primary tabular">
+          Đang xem: {zoomedLabel}
+        </div>
+      )}
       {stats && (
         <div className="flex flex-wrap items-end gap-x-6 gap-y-1 px-4 pt-3">
           <div>
@@ -123,7 +180,7 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           </div>
         </div>
       )}
-      <div className="h-48 w-full px-2 pb-2 pt-2 relative">
+      <div className="h-48 w-full px-2 pb-2 pt-2 relative select-none">
         {isLoading && !data.length && (
           <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground gap-2">
             <Loader2 className="h-4 w-4 animate-spin" /> Đang tải dữ liệu lịch sử…
@@ -135,7 +192,22 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           </div>
         )}
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <AreaChart
+            data={visibleData}
+            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+            onMouseDown={(e: any) => {
+              if (e?.activeLabel != null) setDragLeft(Number(e.activeLabel));
+              setDragRight(null);
+            }}
+            onMouseMove={(e: any) => {
+              if (dragLeft != null && e?.activeLabel != null) setDragRight(Number(e.activeLabel));
+            }}
+            onMouseUp={commitZoom}
+            onMouseLeave={() => {
+              if (dragLeft != null) commitZoom();
+            }}
+            style={{ cursor: dragLeft != null ? "ew-resize" : "crosshair" }}
+          >
             <defs>
               <linearGradient id={`pairFill-${pairKey}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -145,8 +217,11 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="t"
+              type="number"
+              scale="time"
+              domain={["dataMin", "dataMax"]}
               tickFormatter={(t) =>
-                range === "1"
+                (zoom ? Math.abs(zoom.to - zoom.from) : range === "1" ? 86400_000 : range === "7" ? 7 * 86400_000 : 30 * 86400_000) <= 2 * 86400_000
                   ? new Date(t).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
                   : new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })
               }
@@ -172,8 +247,14 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
               formatter={(v: number) => [`${fmtVal(v)} ${to!.code}`, `1 ${from!.code}`]}
             />
             <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill={`url(#pairFill-${pairKey})`} />
+            {dragLeft != null && dragRight != null && (
+              <ReferenceArea x1={dragLeft} x2={dragRight} strokeOpacity={0.3} fill="var(--primary)" fillOpacity={0.15} />
+            )}
           </AreaChart>
         </ResponsiveContainer>
+      </div>
+      <div className="px-4 pb-3 text-[11px] text-muted-foreground">
+        Mẹo: kéo chuột (hoặc chạm và kéo) trên biểu đồ để phóng to một khoảng — bấm <em>Bỏ zoom</em> để xem toàn bộ.
       </div>
     </div>
   );
