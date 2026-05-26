@@ -93,6 +93,17 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     return { first, last, min, max, change: ((last - first) / first) * 100 };
   }, [visibleData]);
 
+  const dragInfo = useMemo(() => {
+    if (dragLeft == null || dragRight == null || !visibleData.length) return null;
+    let leftBest = visibleData[0];
+    let rightBest = visibleData[0];
+    for (const p of visibleData) {
+      if (Math.abs(p.t - dragLeft) < Math.abs(leftBest.t - dragLeft)) leftBest = p;
+      if (Math.abs(p.t - dragRight) < Math.abs(rightBest.t - dragRight)) rightBest = p;
+    }
+    return { left: leftBest, right: rightBest };
+  }, [dragLeft, dragRight, visibleData]);
+
   const commitZoom = () => {
     const l = dragLeftRef.current;
     const r = dragRightRef.current;
