@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 
 export function BankRateTable() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ["bank-rates"],
     queryFn: fetchBankRates,
     refetchInterval: 10 * 60 * 1000,
@@ -25,13 +25,25 @@ export function BankRateTable() {
 
   const updatedAt = data?.updatedAt;
 
+  const meta = (
+    <span className="flex items-center gap-2">
+      {updatedAt ? <span>Cập nhật {fmtDate(updatedAt)} · {fmtTime(updatedAt)}</span> : undefined}
+      {isFetching && !isLoading && (
+        <span className="inline-flex items-center gap-1.5 text-xs text-[var(--up)] animate-pulse">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          Đang cập nhật…
+        </span>
+      )}
+    </span>
+  );
+
   return (
     <SectionCard
       id="bank-rates"
       icon={<Landmark className="h-4 w-4" />}
       title="Tỷ giá Ngân hàng Vietcombank"
       description="Tỷ giá niêm yết chính thức từ Vietcombank • cập nhật mỗi 10 phút"
-      meta={updatedAt ? <span>Cập nhật {fmtDate(updatedAt)} · {fmtTime(updatedAt)}</span> : undefined}
+      meta={meta}
     >
       <div className="px-4 py-3 border-b border-border">
         <Input
