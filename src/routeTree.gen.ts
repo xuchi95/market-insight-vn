@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
+import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -58,6 +59,11 @@ const ApiPublicForexRoute = ApiPublicForexRouteImport.update({
   path: '/api/public/forex',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCryptoRoute = ApiPublicCryptoRouteImport.update({
+  id: '/api/public/crypto',
+  path: '/api/public/crypto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/gold': typeof GoldRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/gold'
     | '/sitemap.xml'
     | '/asset/$symbol'
+    | '/api/public/crypto'
     | '/api/public/forex'
     | '/api/public/gold'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/gold'
     | '/sitemap.xml'
     | '/asset/$symbol'
+    | '/api/public/crypto'
     | '/api/public/forex'
     | '/api/public/gold'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/gold'
     | '/sitemap.xml'
     | '/asset/$symbol'
+    | '/api/public/crypto'
     | '/api/public/forex'
     | '/api/public/gold'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   GoldRoute: typeof GoldRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
+  ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
 }
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicForexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/crypto': {
+      id: '/api/public/crypto'
+      path: '/api/public/crypto'
+      fullPath: '/api/public/crypto'
+      preLoaderRoute: typeof ApiPublicCryptoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -202,9 +222,20 @@ const rootRouteChildren: RootRouteChildren = {
   GoldRoute: GoldRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AssetSymbolRoute: AssetSymbolRoute,
+  ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
