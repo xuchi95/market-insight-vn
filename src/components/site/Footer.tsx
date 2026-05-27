@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import logoUrl from "@/assets/logo.png";
 
 export function Footer() {
   return (
@@ -6,8 +7,11 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-5 py-12">
         <div className="grid gap-10 md:grid-cols-12">
           <div className="md:col-span-5">
-            <div className="font-display text-3xl leading-none">
-              <span className="text-[var(--gold)]">Market</span><span className="text-foreground">Watch</span>
+            <div className="flex items-center gap-3">
+              <img src={logoUrl} alt="MarketWatch logo" className="h-10 w-10 object-contain" />
+              <div className="font-display text-3xl leading-none">
+                <span className="text-[var(--gold)]">Market</span><span className="text-foreground">Watch</span>
+              </div>
             </div>
             <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
               Nhật báo dữ liệu tài chính của Việt Nam — vàng, tiền số và ngoại tệ, cập nhật theo từng phút.

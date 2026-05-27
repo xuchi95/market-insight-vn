@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
+import logoUrl from "@/assets/logo.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -52,6 +53,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-3">
         <Link to="/" className="flex items-center gap-2 shrink-0">
+          <img src={logoUrl} alt="MarketWatch logo" className="h-8 w-8 object-contain" />
           <span className="font-display text-xl leading-none">
             <span className="text-[var(--gold)]">Market</span><span className="text-foreground">Watch</span>
           </span>
