@@ -97,6 +97,13 @@ function AssetDetail() {
   const positive = (coin?.change24h ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
 
+  const assetCrumb = useMemo(() => {
+    if (coin) return [{ label: "Giá crypto", to: "/crypto" }, { label: symbol.toUpperCase() }];
+    if (stock) return [{ label: "Chứng khoán", to: "/stocks" }, { label: symbol.toUpperCase() }];
+    if (fx) return [{ label: "Tỷ giá ngoại tệ", to: "/forex" }, { label: symbol.toUpperCase() }];
+    return [{ label: symbol.toUpperCase() }];
+  }, [coin, stock, fx, symbol]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
