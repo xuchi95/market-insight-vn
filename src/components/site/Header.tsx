@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, Menu, Search, User as UserIcon, X } from "lucide-react";
+import { ArrowUpRight, LogOut, Menu, Search, Sparkles, User as UserIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
@@ -147,10 +147,15 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1.5 h-8 px-2 hidden md:inline-flex">
-                  <UserIcon className="h-3.5 w-3.5" />
-                  <span className="text-xs max-w-[120px] truncate">{user.email}</span>
-                </Button>
+                <button
+                  className="hidden md:inline-flex items-center gap-2 h-8 pl-1 pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
+                  aria-label="Tài khoản"
+                >
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-[10px] font-bold uppercase">
+                    {(user.email ?? "?").slice(0, 1)}
+                  </span>
+                  <span className="text-xs max-w-[120px] truncate text-foreground/90">{user.email}</span>
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
@@ -161,12 +166,18 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden md:flex items-center gap-1.5">
-              <Link to="/dang-nhap" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground px-2">
-                Đăng nhập
+            <div className="hidden md:flex items-center rounded-full border border-border bg-card/50 p-0.5 backdrop-blur-sm">
+              <Link
+                to="/dang-nhap"
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <UserIcon className="h-3 w-3" /> Đăng nhập
               </Link>
-              <Link to="/dang-ky" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-background bg-[var(--gold)] hover:opacity-90 rounded-md px-3 py-1.5">
-                Đăng ký
+              <Link
+                to="/dang-ky"
+                className="group relative inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-background bg-gradient-to-r from-[var(--gold)] to-amber-600 shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_40%,transparent),0_6px_18px_-6px_color-mix(in_oklab,var(--gold)_50%,transparent)] hover:shadow-[0_0_0_1px_var(--gold),0_8px_24px_-6px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-shadow"
+              >
+                <Sparkles className="h-3 w-3" /> Đăng ký
               </Link>
             </div>
           )}
@@ -203,26 +214,51 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 {n.label}
               </Link>
             ))}
-            <div className="border-t border-border pt-3 mt-1 grid gap-2">
+            <div className="mt-3">
               {user ? (
-                <>
-                  <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                <div className="rounded-2xl border border-border bg-card/60 p-3 flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-sm font-bold uppercase">
+                    {(user.email ?? "?").slice(0, 1)}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Đã đăng nhập</div>
+                    <div className="text-xs text-foreground truncate">{user.email}</div>
+                  </div>
                   <button
                     onClick={() => { setOpen(false); signOut().then(() => navigate({ to: "/" })); }}
-                    className="text-xs font-semibold uppercase tracking-[0.22em] text-rose-500 text-left"
+                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-rose-500 hover:bg-rose-500/10 transition-colors"
                   >
-                    Đăng xuất
+                    <LogOut className="h-3 w-3" /> Thoát
                   </button>
-                </>
+                </div>
               ) : (
-                <>
-                  <Link to="/dang-nhap" onClick={() => setOpen(false)} className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                    Đăng nhập
-                  </Link>
-                  <Link to="/dang-ky" onClick={() => setOpen(false)} className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold)]">
-                    Đăng ký
-                  </Link>
-                </>
+                <div className="relative rounded-2xl overflow-hidden border border-[var(--gold)]/30 bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-4">
+                  <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-[var(--gold)]/15 blur-2xl" aria-hidden />
+                  <div className="relative">
+                    <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[var(--gold)]">
+                      <Sparkles className="h-3 w-3" /> Tham gia MarketWatch
+                    </div>
+                    <p className="mt-2 text-sm text-foreground/90 leading-snug">
+                      Đặt cảnh báo giá vàng & crypto, nhận email khi thị trường chạm ngưỡng.
+                    </p>
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <Link
+                        to="/dang-nhap"
+                        onClick={() => setOpen(false)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-background/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground hover:bg-background/70 transition-colors"
+                      >
+                        <UserIcon className="h-3 w-3" /> Đăng nhập
+                      </Link>
+                      <Link
+                        to="/dang-ky"
+                        onClick={() => setOpen(false)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[var(--gold)] to-amber-600 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-background shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--gold)_70%,transparent)]"
+                      >
+                        Đăng ký <ArrowUpRight className="h-3 w-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
