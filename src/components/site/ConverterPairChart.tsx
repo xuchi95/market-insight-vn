@@ -91,6 +91,25 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     return data.filter((p) => p.t >= lo && p.t <= hi);
   }, [data, zoom]);
 
+  // Bước snap (ms) suy ra từ độ rộng vùng đang xem.
+  const snapStep = useMemo(() => {
+    if (!visibleData.length) return 5 * 60_000;
+    const span = visibleData[visibleData.length - 1].t - visibleData[0].t;
+    if (span <= 2 * 86_400_000) return 5 * 60_000;       // ≤ 2 ngày → 5 phút
+    if (span <= 10 * 86_400_000) return 60 * 60_000;      // ≤ 10 ngày → 1 giờ
+    return 24 * 60 * 60_000;                              // còn lại → 1 ngày
+  }, [visibleData]);
+
+  const snapStepLabel = snapStep >= 86_400_000 ? "1 ngày" : snapStep >= 3_600_000 ? "1 giờ" : `${snapStep / 60_000} phút`;
+
+  const snapTime = (t: number): number => {
+    if (!visibleData.length) return t;
+    const tMin = visibleData[0].t;
+    const tMax = visibleData[visibleData.length - 1].t;
+    const snapped = tMin + Math.round((t - tMin) / snapStep) * snapStep;
+    return Math.min(Math.max(snapped, tMin), tMax);
+  };
+
   const stats = useMemo(() => {
     if (!visibleData.length) return null;
     const first = visibleData[0].v;
@@ -167,18 +186,21 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     const t = touchToTime(clientX);
     if (t == null || !visibleData.length) return;
     if (mode === "new") {
-      dragRightRef.current = t;
-      setDragRight(t);
+      const s = snapTime(t);
+      dragRightRef.current = s;
+      setDragRight(s);
     } else if (mode === "resize-l") {
-      dragLeftRef.current = t;
-      setDragLeft(t);
+      const s = snapTime(t);
+      dragLeftRef.current = s;
+      setDragLeft(s);
     } else if (mode === "resize-r") {
-      dragRightRef.current = t;
-      setDragRight(t);
+      const s = snapTime(t);
+      dragRightRef.current = s;
+      setDragRight(s);
     } else if (mode === "move") {
       const startT = touchToTime(dragStartXRef.current);
       if (startT == null) return;
-      const dt = t - startT;
+      const dt = Math.round((t - startT) / snapStep) * snapStep;
       const tMin = visibleData[0].t;
       const tMax = visibleData[visibleData.length - 1].t;
       let nl = dragStartLeftRef.current + dt;
@@ -241,10 +263,11 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     const t = touchToTime(clientX);
     if (t == null) return;
     modeRef.current = "new";
-    dragLeftRef.current = t;
-    dragRightRef.current = t;
-    setDragLeft(t);
-    setDragRight(t);
+    const s = snapTime(t);
+    dragLeftRef.current = s;
+    dragRightRef.current = s;
+    setDragLeft(s);
+    setDragRight(s);
     setIsDragging(true);
   };
 
@@ -493,7 +516,7 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
         </ResponsiveContainer>
       </div>
       <div className="px-4 pb-3 text-[11px] text-muted-foreground">
-        Mẹo: kéo để tạo vùng chọn → kéo <strong>bên trong</strong> để dịch chuyển, kéo <strong>mép trái/phải</strong> để chỉnh — bấm <em>Phóng to</em> để áp dụng, <em>nhấn đúp</em> để zoom nhanh.
+        Mẹo: kéo để tạo vùng chọn (snap theo <strong>{snapStepLabel}</strong>) → kéo <strong>bên trong</strong> để dịch chuyển, kéo <strong>mép</strong> để chỉnh — bấm <em>Phóng to</em> để áp dụng, <em>nhấn đúp</em> để zoom nhanh.
       </div>
     </div>
   );
