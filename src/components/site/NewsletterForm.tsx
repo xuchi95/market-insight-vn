@@ -20,6 +20,7 @@ export function NewsletterForm() {
       if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
       toast.success("Đăng ký thành công", { description: "Vui lòng kiểm tra hộp thư để xác nhận." });
       setEmail("");
+      try { window.dispatchEvent(new CustomEvent("newsletter:subscribed")); } catch {}
     } catch (err: any) {
       toast.error("Đăng ký thất bại", { description: err?.message || "Vui lòng thử lại sau." });
     } finally {
