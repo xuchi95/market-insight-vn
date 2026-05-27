@@ -49,6 +49,21 @@ export const Route = createFileRoute("/stocks")({
           about: ["VN-Index", "VN30", "HNX-Index", "UPCOM"],
         }),
       },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Bảng chỉ số chứng khoán Việt Nam hôm nay",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "VN-Index", item: { "@type": "Thing", name: "VN-Index", description: "Chỉ số VN-Index hôm nay — điểm số, thay đổi, khối lượng" } },
+            { "@type": "ListItem", position: 2, name: "VN30", item: { "@type": "Thing", name: "VN30", description: "Chỉ số VN30 hôm nay — 30 mã vốn hóa lớn nhất" } },
+            { "@type": "ListItem", position: 3, name: "HNX-Index", item: { "@type": "Thing", name: "HNX-Index", description: "Chỉ số HNX-Index hôm nay — sàn Hà Nội" } },
+            { "@type": "ListItem", position: 4, name: "HNX30", item: { "@type": "Thing", name: "HNX30", description: "Chỉ số HNX30 hôm nay — 30 mã HNX" } },
+            { "@type": "ListItem", position: 5, name: "UPCOM-Index", item: { "@type": "Thing", name: "UPCOM-Index", description: "Chỉ số UPCOM hôm nay — sàn UPCOM" } },
+          ],
+        }),
+      },
     ],
   }),
   component: StocksPage,

@@ -49,6 +49,23 @@ export const Route = createFileRoute("/bank-rates")({
           about: ["Vietcombank", "Tỷ giá USD", "Tỷ giá EUR", "Tỷ giá JPY", "Tỷ giá CNY"],
         }),
       },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Bảng tỷ giá Vietcombank hôm nay",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Tỷ giá USD Vietcombank", item: { "@type": "Thing", name: "USD VCB", description: "Tỷ giá USD tại Vietcombank — mua tiền mặt, mua chuyển khoản, bán" } },
+            { "@type": "ListItem", position: 2, name: "Tỷ giá EUR Vietcombank", item: { "@type": "Thing", name: "EUR VCB", description: "Tỷ giá EUR tại Vietcombank — mua tiền mặt, mua chuyển khoản, bán" } },
+            { "@type": "ListItem", position: 3, name: "Tỷ giá JPY Vietcombank", item: { "@type": "Thing", name: "JPY VCB", description: "Tỷ giá Yên Nhật tại Vietcombank — mua tiền mặt, mua chuyển khoản, bán" } },
+            { "@type": "ListItem", position: 4, name: "Tỷ giá CNY Vietcombank", item: { "@type": "Thing", name: "CNY VCB", description: "Tỷ giá Nhân dân tệ tại Vietcombank — mua tiền mặt, mua chuyển khoản, bán" } },
+            { "@type": "ListItem", position: 5, name: "Tỷ giá GBP Vietcombank", item: { "@type": "Thing", name: "GBP VCB", description: "Tỷ giá Bảng Anh tại Vietcombank — mua tiền mặt, mua chuyển khoản, bán" } },
+            { "@type": "ListItem", position: 6, name: "Tỷ giá KRW Vietcombank", item: { "@type": "Thing", name: "KRW VCB", description: "Tỷ giá Won Hàn Quốc tại Vietcombank — mua tiền mặt, mua chuyển khoản, bán" } },
+            { "@type": "ListItem", position: 7, name: "Tỷ giá SGD Vietcombank", item: { "@type": "Thing", name: "SGD VCB", description: "Tỷ giá đô-la Singapore tại Vietcombank — mua tiền mặt, mua chuyển khoản, bán" } },
+          ],
+        }),
+      },
     ],
   }),
   component: BankRatesPage,
