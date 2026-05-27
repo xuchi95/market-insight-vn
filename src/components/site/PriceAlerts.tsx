@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bell, BellOff, Trash2, Plus, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
+import { Bell, BellOff, Trash2, Plus, ArrowUp, ArrowDown, RotateCcw, Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import {
   loadAlerts,
@@ -18,10 +19,14 @@ import { SectionCard } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const QUICK_COINS = ["BTC", "ETH"] as const;
 
 export function PriceAlerts() {
+  const { user } = useAuth();
   const { data: coins } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
@@ -32,6 +37,7 @@ export function PriceAlerts() {
   const [symbol, setSymbol] = useState<string>("BTC");
   const [direction, setDirection] = useState<AlertDirection>("above");
   const [threshold, setThreshold] = useState<string>("");
+  const [emailEnabled, setEmailEnabled] = useState<boolean>(true);
   const [notifPerm, setNotifPerm] = useState<NotificationPermission>("default");
   const firedRef = useRef<Set<string>>(new Set());
 
@@ -102,6 +108,21 @@ export function PriceAlerts() {
     setAlerts((prev) => [a, ...prev]);
     setThreshold("");
     toast.success(`Đã đặt cảnh báo ${symbol} ${direction === "above" ? "≥" : "≤"} ${fmtUSD(t, t < 1 ? 4 : 2)}`);
+    if (user) {
+      const { error } = await supabase.from("user_price_alerts").insert({
+        user_id: user.id,
+        symbol,
+        asset_type: "crypto",
+        direction,
+        threshold_usd: t,
+        email_enabled: emailEnabled,
+      });
+      if (error) {
+        toast.error("Không lưu được vào tài khoản: " + error.message);
+      } else if (emailEnabled) {
+        toast.success("Sẽ gửi email tới " + user.email + " khi trúng ngưỡng");
+      }
+    }
     const perm = await ensureNotificationPermission();
     setNotifPerm(perm);
   };
@@ -152,6 +173,22 @@ export function PriceAlerts() {
       }
     >
       <div className="space-y-4">
+        {/* Email alerts banner */}
+        {user ? (
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card/50 px-3 py-2">
+            <div className="flex items-center gap-2 text-xs">
+              <Mail className="h-3.5 w-3.5 text-[var(--gold)]" />
+              <span>Gửi email tới <span className="font-semibold">{user.email}</span> khi trúng ngưỡng</span>
+            </div>
+            <Switch checked={emailEnabled} onCheckedChange={setEmailEnabled} />
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> Đăng nhập để nhận cảnh báo qua email</span>
+            <Link to="/dang-nhap" className="font-semibold text-[var(--gold)] hover:underline">Đăng nhập →</Link>
+          </div>
+        )}
+
         {/* Quick presets */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground mr-1">Nhanh:</span>
