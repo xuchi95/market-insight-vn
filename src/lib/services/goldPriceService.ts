@@ -42,7 +42,7 @@ const FALLBACK_LIVE: GoldPrice[] = [
 export async function fetchGoldPrices(): Promise<GoldPrice[]> {
   const now = Date.now();
   try {
-    const res = await fetch("/api/public/gia-vang", {
+    const res = await fetch("/api/public/gold", {
       headers: { Accept: "application/json" },
     });
     if (!res.ok) throw new Error(`gold api ${res.status}`);

@@ -10,7 +10,7 @@ const FALLBACK: ForexRate[] = [
 
 export async function fetchForexRates(): Promise<ForexRate[]> {
   try {
-    const res = await fetch("/api/public/ty-gia-ngoai-te", { headers: { accept: "application/json" } });
+    const res = await fetch("/api/public/forex", { headers: { accept: "application/json" } });
     if (!res.ok) throw new Error(String(res.status));
     const j = await res.json();
     if (Array.isArray(j?.rates)) return j.rates as ForexRate[];
