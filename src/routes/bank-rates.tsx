@@ -23,6 +23,31 @@ export const Route = createFileRoute("/bank-rates")({
       { name: "twitter:description", content: DESC },
     ],
     links: [{ rel: "canonical", href: URL }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE + "/" },
+            { "@type": "ListItem", position: 2, name: "Tỷ giá ngân hàng", item: URL },
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: TITLE,
+          description: DESC,
+          url: URL,
+          inLanguage: "vi-VN",
+          about: ["Vietcombank", "Tỷ giá USD", "Tỷ giá EUR", "Tỷ giá JPY", "Tỷ giá CNY"],
+        }),
+      },
+    ],
   }),
   component: BankRatesPage,
 });
