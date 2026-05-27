@@ -57,7 +57,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           <span className="font-display text-xl leading-none">
             <span className="text-[var(--gold)]">Market</span><span className="text-foreground">Watch</span>
           </span>
-          <span className="hidden lg:inline eyebrow opacity-60 text-[10px]">VN · Edition</span>
         </Link>
 
         {/* Desktop NavigationMenu */}
