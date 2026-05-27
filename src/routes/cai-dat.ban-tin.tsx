@@ -1,0 +1,285 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2 } from "lucide-react";
+import { Header } from "@/components/site/Header";
+import { Footer } from "@/components/site/Footer";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  getMySubscriptions,
+  subscribeNewsletter,
+  unsubscribeNewsletter,
+  changeNewsletterEmail,
+} from "@/lib/newsletter.functions";
+
+const TITLE = "Quản lý bản tin — MarketWatch";
+const DESC = "Đăng ký, đổi địa chỉ email hoặc huỷ nhận bản tin tổng hợp vàng, crypto và ngoại tệ từ MarketWatch.";
+const URL = "https://marketwatch.vn/cai-dat/ban-tin";
+
+export const Route = createFileRoute("/cai-dat/ban-tin")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESC },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESC },
+      { property: "og:url", content: URL },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+    links: [{ rel: "canonical", href: URL }],
+  }),
+  component: NewsletterSettingsPage,
+});
+
+function NewsletterSettingsPage() {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate({ to: "/dang-nhap", replace: true });
+    }
+  }, [authLoading, user, navigate]);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="mx-auto max-w-3xl px-5 py-10">
+        <nav className="mb-6 text-xs text-muted-foreground">
+          <Link to="/" className="hover:text-foreground">Trang chủ</Link>
+          <span className="mx-2 opacity-50">/</span>
+          <span className="text-foreground">Quản lý bản tin</span>
+        </nav>
+
+        <header className="mb-8">
+          <div className="eyebrow text-[var(--gold)]">Cài đặt</div>
+          <h1 className="font-display text-4xl mt-1">Quản lý bản tin</h1>
+          <p className="mt-3 text-sm text-muted-foreground max-w-xl">
+            Đăng ký, đổi địa chỉ email hoặc huỷ nhận bản tin tổng hợp vàng, crypto và ngoại tệ.
+          </p>
+        </header>
+
+        {authLoading || !user ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Đang tải…
+          </div>
+        ) : (
+          <SettingsCard />
+        )}
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function SettingsCard() {
+  const qc = useQueryClient();
+  const fetchMy = useServerFn(getMySubscriptions);
+  const subscribe = useServerFn(subscribeNewsletter);
+  const unsubscribe = useServerFn(unsubscribeNewsletter);
+  const changeEmail = useServerFn(changeNewsletterEmail);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["my-newsletter"],
+    queryFn: () => fetchMy(),
+  });
+
+  const [editing, setEditing] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const accountEmail = data?.accountEmail ?? "";
+  const active = (data?.subscriptions ?? []).find((s) => !s.unsubscribed_at);
+
+  async function handleSubscribe(email: string) {
+    setBusy(true);
+    try {
+      await subscribe({ data: { email } });
+      toast.success("Đã đăng ký", { description: `Đã gửi email xác nhận tới ${email}.` });
+      qc.invalidateQueries({ queryKey: ["my-newsletter"] });
+      try { localStorage.setItem("mw_nl_subscribed", "1"); } catch {}
+    } catch (e: any) {
+      toast.error("Không thể đăng ký", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleUnsubscribe(email: string) {
+    setBusy(true);
+    try {
+      await unsubscribe({ data: { email } });
+      toast.success("Đã huỷ đăng ký", { description: `${email} sẽ không còn nhận bản tin.` });
+      qc.invalidateQueries({ queryKey: ["my-newsletter"] });
+    } catch (e: any) {
+      toast.error("Không thể huỷ", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleChange() {
+    if (!active) return;
+    const next = newEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next)) {
+      toast.error("Email không hợp lệ");
+      return;
+    }
+    setBusy(true);
+    try {
+      await changeEmail({ data: { oldEmail: active.email, newEmail: next } });
+      toast.success("Đã đổi địa chỉ", { description: `Bản tin sẽ được gửi tới ${next}.` });
+      setEditing(false);
+      setNewEmail("");
+      qc.invalidateQueries({ queryKey: ["my-newsletter"] });
+    } catch (e: any) {
+      toast.error("Không thể đổi", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Đang tải đăng ký…
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-6">
+        <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[var(--gold)]/15 blur-3xl" />
+        <div className="relative">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[var(--gold)]">
+            <Mail className="h-3.5 w-3.5" /> Trạng thái bản tin
+          </div>
+
+          {active ? (
+            <>
+              <div className="mt-3 flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
+                      <BellRing className="h-3 w-3" /> Đang nhận
+                    </span>
+                  </div>
+                  <div className="mt-2 text-lg font-medium">{active.email}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Đăng ký từ {new Date(active.created_at).toLocaleDateString("vi-VN")}
+                  </div>
+                </div>
+              </div>
+
+              {editing ? (
+                <div className="mt-5 rounded-lg border border-border bg-background/40 p-4 space-y-3">
+                  <Label htmlFor="new-email" className="text-xs">Địa chỉ email mới</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="new-email"
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="email-moi@cua-ban.vn"
+                      className="flex-1"
+                    />
+                    <Button onClick={handleChange} disabled={busy}>
+                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                      <span className="ml-1.5">Xác nhận</span>
+                    </Button>
+                    <Button variant="ghost" onClick={() => { setEditing(false); setNewEmail(""); }} disabled={busy}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Địa chỉ cũ sẽ tự động bị huỷ đăng ký.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => { setEditing(true); setNewEmail(active.email); }}
+                    disabled={busy}
+                  >
+                    <Pencil className="h-4 w-4" /> <span className="ml-1.5">Đổi địa chỉ</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleUnsubscribe(active.email)}
+                    disabled={busy}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <BellOff className="h-4 w-4" /> <span className="ml-1.5">Huỷ đăng ký</span>
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <SubscribeForm
+              defaultEmail={accountEmail}
+              onSubmit={handleSubscribe}
+              busy={busy}
+            />
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card/40 p-6 text-sm text-muted-foreground leading-relaxed">
+        <h2 className="font-display text-lg text-foreground mb-2">Bản tin gồm những gì?</h2>
+        <ul className="space-y-1.5 list-disc pl-5">
+          <li>Tổng hợp biến động giá vàng SJC, DOJI, PNJ buổi sáng.</li>
+          <li>Biến động lớn của Bitcoin, Ethereum và top crypto.</li>
+          <li>Tỷ giá USD/VND, EUR, JPY và ngoại tệ chính.</li>
+        </ul>
+        <p className="mt-3 text-xs">
+          Bạn có thể huỷ đăng ký bất cứ lúc nào tại trang này hoặc qua đường dẫn ở cuối mỗi email.
+        </p>
+      </section>
+    </div>
+  );
+}
+
+function SubscribeForm({
+  defaultEmail,
+  onSubmit,
+  busy,
+}: {
+  defaultEmail: string;
+  onSubmit: (email: string) => void;
+  busy: boolean;
+}) {
+  const [email, setEmail] = useState(defaultEmail);
+  return (
+    <div className="mt-3">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-[11px] text-muted-foreground">
+        <BellOff className="h-3 w-3" /> Chưa đăng ký
+      </span>
+      <p className="mt-3 text-sm">
+        Đăng ký để nhận bản tin sáng tổng hợp biến động thị trường.
+      </p>
+      <form
+        onSubmit={(e) => { e.preventDefault(); onSubmit(email.trim().toLowerCase()); }}
+        className="mt-4 flex gap-2"
+      >
+        <Input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="email@cua-ban.vn"
+          className="flex-1"
+        />
+        <Button type="submit" disabled={busy}>
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Đăng ký"}
+        </Button>
+      </form>
+    </div>
+  );
+}
