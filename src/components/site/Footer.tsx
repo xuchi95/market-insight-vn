@@ -41,8 +41,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 rounded-lg border border-border bg-card/60 p-4 text-xs text-muted-foreground leading-relaxed">
-          <strong className="text-foreground">Lưu ý quan trọng:</strong> MarketWatch là kênh thông tin <em>tham khảo</em>. Dữ liệu giá vàng, tiền mã hoá và ngoại tệ được tổng hợp từ nguồn công khai của bên thứ ba, <strong>không phải báo giá chính thức</strong> và <strong>không cấu thành khuyến nghị đầu tư</strong>. Theo pháp luật Việt Nam, tiền ảo / tài sản mã hoá không phải phương tiện thanh toán hợp pháp; Website không tổ chức, môi giới hoặc cung cấp dịch vụ giao dịch. Xem chi tiết tại <Link to="/disclaimer" className="underline text-foreground">Tuyên bố miễn trừ trách nhiệm</Link>.
+        <div className="mt-10 rounded-lg border-l-4 border border-[var(--gold)]/60 border-l-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,var(--background))] p-4 text-xs text-foreground/90 leading-relaxed shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_20%,transparent)]">
+          <strong className="text-[var(--gold)] uppercase tracking-wider text-[11px]">⚠ Lưu ý quan trọng:</strong>{" "}
+          MarketWatch là kênh thông tin <em>tham khảo</em>. Dữ liệu giá vàng, tiền mã hoá và ngoại tệ được tổng hợp từ nguồn công khai của bên thứ ba, <strong className="text-foreground">không phải báo giá chính thức</strong> và <strong className="text-foreground">không cấu thành khuyến nghị đầu tư</strong>. Theo pháp luật Việt Nam, tiền ảo / tài sản mã hoá không phải phương tiện thanh toán hợp pháp; Website không tổ chức, môi giới hoặc cung cấp dịch vụ giao dịch. Xem chi tiết tại <Link to="/disclaimer" className="underline font-medium text-[var(--gold)] hover:opacity-80">Tuyên bố miễn trừ trách nhiệm</Link>.
         </div>
 
         <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
