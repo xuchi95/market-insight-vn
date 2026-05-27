@@ -232,10 +232,15 @@ export const Route = createFileRoute("/api/public/gold")({
             }
           }
 
-          // Make sure we have yesterday's baseline (cached for the day).
-          // Don't block the response on this — if it isn't ready yet we
-          // return 0% and the next request will have it.
-          ensureBaseline().catch(() => {});
+          // Make sure we have yesterday's baseline. We MUST await it on the
+          // first request — Cloudflare Workers do not reliably share
+          // in-memory state across isolates, so a fire-and-forget approach
+          // leaves changePct stuck at 0% across cold starts.
+          try {
+            await ensureBaseline();
+          } catch {
+            // baseline unavailable — fall through; changePct will be 0
+          }
 
           const mids = baseline?.mids ?? {};
           const out = items.map((g) => {
