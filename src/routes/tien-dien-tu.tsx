@@ -8,8 +8,8 @@ import { PriceChart } from "@/components/site/PriceChart";
 import { PriceAlerts } from "@/components/site/PriceAlerts";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/crypto`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/tien-dien-tu`;
 const TITLE = "Giá Bitcoin hôm nay — Giá BTC, ETH, USDT, BNB, SOL realtime";
 const DESC = "Giá BTC hôm nay, giá Bitcoin, Ethereum, USDT, BNB, Solana, XRP, Dogecoin, TON cập nhật realtime theo USD và VND — vốn hoá, volume 24h và biến động giá.";
 
@@ -20,7 +20,7 @@ const FAQ = [
   { q: "MarketWatch cập nhật giá coin bao lâu một lần?", a: "Bảng giá crypto tự động làm mới mỗi 15 giây, đảm bảo bạn luôn theo dõi giá Bitcoin và altcoin sát với thị trường." },
 ];
 
-export const Route = createFileRoute("/crypto")({
+export const Route = createFileRoute("/tien-dien-tu")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -119,11 +119,11 @@ function CryptoPage() {
             </p>
             <h3 className="text-xl font-semibold">Quy đổi giá coin sang VND</h3>
             <p className="text-muted-foreground">
-              Mỗi coin đều được quy đổi sang VND theo <Link to="/forex" className="text-primary hover:underline">tỷ giá USD/VND hôm nay</Link>, giúp nhà đầu tư Việt Nam dễ dàng nắm bắt giá trị thực tế tại thị trường trong nước. Dùng <Link to="/converter" className="text-primary hover:underline">công cụ quy đổi tiền tệ</Link> để tính nhanh BTC, ETH sang VND.
+              Mỗi coin đều được quy đổi sang VND theo <Link to="/ty-gia-ngoai-te" className="text-primary hover:underline">tỷ giá USD/VND hôm nay</Link>, giúp nhà đầu tư Việt Nam dễ dàng nắm bắt giá trị thực tế tại thị trường trong nước. Dùng <Link to="/quy-doi-tien-te" className="text-primary hover:underline">công cụ quy đổi tiền tệ</Link> để tính nhanh BTC, ETH sang VND.
             </p>
             <h3 className="text-xl font-semibold">Vì sao nên theo dõi giá crypto realtime?</h3>
             <p className="text-muted-foreground">
-              Thị trường crypto hoạt động 24/7 với biên độ dao động cao. Theo dõi giá BTC, ETH realtime giúp bạn ra quyết định nhanh và chính xác hơn. Bạn cũng có thể đối chiếu với <Link to="/gold" className="text-primary hover:underline">giá vàng SJC hôm nay</Link> để cân đối danh mục đầu tư.
+              Thị trường crypto hoạt động 24/7 với biên độ dao động cao. Theo dõi giá BTC, ETH realtime giúp bạn ra quyết định nhanh và chính xác hơn. Bạn cũng có thể đối chiếu với <Link to="/gia-vang" className="text-primary hover:underline">giá vàng SJC hôm nay</Link> để cân đối danh mục đầu tư.
             </p>
           </section>
 

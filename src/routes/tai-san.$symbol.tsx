@@ -15,10 +15,10 @@ import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum } from "@/lib/format";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const Route = createFileRoute("/asset/$symbol")({
+export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
     const SYM = params.symbol.toUpperCase();
-    const SITE = "https://market-insight-vn.lovable.app";
+    const SITE = "https://marketwatch.vn";
     const URL = `${SITE}/asset/${params.symbol.toLowerCase()}`;
     const TITLE = `Giá ${SYM} hôm nay — Biểu đồ ${SYM}/USD realtime | MarketWatch`;
     const DESC = `Giá ${SYM} hôm nay cập nhật realtime: biến động 24h, vốn hoá thị trường, khối lượng giao dịch và biểu đồ giá ${SYM}/USD chi tiết.`;
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/asset/$symbol")({
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Trang chủ", item: `${SITE}/` },
-              { "@type": "ListItem", position: 2, name: "Crypto", item: `${SITE}/crypto` },
+              { "@type": "ListItem", position: 2, name: "Crypto", item: `${SITE}/tien-dien-tu` },
               { "@type": "ListItem", position: 3, name: SYM, item: URL },
             ],
           }),
@@ -67,7 +67,7 @@ async function loadChart(id: string, days: string) {
 }
 
 function AssetDetail() {
-  const { symbol } = useParams({ from: "/asset/$symbol" });
+  const { symbol } = useParams({ from: "/tai-san/$symbol" });
   const [range, setRange] = useState("7");
 
   const { data: coins, isLoading } = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), refetchInterval: 15000 });
@@ -98,9 +98,9 @@ function AssetDetail() {
   const color = positive ? "var(--up)" : "var(--down)";
 
   const assetCrumb = useMemo(() => {
-    if (coin) return [{ label: "Giá crypto", to: "/crypto" }, { label: symbol.toUpperCase() }];
-    if (stock) return [{ label: "Chứng khoán", to: "/stocks" }, { label: symbol.toUpperCase() }];
-    if (fx) return [{ label: "Tỷ giá ngoại tệ", to: "/forex" }, { label: symbol.toUpperCase() }];
+    if (coin) return [{ label: "Giá crypto", to: "/tien-dien-tu" }, { label: symbol.toUpperCase() }];
+    if (stock) return [{ label: "Chứng khoán", to: "/chung-khoan" }, { label: symbol.toUpperCase() }];
+    if (fx) return [{ label: "Tỷ giá ngoại tệ", to: "/ty-gia-ngoai-te" }, { label: symbol.toUpperCase() }];
     return [{ label: symbol.toUpperCase() }];
   }, [coin, stock, fx, symbol]);
 
@@ -139,7 +139,7 @@ function AssetDetail() {
               <Stat label="Khối lượng GD" value={new Intl.NumberFormat("vi-VN").format(stock.volume)} />
               <Stat label="Cập nhật" value={fmtTime(stock.updatedAt)} />
             </div>
-            <Link to="/stocks" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ chỉ số →</Link>
+            <Link to="/chung-khoan" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ chỉ số →</Link>
           </div>
         )}
 
@@ -161,7 +161,7 @@ function AssetDetail() {
               <Stat label="Bán" value={fmtNum(fx.sell, 2)} />
               <Stat label="Cập nhật" value={fmtTime(fx.updatedAt)} />
             </div>
-            <Link to="/forex" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ tỷ giá →</Link>
+            <Link to="/ty-gia-ngoai-te" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ tỷ giá →</Link>
           </div>
         )}
 
@@ -234,7 +234,7 @@ function AssetDetail() {
                     {others.map((c) => (
                       <tr key={c.id} className="hover:bg-muted/30">
                         <td className="px-4 py-3">
-                          <Link to="/asset/$symbol" params={{ symbol: c.symbol.toLowerCase() }} className="flex items-center gap-3">
+                          <Link to="/tai-san/$symbol" params={{ symbol: c.symbol.toLowerCase() }} className="flex items-center gap-3">
                             <img src={c.image} alt={c.name} className="h-6 w-6 rounded-full" />
                             <div className="font-semibold">{c.name} <span className="text-muted-foreground text-xs">{c.symbol}</span></div>
                           </Link>

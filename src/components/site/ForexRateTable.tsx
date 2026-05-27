@@ -53,12 +53,12 @@ export function ForexRateTable({ search }: { search?: string }) {
             {rows.map((r) => (
               <tr key={r.code} className="hover:bg-muted/30 transition-colors">
                 <td className="px-4 py-3 font-bold">
-                  <Link to="/asset/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline">
+                  <Link to="/tai-san/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline">
                     {r.code}
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">
-                  <Link to="/asset/$symbol" params={{ symbol: r.code.toLowerCase() }} className="hover:text-foreground">
+                  <Link to="/tai-san/$symbol" params={{ symbol: r.code.toLowerCase() }} className="hover:text-foreground">
                     {r.name}
                   </Link>
                 </td>

@@ -3,12 +3,12 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/contact`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/lien-he`;
 const TITLE = "Liên hệ — MarketWatch";
 const DESC = "Liên hệ MarketWatch để phản ánh dữ liệu, hợp tác hoặc gửi yêu cầu hợp pháp từ cơ quan có thẩm quyền.";
 
-export const Route = createFileRoute("/contact")({
+export const Route = createFileRoute("/lien-he")({
   head: () => ({
     meta: [
       { title: TITLE },

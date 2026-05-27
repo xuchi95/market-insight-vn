@@ -5,12 +5,12 @@ import { Footer } from "@/components/site/Footer";
 import { BankRateTable } from "@/components/site/BankRateTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/bank-rates`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/lai-suat-ngan-hang`;
 const TITLE = "Tỷ giá Vietcombank hôm nay — USD, EUR, JPY, CNY";
 const DESC = "Tỷ giá Ngân hàng Vietcombank hôm nay: USD, EUR, JPY, CNY, GBP, KRW, SGD và nhiều ngoại tệ khác — giá mua tiền mặt, mua chuyển khoản và bán ra chính thức.";
 
-export const Route = createFileRoute("/bank-rates")({
+export const Route = createFileRoute("/lai-suat-ngan-hang")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -88,7 +88,7 @@ function BankRatesPage() {
           <section className="prose prose-invert max-w-none space-y-3">
             <h2 className="text-2xl font-bold tracking-tight">Về dữ liệu tỷ giá</h2>
             <p className="text-muted-foreground">
-              Tỷ giá được lấy trực tiếp từ trang chính thức của Vietcombank và mang tính tham khảo. Vietcombank có thể điều chỉnh tỷ giá nhiều lần trong ngày; vui lòng đối chiếu với ngân hàng trước khi giao dịch giá trị lớn. Quy đổi nhanh sang VND bằng <Link to="/converter" className="text-primary hover:underline">công cụ đổi ngoại tệ</Link> hoặc xem thêm <Link to="/forex" className="text-primary hover:underline">tỷ giá USD/VND realtime</Link>.
+              Tỷ giá được lấy trực tiếp từ trang chính thức của Vietcombank và mang tính tham khảo. Vietcombank có thể điều chỉnh tỷ giá nhiều lần trong ngày; vui lòng đối chiếu với ngân hàng trước khi giao dịch giá trị lớn. Quy đổi nhanh sang VND bằng <Link to="/quy-doi-tien-te" className="text-primary hover:underline">công cụ đổi ngoại tệ</Link> hoặc xem thêm <Link to="/ty-gia-ngoai-te" className="text-primary hover:underline">tỷ giá USD/VND realtime</Link>.
             </p>
           </section>
           <RelatedLinks current="bank-rates" />

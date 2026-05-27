@@ -8,8 +8,8 @@ import { ConverterTool } from "@/components/site/ConverterTool";
 import { PriceChart } from "@/components/site/PriceChart";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/forex`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/ty-gia-ngoai-te`;
 const TITLE = "Giá USD hôm nay — Tỷ giá EUR, JPY, CNY, GBP, KRW realtime";
 const DESC = "Giá USD hôm nay, tỷ giá EUR, JPY, CNY, GBP, KRW, AUD sang VND cập nhật realtime — giá mua, giá bán, công cụ quy đổi nhanh ngoại tệ sang VND.";
 
@@ -20,7 +20,7 @@ const FAQ = [
   { q: "Làm sao quy đổi nhanh USD, EUR sang VND?", a: "Sử dụng công cụ quy đổi ngoại tệ ngay trên trang này — nhập số tiền, chọn loại tiền và xem kết quả VND theo tỷ giá realtime." },
 ];
 
-export const Route = createFileRoute("/forex")({
+export const Route = createFileRoute("/ty-gia-ngoai-te")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -122,11 +122,11 @@ function ForexPage() {
             </p>
             <h3 className="text-xl font-semibold">Quy đổi USD, EUR, CNY sang VND</h3>
             <p className="text-muted-foreground">
-              Sử dụng <Link to="/converter" className="text-primary hover:underline">công cụ quy đổi tiền tệ</Link> để tính nhanh số tiền cần đổi giữa các loại ngoại tệ và VND theo tỷ giá realtime — phù hợp khi gửi tiền, du lịch hay nhập hàng quốc tế. Tham khảo thêm <Link to="/bank-rates" className="text-primary hover:underline">tỷ giá Vietcombank hôm nay</Link> trước khi giao dịch.
+              Sử dụng <Link to="/quy-doi-tien-te" className="text-primary hover:underline">công cụ quy đổi tiền tệ</Link> để tính nhanh số tiền cần đổi giữa các loại ngoại tệ và VND theo tỷ giá realtime — phù hợp khi gửi tiền, du lịch hay nhập hàng quốc tế. Tham khảo thêm <Link to="/lai-suat-ngan-hang" className="text-primary hover:underline">tỷ giá Vietcombank hôm nay</Link> trước khi giao dịch.
             </p>
             <h3 className="text-xl font-semibold">Vì sao tỷ giá ngoại tệ thay đổi liên tục?</h3>
             <p className="text-muted-foreground">
-              Tỷ giá phụ thuộc vào cung – cầu, lãi suất, chính sách tiền tệ và thị trường thế giới. Theo dõi tỷ giá realtime giúp bạn chọn thời điểm giao dịch ngoại tệ tối ưu nhất. Liên quan: <Link to="/gold" className="text-primary hover:underline">giá vàng SJC hôm nay</Link>, <Link to="/crypto" className="text-primary hover:underline">giá Bitcoin hôm nay</Link>.
+              Tỷ giá phụ thuộc vào cung – cầu, lãi suất, chính sách tiền tệ và thị trường thế giới. Theo dõi tỷ giá realtime giúp bạn chọn thời điểm giao dịch ngoại tệ tối ưu nhất. Liên quan: <Link to="/gia-vang" className="text-primary hover:underline">giá vàng SJC hôm nay</Link>, <Link to="/tien-dien-tu" className="text-primary hover:underline">giá Bitcoin hôm nay</Link>.
             </p>
           </section>
 

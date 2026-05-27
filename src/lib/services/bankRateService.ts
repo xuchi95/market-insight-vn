@@ -7,7 +7,7 @@ export interface BankRateResponse {
 }
 
 export async function fetchBankRates(): Promise<BankRateResponse> {
-  const res = await fetch("/api/public/bank-rates", { headers: { accept: "application/json" } });
+  const res = await fetch("/api/public/lai-suat-ngan-hang", { headers: { accept: "application/json" } });
   if (!res.ok) throw new Error(`Lỗi tải tỷ giá (HTTP ${res.status})`);
   const j = await res.json();
   if (!Array.isArray(j?.items)) throw new Error("Phản hồi không hợp lệ");

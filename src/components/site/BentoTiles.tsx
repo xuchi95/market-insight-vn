@@ -86,7 +86,7 @@ export function BentoTiles() {
     <div className="grid grid-cols-2 gap-3 md:gap-4">
       {/* Gold — large hero tile */}
       <TileFrame className="col-span-2 md:col-span-2">
-        <Link to="/gold" className="block group">
+        <Link to="/gia-vang" className="block group">
           <div className="flex justify-between items-start mb-4">
             <div>
               <div className="eyebrow mb-1.5">Vàng miếng SJC</div>
@@ -130,7 +130,7 @@ export function BentoTiles() {
 
       {/* BTC */}
       <TileFrame>
-        <Link to="/crypto" className="block">
+        <Link to="/tien-dien-tu" className="block">
           <div className="eyebrow mb-1">Bitcoin</div>
           <div className="font-display text-2xl text-foreground leading-none">
             ${btc ? fmt(btc.priceUsd, 0) : "—"}
@@ -148,7 +148,7 @@ export function BentoTiles() {
 
       {/* ETH */}
       <TileFrame>
-        <Link to="/crypto" className="block">
+        <Link to="/tien-dien-tu" className="block">
           <div className="eyebrow mb-1">Ethereum</div>
           <div className="font-display text-2xl text-foreground leading-none">
             ${eth ? fmt(eth.priceUsd, 0) : "—"}
@@ -166,7 +166,7 @@ export function BentoTiles() {
 
       {/* Forex — full-width compact list */}
       <TileFrame className="col-span-2">
-        <Link to="/forex" className="block">
+        <Link to="/ty-gia-ngoai-te" className="block">
           <div className="flex items-baseline justify-between mb-3">
             <div className="eyebrow">Ngoại tệ · Quy đổi VND</div>
             <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />

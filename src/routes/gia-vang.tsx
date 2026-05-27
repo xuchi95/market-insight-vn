@@ -8,8 +8,8 @@ import { GoldPriceTable } from "@/components/site/GoldPriceTable";
 import { PriceChart } from "@/components/site/PriceChart";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/gold`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/gia-vang`;
 const TITLE = "Giá vàng SJC hôm nay — DOJI, PNJ, BTMC, XAU/USD realtime";
 const DESC = "Giá vàng SJC hôm nay, giá vàng DOJI, PNJ, Bảo Tín Minh Châu, Phú Quý và giá vàng thế giới XAU/USD cập nhật realtime theo phút. Mua vào, bán ra, biểu đồ và lịch sử.";
 
@@ -20,7 +20,7 @@ const FAQ = [
   { q: "Bao lâu MarketWatch cập nhật giá vàng một lần?", a: "Bảng giá vàng tự động làm mới mỗi 5 giây, đảm bảo bạn luôn xem được giá vàng hôm nay sát thị trường nhất." },
 ];
 
-export const Route = createFileRoute("/gold")({
+export const Route = createFileRoute("/gia-vang")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -116,11 +116,11 @@ function GoldPage() {
             </p>
             <h3 className="text-xl font-semibold">Giá vàng thế giới XAU/USD</h3>
             <p className="text-muted-foreground">
-              Bên cạnh giá vàng trong nước, MarketWatch hiển thị <strong>giá vàng thế giới XAU/USD</strong> theo ounce — chỉ báo quan trọng ảnh hưởng đến giá vàng Việt Nam mỗi ngày. Bạn có thể quy đổi XAU/USD sang VND nhanh bằng <Link to="/converter" className="text-primary hover:underline">công cụ đổi ngoại tệ</Link> hoặc đối chiếu với <Link to="/forex" className="text-primary hover:underline">tỷ giá USD/VND hôm nay</Link>.
+              Bên cạnh giá vàng trong nước, MarketWatch hiển thị <strong>giá vàng thế giới XAU/USD</strong> theo ounce — chỉ báo quan trọng ảnh hưởng đến giá vàng Việt Nam mỗi ngày. Bạn có thể quy đổi XAU/USD sang VND nhanh bằng <Link to="/quy-doi-tien-te" className="text-primary hover:underline">công cụ đổi ngoại tệ</Link> hoặc đối chiếu với <Link to="/ty-gia-ngoai-te" className="text-primary hover:underline">tỷ giá USD/VND hôm nay</Link>.
             </p>
             <h3 className="text-xl font-semibold">Vì sao nên theo dõi giá vàng realtime?</h3>
             <p className="text-muted-foreground">
-              Giá vàng biến động theo cung – cầu, <Link to="/forex" className="text-primary hover:underline">tỷ giá USD/VND</Link> và giá vàng thế giới. Theo dõi giá vàng realtime giúp bạn lựa chọn thời điểm mua – bán hợp lý, tránh chênh lệch lớn giữa các thương hiệu. Quan tâm thị trường khác? Xem thêm <Link to="/crypto" className="text-primary hover:underline">giá Bitcoin hôm nay</Link>.
+              Giá vàng biến động theo cung – cầu, <Link to="/ty-gia-ngoai-te" className="text-primary hover:underline">tỷ giá USD/VND</Link> và giá vàng thế giới. Theo dõi giá vàng realtime giúp bạn lựa chọn thời điểm mua – bán hợp lý, tránh chênh lệch lớn giữa các thương hiệu. Quan tâm thị trường khác? Xem thêm <Link to="/tien-dien-tu" className="text-primary hover:underline">giá Bitcoin hôm nay</Link>.
             </p>
           </section>
 

@@ -20,32 +20,32 @@ type LinkItem = {
 
 const ALL: Record<Exclude<PageKey, "home">, LinkItem> = {
   gold: {
-    to: "/gold",
+    to: "/gia-vang",
     keyword: "Giá vàng SJC hôm nay",
     desc: "Giá vàng SJC, DOJI, PNJ, BTMC và XAU/USD realtime.",
   },
   crypto: {
-    to: "/crypto",
+    to: "/tien-dien-tu",
     keyword: "Giá Bitcoin (BTC) hôm nay",
     desc: "Giá BTC, ETH, USDT, BNB, SOL theo USD và VND.",
   },
   forex: {
-    to: "/forex",
+    to: "/ty-gia-ngoai-te",
     keyword: "Tỷ giá USD/VND hôm nay",
     desc: "Tỷ giá USD, EUR, JPY, GBP, AUD ngân hàng và chợ đen.",
   },
   converter: {
-    to: "/converter",
+    to: "/quy-doi-tien-te",
     keyword: "Công cụ quy đổi tiền tệ",
     desc: "Quy đổi USD ↔ VND, BTC ↔ USD, vàng ↔ VND tức thì.",
   },
   stocks: {
-    to: "/stocks",
+    to: "/chung-khoan",
     keyword: "Chỉ số chứng khoán VN-Index",
     desc: "VN-Index, HNX-Index, UPCOM và chỉ số quốc tế.",
   },
   "bank-rates": {
-    to: "/bank-rates",
+    to: "/lai-suat-ngan-hang",
     keyword: "Lãi suất ngân hàng hôm nay",
     desc: "Lãi suất tiết kiệm Vietcombank, BIDV, Techcombank…",
   },

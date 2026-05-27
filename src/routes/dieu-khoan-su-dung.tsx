@@ -3,12 +3,12 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/terms`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/dieu-khoan-su-dung`;
 const TITLE = "Điều khoản sử dụng — MarketWatch";
 const DESC = "Điều khoản sử dụng website MarketWatch. Quy định về quyền và nghĩa vụ của người dùng khi truy cập thông tin giá vàng, crypto, ngoại tệ.";
 
-export const Route = createFileRoute("/terms")({
+export const Route = createFileRoute("/dieu-khoan-su-dung")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -54,7 +54,7 @@ function TermsPage() {
           <section className="prose prose-invert max-w-none space-y-4 text-muted-foreground leading-relaxed">
             <h2 className="text-xl font-semibold text-foreground">1. Chấp nhận điều khoản</h2>
             <p>
-              Khi truy cập và sử dụng MarketWatch, bạn xác nhận đã đọc, hiểu và đồng ý với toàn bộ Điều khoản sử dụng này cùng với <Link to="/disclaimer" className="text-foreground underline">Tuyên bố miễn trừ trách nhiệm</Link> và <Link to="/privacy" className="text-foreground underline">Chính sách dữ liệu</Link>. Nếu không đồng ý, vui lòng ngừng sử dụng Website.
+              Khi truy cập và sử dụng MarketWatch, bạn xác nhận đã đọc, hiểu và đồng ý với toàn bộ Điều khoản sử dụng này cùng với <Link to="/mien-tru-trach-nhiem" className="text-foreground underline">Tuyên bố miễn trừ trách nhiệm</Link> và <Link to="/chinh-sach-bao-mat" className="text-foreground underline">Chính sách dữ liệu</Link>. Nếu không đồng ý, vui lòng ngừng sử dụng Website.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground">2. Mục đích sử dụng</h2>

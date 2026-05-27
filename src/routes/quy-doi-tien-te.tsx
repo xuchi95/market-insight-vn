@@ -6,8 +6,8 @@ import { Footer } from "@/components/site/Footer";
 import { ConverterTool } from "@/components/site/ConverterTool";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/converter`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/quy-doi-tien-te`;
 const TITLE = "Đổi ngoại tệ — Quy đổi USD, EUR, JPY, CNY sang VND realtime";
 const DESC = "Công cụ đổi ngoại tệ trực tuyến: quy đổi USD, EUR, JPY, CNY, GBP, KRW, AUD, vàng và crypto sang VND theo tỷ giá thực tế, có tính chênh lệch mua–bán.";
 
@@ -18,7 +18,7 @@ const FAQ = [
   { q: "Kết quả quy đổi có chính xác để giao dịch không?", a: "Kết quả chỉ mang tính tham khảo. Khi giao dịch thực tế bạn cần kiểm tra tỷ giá niêm yết tại ngân hàng/đại lý và cộng thêm phí dịch vụ nếu có." },
 ];
 
-export const Route = createFileRoute("/converter")({
+export const Route = createFileRoute("/quy-doi-tien-te")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -85,11 +85,11 @@ function ConverterPage() {
             </p>
             <h3 className="text-xl font-semibold">Hỗ trợ những loại tiền nào?</h3>
             <p className="text-muted-foreground">
-              Hơn 10 ngoại tệ phổ biến (USD, EUR, GBP, JPY, CNY, KRW, SGD, AUD, CAD, CHF, HKD) — xem chi tiết tại trang <Link to="/forex" className="text-primary hover:underline">tỷ giá ngoại tệ hôm nay</Link>, <Link to="/gold" className="text-primary hover:underline">vàng miếng SJC/PNJ</Link> và các đồng <Link to="/crypto" className="text-primary hover:underline">crypto chủ chốt (BTC, ETH, BNB, SOL…)</Link>.
+              Hơn 10 ngoại tệ phổ biến (USD, EUR, GBP, JPY, CNY, KRW, SGD, AUD, CAD, CHF, HKD) — xem chi tiết tại trang <Link to="/ty-gia-ngoai-te" className="text-primary hover:underline">tỷ giá ngoại tệ hôm nay</Link>, <Link to="/gia-vang" className="text-primary hover:underline">vàng miếng SJC/PNJ</Link> và các đồng <Link to="/tien-dien-tu" className="text-primary hover:underline">crypto chủ chốt (BTC, ETH, BNB, SOL…)</Link>.
             </p>
             <h3 className="text-xl font-semibold">Spread mua–bán là gì?</h3>
             <p className="text-muted-foreground">
-              Là chênh lệch giữa giá mua vào và giá bán ra của ngân hàng/đại lý. Spread càng lớn, chi phí đổi tiền càng cao — công cụ giúp bạn ước lượng phần thiệt hại này trước khi giao dịch thật. Đối chiếu thêm với <Link to="/bank-rates" className="text-primary hover:underline">tỷ giá Vietcombank niêm yết</Link>.
+              Là chênh lệch giữa giá mua vào và giá bán ra của ngân hàng/đại lý. Spread càng lớn, chi phí đổi tiền càng cao — công cụ giúp bạn ước lượng phần thiệt hại này trước khi giao dịch thật. Đối chiếu thêm với <Link to="/lai-suat-ngan-hang" className="text-primary hover:underline">tỷ giá Vietcombank niêm yết</Link>.
             </p>
           </section>
 

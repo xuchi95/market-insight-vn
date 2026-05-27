@@ -3,12 +3,12 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/disclaimer`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/mien-tru-trach-nhiem`;
 const TITLE = "Tuyên bố miễn trừ trách nhiệm — MarketWatch";
 const DESC = "MarketWatch là kênh thông tin tham khảo. Dữ liệu giá vàng, tiền mã hoá, ngoại tệ chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.";
 
-export const Route = createFileRoute("/disclaimer")({
+export const Route = createFileRoute("/mien-tru-trach-nhiem")({
   head: () => ({
     meta: [
       { title: TITLE },

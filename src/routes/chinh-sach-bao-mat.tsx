@@ -3,12 +3,12 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 
-const SITE = "https://market-insight-vn.lovable.app";
-const URL = `${SITE}/privacy`;
+const SITE = "https://marketwatch.vn";
+const URL = `${SITE}/chinh-sach-bao-mat`;
 const TITLE = "Chính sách dữ liệu & quyền riêng tư — MarketWatch";
 const DESC = "Chính sách bảo vệ dữ liệu cá nhân của MarketWatch theo Nghị định 13/2023/NĐ-CP. Cách Website thu thập, sử dụng và bảo vệ thông tin người dùng.";
 
-export const Route = createFileRoute("/privacy")({
+export const Route = createFileRoute("/chinh-sach-bao-mat")({
   head: () => ({
     meta: [
       { title: TITLE },
