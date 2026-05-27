@@ -400,7 +400,7 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     : null;
 
   return (
-    <div className="rounded-xl border bg-card/40">
+    <div ref={exportRef} className="rounded-xl border bg-card/40">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4">
         <div className="flex items-center gap-2">
           <LCIcon className="h-4 w-4 text-primary" />
@@ -591,6 +591,12 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           </AreaChart>
         </ResponsiveContainer>
       </div>
+      {visibleData.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-1 pb-2 text-[11px] tabular text-muted-foreground border-t border-border/40 mt-1">
+          <span><span className="text-foreground/80 font-semibold">Bắt đầu:</span> {fmtDateLong(visibleData[0].t)}</span>
+          <span><span className="text-foreground/80 font-semibold">Kết thúc:</span> {fmtDateLong(visibleData[visibleData.length - 1].t)}</span>
+        </div>
+      )}
       <div className="px-4 pb-3 text-[11px] text-muted-foreground">
         Mẹo: kéo để tạo vùng chọn (snap theo <strong>{snapStepLabel}</strong>) → kéo <strong>bên trong</strong> để dịch chuyển, kéo <strong>mép</strong> để chỉnh — bấm <em>Phóng to</em> để áp dụng, <em>nhấn đúp</em> để zoom nhanh.
       </div>
