@@ -3,20 +3,28 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendEmail } from "@/lib/email/mailgun.server";
 import { priceAlertEmail } from "@/lib/email/templates.server";
 
-function originFromRequest(request: Request): string {
-  const url = new URL(request.url);
-  return `${url.protocol}//${url.host}`;
-}
+const COIN_IDS = [
+  "bitcoin", "ethereum", "tether", "binancecoin", "solana",
+  "ripple", "dogecoin", "the-open-network", "cardano", "avalanche-2",
+] as const;
 
-async function fetchCryptoPriceMap(origin: string): Promise<Map<string, number>> {
+// Call CoinGecko directly — avoids an extra worker invocation by skipping
+// the internal /api/public/crypto round-trip.
+async function fetchCryptoPriceMap(): Promise<Map<string, number>> {
   const map = new Map<string, number>();
   try {
-    const res = await fetch(`${origin}/api/public/crypto`, { headers: { accept: "application/json" } });
+    const url = new URL("https://api.coingecko.com/api/v3/coins/markets");
+    url.searchParams.set("vs_currency", "usd");
+    url.searchParams.set("ids", COIN_IDS.join(","));
+    const headers: Record<string, string> = { accept: "application/json" };
+    const key = process.env.COINGECKO_API_KEY;
+    if (key) headers["x-cg-demo-api-key"] = key;
+    const res = await fetch(url, { headers });
     if (!res.ok) return map;
-    const json: any = await res.json();
-    for (const c of json?.coins ?? []) {
+    const data: any[] = await res.json();
+    for (const c of data ?? []) {
       const sym = String(c?.symbol ?? "").toUpperCase();
-      const price = Number(c?.priceUsd ?? c?.current_price);
+      const price = Number(c?.current_price);
       if (sym && Number.isFinite(price)) map.set(sym, price);
     }
   } catch (e) {
@@ -25,9 +33,10 @@ async function fetchCryptoPriceMap(origin: string): Promise<Map<string, number>>
   return map;
 }
 
-async function fetchGoldPrice(origin: string): Promise<number | null> {
+// Call gold-api.com directly (same upstream as /api/public/xau).
+async function fetchGoldPrice(): Promise<number | null> {
   try {
-    const res = await fetch(`${origin}/api/public/xau`, { headers: { accept: "application/json" } });
+    const res = await fetch("https://api.gold-api.com/price/XAU", { headers: { accept: "application/json" } });
     if (!res.ok) return null;
     const json: any = await res.json();
     const price = Number(json?.price);
@@ -50,8 +59,7 @@ interface AlertRow {
 export const Route = createFileRoute("/api/public/price-alerts-cron")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
-        const origin = originFromRequest(request);
+      POST: async () => {
         const { data: alerts, error } = await supabaseAdmin
           .from("user_price_alerts")
           .select("id,user_id,symbol,asset_type,direction,threshold_usd,email_enabled")
@@ -69,8 +77,8 @@ export const Route = createFileRoute("/api/public/price-alerts-cron")({
         const needsCrypto = alerts.some((a) => a.asset_type === "crypto");
         const needsGold = alerts.some((a) => a.asset_type === "gold");
         const [cryptoMap, goldPrice] = await Promise.all([
-          needsCrypto ? fetchCryptoPriceMap(origin) : Promise.resolve(new Map<string, number>()),
-          needsGold ? fetchGoldPrice(origin) : Promise.resolve(null),
+          needsCrypto ? fetchCryptoPriceMap() : Promise.resolve(new Map<string, number>()),
+          needsGold ? fetchGoldPrice() : Promise.resolve(null),
         ]);
 
         const userIds = Array.from(new Set(alerts.map((a) => a.user_id)));
