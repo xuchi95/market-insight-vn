@@ -11,26 +11,27 @@ import {
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu";
 
-const NAV_GROUPS = [
+type NavItem = { label: string; to: string };
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Thị trường",
     items: [
-      { label: "Vàng", to: "/gold" as const },
-      { label: "Chứng khoán", to: "/stocks" as const },
-      { label: "Crypto", to: "/crypto" as const },
+      { label: "Vàng", to: "/gold" },
+      { label: "Chứng khoán", to: "/stocks" },
+      { label: "Crypto", to: "/crypto" },
     ],
   },
   {
     label: "Ngoại tệ",
     items: [
-      { label: "Ngoại tệ", to: "/forex" as const },
-      { label: "Tỷ giá NH", to: "/bank-rates" as const },
-      { label: "Đổi tiền", to: "/converter" as const },
+      { label: "Ngoại tệ", to: "/forex" },
+      { label: "Tỷ giá NH", to: "/bank-rates" },
+      { label: "Đổi tiền", to: "/converter" },
     ],
   },
 ];
 
-const HOME = { label: "Tổng quan", to: "/" as const };
+const HOME: NavItem = { label: "Tổng quan", to: "/" };
 
 function useClock() {
   const [now, setNow] = useState(() => new Date());
