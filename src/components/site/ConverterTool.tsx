@@ -77,6 +77,10 @@ export function ConverterTool() {
     return { a, b, n, amountB_realistic, amountB_mid, loss, lossPct, vndFromSelling, vndMid };
   }, [assets, from, to, amount]);
 
+  // Hiển thị giá VND cho 1 đơn vị tài sản với 2 chữ số thập phân,
+  // khớp định dạng cột Mua/Bán trên trang Tỷ giá ngoại tệ.
+  const fmtRateVND = (v: number) => `${fmtNum(v, 2)} ₫`;
+
   const fmtAmount = (v: number, kind: AssetKind, code: string) => {
     if (code === "vnd") return fmtVND(v);
     const dp = kind === "crypto" ? (v < 1 ? 8 : 6) : kind === "gold" ? 4 : 4;
@@ -179,7 +183,7 @@ export function ConverterTool() {
                 icon={<TrendingDown className="h-3.5 w-3.5" />}
                 eyebrow="Giá mua vào"
                 sub={`Bạn bán ${codeLabel(result.a)}`}
-                price={`1 ${codeLabel(result.a)} = ${fmtVND(result.a.buyVnd)}`}
+                price={`1 ${codeLabel(result.a)} = ${fmtRateVND(result.a.buyVnd)}`}
                 detail={`Bán ${fmtAmount(result.n, result.a.kind, result.a.key)} ${codeLabel(result.a)} → nhận ${fmtVND(result.vndFromSelling)}`}
               />
               <RateTile
@@ -187,7 +191,7 @@ export function ConverterTool() {
                 icon={<TrendingUp className="h-3.5 w-3.5" />}
                 eyebrow="Giá bán ra"
                 sub={`Bạn mua ${codeLabel(result.b)}`}
-                price={`1 ${codeLabel(result.b)} = ${fmtVND(result.b.sellVnd)}`}
+                price={`1 ${codeLabel(result.b)} = ${fmtRateVND(result.b.sellVnd)}`}
                 detail={`Mua ${fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)} ${codeLabel(result.b)} → trả ${fmtVND(result.vndFromSelling)}`}
               />
             </div>
