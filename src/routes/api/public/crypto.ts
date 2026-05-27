@@ -1,30 +1,37 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// CoinCap v3 asset IDs
+// CoinGecko coin IDs (public free API, no key required, ~30 req/min)
 const COIN_IDS = [
   "bitcoin",
   "ethereum",
   "tether",
-  "binance-coin",
+  "binancecoin",
   "solana",
-  "xrp",
+  "ripple",
   "dogecoin",
-  "toncoin",
+  "the-open-network",
   "cardano",
-  "avalanche",
+  "avalanche-2",
 ] as const;
 
-const CACHE_MS = 30 * 1000;
+// Free CoinGecko data refreshes every ~30-60s upstream. Re-poll often enough
+// to feel realtime while staying well under the public rate limit.
+const CACHE_FRESH_MS = 20 * 1000;
+const CACHE_SWR_MS = 5 * 60 * 1000;
+const UPSTREAM_TIMEOUT_MS = 6_000;
 let cache: { at: number; payload: any } | null = null;
+let inflight: Promise<any> | null = null;
 
-interface CCAsset {
+interface CGAsset {
   id?: string;
   symbol?: string;
   name?: string;
-  priceUsd?: string | null;
-  marketCapUsd?: string | null;
-  volumeUsd24Hr?: string | null;
-  changePercent24Hr?: string | null;
+  image?: string;
+  current_price?: number | null;
+  market_cap?: number | null;
+  total_volume?: number | null;
+  price_change_percentage_24h?: number | null;
+  sparkline_in_7d?: { price?: number[] } | null;
 }
 
 const FALLBACK_USD_VND = 25_400;
@@ -34,11 +41,19 @@ function toNum(v: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function buildSparkline(input: number[] | undefined, priceUsd: number): number[] {
+function normalizeSparkline(input: number[] | undefined, priceUsd: number): number[] {
   const arr = Array.isArray(input) ? input.filter((n) => Number.isFinite(n)) : [];
-  if (arr.length > 0) return arr.slice(-48);
-  const base = priceUsd > 0 ? priceUsd : 1;
-  return Array.from({ length: 48 }, (_, i) => base * (1 + Math.sin(i / 6) * 0.005));
+  if (arr.length === 0) {
+    const base = priceUsd > 0 ? priceUsd : 1;
+    return Array.from({ length: 48 }, (_, i) => base * (1 + Math.sin(i / 6) * 0.005));
+  }
+  // Downsample to ~48 points for compact wire size while keeping shape.
+  if (arr.length <= 48) return arr;
+  const step = arr.length / 48;
+  const out: number[] = [];
+  for (let i = 0; i < 48; i++) out.push(arr[Math.min(arr.length - 1, Math.floor(i * step))]);
+  out[out.length - 1] = arr[arr.length - 1]; // preserve latest
+  return out;
 }
 
 async function fetchUsdVnd(): Promise<number> {
@@ -52,71 +67,74 @@ async function fetchUsdVnd(): Promise<number> {
   return FALLBACK_USD_VND;
 }
 
-function ccHeaders() {
-  return { accept: "application/json" } as Record<string, string>;
-}
-
-function withKey(u: URL | string): string {
-  const key = process.env.COINCAP_API_KEY;
-  const url = typeof u === "string" ? new URL(u) : u;
-  if (key) url.searchParams.set("apiKey", key);
-  return url.toString();
-}
-
-async function fetchSparkline(id: string, priceUsd: number): Promise<number[]> {
-  try {
-    const end = Date.now();
-    const start = end - 7 * 24 * 60 * 60 * 1000;
-    const u = withKey(`https://rest.coincap.io/v3/assets/${id}/history?interval=h6&start=${start}&end=${end}`);
-    const r = await fetch(u, { headers: ccHeaders() });
-    if (!r.ok) throw new Error(String(r.status));
-    const j: any = await r.json();
-    const pts: number[] = Array.isArray(j?.data)
-      ? j.data.map((p: any) => Number(p?.priceUsd)).filter((n: number) => Number.isFinite(n))
-      : [];
-    if (pts.length > 0) return pts;
-  } catch { /* ignore */ }
-  return buildSparkline(undefined, priceUsd);
+function cgHeaders() {
+  const h: Record<string, string> = { accept: "application/json" };
+  const key = process.env.COINGECKO_API_KEY;
+  if (key) h["x-cg-demo-api-key"] = key;
+  return h;
 }
 
 async function buildPayload() {
-  const url = new URL("https://rest.coincap.io/v3/assets");
+  const url = new URL("https://api.coingecko.com/api/v3/coins/markets");
+  url.searchParams.set("vs_currency", "usd");
   url.searchParams.set("ids", COIN_IDS.join(","));
+  url.searchParams.set("order", "market_cap_desc");
+  url.searchParams.set("sparkline", "true");
+  url.searchParams.set("price_change_percentage", "24h");
 
-  const [res, usdVnd] = await Promise.all([
-    fetch(withKey(url), { headers: ccHeaders() }),
-    fetchUsdVnd(),
-  ]);
-  if (!res.ok) throw new Error(`crypto upstream ${res.status}`);
-  const raw: any = await res.json();
-  const data: CCAsset[] = Array.isArray(raw?.data) ? raw.data : [];
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
+
+  let data: CGAsset[];
+  try {
+    const [res, usdVndVal] = await Promise.all([
+      fetch(url, { headers: cgHeaders(), signal: ctrl.signal }),
+      fetchUsdVnd(),
+    ]);
+    if (!res.ok) throw new Error(`crypto upstream ${res.status}`);
+    data = (await res.json()) as CGAsset[];
+    var usdVnd = usdVndVal; // eslint-disable-line no-var
+  } finally {
+    clearTimeout(timer);
+  }
 
   const ordered = COIN_IDS
     .map((id) => data.find((m) => m?.id === id))
-    .filter((m): m is CCAsset => !!m);
+    .filter((m): m is CGAsset => !!m);
 
-  const base = ordered.map((m) => {
+  const coins = ordered.map((m) => {
     const id = String(m.id ?? m.symbol ?? "").toLowerCase();
     const symbol = String(m.symbol ?? id).toUpperCase();
     const name = String(m.name ?? symbol);
-    const priceUsd = toNum(m.priceUsd, 0);
+    const priceUsd = toNum(m.current_price, 0);
     return {
       id,
       symbol,
       name,
-      image: `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`,
+      image: m.image ?? "",
       priceUsd,
       priceVnd: priceUsd * usdVnd,
-      change24h: toNum(m.changePercent24Hr, 0),
-      marketCap: toNum(m.marketCapUsd, 0),
-      volume24h: toNum(m.volumeUsd24Hr, 0),
+      change24h: toNum(m.price_change_percentage_24h, 0),
+      marketCap: toNum(m.market_cap, 0),
+      volume24h: toNum(m.total_volume, 0),
+      sparkline: normalizeSparkline(m.sparkline_in_7d?.price, priceUsd),
     };
   });
 
-  const sparks = await Promise.all(base.map((c) => fetchSparkline(c.id, c.priceUsd)));
-  const coins = base.map((c, i) => ({ ...c, sparkline: sparks[i] }));
-
   return { updatedAt: Date.now(), usdVnd, coins };
+}
+
+function refresh(): Promise<any> {
+  if (inflight) return inflight;
+  inflight = buildPayload()
+    .then((payload) => {
+      cache = { at: Date.now(), payload };
+      return payload;
+    })
+    .finally(() => {
+      inflight = null;
+    });
+  return inflight;
 }
 
 const CORS = {
@@ -131,15 +149,27 @@ export const Route = createFileRoute("/api/public/crypto")({
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async () => {
         try {
-          if (!cache || Date.now() - cache.at > CACHE_MS) {
-            const payload = await buildPayload();
-            cache = { at: Date.now(), payload };
+          let payload: any;
+          const age = cache ? Date.now() - cache.at : Infinity;
+          if (cache && age < CACHE_FRESH_MS) {
+            payload = cache.payload;
+          } else if (cache && age < CACHE_SWR_MS) {
+            payload = cache.payload;
+            refresh().catch(() => {});
+          } else {
+            try {
+              payload = await refresh();
+            } catch (e) {
+              if (cache) payload = cache.payload;
+              else throw e;
+            }
           }
-          return new Response(JSON.stringify(cache.payload), {
+          return new Response(JSON.stringify(payload), {
             status: 200,
             headers: {
               "Content-Type": "application/json",
-              "Cache-Control": "public, max-age=30",
+              "Cache-Control":
+                "public, max-age=15, s-maxage=20, stale-while-revalidate=300",
               ...CORS,
             },
           });
