@@ -26,7 +26,7 @@ export function Footer() {
               <li><Link to="/chung-khoan" className="hover:text-foreground">Chứng khoán</Link></li>
               <li><Link to="/tien-dien-tu" className="hover:text-foreground">Crypto</Link></li>
               <li><Link to="/ty-gia-ngoai-te" className="hover:text-foreground">Ngoại tệ</Link></li>
-              <li><Link to="/lai-suat-ngan-hang" className="hover:text-foreground">Tỷ giá ngân hàng</Link></li>
+              <li><Link to="/ty-gia-ngan-hang" className="hover:text-foreground">Tỷ giá ngân hàng</Link></li>
               <li><Link to="/quy-doi-tien-te" className="hover:text-foreground">Đổi ngoại tệ</Link></li>
             </ul>
           </div>

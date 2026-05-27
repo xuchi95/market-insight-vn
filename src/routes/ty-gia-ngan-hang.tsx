@@ -6,11 +6,11 @@ import { BankRateTable } from "@/components/site/BankRateTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://marketwatch.vn";
-const URL = `${SITE}/lai-suat-ngan-hang`;
+const URL = `${SITE}/ty-gia-ngan-hang`;
 const TITLE = "Tỷ giá Vietcombank hôm nay — USD, EUR, JPY, CNY";
 const DESC = "Tỷ giá Ngân hàng Vietcombank hôm nay: USD, EUR, JPY, CNY, GBP, KRW, SGD và nhiều ngoại tệ khác — giá mua tiền mặt, mua chuyển khoản và bán ra chính thức.";
 
-export const Route = createFileRoute("/lai-suat-ngan-hang")({
+export const Route = createFileRoute("/ty-gia-ngan-hang")({
   head: () => ({
     meta: [
       { title: TITLE },

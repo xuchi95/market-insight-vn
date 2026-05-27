@@ -45,7 +45,7 @@ const ALL: Record<Exclude<PageKey, "home">, LinkItem> = {
     desc: "VN-Index, HNX-Index, UPCOM và chỉ số quốc tế.",
   },
   "bank-rates": {
-    to: "/lai-suat-ngan-hang",
+    to: "/ty-gia-ngan-hang",
     keyword: "Lãi suất ngân hàng hôm nay",
     desc: "Lãi suất tiết kiệm Vietcombank, BIDV, Techcombank…",
   },

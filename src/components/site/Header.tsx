@@ -26,7 +26,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Ngoại tệ",
     items: [
       { label: "Ngoại tệ", to: "/ty-gia-ngoai-te" },
-      { label: "Tỷ giá NH", to: "/lai-suat-ngan-hang" },
+      { label: "Tỷ giá NH", to: "/ty-gia-ngan-hang" },
       { label: "Đổi tiền", to: "/quy-doi-tien-te" },
     ],
   },
@@ -116,7 +116,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               if (/btc|eth|crypto|bitcoin/.test(term)) navigate({ to: "/tien-dien-tu" });
               else if (/sjc|xau|vàng|vang|gold/.test(term)) navigate({ to: "/gia-vang" });
               else if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) navigate({ to: "/ty-gia-ngoai-te" });
-              else if (/lãi|lai|ngân hàng|ngan hang|bank/.test(term)) navigate({ to: "/lai-suat-ngan-hang" });
+              else if (/lãi|lai|ngân hàng|ngan hang|bank/.test(term)) navigate({ to: "/ty-gia-ngan-hang" });
               else if (/đổi|doi|convert/.test(term)) navigate({ to: "/quy-doi-tien-te" });
               else if (/vn-?index|hose|hnx|chứng|chung|stock/.test(term)) navigate({ to: "/chung-khoan" });
             }}

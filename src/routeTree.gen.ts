@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
+import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
 import { Route as TienDienTuRouteImport } from './routes/tien-dien-tu'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StocksRouteImport } from './routes/stocks'
@@ -18,7 +19,6 @@ import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-nhiem'
 import { Route as LienHeRouteImport } from './routes/lien-he'
-import { Route as LaiSuatNganHangRouteImport } from './routes/lai-suat-ngan-hang'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
@@ -45,6 +45,11 @@ import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank
 const TyGiaNgoaiTeRoute = TyGiaNgoaiTeRouteImport.update({
   id: '/ty-gia-ngoai-te',
   path: '/ty-gia-ngoai-te',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TyGiaNganHangRoute = TyGiaNganHangRouteImport.update({
+  id: '/ty-gia-ngan-hang',
+  path: '/ty-gia-ngan-hang',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TienDienTuRoute = TienDienTuRouteImport.update({
@@ -85,11 +90,6 @@ const MienTruTrachNhiemRoute = MienTruTrachNhiemRouteImport.update({
 const LienHeRoute = LienHeRouteImport.update({
   id: '/lien-he',
   path: '/lien-he',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LaiSuatNganHangRoute = LaiSuatNganHangRouteImport.update({
-  id: '/lai-suat-ngan-hang',
-  path: '/lai-suat-ngan-hang',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoldRoute = GoldRouteImport.update({
@@ -216,7 +216,6 @@ export interface FileRoutesByFullPath {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
-  '/lai-suat-ngan-hang': typeof LaiSuatNganHangRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
   '/privacy': typeof PrivacyRoute
@@ -225,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
+  '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
@@ -250,7 +250,6 @@ export interface FileRoutesByTo {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
-  '/lai-suat-ngan-hang': typeof LaiSuatNganHangRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
   '/privacy': typeof PrivacyRoute
@@ -259,6 +258,7 @@ export interface FileRoutesByTo {
   '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
+  '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
@@ -285,7 +285,6 @@ export interface FileRoutesById {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
-  '/lai-suat-ngan-hang': typeof LaiSuatNganHangRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
   '/privacy': typeof PrivacyRoute
@@ -294,6 +293,7 @@ export interface FileRoutesById {
   '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
+  '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
@@ -321,7 +321,6 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
-    | '/lai-suat-ngan-hang'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
     | '/privacy'
@@ -330,6 +329,7 @@ export interface FileRouteTypes {
     | '/stocks'
     | '/terms'
     | '/tien-dien-tu'
+    | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
@@ -355,7 +355,6 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
-    | '/lai-suat-ngan-hang'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
     | '/privacy'
@@ -364,6 +363,7 @@ export interface FileRouteTypes {
     | '/stocks'
     | '/terms'
     | '/tien-dien-tu'
+    | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
@@ -389,7 +389,6 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
-    | '/lai-suat-ngan-hang'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
     | '/privacy'
@@ -398,6 +397,7 @@ export interface FileRouteTypes {
     | '/stocks'
     | '/terms'
     | '/tien-dien-tu'
+    | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
@@ -424,7 +424,6 @@ export interface RootRouteChildren {
   ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
-  LaiSuatNganHangRoute: typeof LaiSuatNganHangRoute
   LienHeRoute: typeof LienHeRoute
   MienTruTrachNhiemRoute: typeof MienTruTrachNhiemRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -433,6 +432,7 @@ export interface RootRouteChildren {
   StocksRoute: typeof StocksRoute
   TermsRoute: typeof TermsRoute
   TienDienTuRoute: typeof TienDienTuRoute
+  TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
@@ -453,6 +453,13 @@ declare module '@tanstack/react-router' {
       path: '/ty-gia-ngoai-te'
       fullPath: '/ty-gia-ngoai-te'
       preLoaderRoute: typeof TyGiaNgoaiTeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ty-gia-ngan-hang': {
+      id: '/ty-gia-ngan-hang'
+      path: '/ty-gia-ngan-hang'
+      fullPath: '/ty-gia-ngan-hang'
+      preLoaderRoute: typeof TyGiaNganHangRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tien-dien-tu': {
@@ -509,13 +516,6 @@ declare module '@tanstack/react-router' {
       path: '/lien-he'
       fullPath: '/lien-he'
       preLoaderRoute: typeof LienHeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lai-suat-ngan-hang': {
-      id: '/lai-suat-ngan-hang'
-      path: '/lai-suat-ngan-hang'
-      fullPath: '/lai-suat-ngan-hang'
-      preLoaderRoute: typeof LaiSuatNganHangRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gold': {
@@ -688,7 +688,6 @@ const rootRouteChildren: RootRouteChildren = {
   ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
-  LaiSuatNganHangRoute: LaiSuatNganHangRoute,
   LienHeRoute: LienHeRoute,
   MienTruTrachNhiemRoute: MienTruTrachNhiemRoute,
   PrivacyRoute: PrivacyRoute,
@@ -697,6 +696,7 @@ const rootRouteChildren: RootRouteChildren = {
   StocksRoute: StocksRoute,
   TermsRoute: TermsRoute,
   TienDienTuRoute: TienDienTuRoute,
+  TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
