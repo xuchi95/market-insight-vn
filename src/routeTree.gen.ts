@@ -17,6 +17,7 @@ import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-nhiem'
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
@@ -88,6 +89,11 @@ const QuyDoiTienTeRoute = QuyDoiTienTeRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MienTruTrachNhiemRoute = MienTruTrachNhiemRouteImport.update({
@@ -270,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -312,6 +319,7 @@ export interface FileRoutesByTo {
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -355,6 +363,7 @@ export interface FileRoutesById {
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -399,6 +408,7 @@ export interface FileRouteTypes {
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/portfolio'
     | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
@@ -441,6 +451,7 @@ export interface FileRouteTypes {
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/portfolio'
     | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
@@ -483,6 +494,7 @@ export interface FileRouteTypes {
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/portfolio'
     | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
@@ -526,6 +538,7 @@ export interface RootRouteChildren {
   LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
   MienTruTrachNhiemRoute: typeof MienTruTrachNhiemRoute
+  PortfolioRoute: typeof PortfolioRoute
   PrivacyRoute: typeof PrivacyRoute
   QuyDoiTienTeRoute: typeof QuyDoiTienTeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -607,6 +620,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mien-tru-trach-nhiem': {
@@ -854,6 +874,7 @@ const rootRouteChildren: RootRouteChildren = {
   LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
   MienTruTrachNhiemRoute: MienTruTrachNhiemRoute,
+  PortfolioRoute: PortfolioRoute,
   PrivacyRoute: PrivacyRoute,
   QuyDoiTienTeRoute: QuyDoiTienTeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
