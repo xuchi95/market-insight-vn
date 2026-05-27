@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const time = useClock();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
@@ -104,15 +105,29 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </div>
 
         <div className="ml-auto flex items-center gap-4">
-          <div className="relative hidden lg:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <form
+            className="relative hidden lg:block"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const term = q.trim().toLowerCase();
+              if (!term) return;
+              onSearch?.(term);
+              if (/btc|eth|crypto|bitcoin/.test(term)) navigate({ to: "/crypto" });
+              else if (/sjc|xau|vàng|vang|gold/.test(term)) navigate({ to: "/gold" });
+              else if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) navigate({ to: "/forex" });
+              else if (/lãi|lai|ngân hàng|ngan hang|bank/.test(term)) navigate({ to: "/bank-rates" });
+              else if (/đổi|doi|convert/.test(term)) navigate({ to: "/converter" });
+              else if (/vn-?index|hose|hnx|chứng|chung|stock/.test(term)) navigate({ to: "/stocks" });
+            }}
+          >
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               value={q}
               onChange={(e) => { setQ(e.target.value); onSearch?.(e.target.value); }}
               placeholder="BTC, SJC, USD…"
               className="pl-8 w-44 h-8 rounded-none border-x-0 border-t-0 border-b border-border bg-transparent text-xs focus-visible:ring-0"
             />
-          </div>
+          </form>
           <span className="hidden sm:inline eyebrow opacity-60">Hà Nội · {time}</span>
           <button
             className="md:hidden text-muted-foreground hover:text-foreground"
