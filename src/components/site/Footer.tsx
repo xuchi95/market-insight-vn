@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import logoUrl from "@/assets/logo.png";
-import { NewsletterForm } from "./NewsletterForm";
 
 export function Footer() {
   return (
@@ -43,11 +42,9 @@ export function Footer() {
           <div className="md:col-span-3">
             <h4 className="eyebrow mb-4">Liên hệ</h4>
             <a href="mailto:contact@marketwatch.vn" className="text-sm text-foreground border-b border-[var(--gold)]/40 hover:border-[var(--gold)]">contact@marketwatch.vn</a>
-            <div className="mt-6">
-              <h4 className="eyebrow mb-3">Nhận bản tin</h4>
-              <NewsletterForm />
-              <p className="mt-2 text-[11px] text-muted-foreground">Bản tin tổng hợp biến động vàng, crypto, ngoại tệ.</p>
-            </div>
+            <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
+              Bản tin sáng tổng hợp biến động vàng, crypto và ngoại tệ sẽ tự động được mời đăng ký khi bạn duyệt site.
+            </p>
           </div>
         </div>
 

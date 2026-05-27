@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
+import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 
 function NotFoundComponent() {
   return (
@@ -157,6 +158,7 @@ function RootComponent() {
         <AuthProvider>
           <Outlet />
           <Toaster position="top-right" richColors />
+          <NewsletterPopup />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
