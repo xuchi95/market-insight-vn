@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, Search, X, ChevronDown } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
@@ -79,7 +79,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 <NavigationMenuItem key={group.label}>
                   <NavigationMenuTrigger className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
                     {group.label}
-                    <ChevronDown className="h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-48 gap-1 p-2 bg-popover border border-border rounded-md shadow-md">
