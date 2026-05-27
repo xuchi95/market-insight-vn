@@ -5,6 +5,7 @@ import { Footer } from "@/components/site/Footer";
 import { ForexRateTable } from "@/components/site/ForexRateTable";
 import { ConverterTool } from "@/components/site/ConverterTool";
 import { PriceChart } from "@/components/site/PriceChart";
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://market-insight-vn.lovable.app";
 const URL = `${SITE}/forex`;
@@ -108,11 +109,11 @@ function ForexPage() {
             </p>
             <h3 className="text-xl font-semibold">Quy đổi USD, EUR, CNY sang VND</h3>
             <p className="text-muted-foreground">
-              Sử dụng công cụ quy đổi để tính nhanh số tiền cần đổi giữa các loại ngoại tệ và VND theo tỷ giá realtime — phù hợp khi gửi tiền, du lịch hay nhập hàng quốc tế.
+              Sử dụng <Link to="/converter" className="text-primary hover:underline">công cụ quy đổi tiền tệ</Link> để tính nhanh số tiền cần đổi giữa các loại ngoại tệ và VND theo tỷ giá realtime — phù hợp khi gửi tiền, du lịch hay nhập hàng quốc tế. Tham khảo thêm <Link to="/bank-rates" className="text-primary hover:underline">tỷ giá Vietcombank hôm nay</Link> trước khi giao dịch.
             </p>
             <h3 className="text-xl font-semibold">Vì sao tỷ giá ngoại tệ thay đổi liên tục?</h3>
             <p className="text-muted-foreground">
-              Tỷ giá phụ thuộc vào cung – cầu, lãi suất, chính sách tiền tệ và thị trường thế giới. Theo dõi tỷ giá realtime giúp bạn chọn thời điểm giao dịch ngoại tệ tối ưu nhất.
+              Tỷ giá phụ thuộc vào cung – cầu, lãi suất, chính sách tiền tệ và thị trường thế giới. Theo dõi tỷ giá realtime giúp bạn chọn thời điểm giao dịch ngoại tệ tối ưu nhất. Liên quan: <Link to="/gold" className="text-primary hover:underline">giá vàng SJC hôm nay</Link>, <Link to="/crypto" className="text-primary hover:underline">giá Bitcoin hôm nay</Link>.
             </p>
           </section>
 
@@ -127,6 +128,7 @@ function ForexPage() {
               ))}
             </div>
           </section>
+          <RelatedLinks current="forex" />
         </div>
       </main>
       <Footer />
