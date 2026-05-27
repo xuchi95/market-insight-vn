@@ -22,15 +22,14 @@ export const getMySubscriptions = createServerFn({ method: "GET" })
     const { data: subs, error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .select("id, email, source, confirmed_at, unsubscribed_at, created_at")
+      .eq("email", profile?.email ?? "__none__")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(5);
     if (error) throw new Error(error.message);
 
     return {
       accountEmail: profile?.email ?? null,
-      subscriptions: (subs ?? []).filter(
-        (s) => s.email === profile?.email || s.email.endsWith("@__never__"),
-      ),
+      subscriptions: subs ?? [],
     };
   });
 
