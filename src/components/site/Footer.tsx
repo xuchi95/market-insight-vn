@@ -39,13 +39,6 @@ export function Footer() {
               <li><Link to="/lien-he" className="hover:text-foreground">Liên hệ</Link></li>
             </ul>
           </div>
-          <div className="md:col-span-3">
-            <h4 className="eyebrow mb-4">Liên hệ</h4>
-            <a href="mailto:contact@marketwatch.vn" className="text-sm text-foreground border-b border-[var(--gold)]/40 hover:border-[var(--gold)]">contact@marketwatch.vn</a>
-            <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
-              Bản tin sáng tổng hợp biến động vàng, crypto và ngoại tệ sẽ tự động được mời đăng ký khi bạn duyệt site.
-            </p>
-          </div>
         </div>
 
         <div className="mt-10 rounded-lg border-l-4 border border-[var(--gold)]/60 border-l-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,var(--background))] p-4 text-xs text-foreground/90 leading-relaxed shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_20%,transparent)]">
