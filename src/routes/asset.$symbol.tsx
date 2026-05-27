@@ -108,7 +108,7 @@ function AssetDetail() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 space-y-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Quay lại dashboard</Link>
+        <Breadcrumbs extra={assetCrumb} />
 
         {isLoading && <Skeleton className="h-40 w-full" />}
         {!isLoading && !coin && !stock && !fx && (
