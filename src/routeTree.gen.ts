@@ -11,17 +11,28 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
 import { Route as TienDienTuRouteImport } from './routes/tien-dien-tu'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-nhiem'
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LaiSuatNganHangRouteImport } from './routes/lai-suat-ngan-hang'
+import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
+import { Route as ForexRouteImport } from './routes/forex'
+import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DieuKhoanSuDungRouteImport } from './routes/dieu-khoan-su-dung'
+import { Route as CryptoRouteImport } from './routes/crypto'
+import { Route as ConverterRouteImport } from './routes/converter'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ChungKhoanRouteImport } from './routes/chung-khoan'
 import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat'
+import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
+import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
@@ -41,6 +52,16 @@ const TienDienTuRoute = TienDienTuRouteImport.update({
   path: '/tien-dien-tu',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StocksRoute = StocksRouteImport.update({
+  id: '/stocks',
+  path: '/stocks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -49,6 +70,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const QuyDoiTienTeRoute = QuyDoiTienTeRouteImport.update({
   id: '/quy-doi-tien-te',
   path: '/quy-doi-tien-te',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MienTruTrachNhiemRoute = MienTruTrachNhiemRouteImport.update({
@@ -66,14 +92,44 @@ const LaiSuatNganHangRoute = LaiSuatNganHangRouteImport.update({
   path: '/lai-suat-ngan-hang',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GoldRoute = GoldRouteImport.update({
+  id: '/gold',
+  path: '/gold',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GiaVangRoute = GiaVangRouteImport.update({
   id: '/gia-vang',
   path: '/gia-vang',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForexRoute = ForexRouteImport.update({
+  id: '/forex',
+  path: '/forex',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimerRoute = DisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DieuKhoanSuDungRoute = DieuKhoanSuDungRouteImport.update({
   id: '/dieu-khoan-su-dung',
   path: '/dieu-khoan-su-dung',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CryptoRoute = CryptoRouteImport.update({
+  id: '/crypto',
+  path: '/crypto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConverterRoute = ConverterRouteImport.update({
+  id: '/converter',
+  path: '/converter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChungKhoanRoute = ChungKhoanRouteImport.update({
@@ -86,6 +142,11 @@ const ChinhSachBaoMatRoute = ChinhSachBaoMatRouteImport.update({
   path: '/chinh-sach-bao-mat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BankRatesRoute = BankRatesRouteImport.update({
+  id: '/bank-rates',
+  path: '/bank-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -94,6 +155,11 @@ const IndexRoute = IndexRouteImport.update({
 const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
   id: '/tai-san/$symbol',
   path: '/tai-san/$symbol',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssetSymbolRoute = AssetSymbolRouteImport.update({
+  id: '/asset/$symbol',
+  path: '/asset/$symbol',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicXauRoute = ApiPublicXauRouteImport.update({
@@ -139,17 +205,28 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/chung-khoan': typeof ChungKhoanRoute
+  '/contact': typeof ContactRoute
+  '/converter': typeof ConverterRoute
+  '/crypto': typeof CryptoRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gold': typeof GoldRoute
   '/lai-suat-ngan-hang': typeof LaiSuatNganHangRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
+  '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
@@ -162,17 +239,28 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/chung-khoan': typeof ChungKhoanRoute
+  '/contact': typeof ContactRoute
+  '/converter': typeof ConverterRoute
+  '/crypto': typeof CryptoRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gold': typeof GoldRoute
   '/lai-suat-ngan-hang': typeof LaiSuatNganHangRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
+  '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
@@ -186,17 +274,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/chung-khoan': typeof ChungKhoanRoute
+  '/contact': typeof ContactRoute
+  '/converter': typeof ConverterRoute
+  '/crypto': typeof CryptoRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gold': typeof GoldRoute
   '/lai-suat-ngan-hang': typeof LaiSuatNganHangRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stocks': typeof StocksRoute
+  '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
@@ -211,17 +310,28 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bank-rates'
     | '/chinh-sach-bao-mat'
     | '/chung-khoan'
+    | '/contact'
+    | '/converter'
+    | '/crypto'
     | '/dieu-khoan-su-dung'
+    | '/disclaimer'
+    | '/forex'
     | '/gia-vang'
+    | '/gold'
     | '/lai-suat-ngan-hang'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
+    | '/stocks'
+    | '/terms'
     | '/tien-dien-tu'
     | '/ty-gia-ngoai-te'
+    | '/asset/$symbol'
     | '/tai-san/$symbol'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
@@ -234,17 +344,28 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bank-rates'
     | '/chinh-sach-bao-mat'
     | '/chung-khoan'
+    | '/contact'
+    | '/converter'
+    | '/crypto'
     | '/dieu-khoan-su-dung'
+    | '/disclaimer'
+    | '/forex'
     | '/gia-vang'
+    | '/gold'
     | '/lai-suat-ngan-hang'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
+    | '/stocks'
+    | '/terms'
     | '/tien-dien-tu'
     | '/ty-gia-ngoai-te'
+    | '/asset/$symbol'
     | '/tai-san/$symbol'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
@@ -257,17 +378,28 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bank-rates'
     | '/chinh-sach-bao-mat'
     | '/chung-khoan'
+    | '/contact'
+    | '/converter'
+    | '/crypto'
     | '/dieu-khoan-su-dung'
+    | '/disclaimer'
+    | '/forex'
     | '/gia-vang'
+    | '/gold'
     | '/lai-suat-ngan-hang'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
+    | '/stocks'
+    | '/terms'
     | '/tien-dien-tu'
     | '/ty-gia-ngoai-te'
+    | '/asset/$symbol'
     | '/tai-san/$symbol'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
@@ -281,17 +413,28 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BankRatesRoute: typeof BankRatesRoute
   ChinhSachBaoMatRoute: typeof ChinhSachBaoMatRoute
   ChungKhoanRoute: typeof ChungKhoanRoute
+  ContactRoute: typeof ContactRoute
+  ConverterRoute: typeof ConverterRoute
+  CryptoRoute: typeof CryptoRoute
   DieuKhoanSuDungRoute: typeof DieuKhoanSuDungRoute
+  DisclaimerRoute: typeof DisclaimerRoute
+  ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
+  GoldRoute: typeof GoldRoute
   LaiSuatNganHangRoute: typeof LaiSuatNganHangRoute
   LienHeRoute: typeof LienHeRoute
   MienTruTrachNhiemRoute: typeof MienTruTrachNhiemRoute
+  PrivacyRoute: typeof PrivacyRoute
   QuyDoiTienTeRoute: typeof QuyDoiTienTeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StocksRoute: typeof StocksRoute
+  TermsRoute: typeof TermsRoute
   TienDienTuRoute: typeof TienDienTuRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
+  AssetSymbolRoute: typeof AssetSymbolRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
@@ -319,6 +462,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TienDienTuRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stocks': {
+      id: '/stocks'
+      path: '/stocks'
+      fullPath: '/stocks'
+      preLoaderRoute: typeof StocksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -331,6 +488,13 @@ declare module '@tanstack/react-router' {
       path: '/quy-doi-tien-te'
       fullPath: '/quy-doi-tien-te'
       preLoaderRoute: typeof QuyDoiTienTeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mien-tru-trach-nhiem': {
@@ -354,6 +518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LaiSuatNganHangRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gold': {
+      id: '/gold'
+      path: '/gold'
+      fullPath: '/gold'
+      preLoaderRoute: typeof GoldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gia-vang': {
       id: '/gia-vang'
       path: '/gia-vang'
@@ -361,11 +532,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GiaVangRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forex': {
+      id: '/forex'
+      path: '/forex'
+      fullPath: '/forex'
+      preLoaderRoute: typeof ForexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimer': {
+      id: '/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/disclaimer'
+      preLoaderRoute: typeof DisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dieu-khoan-su-dung': {
       id: '/dieu-khoan-su-dung'
       path: '/dieu-khoan-su-dung'
       fullPath: '/dieu-khoan-su-dung'
       preLoaderRoute: typeof DieuKhoanSuDungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crypto': {
+      id: '/crypto'
+      path: '/crypto'
+      fullPath: '/crypto'
+      preLoaderRoute: typeof CryptoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/converter': {
+      id: '/converter'
+      path: '/converter'
+      fullPath: '/converter'
+      preLoaderRoute: typeof ConverterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chung-khoan': {
@@ -382,6 +588,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChinhSachBaoMatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bank-rates': {
+      id: '/bank-rates'
+      path: '/bank-rates'
+      fullPath: '/bank-rates'
+      preLoaderRoute: typeof BankRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -394,6 +607,13 @@ declare module '@tanstack/react-router' {
       path: '/tai-san/$symbol'
       fullPath: '/tai-san/$symbol'
       preLoaderRoute: typeof TaiSanSymbolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/asset/$symbol': {
+      id: '/asset/$symbol'
+      path: '/asset/$symbol'
+      fullPath: '/asset/$symbol'
+      preLoaderRoute: typeof AssetSymbolRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/xau': {
@@ -457,17 +677,28 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BankRatesRoute: BankRatesRoute,
   ChinhSachBaoMatRoute: ChinhSachBaoMatRoute,
   ChungKhoanRoute: ChungKhoanRoute,
+  ContactRoute: ContactRoute,
+  ConverterRoute: ConverterRoute,
+  CryptoRoute: CryptoRoute,
   DieuKhoanSuDungRoute: DieuKhoanSuDungRoute,
+  DisclaimerRoute: DisclaimerRoute,
+  ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
+  GoldRoute: GoldRoute,
   LaiSuatNganHangRoute: LaiSuatNganHangRoute,
   LienHeRoute: LienHeRoute,
   MienTruTrachNhiemRoute: MienTruTrachNhiemRoute,
+  PrivacyRoute: PrivacyRoute,
   QuyDoiTienTeRoute: QuyDoiTienTeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StocksRoute: StocksRoute,
+  TermsRoute: TermsRoute,
   TienDienTuRoute: TienDienTuRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
+  AssetSymbolRoute: AssetSymbolRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
