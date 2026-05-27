@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import logoUrl from "@/assets/logo.png";
-import { NewsletterForm } from "./NewsletterForm";
 
 export function Footer() {
   return (
