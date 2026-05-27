@@ -41,6 +41,8 @@ import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
+import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
+import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
 
 const TyGiaNgoaiTeRoute = TyGiaNgoaiTeRouteImport.update({
   id: '/ty-gia-ngoai-te',
@@ -202,6 +204,16 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
   path: '/api/public/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNewsletterSubscribeRoute = ApiNewsletterSubscribeRouteImport.update({
+  id: '/api/newsletter/subscribe',
+  path: '/api/newsletter/subscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiContactSubmitRoute = ApiContactSubmitRouteImport.update({
+  id: '/api/contact/submit',
+  path: '/api/contact/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -228,6 +240,8 @@ export interface FileRoutesByFullPath {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/api/contact/submit': typeof ApiContactSubmitRoute
+  '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -262,6 +276,8 @@ export interface FileRoutesByTo {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/api/contact/submit': typeof ApiContactSubmitRoute
+  '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -297,6 +313,8 @@ export interface FileRoutesById {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/api/contact/submit': typeof ApiContactSubmitRoute
+  '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -333,6 +351,8 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
+    | '/api/contact/submit'
+    | '/api/newsletter/subscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -367,6 +387,8 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
+    | '/api/contact/submit'
+    | '/api/newsletter/subscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -401,6 +423,8 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
+    | '/api/contact/submit'
+    | '/api/newsletter/subscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -436,6 +460,8 @@ export interface RootRouteChildren {
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
+  ApiContactSubmitRoute: typeof ApiContactSubmitRoute
+  ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
@@ -672,6 +698,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/newsletter/subscribe': {
+      id: '/api/newsletter/subscribe'
+      path: '/api/newsletter/subscribe'
+      fullPath: '/api/newsletter/subscribe'
+      preLoaderRoute: typeof ApiNewsletterSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/contact/submit': {
+      id: '/api/contact/submit'
+      path: '/api/contact/submit'
+      fullPath: '/api/contact/submit'
+      preLoaderRoute: typeof ApiContactSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -700,6 +740,8 @@ const rootRouteChildren: RootRouteChildren = {
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
+  ApiContactSubmitRoute: ApiContactSubmitRoute,
+  ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
