@@ -24,6 +24,8 @@ import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DieuKhoanSuDungRouteImport } from './routes/dieu-khoan-su-dung'
+import { Route as DangNhapRouteImport } from './routes/dang-nhap'
+import { Route as DangKyRouteImport } from './routes/dang-ky'
 import { Route as CryptoRouteImport } from './routes/crypto'
 import { Route as ConverterRouteImport } from './routes/converter'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -118,6 +120,16 @@ const DisclaimerRoute = DisclaimerRouteImport.update({
 const DieuKhoanSuDungRoute = DieuKhoanSuDungRouteImport.update({
   id: '/dieu-khoan-su-dung',
   path: '/dieu-khoan-su-dung',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DangNhapRoute = DangNhapRouteImport.update({
+  id: '/dang-nhap',
+  path: '/dang-nhap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DangKyRoute = DangKyRouteImport.update({
+  id: '/dang-ky',
+  path: '/dang-ky',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CryptoRoute = CryptoRouteImport.update({
@@ -230,6 +242,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
+  '/dang-ky': typeof DangKyRoute
+  '/dang-nhap': typeof DangNhapRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -267,6 +281,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
+  '/dang-ky': typeof DangKyRoute
+  '/dang-nhap': typeof DangNhapRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -305,6 +321,8 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
+  '/dang-ky': typeof DangKyRoute
+  '/dang-nhap': typeof DangNhapRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -344,6 +362,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/converter'
     | '/crypto'
+    | '/dang-ky'
+    | '/dang-nhap'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -381,6 +401,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/converter'
     | '/crypto'
+    | '/dang-ky'
+    | '/dang-nhap'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -418,6 +440,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/converter'
     | '/crypto'
+    | '/dang-ky'
+    | '/dang-nhap'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -456,6 +480,8 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   ConverterRoute: typeof ConverterRoute
   CryptoRoute: typeof CryptoRoute
+  DangKyRoute: typeof DangKyRoute
+  DangNhapRoute: typeof DangNhapRoute
   DieuKhoanSuDungRoute: typeof DieuKhoanSuDungRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
@@ -591,6 +617,20 @@ declare module '@tanstack/react-router' {
       path: '/dieu-khoan-su-dung'
       fullPath: '/dieu-khoan-su-dung'
       preLoaderRoute: typeof DieuKhoanSuDungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dang-nhap': {
+      id: '/dang-nhap'
+      path: '/dang-nhap'
+      fullPath: '/dang-nhap'
+      preLoaderRoute: typeof DangNhapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dang-ky': {
+      id: '/dang-ky'
+      path: '/dang-ky'
+      fullPath: '/dang-ky'
+      preLoaderRoute: typeof DangKyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crypto': {
@@ -744,6 +784,8 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   ConverterRoute: ConverterRoute,
   CryptoRoute: CryptoRoute,
+  DangKyRoute: DangKyRoute,
+  DangNhapRoute: DangNhapRoute,
   DieuKhoanSuDungRoute: DieuKhoanSuDungRoute,
   DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
