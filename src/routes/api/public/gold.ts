@@ -7,9 +7,9 @@ let inflight: Promise<MappedItem[]> | null = null;
 // Values are normalized to the SAME unit as today's live mid (PNJ live = ngàn/chỉ).
 let baseline: { date: string; mids: Record<string, number> } | null = null;
 let baselineInflight: Promise<void> | null = null;
-const CACHE_FRESH_MS = 60_000; // serve cache without refetch
-const CACHE_SWR_MS = 10 * 60_000; // serve stale, refresh in background
-const UPSTREAM_TIMEOUT_MS = 3_000;
+const CACHE_FRESH_MS = 20_000; // serve cache without refetch (~20s realtime cadence)
+const CACHE_SWR_MS = 5 * 60_000; // serve stale, refresh in background
+const UPSTREAM_TIMEOUT_MS = 4_000;
 
 interface PnjRow {
   masp: string;
@@ -50,9 +50,20 @@ const PNJ_MAP: Record<string, { id: string; brand: string; type: string }> = {
   KB: { id: "pnj-kimbao", brand: "PNJ", type: "Vàng Kim Bảo 999.9" },
   TL: { id: "pnj-tailoc", brand: "PNJ", type: "Vàng Phúc Lộc Tài 999.9" },
   "24K": { id: "nutrang-9999", brand: "Vàng 24K", type: "Vàng nữ trang 999.9" },
+  "999": { id: "nutrang-999", brand: "Vàng 24K", type: "Vàng nữ trang 999" },
+  "9920": { id: "nutrang-9920", brand: "Vàng 24K", type: "Vàng nữ trang 9920" },
+  "99": { id: "nutrang-99", brand: "Vàng 24K", type: "Vàng nữ trang 99" },
   "22K": { id: "nutrang-22k", brand: "Vàng 22K", type: "Vàng 916 (22K)" },
   "75": { id: "nutrang-18k", brand: "Vàng 18K", type: "Vàng 750 (18K)" },
+  "68": { id: "nutrang-16k", brand: "Vàng 16K", type: "Vàng 680 (16.3K)" },
+  "65": { id: "nutrang-15k", brand: "Vàng 15K", type: "Vàng 650 (15.6K)" },
+  "61": { id: "nutrang-14_6k", brand: "Vàng 14K", type: "Vàng 610 (14.6K)" },
+  "58.5": { id: "nutrang-14k", brand: "Vàng 14K", type: "Vàng 585 (14K)" },
+  "41": { id: "nutrang-10k", brand: "Vàng 10K", type: "Vàng 416 (10K)" },
+  "37.5": { id: "nutrang-9k", brand: "Vàng 9K", type: "Vàng 375 (9K)" },
+  "33": { id: "nutrang-8k", brand: "Vàng 8K", type: "Vàng 333 (8K)" },
   RAW_9999: { id: "nguyenlieu", brand: "Vàng 24K", type: "Vàng nguyên liệu 99.99" },
+  RAW_9900: { id: "nguyenlieu-99", brand: "Vàng 24K", type: "Vàng nguyên liệu 99" },
 };
 
 function mapLiveRows(items: PnjRow[], updatedAt: number): MappedItem[] {
