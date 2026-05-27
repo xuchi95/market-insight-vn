@@ -41,7 +41,7 @@ function parseVnDate(s: string): number {
   return new Date(`${y}-${mo}-${d}T${h}:${mi}:${se ?? "00"}+07:00`).getTime();
 }
 
-// PNJ API returns prices in thousand VND per lượng (e.g. 16150 = 16,150,000 VND/lượng).
+// PNJ API returns prices in thousand VND per chỉ (e.g. 16150 = 16,150,000 VND/chỉ).
 // Map PNJ masp -> our row spec. Items not in this map are skipped.
 const PNJ_MAP: Record<string, { id: string; brand: string; type: string }> = {
   SJC: { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L" },
@@ -75,7 +75,7 @@ function mapLiveRows(items: PnjRow[], updatedAt: number): MappedItem[] {
     let sell = (typeof it.giaban === "number" ? it.giaban : parseFloat(it.giaban) || 0) * 1000;
     if (!buy) continue;
     if (!sell) sell = buy + 200_000; // raw material rows have no sell price
-    out.push({ ...m, buy, sell, unit: "VND/lượng", updatedAt });
+    out.push({ ...m, buy, sell, unit: "VND/chỉ", updatedAt });
   }
   return out;
 }
@@ -292,7 +292,7 @@ async function fetchBtmcGold(): Promise<MappedItem[]> {
         ...spec,
         buy,
         sell,
-        unit: "VND/lượng",
+        unit: "VND/chỉ",
         updatedAt,
       });
     }

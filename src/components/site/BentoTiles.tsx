@@ -92,7 +92,7 @@ export function BentoTiles() {
               <div className="eyebrow mb-1.5">Vàng miếng SJC</div>
               <div className="font-display text-4xl md:text-5xl text-foreground leading-none">
                 {sjc ? fmtTrieu(sjc.sell) : "—"}
-                <span className="ml-1.5 text-base text-muted-foreground">tr/lượng</span>
+                <span className="ml-1.5 text-base text-muted-foreground">tr/chỉ</span>
               </div>
             </div>
             <div className="text-right">
