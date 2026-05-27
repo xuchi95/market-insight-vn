@@ -44,13 +44,7 @@ function PrivacyPage() {
       <Header />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-12 max-w-3xl space-y-6">
-          <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-            <ol className="flex items-center gap-2">
-              <li><Link to="/" className="hover:text-foreground">Trang chủ</Link></li>
-              <li aria-hidden>/</li>
-              <li className="text-foreground">Chính sách dữ liệu</li>
-            </ol>
-          </nav>
+          <Breadcrumbs />
           <header>
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Chính sách dữ liệu & quyền riêng tư</h1>
             <p className="mt-2 text-sm text-muted-foreground">Tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân</p>
