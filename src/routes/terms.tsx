@@ -15,8 +15,25 @@ export const Route = createFileRoute("/terms")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
       { property: "og:url", content: URL },
+      { property: "og:type", content: "website" },
+      { property: "og:locale", content: "vi_VN" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
     ],
     links: [{ rel: "canonical", href: URL }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE + "/" },
+            { "@type": "ListItem", position: 2, name: "Điều khoản sử dụng", item: URL },
+          ],
+        }),
+      },
+    ],
   }),
   component: TermsPage,
 });
