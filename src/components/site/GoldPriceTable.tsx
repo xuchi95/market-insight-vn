@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Coins } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
-import { fmtVND, fmtNum, fmtTime } from "@/lib/format";
+import { fmtNum, fmtTime, fmtTrieu } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -66,7 +66,9 @@ export function GoldPriceTable({ search }: { search?: string }) {
             ))}
             {rows.map((g) => {
               const isUsd = g.unit.includes("USD");
-              const fmt = isUsd ? (n: number) => `$${fmtNum(n, 2)}` : fmtVND;
+              const fmt = isUsd
+                ? (n: number) => `$${fmtNum(n, 2)}`
+                : (n: number) => `${fmtTrieu(n)} tr`;
               return (
                 <tr key={g.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 font-semibold">{g.brand}</td>

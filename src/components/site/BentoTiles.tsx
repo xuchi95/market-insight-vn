@@ -5,6 +5,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
+import { fmtTrieu } from "@/lib/format";
 
 function fmt(n: number, digits = 0) {
   return n.toLocaleString("vi-VN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
@@ -90,7 +91,7 @@ export function BentoTiles() {
             <div>
               <div className="eyebrow mb-1.5">Vàng miếng SJC</div>
               <div className="font-display text-4xl md:text-5xl text-foreground leading-none">
-                {sjc ? fmt(sjc.sell / 1_000_000, 3) : "—"}
+                {sjc ? fmtTrieu(sjc.sell) : "—"}
                 <span className="ml-1.5 text-base text-muted-foreground">tr/lượng</span>
               </div>
             </div>
@@ -101,9 +102,9 @@ export function BentoTiles() {
           </div>
 
           <div className="grid grid-cols-3 gap-px bg-border mb-4">
-            <Stat label="Mua" value={sjc ? `${fmt(sjc.buy / 1_000_000, 3)}tr` : "—"} />
-            <Stat label="Cao" value={`${fmt(goldHigh / 1_000_000, 3)}tr`} accent />
-            <Stat label="Thấp" value={`${fmt(goldLow / 1_000_000, 3)}tr`} />
+            <Stat label="Mua" value={sjc ? `${fmtTrieu(sjc.buy)} tr` : "—"} />
+            <Stat label="Cao" value={`${fmtTrieu(goldHigh)} tr`} accent />
+            <Stat label="Thấp" value={`${fmtTrieu(goldLow)} tr`} />
           </div>
 
           <div className="flex items-end gap-1 h-10">

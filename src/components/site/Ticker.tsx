@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
+import { fmtTrieu } from "@/lib/format";
 
 async function fetchXau(): Promise<{ price: number; changePct: number } | null> {
   try {
@@ -46,7 +47,7 @@ export function Ticker() {
       const jpy = fx.find((r) => r.code === "JPY");
       const cny = fx.find((r) => r.code === "CNY");
       const list: Tick[] = [];
-      if (sjc) list.push({ label: "SJC", value: `${fmt(sjc.sell / 1000)}K`, changePct: sjc.changePct });
+      if (sjc) list.push({ label: "SJC", value: `${fmtTrieu(sjc.sell)} tr`, changePct: sjc.changePct });
       if (xau) list.push({ label: "XAU/USD", value: `$${fmt(xau.price, 0)}`, changePct: xau.changePct });
       if (btc) list.push({ label: "BTC", value: `$${fmt(btc.priceUsd, 0)}`, changePct: btc.change24h });
       if (eth) list.push({ label: "ETH", value: `$${fmt(eth.priceUsd, 0)}`, changePct: eth.change24h });

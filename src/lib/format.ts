@@ -7,6 +7,14 @@ export const fmtUSD = (n: number, max = 2) =>
 export const fmtNum = (n: number, max = 2) =>
   new Intl.NumberFormat("vi-VN", { maximumFractionDigits: max }).format(n);
 
+/**
+ * Format VND amount in "triệu" (millions) using Vietnamese decimal comma.
+ * 16_700_000 → "16,7"   16_750_000 → "16,75"   16_000_000 → "16"
+ * Use for gold prices and large VND values across the site for consistency.
+ */
+export const fmtTrieu = (vnd: number, max = 2) =>
+  new Intl.NumberFormat("vi-VN", { maximumFractionDigits: max }).format(vnd / 1_000_000);
+
 export const fmtPct = (n: number) =>
   `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
 
