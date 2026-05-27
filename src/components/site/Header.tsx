@@ -1,9 +1,19 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, X } from "lucide-react";
+import { LogOut, Menu, Search, User as UserIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -49,6 +59,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
@@ -133,6 +144,32 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           <span className="hidden sm:inline eyebrow opacity-60">Hà Nội · {time}</span>
           <div className="hidden md:block h-5 w-px bg-border" aria-hidden />
           <ThemeToggle />
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-1.5 h-8 px-2 hidden md:inline-flex">
+                  <UserIcon className="h-3.5 w-3.5" />
+                  <span className="text-xs max-w-[120px] truncate">{user.email}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut().then(() => navigate({ to: "/" }))}>
+                  <LogOut className="h-3.5 w-3.5 mr-2" /> Đăng xuất
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="hidden md:flex items-center gap-1.5">
+              <Link to="/dang-nhap" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground px-2">
+                Đăng nhập
+              </Link>
+              <Link to="/dang-ky" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-background bg-[var(--gold)] hover:opacity-90 rounded-md px-3 py-1.5">
+                Đăng ký
+              </Link>
+            </div>
+          )}
           <button
             className="md:hidden text-muted-foreground hover:text-foreground"
             onClick={() => setOpen((v) => !v)}
@@ -166,6 +203,28 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 {n.label}
               </Link>
             ))}
+            <div className="border-t border-border pt-3 mt-1 grid gap-2">
+              {user ? (
+                <>
+                  <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                  <button
+                    onClick={() => { setOpen(false); signOut().then(() => navigate({ to: "/" })); }}
+                    className="text-xs font-semibold uppercase tracking-[0.22em] text-rose-500 text-left"
+                  >
+                    Đăng xuất
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/dang-nhap" onClick={() => setOpen(false)} className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    Đăng nhập
+                  </Link>
+                  <Link to="/dang-ky" onClick={() => setOpen(false)} className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold)]">
+                    Đăng ký
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </nav>
       )}
