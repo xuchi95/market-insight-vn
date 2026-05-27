@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ConverterTool } from "@/components/site/ConverterTool";
@@ -68,13 +69,7 @@ function ConverterPage() {
       <Header onSearch={setSearch} />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-10 space-y-8">
-          <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-            <ol className="flex items-center gap-2">
-              <li><Link to="/" className="hover:text-foreground">Trang chủ</Link></li>
-              <li aria-hidden>/</li>
-              <li className="text-foreground">Đổi ngoại tệ</li>
-            </ol>
-          </nav>
+          <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Đổi ngoại tệ — Quy đổi USD, EUR, JPY, CNY sang VND</h1>
             <p className="text-muted-foreground max-w-2xl">

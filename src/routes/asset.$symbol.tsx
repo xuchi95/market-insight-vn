@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
@@ -96,11 +97,18 @@ function AssetDetail() {
   const positive = (coin?.change24h ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
 
+  const assetCrumb = useMemo(() => {
+    if (coin) return [{ label: "Giá crypto", to: "/crypto" }, { label: symbol.toUpperCase() }];
+    if (stock) return [{ label: "Chứng khoán", to: "/stocks" }, { label: symbol.toUpperCase() }];
+    if (fx) return [{ label: "Tỷ giá ngoại tệ", to: "/forex" }, { label: symbol.toUpperCase() }];
+    return [{ label: symbol.toUpperCase() }];
+  }, [coin, stock, fx, symbol]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 space-y-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Quay lại dashboard</Link>
+        <Breadcrumbs extra={assetCrumb} />
 
         {isLoading && <Skeleton className="h-40 w-full" />}
         {!isLoading && !coin && !stock && !fx && (
