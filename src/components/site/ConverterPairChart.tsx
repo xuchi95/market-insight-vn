@@ -341,8 +341,11 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     try {
       // Đợi 1 frame để overlay xuất hiện trong ảnh
       await new Promise((r) => requestAnimationFrame(() => r(null)));
-      const bg = getComputedStyle(document.documentElement).getPropertyValue("--background").trim() || "#0a0a0a";
-      return await toPng(node, { pixelRatio: 2, backgroundColor: `oklch(${bg})`.startsWith("oklch(") && bg ? `oklch(${bg})` : "#0a0a0a", cacheBust: true });
+      const cs = getComputedStyle(node);
+      const bg = cs.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)"
+        ? cs.backgroundColor
+        : getComputedStyle(document.body).backgroundColor || "#0a0a0a";
+      return await toPng(node, { pixelRatio: 2, backgroundColor: bg, cacheBust: true });
     } finally {
       setIsExporting(false);
     }
