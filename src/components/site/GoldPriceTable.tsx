@@ -12,7 +12,8 @@ export function GoldPriceTable({ search }: { search?: string }) {
   const { data, isLoading } = useQuery({
     queryKey: ["gold"],
     queryFn: fetchGoldPrices,
-    refetchInterval: 15 * 60 * 1000,
+    refetchInterval: 60 * 1000,
+    refetchOnWindowFocus: true,
   });
   const [brand, setBrand] = useState("all");
 
