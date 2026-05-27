@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { LineChart as LCIcon, Loader2, ZoomIn, ZoomOut, X as XIcon, ImageDown, FileDown } from "lucide-react";
+import { LineChart as LCIcon, Loader2, ZoomIn, ZoomOut, X as XIcon, ImageDown, FileDown, Check } from "lucide-react";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -343,21 +343,20 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   };
 
   type ExportBg = "light" | "dark" | "transparent";
+  type ExportScale = 1 | 2 | 4;
+  const [exportScale, setExportScale] = useState<ExportScale>(2);
 
-  const renderPng = async (bg: ExportBg): Promise<string | null> => {
+  const renderPng = async (bg: ExportBg, scale: ExportScale): Promise<string | null> => {
     const node = exportRef.current;
     if (!node) return null;
     setIsExporting(true);
     const root = document.documentElement;
     const prevDark = root.classList.contains("dark");
     const prevInlineBg = node.style.background;
-    // Đổi tạm theme để màu chữ/biểu đồ tương phản với nền xuất
     if (bg === "light" && prevDark) root.classList.remove("dark");
     if (bg === "dark" && !prevDark) root.classList.add("dark");
-    // Với nền trong suốt → bỏ nền của card
     if (bg === "transparent") node.style.background = "transparent";
     try {
-      // Đợi 2 frame để theme/nền cập nhật trước khi capture
       await new Promise((r) => requestAnimationFrame(() => r(null)));
       await new Promise((r) => requestAnimationFrame(() => r(null)));
       const fill =
@@ -366,9 +365,8 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           : bg === "light"
             ? "#ffffff"
             : "#0a0a0a";
-      return await toPng(node, { pixelRatio: 2, backgroundColor: fill, cacheBust: true });
+      return await toPng(node, { pixelRatio: scale, backgroundColor: fill, cacheBust: true });
     } finally {
-      // Khôi phục theme & inline style
       if (bg === "light" && prevDark) root.classList.add("dark");
       if (bg === "dark" && !prevDark) root.classList.remove("dark");
       if (bg === "transparent") node.style.background = prevInlineBg;
@@ -377,16 +375,16 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   };
 
   const exportPng = async (bg: ExportBg) => {
-    const url = await renderPng(bg);
+    const url = await renderPng(bg, exportScale);
     if (!url) return;
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${exportBaseName()}-${bg}.png`;
+    a.download = `${exportBaseName()}-${bg}-${exportScale}x.png`;
     a.click();
   };
 
   const exportPdf = async (bg: Exclude<ExportBg, "transparent">) => {
-    const url = await renderPng(bg);
+    const url = await renderPng(bg, exportScale);
     if (!url) return;
     const img = new Image();
     img.src = url;
@@ -405,7 +403,7 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
       pdf.rect(0, 0, pageW, pageH, "F");
     }
     pdf.addImage(url, "PNG", (pageW - w) / 2, (pageH - h) / 2, w, h);
-    pdf.save(`${exportBaseName()}-${bg}.pdf`);
+    pdf.save(`${exportBaseName()}-${bg}-${exportScale}x.pdf`);
   };
 
   const positive = (stats?.change ?? 0) >= 0;
@@ -486,6 +484,27 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
               <DropdownMenuItem onClick={() => exportPng("light")}>Nền sáng (Light)</DropdownMenuItem>
               <DropdownMenuItem onClick={() => exportPng("dark")}>Nền tối (Dark)</DropdownMenuItem>
               <DropdownMenuItem onClick={() => exportPng("transparent")}>Nền trong suốt</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-[11px]">Độ phân giải</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setExportScale(1); }} className={exportScale === 1 ? "bg-accent" : ""}>
+                <span className="flex items-center gap-2">
+                  {exportScale === 1 && <Check className="h-3 w-3" />}
+                  1x (Thường)
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setExportScale(2); }} className={exportScale === 2 ? "bg-accent" : ""}>
+                <span className="flex items-center gap-2">
+                  {exportScale === 2 && <Check className="h-3 w-3" />}
+                  2x (Nét)
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setExportScale(4); }} className={exportScale === 4 ? "bg-accent" : ""}>
+                <span className="flex items-center gap-2">
+                  {exportScale === 4 && <Check className="h-3 w-3" />}
+                  4x (Siêu nét)
+                </span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
@@ -506,6 +525,27 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => exportPdf("light")}>Nền sáng (Light)</DropdownMenuItem>
               <DropdownMenuItem onClick={() => exportPdf("dark")}>Nền tối (Dark)</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-[11px]">Độ phân giải</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setExportScale(1); }} className={exportScale === 1 ? "bg-accent" : ""}>
+                <span className="flex items-center gap-2">
+                  {exportScale === 1 && <Check className="h-3 w-3" />}
+                  1x (Thường)
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setExportScale(2); }} className={exportScale === 2 ? "bg-accent" : ""}>
+                <span className="flex items-center gap-2">
+                  {exportScale === 2 && <Check className="h-3 w-3" />}
+                  2x (Nét)
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setExportScale(4); }} className={exportScale === 4 ? "bg-accent" : ""}>
+                <span className="flex items-center gap-2">
+                  {exportScale === 4 && <Check className="h-3 w-3" />}
+                  4x (Siêu nét)
+                </span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           {hasSelection && (
