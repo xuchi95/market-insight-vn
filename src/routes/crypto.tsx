@@ -5,6 +5,7 @@ import { Footer } from "@/components/site/Footer";
 import { CryptoPriceTable } from "@/components/site/CryptoPriceTable";
 import { PriceChart } from "@/components/site/PriceChart";
 import { PriceAlerts } from "@/components/site/PriceAlerts";
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://market-insight-vn.lovable.app";
 const URL = `${SITE}/crypto`;
@@ -105,11 +106,11 @@ function CryptoPage() {
             </p>
             <h3 className="text-xl font-semibold">Quy đổi giá coin sang VND</h3>
             <p className="text-muted-foreground">
-              Mỗi coin đều được quy đổi sang VND theo tỷ giá USD/VND mới nhất, giúp nhà đầu tư Việt Nam dễ dàng nắm bắt giá trị thực tế tại thị trường trong nước.
+              Mỗi coin đều được quy đổi sang VND theo <Link to="/forex" className="text-primary hover:underline">tỷ giá USD/VND hôm nay</Link>, giúp nhà đầu tư Việt Nam dễ dàng nắm bắt giá trị thực tế tại thị trường trong nước. Dùng <Link to="/converter" className="text-primary hover:underline">công cụ quy đổi tiền tệ</Link> để tính nhanh BTC, ETH sang VND.
             </p>
             <h3 className="text-xl font-semibold">Vì sao nên theo dõi giá crypto realtime?</h3>
             <p className="text-muted-foreground">
-              Thị trường crypto hoạt động 24/7 với biên độ dao động cao. Theo dõi giá BTC, ETH realtime giúp bạn ra quyết định nhanh và chính xác hơn.
+              Thị trường crypto hoạt động 24/7 với biên độ dao động cao. Theo dõi giá BTC, ETH realtime giúp bạn ra quyết định nhanh và chính xác hơn. Bạn cũng có thể đối chiếu với <Link to="/gold" className="text-primary hover:underline">giá vàng SJC hôm nay</Link> để cân đối danh mục đầu tư.
             </p>
           </section>
 
@@ -124,6 +125,7 @@ function CryptoPage() {
               ))}
             </div>
           </section>
+          <RelatedLinks current="crypto" />
         </div>
       </main>
       <Footer />
