@@ -7,8 +7,10 @@ import { Footer } from "@/components/site/Footer";
 import { SectionCard, LiveDot } from "@/components/site/SectionCard";
 import { ChangeBadge } from "@/components/site/ChangeBadge";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
+import { fetchStockIndices } from "@/lib/services/stockIndexService";
+import { fetchForexRates } from "@/lib/services/forexRateService";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime } from "@/lib/format";
+import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum } from "@/lib/format";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -69,6 +71,13 @@ function AssetDetail() {
 
   const { data: coins, isLoading } = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), refetchInterval: 15000 });
   const coin = coins?.find((c) => c.symbol.toLowerCase() === symbol.toLowerCase());
+
+  // Fallback lookups for stocks & forex when not a crypto symbol
+  const { data: stocks } = useQuery({ queryKey: ["stocks-indices"], queryFn: fetchStockIndices, enabled: !coin && !isLoading });
+  const stock = stocks?.find((s) => s.code.toLowerCase() === symbol.toLowerCase());
+  const { data: forex } = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, enabled: !coin && !stock && !isLoading });
+  const fx = forex?.find((r) => r.code.toLowerCase() === symbol.toLowerCase());
+
   const others = useMemo(() => coins?.filter((c) => c.id !== coin?.id).slice(0, 5) ?? [], [coins, coin]);
 
   const { data: chart } = useQuery({
@@ -94,10 +103,57 @@ function AssetDetail() {
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Quay lại dashboard</Link>
 
         {isLoading && <Skeleton className="h-40 w-full" />}
-        {!isLoading && !coin && (
+        {!isLoading && !coin && !stock && !fx && (
           <div className="text-center py-20">
             <h1 className="text-2xl font-bold">Không tìm thấy tài sản "{symbol.toUpperCase()}"</h1>
-            <p className="text-muted-foreground mt-2">Hiện tại trang chi tiết hỗ trợ các coin có trong danh sách dashboard.</p>
+            <p className="text-muted-foreground mt-2">Hiện tại trang chi tiết hỗ trợ crypto, chỉ số chứng khoán Việt Nam và mã ngoại tệ chính.</p>
+          </div>
+        )}
+
+        {!coin && stock && (
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+            <div className="flex flex-wrap items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-gold">{stock.name}</h1>
+                <div className="text-sm text-muted-foreground mt-1">Sàn {stock.exchange} · Mã {stock.code}</div>
+              </div>
+              <div className="ml-auto text-right">
+                <div className="text-4xl font-bold tabular tracking-tight">{fmtNum(stock.value, 2)}</div>
+                <div className={`text-sm tabular ${stock.change >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+                  {stock.change >= 0 ? "+" : ""}{fmtNum(stock.change, 2)} điểm
+                </div>
+              </div>
+              <ChangeBadge value={stock.changePct} className="text-sm px-3 py-1" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <Stat label="Cao trong phiên" value={fmtNum(stock.high, 2)} />
+              <Stat label="Thấp trong phiên" value={fmtNum(stock.low, 2)} />
+              <Stat label="Khối lượng GD" value={new Intl.NumberFormat("vi-VN").format(stock.volume)} />
+              <Stat label="Cập nhật" value={fmtTime(stock.updatedAt)} />
+            </div>
+            <Link to="/stocks" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ chỉ số →</Link>
+          </div>
+        )}
+
+        {!coin && !stock && fx && (
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+            <div className="flex flex-wrap items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-gold">{fx.code}/VND</h1>
+                <div className="text-sm text-muted-foreground mt-1">{fx.name}</div>
+              </div>
+              <div className="ml-auto text-right">
+                <div className="text-4xl font-bold tabular tracking-tight">{fmtNum(fx.mid, 2)}</div>
+                <div className="text-sm text-muted-foreground">VND / {fx.code}</div>
+              </div>
+              <ChangeBadge value={fx.changePct} className="text-sm px-3 py-1" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+              <Stat label="Mua" value={fmtNum(fx.buy, 2)} />
+              <Stat label="Bán" value={fmtNum(fx.sell, 2)} />
+              <Stat label="Cập nhật" value={fmtTime(fx.updatedAt)} />
+            </div>
+            <Link to="/forex" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ tỷ giá →</Link>
           </div>
         )}
 
