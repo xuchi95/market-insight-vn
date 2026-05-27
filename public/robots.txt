@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://market-insight-vn.lovable.app/sitemap.xml
+Sitemap: https://marketwatch.vn/sitemap.xml

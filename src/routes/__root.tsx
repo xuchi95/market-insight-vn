@@ -120,7 +120,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           inLanguage: "vi-VN",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://marketwatch.vn/asset/{search_term_string}",
+            target: "https://marketwatch.vn/tai-san/{search_term_string}",
             "query-input": "required name=search_term_string",
           },
         }),
