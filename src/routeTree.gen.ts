@@ -24,6 +24,8 @@ import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DieuKhoanSuDungRouteImport } from './routes/dieu-khoan-su-dung'
+import { Route as DangNhapRouteImport } from './routes/dang-nhap'
+import { Route as DangKyRouteImport } from './routes/dang-ky'
 import { Route as CryptoRouteImport } from './routes/crypto'
 import { Route as ConverterRouteImport } from './routes/converter'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -35,12 +37,15 @@ import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
+import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
+import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
+import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
 
 const TyGiaNgoaiTeRoute = TyGiaNgoaiTeRouteImport.update({
   id: '/ty-gia-ngoai-te',
@@ -117,6 +122,16 @@ const DieuKhoanSuDungRoute = DieuKhoanSuDungRouteImport.update({
   path: '/dieu-khoan-su-dung',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DangNhapRoute = DangNhapRouteImport.update({
+  id: '/dang-nhap',
+  path: '/dang-nhap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DangKyRoute = DangKyRouteImport.update({
+  id: '/dang-ky',
+  path: '/dang-ky',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CryptoRoute = CryptoRouteImport.update({
   id: '/crypto',
   path: '/crypto',
@@ -172,6 +187,12 @@ const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   path: '/api/public/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPriceAlertsCronRoute =
+  ApiPublicPriceAlertsCronRouteImport.update({
+    id: '/api/public/price-alerts-cron',
+    path: '/api/public/price-alerts-cron',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
   id: '/api/public/pair-history',
   path: '/api/public/pair-history',
@@ -202,6 +223,16 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
   path: '/api/public/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNewsletterSubscribeRoute = ApiNewsletterSubscribeRouteImport.update({
+  id: '/api/newsletter/subscribe',
+  path: '/api/newsletter/subscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiContactSubmitRoute = ApiContactSubmitRouteImport.update({
+  id: '/api/contact/submit',
+  path: '/api/contact/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -211,6 +242,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
+  '/dang-ky': typeof DangKyRoute
+  '/dang-nhap': typeof DangNhapRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -228,12 +261,15 @@ export interface FileRoutesByFullPath {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/api/contact/submit': typeof ApiContactSubmitRoute
+  '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
+  '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -245,6 +281,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
+  '/dang-ky': typeof DangKyRoute
+  '/dang-nhap': typeof DangNhapRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -262,12 +300,15 @@ export interface FileRoutesByTo {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/api/contact/submit': typeof ApiContactSubmitRoute
+  '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
+  '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -280,6 +321,8 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
   '/crypto': typeof CryptoRoute
+  '/dang-ky': typeof DangKyRoute
+  '/dang-nhap': typeof DangNhapRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -297,12 +340,15 @@ export interface FileRoutesById {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/api/contact/submit': typeof ApiContactSubmitRoute
+  '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
+  '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -316,6 +362,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/converter'
     | '/crypto'
+    | '/dang-ky'
+    | '/dang-nhap'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -333,12 +381,15 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
+    | '/api/contact/submit'
+    | '/api/newsletter/subscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
+    | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
     | '/api/public/xau'
   fileRoutesByTo: FileRoutesByTo
@@ -350,6 +401,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/converter'
     | '/crypto'
+    | '/dang-ky'
+    | '/dang-nhap'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -367,12 +420,15 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
+    | '/api/contact/submit'
+    | '/api/newsletter/subscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
+    | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
     | '/api/public/xau'
   id:
@@ -384,6 +440,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/converter'
     | '/crypto'
+    | '/dang-ky'
+    | '/dang-nhap'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -401,12 +459,15 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/tai-san/$symbol'
+    | '/api/contact/submit'
+    | '/api/newsletter/subscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
+    | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
     | '/api/public/xau'
   fileRoutesById: FileRoutesById
@@ -419,6 +480,8 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   ConverterRoute: typeof ConverterRoute
   CryptoRoute: typeof CryptoRoute
+  DangKyRoute: typeof DangKyRoute
+  DangNhapRoute: typeof DangNhapRoute
   DieuKhoanSuDungRoute: typeof DieuKhoanSuDungRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
@@ -436,12 +499,15 @@ export interface RootRouteChildren {
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
+  ApiContactSubmitRoute: typeof ApiContactSubmitRoute
+  ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
+  ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
 }
@@ -553,6 +619,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DieuKhoanSuDungRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dang-nhap': {
+      id: '/dang-nhap'
+      path: '/dang-nhap'
+      fullPath: '/dang-nhap'
+      preLoaderRoute: typeof DangNhapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dang-ky': {
+      id: '/dang-ky'
+      path: '/dang-ky'
+      fullPath: '/dang-ky'
+      preLoaderRoute: typeof DangKyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crypto': {
       id: '/crypto'
       path: '/crypto'
@@ -630,6 +710,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStocksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/price-alerts-cron': {
+      id: '/api/public/price-alerts-cron'
+      path: '/api/public/price-alerts-cron'
+      fullPath: '/api/public/price-alerts-cron'
+      preLoaderRoute: typeof ApiPublicPriceAlertsCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/pair-history': {
       id: '/api/public/pair-history'
       path: '/api/public/pair-history'
@@ -672,6 +759,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/newsletter/subscribe': {
+      id: '/api/newsletter/subscribe'
+      path: '/api/newsletter/subscribe'
+      fullPath: '/api/newsletter/subscribe'
+      preLoaderRoute: typeof ApiNewsletterSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/contact/submit': {
+      id: '/api/contact/submit'
+      path: '/api/contact/submit'
+      fullPath: '/api/contact/submit'
+      preLoaderRoute: typeof ApiContactSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -683,6 +784,8 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   ConverterRoute: ConverterRoute,
   CryptoRoute: CryptoRoute,
+  DangKyRoute: DangKyRoute,
+  DangNhapRoute: DangNhapRoute,
   DieuKhoanSuDungRoute: DieuKhoanSuDungRoute,
   DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
@@ -700,12 +803,15 @@ const rootRouteChildren: RootRouteChildren = {
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
+  ApiContactSubmitRoute: ApiContactSubmitRoute,
+  ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
+  ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
 }

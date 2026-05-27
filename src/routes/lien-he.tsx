@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { ContactForm } from "@/components/site/ContactForm";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/lien-he`;
@@ -79,6 +80,12 @@ function ContactPage() {
             <p>
               MarketWatch tuân thủ pháp luật Việt Nam và sẵn sàng phối hợp với các cơ quan quản lý nhà nước (Bộ Thông tin và Truyền thông, Bộ Công an, Ngân hàng Nhà nước, cơ quan thuế…) khi có yêu cầu hợp pháp bằng văn bản. Thời gian phản hồi: trong vòng 24–72 giờ làm việc.
             </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-xl font-semibold text-foreground">Gửi liên hệ trực tiếp</h2>
+            <p className="text-sm text-muted-foreground">Điền form bên dưới, chúng tôi sẽ gửi email xác nhận và phản hồi sớm.</p>
+            <ContactForm />
           </section>
         </div>
       </main>
