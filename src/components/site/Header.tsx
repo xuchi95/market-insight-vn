@@ -234,6 +234,15 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     <LogOut className="h-3 w-3" /> Thoát
                   </button>
                 </div>
+              ) && null}
+              {user ? (
+                <Link
+                  to="/cai-dat/ban-tin"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+                >
+                  <Mail className="h-3 w-3" /> Quản lý bản tin
+                </Link>
               ) : (
                 <div className="relative rounded-2xl overflow-hidden border border-[var(--gold)]/30 bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-4">
                   <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-[var(--gold)]/15 blur-2xl" aria-hidden />
