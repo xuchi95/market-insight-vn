@@ -86,6 +86,7 @@ async function buildPayload() {
   const timer = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
 
   let data: CGAsset[];
+  let usdVnd: number;
   try {
     const [res, usdVndVal] = await Promise.all([
       fetch(url, { headers: cgHeaders(), signal: ctrl.signal }),
@@ -93,7 +94,7 @@ async function buildPayload() {
     ]);
     if (!res.ok) throw new Error(`crypto upstream ${res.status}`);
     data = (await res.json()) as CGAsset[];
-    var usdVnd = usdVndVal; // eslint-disable-line no-var
+    usdVnd = usdVndVal;
   } finally {
     clearTimeout(timer);
   }
