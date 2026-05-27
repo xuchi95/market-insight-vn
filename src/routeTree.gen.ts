@@ -34,6 +34,7 @@ import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
+import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
@@ -172,6 +173,11 @@ const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
   path: '/tai-san/$symbol',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaiDatBanTinRoute = CaiDatBanTinRouteImport.update({
+  id: '/cai-dat/ban-tin',
+  path: '/cai-dat/ban-tin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssetSymbolRoute = AssetSymbolRouteImport.update({
   id: '/asset/$symbol',
   path: '/asset/$symbol',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -299,6 +306,7 @@ export interface FileRoutesByTo {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
+  '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -380,6 +389,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
+    | '/cai-dat/ban-tin'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -419,6 +429,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
+    | '/cai-dat/ban-tin'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -458,6 +469,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
+    | '/cai-dat/ban-tin'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -498,6 +510,7 @@ export interface RootRouteChildren {
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
+  CaiDatBanTinRoute: typeof CaiDatBanTinRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaiSanSymbolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cai-dat/ban-tin': {
+      id: '/cai-dat/ban-tin'
+      path: '/cai-dat/ban-tin'
+      fullPath: '/cai-dat/ban-tin'
+      preLoaderRoute: typeof CaiDatBanTinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/asset/$symbol': {
       id: '/asset/$symbol'
       path: '/asset/$symbol'
@@ -802,6 +822,7 @@ const rootRouteChildren: RootRouteChildren = {
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   AssetSymbolRoute: AssetSymbolRoute,
+  CaiDatBanTinRoute: CaiDatBanTinRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
