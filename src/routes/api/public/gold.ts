@@ -201,9 +201,131 @@ async function fetchLiveGold(): Promise<MappedItem[]> {
   }
 }
 
+// =========================
+// BTMC (Bảo Tín Minh Châu)
+// =========================
+// Public endpoint returns hundreds of price snapshots; each row has its
+// columns suffixed with the row index (`@n_1`, `@pb_1`, `@ps_1`, `@d_1`...).
+// Values are integer VND per chỉ (e.g. 15770000 = 15.77M VND/chỉ).
+// We only keep the most recent snapshot of each distinct gold product, and
+// only BTMC-branded products (skip silver, skip rows that mirror SJC/PNJ
+// data already exposed via the PNJ feed).
+interface BtmcRow {
+  [k: string]: string;
+}
+interface BtmcResponse {
+  DataList?: { Data?: BtmcRow[] };
+}
+
+// Maps an upstream BTMC product (name + karat) → our row spec.
+// Keys are uppercased name. Items not listed are skipped.
+const BTMC_MAP: Record<string, { id: string; brand: string; type: string }> = {
+  "VÀNG MIẾNG VRTL": {
+    id: "btmc-vrtl",
+    brand: "Bảo Tín Minh Châu",
+    type: "Vàng miếng Rồng Thăng Long",
+  },
+  "NHẪN TRÒN TRƠN": {
+    id: "btmc-nhan",
+    brand: "Bảo Tín Minh Châu",
+    type: "Nhẫn tròn trơn 9999",
+  },
+  "TRANG SỨC VÀNG RỒNG THĂNG LONG 999.9": {
+    id: "btmc-ts9999",
+    brand: "Bảo Tín Minh Châu",
+    type: "Trang sức RTL 999.9",
+  },
+  "TRANG SỨC VÀNG RỒNG THĂNG LONG 99.9": {
+    id: "btmc-ts999",
+    brand: "Bảo Tín Minh Châu",
+    type: "Trang sức RTL 99.9",
+  },
+  "BẢN VÀNG ĐẮC LỘC": {
+    id: "btmc-dacloc",
+    brand: "Bảo Tín Minh Châu",
+    type: "Bản vàng Đắc Lộc",
+  },
+  "QUÀ MỪNG BẢN VỊ VÀNG": {
+    id: "btmc-quamung",
+    brand: "Bảo Tín Minh Châu",
+    type: "Quà mừng Bản vị vàng",
+  },
+};
+
+async function fetchBtmcGold(): Promise<MappedItem[]> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
+  try {
+    const res = await fetch(
+      "https://api.btmc.vn/api/BTMCAPI/getpricebtmc?key=3kd8ub1llcg9t45hnoh8hmn7t5kc2v",
+      {
+        headers: {
+          Accept: "application/json",
+          // Some upstream servers truncate gzip responses on long payloads.
+          "Accept-Encoding": "identity",
+        },
+        signal: ctrl.signal,
+      },
+    );
+    if (!res.ok) throw new Error(`BTMC source ${res.status}`);
+    const json = (await res.json()) as BtmcResponse;
+    const rows = json.DataList?.Data ?? [];
+    // Walk rows newest-first; first occurrence per name wins.
+    const seen = new Map<string, MappedItem>();
+    for (let idx = 0; idx < rows.length; idx++) {
+      const i = idx + 1;
+      const row = rows[idx];
+      const name = (row[`@n_${i}`] ?? "").trim();
+      if (!name) continue;
+      const upper = name.toUpperCase();
+      // Skip silver entirely.
+      if (upper.startsWith("BẠC")) continue;
+      const spec = BTMC_MAP[upper];
+      if (!spec) continue;
+      if (seen.has(spec.id)) continue;
+      const buy = parseFloat(row[`@pb_${i}`] ?? "0") || 0;
+      let sell = parseFloat(row[`@ps_${i}`] ?? "0") || 0;
+      if (!buy) continue;
+      if (!sell) sell = buy; // some products have no sell side
+      const updatedAt = parseVnDate(row[`@d_${i}`] ?? "");
+      seen.set(spec.id, {
+        ...spec,
+        buy,
+        sell,
+        unit: "VND/lượng",
+        updatedAt,
+      });
+    }
+    return Array.from(seen.values());
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchAllSources(): Promise<MappedItem[]> {
+  // Fetch all sources in parallel; tolerate per-source failures so a single
+  // bad upstream doesn't take the whole feed down.
+  const [pnj, btmc] = await Promise.allSettled([
+    fetchLiveGold(),
+    fetchBtmcGold(),
+  ]);
+  const out: MappedItem[] = [];
+  if (pnj.status === "fulfilled") out.push(...pnj.value);
+  if (btmc.status === "fulfilled") out.push(...btmc.value);
+  if (out.length === 0) {
+    // Surface the original error if everything failed
+    if (pnj.status === "rejected") throw pnj.reason;
+    if (btmc.status === "rejected") throw btmc.reason;
+  }
+  // Dedupe by id (PNJ wins for shared products like SJC).
+  const byId = new Map<string, MappedItem>();
+  for (const it of out) if (!byId.has(it.id)) byId.set(it.id, it);
+  return Array.from(byId.values());
+}
+
 function refreshInBackground() {
   if (inflight) return inflight;
-  inflight = fetchLiveGold()
+  inflight = fetchAllSources()
     .then((items) => {
       cache = { at: Date.now(), data: items };
       return items;
