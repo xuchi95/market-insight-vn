@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { LineChart as LCIcon, Loader2, ZoomIn, ZoomOut, X as XIcon } from "lucide-react";
+import { LineChart as LCIcon, Loader2, ZoomIn, ZoomOut, X as XIcon, ImageDown, FileDown } from "lucide-react";
+import { toPng } from "html-to-image";
+import { jsPDF } from "jspdf";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { fmtNum } from "@/lib/format";
@@ -73,6 +75,8 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   const rafRef = useRef<number | null>(null);
   const pendingXRef = useRef<number | null>(null);
   const [cursor, setCursor] = useState<string>("crosshair");
+  const exportRef = useRef<HTMLDivElement | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => { dragLeftRef.current = dragLeft; }, [dragLeft]);
   useEffect(() => { dragRightRef.current = dragRight; }, [dragRight]);
@@ -322,6 +326,56 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
 
   const hasSelection = dragLeft != null && dragRight != null && dragLeft !== dragRight;
 
+  const fmtDateLong = (t: number) =>
+    new Date(t).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  const exportBaseName = () => {
+    const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
+    return `bieu-do-${from?.code}-${to?.code}-${range === "1" ? "24h" : range === "7" ? "7N" : "30N"}-${stamp}`;
+  };
+
+  const renderPng = async (): Promise<string | null> => {
+    const node = exportRef.current;
+    if (!node) return null;
+    setIsExporting(true);
+    try {
+      // Đợi 1 frame để overlay xuất hiện trong ảnh
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      const bg = getComputedStyle(document.documentElement).getPropertyValue("--background").trim() || "#0a0a0a";
+      return await toPng(node, { pixelRatio: 2, backgroundColor: `oklch(${bg})`.startsWith("oklch(") && bg ? `oklch(${bg})` : "#0a0a0a", cacheBust: true });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const exportPng = async () => {
+    const url = await renderPng();
+    if (!url) return;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${exportBaseName()}.png`;
+    a.click();
+  };
+
+  const exportPdf = async () => {
+    const url = await renderPng();
+    if (!url) return;
+    const img = new Image();
+    img.src = url;
+    await new Promise((r) => { img.onload = () => r(null); });
+    const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const margin = 24;
+    const maxW = pageW - margin * 2;
+    const maxH = pageH - margin * 2;
+    const ratio = Math.min(maxW / img.width, maxH / img.height);
+    const w = img.width * ratio;
+    const h = img.height * ratio;
+    pdf.addImage(url, "PNG", (pageW - w) / 2, (pageH - h) / 2, w, h);
+    pdf.save(`${exportBaseName()}.pdf`);
+  };
+
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
 
@@ -359,6 +413,28 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8 px-2 text-xs gap-1"
+            onClick={exportPng}
+            disabled={isExporting || !visibleData.length}
+            aria-label="Xuất PNG"
+          >
+            <ImageDown className="h-3.5 w-3.5" /> PNG
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8 px-2 text-xs gap-1"
+            onClick={exportPdf}
+            disabled={isExporting || !visibleData.length}
+            aria-label="Xuất PDF"
+          >
+            <FileDown className="h-3.5 w-3.5" /> PDF
+          </Button>
           {hasSelection && (
             <>
               <Button
