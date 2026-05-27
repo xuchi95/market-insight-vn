@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, LogOut, Mail, Menu, Search, Sparkles, User as UserIcon, X } from "lucide-react";
+import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Sparkles, User as UserIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
@@ -39,6 +39,14 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { label: "Ngoại tệ", to: "/ty-gia-ngoai-te" },
       { label: "Tỷ giá NH", to: "/ty-gia-ngan-hang" },
       { label: "Đổi tiền", to: "/quy-doi-tien-te" },
+    ],
+  },
+  {
+    label: "Công cụ",
+    items: [
+      { label: "DCA & ROI", to: "/cong-cu/dca-roi" },
+      { label: "Lịch kinh tế", to: "/lich-kinh-te" },
+      { label: "Danh mục", to: "/portfolio" },
     ],
   },
 ];
@@ -160,6 +168,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate({ to: "/portfolio" })}>
+                  <PieChart className="h-3.5 w-3.5 mr-2" /> Danh mục của tôi
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/cai-dat/ban-tin" })}>
                   <Mail className="h-3.5 w-3.5 mr-2" /> Quản lý bản tin
                 </DropdownMenuItem>

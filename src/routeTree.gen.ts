@@ -17,8 +17,10 @@ import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-nhiem'
 import { Route as LienHeRouteImport } from './routes/lien-he'
+import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
@@ -34,6 +36,7 @@ import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
+import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
@@ -88,6 +91,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MienTruTrachNhiemRoute = MienTruTrachNhiemRouteImport.update({
   id: '/mien-tru-trach-nhiem',
   path: '/mien-tru-trach-nhiem',
@@ -96,6 +104,11 @@ const MienTruTrachNhiemRoute = MienTruTrachNhiemRouteImport.update({
 const LienHeRoute = LienHeRouteImport.update({
   id: '/lien-he',
   path: '/lien-he',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LichKinhTeRoute = LichKinhTeRouteImport.update({
+  id: '/lich-kinh-te',
+  path: '/lich-kinh-te',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoldRoute = GoldRouteImport.update({
@@ -171,6 +184,11 @@ const IndexRoute = IndexRouteImport.update({
 const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
   id: '/tai-san/$symbol',
   path: '/tai-san/$symbol',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CongCuDcaRoiRoute = CongCuDcaRoiRouteImport.update({
+  id: '/cong-cu/dca-roi',
+  path: '/cong-cu/dca-roi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CaiDatBanTinRoute = CaiDatBanTinRouteImport.update({
@@ -255,8 +273,10 @@ export interface FileRoutesByFullPath {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -267,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
+  '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -295,8 +316,10 @@ export interface FileRoutesByTo {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -307,6 +330,7 @@ export interface FileRoutesByTo {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
+  '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -336,8 +360,10 @@ export interface FileRoutesById {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -348,6 +374,7 @@ export interface FileRoutesById {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
+  '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -378,8 +405,10 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/portfolio'
     | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
@@ -390,6 +419,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
+    | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -418,8 +448,10 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/portfolio'
     | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
@@ -430,6 +462,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
+    | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -458,8 +491,10 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/portfolio'
     | '/privacy'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
@@ -470,6 +505,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
+    | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -499,8 +535,10 @@ export interface RootRouteChildren {
   ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
+  LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
   MienTruTrachNhiemRoute: typeof MienTruTrachNhiemRoute
+  PortfolioRoute: typeof PortfolioRoute
   PrivacyRoute: typeof PrivacyRoute
   QuyDoiTienTeRoute: typeof QuyDoiTienTeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -511,6 +549,7 @@ export interface RootRouteChildren {
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
+  CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
@@ -583,6 +622,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mien-tru-trach-nhiem': {
       id: '/mien-tru-trach-nhiem'
       path: '/mien-tru-trach-nhiem'
@@ -595,6 +641,13 @@ declare module '@tanstack/react-router' {
       path: '/lien-he'
       fullPath: '/lien-he'
       preLoaderRoute: typeof LienHeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lich-kinh-te': {
+      id: '/lich-kinh-te'
+      path: '/lich-kinh-te'
+      fullPath: '/lich-kinh-te'
+      preLoaderRoute: typeof LichKinhTeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gold': {
@@ -700,6 +753,13 @@ declare module '@tanstack/react-router' {
       path: '/tai-san/$symbol'
       fullPath: '/tai-san/$symbol'
       preLoaderRoute: typeof TaiSanSymbolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cong-cu/dca-roi': {
+      id: '/cong-cu/dca-roi'
+      path: '/cong-cu/dca-roi'
+      fullPath: '/cong-cu/dca-roi'
+      preLoaderRoute: typeof CongCuDcaRoiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cai-dat/ban-tin': {
@@ -811,8 +871,10 @@ const rootRouteChildren: RootRouteChildren = {
   ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
+  LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
   MienTruTrachNhiemRoute: MienTruTrachNhiemRoute,
+  PortfolioRoute: PortfolioRoute,
   PrivacyRoute: PrivacyRoute,
   QuyDoiTienTeRoute: QuyDoiTienTeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -823,6 +885,7 @@ const rootRouteChildren: RootRouteChildren = {
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
+  CongCuDcaRoiRoute: CongCuDcaRoiRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,

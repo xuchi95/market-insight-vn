@@ -1,46 +1,75 @@
-## Mục tiêu
-Tích hợp Mailgun (domain `marketwatch.vn`) để gửi 3 loại email: xác nhận đăng ký nhận tin/liên hệ, cảnh báo biến động giá vàng/crypto, chào mừng tài khoản mới.
+# Kế hoạch triển khai 3 tính năng mới
 
-## Hạ tầng chung
-1. **Enable Lovable Cloud** — cần auth (cho luồng đăng ký) và database (lưu subscribers, alerts theo user).
-2. **Tạo helper Mailgun** `src/lib/email/mailgun.server.ts` — gọi qua connector gateway `https://connector-gateway.lovable.dev/mailgun/marketwatch.vn/messages` với `LOVABLE_API_KEY` + `MAILGUN_API_KEY`. Có hàm `sendEmail({ to, subject, html, text })` + template HTML brand MarketWatch (logo, màu, footer hợp pháp).
-3. **Server routes** dưới `src/routes/api/`:
-   - `api/newsletter/subscribe.ts` (POST public) — validate email (Zod), insert vào `newsletter_subscribers`, gửi email xác nhận.
-   - `api/contact/submit.ts` (POST public) — validate (name/email/message), insert vào `contact_submissions`, gửi email xác nhận tới người liên hệ + forward tới `contact@marketwatch.vn`.
-   - `api/public/price-alerts-cron.ts` (POST, bảo vệ bằng `CRON_SECRET` header) — chạy mỗi 5 phút qua pg_cron: lấy giá hiện tại, đối chiếu alerts `user_price_alerts`, gửi email cho user đã trigger, đánh dấu `triggered`.
+## 1. Portfolio Tracker (`/portfolio`)
 
-## Database (migration mới)
-- `newsletter_subscribers`: id, email (unique), confirmed_at, unsubscribed_at, created_at. RLS: insert public; select/update chỉ admin.
-- `contact_submissions`: id, name, email, message, created_at. RLS: insert public; select admin.
-- `user_price_alerts`: id, user_id (auth.users), symbol, asset_type (`crypto`|`gold`), direction (`above`|`below`), threshold_usd, triggered, triggered_at, created_at. RLS: user thao tác trên row của mình.
-- `profiles`: id (auth.users), email, full_name, created_at — auto-insert qua trigger `handle_new_user`.
-- GRANTs đầy đủ + RLS policies. Lưu `CRON_SECRET` qua secrets tool.
+**Mô tả:** User đăng nhập → thêm tài sản (crypto/vàng) với số lượng & giá vốn → dashboard tổng giá trị realtime, % lãi/lỗ, phân bổ.
 
-## Frontend
-1. **Auth** — trang `/dang-ky`, `/dang-nhap` (email/password + Google). Hook `useAuth`. Trigger `handle_new_user` gửi welcome email qua server function gọi `mailgun`.
-2. **Newsletter** — widget ở Footer (input email + nút "Đăng ký"). Submit POST `/api/newsletter/subscribe`, toast kết quả.
-3. **Contact form** — bổ sung form ở `/lien-he` (name/email/message), POST `/api/contact/submit`.
-4. **Price Alerts upgrade** — `PriceAlerts.tsx` chuyển từ localStorage sang DB khi user đã login (giữ localStorage làm fallback cho guest). Thêm checkbox "Gửi email khi trúng ngưỡng" + thêm hỗ trợ vàng (XAU). Hiển thị trạng thái email đã gửi.
+**Database (migration mới):**
+- Bảng `portfolio_holdings`:
+  - `user_id` (uuid, FK auth.users)
+  - `asset_type` (enum: `crypto` | `gold`)
+  - `symbol` (text — vd: `BTC`, `ETH`, `SJC`, `XAU`)
+  - `quantity` (numeric)
+  - `avg_cost_usd` (numeric, nullable — vàng dùng VND)
+  - `avg_cost_vnd` (numeric, nullable)
+  - `note` (text, nullable)
+  - `created_at`, `updated_at`
+- RLS: chỉ owner CRUD (`auth.uid() = user_id`)
+- GRANT: `authenticated` + `service_role`
 
-## Bảo mật & validation
-- Tất cả input validate Zod (length, format, regex).
-- Rate-limit cơ bản theo email (đếm số submit trong 1 giờ ở DB).
-- Suppression list đơn giản: `unsubscribed_at` cho newsletter; link unsubscribe có token HMAC.
-- `CRON_SECRET` cho endpoint cron; `service_role` để bypass RLS server-side.
+**Code:**
+- Route `/portfolio` (yêu cầu đăng nhập, redirect `/dang-nhap` nếu chưa)
+- Components:
+  - `PortfolioSummary` — tổng giá trị, P/L tuyệt đối + %, biểu đồ tròn phân bổ (dùng Recharts đã có)
+  - `HoldingsTable` — danh sách + nút Edit/Delete
+  - `AddHoldingDialog` — form thêm/sửa (select asset từ list crypto/gold đã có)
+- Tính giá realtime: dùng `fetchCryptoPrices` + `fetchGoldPrices` đã có, join theo symbol
+- Link vào header dropdown user
 
-## Cron
-- pg_cron chạy `select net.http_post(...)` mỗi 5 phút tới `/api/public/price-alerts-cron` với header `x-cron-secret`.
+## 2. DCA & ROI Calculator (`/cong-cu/dca-roi`)
+
+**Mô tả:** Pure frontend, không cần DB.
+
+**Tabs:**
+- **DCA Calculator:** Nhập tài sản (BTC/ETH/SJC), số tiền/kỳ, tần suất (tuần/tháng), khoảng thời gian → kết quả: tổng đầu tư, số lượng tích lũy, giá trị hiện tại, ROI%. Dùng historical data từ `/api/public/crypto-chart` (đã có) hoặc nhập manual giá trung bình.
+- **ROI Calculator:** Giá mua, giá bán, số lượng, phí → lợi nhuận tuyệt đối + %, ROI annualized.
+
+**Components:**
+- `DcaCalculator` + `RoiCalculator` với form + result card + biểu đồ tăng trưởng (Recharts AreaChart)
+
+## 3. Lịch kinh tế (`/lich-kinh-te`)
+
+**Mô tả:** Bảng các sự kiện kinh tế quan trọng (Fed FOMC, CPI Mỹ, NFP, GDP, lãi suất ECB...) ảnh hưởng đến vàng/USD/crypto.
+
+**Data source:** Dùng API miễn phí từ Trading Economics calendar via scraping fallback, hoặc đơn giản nhất: **dữ liệu tĩnh JSON** (cập nhật thủ công hàng tháng) — đảm bảo hoạt động ngay, không phụ thuộc API có phí.
+- File `src/lib/data/economicCalendar.ts` — mảng sự kiện với `date, time, country, event, impact (low/med/high), previous, forecast, actual, affects[]` (vd: `['gold','usd','btc']`).
+- Server route `/api/public/economic-calendar` trả về JSON (cho phép sau này swap qua API thật).
+
+**UI:**
+- Filter: theo tuần này / tháng / mức ảnh hưởng / quốc gia
+- Bảng: cờ quốc gia, ngày/giờ (Asia/Ho_Chi_Minh), tên sự kiện, mức ảnh hưởng (badge màu), dự báo, thực tế, tài sản ảnh hưởng
+- Highlight sự kiện sắp diễn ra trong 24h
 
 ## Thứ tự thực hiện
-1. Enable Cloud + migration tables + GRANT/RLS.
-2. Mailgun helper + email templates (HTML brand).
-3. Auth pages + welcome email trigger.
-4. Newsletter widget + server route.
-5. Contact form + server route.
-6. Price alerts DB + cron + email.
-7. Test gửi thử mỗi luồng.
 
-## Lưu ý cho bạn
-- Cần verify domain `marketwatch.vn` trên Mailgun đã thêm đủ SPF/DKIM/DMARC để email không vào spam.
-- Nên dùng địa chỉ gửi như `noreply@marketwatch.vn` và reply-to `contact@marketwatch.vn`.
-- Nếu Mailgun account là EU region, helper cần đổi base path (mình sẽ hỏi trước khi code nếu cần).
+1. **DCA/ROI Calculator** (đơn giản nhất, không DB) — làm trước để có quick win
+2. **Lịch kinh tế** (data tĩnh, không DB)
+3. **Portfolio Tracker** (cần migration + auth flow)
+
+## Điều hướng
+
+Thêm vào Header dropdown "Công cụ":
+- Quy đổi tiền tệ (có sẵn)
+- **Máy tính DCA & ROI** (mới)
+- **Lịch kinh tế** (mới)
+- **Danh mục của tôi** (mới — chỉ hiện khi đã login)
+
+## Chi tiết kỹ thuật
+
+- Portfolio dùng `createServerFn` + `requireSupabaseAuth` cho CRUD holdings
+- DCA/ROI hoàn toàn client-side, không server
+- Economic calendar v1 dùng JSON tĩnh embed trong code (~50-100 sự kiện cho 2-3 tháng tới), v2 có thể chuyển sang API
+- SEO: mỗi trang có `head()` riêng với title/desc tiếng Việt + JSON-LD
+- Realtime: Portfolio reuse cùng pattern fetch 30s như crypto/gold đã có
+
+Sau khi bạn duyệt, tôi sẽ làm theo thứ tự 1→2→3 trong các turn riêng (hoặc gộp nếu bạn muốn nhanh).
