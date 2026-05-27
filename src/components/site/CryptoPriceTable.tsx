@@ -31,7 +31,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   const { data, isLoading, refetch, isFetching, dataUpdatedAt } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
-    refetchInterval: 15000,
+    refetchInterval: 60_000,
   });
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");

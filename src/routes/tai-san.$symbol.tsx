@@ -70,7 +70,7 @@ function AssetDetail() {
   const { symbol } = useParams({ from: "/tai-san/$symbol" });
   const [range, setRange] = useState("7");
 
-  const { data: coins, isLoading } = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), refetchInterval: 15000 });
+  const { data: coins, isLoading } = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), refetchInterval: 60_000 });
   const coin = coins?.find((c) => c.symbol.toLowerCase() === symbol.toLowerCase());
 
   // Fallback lookups for stocks & forex when not a crypto symbol
