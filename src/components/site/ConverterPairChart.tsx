@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { LineChart as LCIcon, Loader2, ZoomOut } from "lucide-react";
+import { LineChart as LCIcon, Loader2, ZoomIn, ZoomOut, X as XIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { fmtNum } from "@/lib/format";
@@ -66,6 +66,13 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   const chartWrapRef = useRef<HTMLDivElement | null>(null);
   const dragLeftRef = useRef<number | null>(null);
   const dragRightRef = useRef<number | null>(null);
+  const modeRef = useRef<"idle" | "new" | "move" | "resize-l" | "resize-r">("idle");
+  const dragStartXRef = useRef(0);
+  const dragStartLeftRef = useRef(0);
+  const dragStartRightRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const pendingXRef = useRef<number | null>(null);
+  const [cursor, setCursor] = useState<string>("crosshair");
 
   useEffect(() => { dragLeftRef.current = dragLeft; }, [dragLeft]);
   useEffect(() => { dragRightRef.current = dragRight; }, [dragRight]);
@@ -106,23 +113,21 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     return { left: leftBest, right: rightBest, diff, pct };
   }, [dragLeft, dragRight, visibleData]);
 
-  const commitZoom = () => {
-    const l = dragLeftRef.current;
-    const r = dragRightRef.current;
-    setIsDragging(false);
-    if (l == null || r == null || l === r) {
-      setDragLeft(null);
-      setDragRight(null);
-      return;
-    }
-    const [lo, hi] = l < r ? [l, r] : [r, l];
-    // Chỉ zoom nếu khoảng chọn có ít nhất 2 điểm dữ liệu.
-    const inside = data.filter((p) => p.t >= lo && p.t <= hi);
-    if (inside.length >= 2) {
-      setZoom({ from: lo, to: hi });
-    }
+  const clearSelection = () => {
+    dragLeftRef.current = null;
+    dragRightRef.current = null;
     setDragLeft(null);
     setDragRight(null);
+  };
+
+  const applyZoom = () => {
+    const l = dragLeftRef.current;
+    const r = dragRightRef.current;
+    if (l == null || r == null || l === r) return;
+    const [lo, hi] = l < r ? [l, r] : [r, l];
+    const inside = data.filter((p) => p.t >= lo && p.t <= hi);
+    if (inside.length >= 2) setZoom({ from: lo, to: hi });
+    clearSelection();
   };
 
   // ----- Touch support -----
@@ -142,82 +147,157 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     return tMin + (tMax - tMin) * ratio;
   };
 
-  useEffect(() => {
+  // Inverse mapping: timestamp → clientX (page coords)
+  const timeToClientX = (t: number): number | null => {
     const el = chartWrapRef.current;
-    if (!el) return;
-    let rafId: number | null = null;
-    let pendingX: number | null = null;
-    let startX = 0;
-    let startT = 0;
-    let activated = false;
-    const TAP_SLOP = 8; // px — chỉ bắt đầu kéo khi vượt ngưỡng này (tránh nhiễu khi chạm)
+    if (!el || !visibleData.length) return null;
+    const rect = el.getBoundingClientRect();
+    const padLeft = 8 + 64;
+    const padRight = 8 + 8;
+    const usable = Math.max(1, rect.width - padLeft - padRight);
+    const tMin = visibleData[0].t;
+    const tMax = visibleData[visibleData.length - 1].t;
+    if (tMax === tMin) return rect.left + padLeft;
+    return rect.left + padLeft + ((t - tMin) / (tMax - tMin)) * usable;
+  };
 
-    const flush = () => {
-      rafId = null;
-      if (pendingX == null) return;
-      const t = touchToTime(pendingX);
-      pendingX = null;
-      if (t == null) return;
-      if (!activated) {
-        activated = true;
-        setIsDragging(true);
-        setDragLeft(startT);
-      }
+  const applyPointerMove = (clientX: number) => {
+    const mode = modeRef.current;
+    if (mode === "idle") return;
+    const t = touchToTime(clientX);
+    if (t == null || !visibleData.length) return;
+    if (mode === "new") {
       dragRightRef.current = t;
       setDragRight(t);
-    };
-    const schedule = () => {
-      if (rafId != null) return;
-      rafId = requestAnimationFrame(flush);
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1) return;
-      const x = e.touches[0].clientX;
-      const t = touchToTime(x);
-      if (t == null) return;
-      startX = x;
-      startT = t;
-      activated = false;
+    } else if (mode === "resize-l") {
       dragLeftRef.current = t;
+      setDragLeft(t);
+    } else if (mode === "resize-r") {
       dragRightRef.current = t;
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length !== 1) return;
-      const x = e.touches[0].clientX;
-      if (!activated && Math.abs(x - startX) < TAP_SLOP) return;
-      e.preventDefault();
-      pendingX = x;
-      schedule();
-    };
-    const onTouchEnd = (e: TouchEvent) => {
-      if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; }
-      pendingX = null;
-      if (!activated) {
-        // chỉ là tap — không zoom
-        dragLeftRef.current = null;
-        dragRightRef.current = null;
-        setDragLeft(null);
-        setDragRight(null);
-        setIsDragging(false);
-        return;
-      }
-      e.preventDefault();
-      commitZoom();
-    };
-    el.addEventListener("touchstart", onTouchStart, { passive: false });
-    el.addEventListener("touchmove", onTouchMove, { passive: false });
-    el.addEventListener("touchend", onTouchEnd, { passive: false });
-    el.addEventListener("touchcancel", onTouchEnd, { passive: false });
-    return () => {
-      if (rafId != null) cancelAnimationFrame(rafId);
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
-      el.removeEventListener("touchend", onTouchEnd);
-      el.removeEventListener("touchcancel", onTouchEnd);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleData]);
+      setDragRight(t);
+    } else if (mode === "move") {
+      const startT = touchToTime(dragStartXRef.current);
+      if (startT == null) return;
+      const dt = t - startT;
+      const tMin = visibleData[0].t;
+      const tMax = visibleData[visibleData.length - 1].t;
+      let nl = dragStartLeftRef.current + dt;
+      let nr = dragStartRightRef.current + dt;
+      if (nl < tMin) { nr += tMin - nl; nl = tMin; }
+      if (nr > tMax) { nl -= nr - tMax; nr = tMax; }
+      dragLeftRef.current = nl;
+      dragRightRef.current = nr;
+      setDragLeft(nl);
+      setDragRight(nr);
+    }
+  };
+
+  const flushPointer = () => {
+    rafRef.current = null;
+    if (pendingXRef.current == null) return;
+    applyPointerMove(pendingXRef.current);
+    pendingXRef.current = null;
+  };
+
+  const hitTest = (clientX: number): "move" | "resize-l" | "resize-r" | null => {
+    const l = dragLeftRef.current;
+    const r = dragRightRef.current;
+    if (l == null || r == null || l === r) return null;
+    const lo = Math.min(l, r);
+    const hi = Math.max(l, r);
+    const xl = timeToClientX(lo);
+    const xr = timeToClientX(hi);
+    if (xl == null || xr == null) return null;
+    const edge = Math.max(16, (xr - xl) * 0.15);
+    if (clientX < xl - edge || clientX > xr + edge) return null;
+    if (Math.abs(clientX - xl) <= edge) return "resize-l";
+    if (Math.abs(clientX - xr) <= edge) return "resize-r";
+    return "move";
+  };
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!visibleData.length) return;
+    const el = chartWrapRef.current;
+    if (!el) return;
+    // Bỏ qua chuột phải / giữa
+    if (e.button !== undefined && e.button !== 0) return;
+    el.setPointerCapture(e.pointerId);
+    const clientX = e.clientX;
+    const hit = hitTest(clientX);
+    if (hit) {
+      modeRef.current = hit;
+      dragStartXRef.current = clientX;
+      const l = Math.min(dragLeftRef.current!, dragRightRef.current!);
+      const r = Math.max(dragLeftRef.current!, dragRightRef.current!);
+      dragStartLeftRef.current = l;
+      dragStartRightRef.current = r;
+      dragLeftRef.current = l;
+      dragRightRef.current = r;
+      setDragLeft(l);
+      setDragRight(r);
+      setIsDragging(true);
+      return;
+    }
+    const t = touchToTime(clientX);
+    if (t == null) return;
+    modeRef.current = "new";
+    dragLeftRef.current = t;
+    dragRightRef.current = t;
+    setDragLeft(t);
+    setDragRight(t);
+    setIsDragging(true);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (modeRef.current === "idle") {
+      // Cập nhật con trỏ khi rê qua vùng đã chọn
+      const hit = hitTest(e.clientX);
+      setCursor(hit === "move" ? "grab" : hit ? "ew-resize" : "crosshair");
+      return;
+    }
+    e.preventDefault();
+    pendingXRef.current = e.clientX;
+    if (rafRef.current == null) rafRef.current = requestAnimationFrame(flushPointer);
+  };
+
+  const endPointer = () => {
+    if (rafRef.current != null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    pendingXRef.current = null;
+    const wasMode = modeRef.current;
+    modeRef.current = "idle";
+    setIsDragging(false);
+    if (wasMode === "new" && dragLeftRef.current === dragRightRef.current) {
+      // tap đơn — không tạo vùng chọn
+      clearSelection();
+    }
+  };
+
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = chartWrapRef.current;
+    if (el && el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    endPointer();
+  };
+
+  const onDblClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!visibleData.length) return;
+    const center = touchToTime(e.clientX);
+    if (center == null) return;
+    const fullSpan = visibleData[visibleData.length - 1].t - visibleData[0].t;
+    const zoomSpan = Math.max(fullSpan * 0.3, 3600_000);
+    const lo = Math.max(center - zoomSpan / 2, visibleData[0].t);
+    const hi = Math.min(center + zoomSpan / 2, visibleData[visibleData.length - 1].t);
+    const inside = visibleData.filter((p) => p.t >= lo && p.t <= hi);
+    if (inside.length >= 2) setZoom({ from: lo, to: hi });
+    clearSelection();
+  };
+
+  // Dọn dẹp vùng chọn khi đổi cặp/khung
+  useEffect(() => {
+    modeRef.current = "idle";
+    if (rafRef.current != null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+  }, [pairKey, range]);
+
+  const hasSelection = dragLeft != null && dragRight != null && dragLeft !== dragRight;
 
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
@@ -256,6 +336,30 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {hasSelection && (
+            <>
+              <Button
+                type="button"
+                size="sm"
+                variant="default"
+                className="h-8 px-2 text-xs gap-1"
+                onClick={applyZoom}
+                aria-label="Phóng to vùng đã chọn"
+              >
+                <ZoomIn className="h-3.5 w-3.5" /> Phóng to
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 px-2 text-xs gap-1"
+                onClick={clearSelection}
+                aria-label="Hủy vùng chọn"
+              >
+                <XIcon className="h-3.5 w-3.5" /> Hủy chọn
+              </Button>
+            </>
+          )}
           {zoom && (
             <Button
               type="button"
@@ -301,6 +405,12 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
       <div
         ref={chartWrapRef}
         className="h-56 sm:h-48 w-full px-2 pb-2 pt-2 relative select-none touch-none"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onDoubleClick={onDblClick}
+        style={{ cursor: isDragging && modeRef.current === "move" ? "grabbing" : isDragging ? "ew-resize" : cursor }}
       >
         {isLoading && !data.length && (
           <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground gap-2">
@@ -336,36 +446,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           <AreaChart
             data={visibleData}
             margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
-            onMouseDown={(e: any) => {
-              if (e?.activeLabel != null) {
-                setIsDragging(true);
-                setDragLeft(Number(e.activeLabel));
-                setDragRight(Number(e.activeLabel));
-              }
-            }}
-            onMouseMove={(e: any) => {
-              if (isDragging && e?.activeLabel != null) setDragRight(Number(e.activeLabel));
-            }}
-            onMouseUp={commitZoom}
-            onMouseLeave={() => {
-              if (isDragging) commitZoom();
-            }}
-            onDoubleClick={(e: any) => {
-              if (e?.activeLabel == null || !visibleData.length) return;
-              const center = Number(e.activeLabel);
-              const fullSpan = visibleData[visibleData.length - 1].t - visibleData[0].t;
-              const zoomSpan = Math.max(fullSpan * 0.3, 3600_000); // 30% domain or 1 hour
-              const lo = Math.max(center - zoomSpan / 2, visibleData[0].t);
-              const hi = Math.min(center + zoomSpan / 2, visibleData[visibleData.length - 1].t);
-              const inside = visibleData.filter((p) => p.t >= lo && p.t <= hi);
-              if (inside.length >= 2) {
-                setZoom({ from: lo, to: hi });
-              }
-              setIsDragging(false);
-              setDragLeft(null);
-              setDragRight(null);
-            }}
-            style={{ cursor: isDragging ? "ew-resize" : "crosshair" }}
           >
             <defs>
               <linearGradient id={`pairFill-${pairKey}`} x1="0" y1="0" x2="0" y2="1">
@@ -413,7 +493,7 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
         </ResponsiveContainer>
       </div>
       <div className="px-4 pb-3 text-[11px] text-muted-foreground">
-        Mẹo: kéo chuột/chạm-kéo để phóng to — <strong>nhấn đúp</strong> để zoom nhanh quanh điểm chọn — bấm <em>Bỏ zoom</em> để xem toàn bộ.
+        Mẹo: kéo để tạo vùng chọn → kéo <strong>bên trong</strong> để dịch chuyển, kéo <strong>mép trái/phải</strong> để chỉnh — bấm <em>Phóng to</em> để áp dụng, <em>nhấn đúp</em> để zoom nhanh.
       </div>
     </div>
   );
