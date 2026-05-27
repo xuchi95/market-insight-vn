@@ -30,7 +30,7 @@ export function PriceAlerts() {
   const { data: coins } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
-    refetchInterval: 15000,
+    refetchInterval: 60_000,
   });
 
   const [alerts, setAlerts] = useState<PriceAlert[]>([]);
