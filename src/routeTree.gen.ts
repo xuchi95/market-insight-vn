@@ -35,6 +35,7 @@ import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
+import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
@@ -174,6 +175,12 @@ const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   path: '/api/public/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPriceAlertsCronRoute =
+  ApiPublicPriceAlertsCronRouteImport.update({
+    id: '/api/public/price-alerts-cron',
+    path: '/api/public/price-alerts-cron',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
   id: '/api/public/pair-history',
   path: '/api/public/pair-history',
@@ -248,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
+  '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -284,6 +292,7 @@ export interface FileRoutesByTo {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
+  '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -321,6 +330,7 @@ export interface FileRoutesById {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
+  '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
+    | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
     | '/api/public/xau'
   fileRoutesByTo: FileRoutesByTo
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
+    | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
     | '/api/public/xau'
   id:
@@ -431,6 +443,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
+    | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
     | '/api/public/xau'
   fileRoutesById: FileRoutesById
@@ -468,6 +481,7 @@ export interface RootRouteChildren {
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
+  ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
 }
@@ -656,6 +670,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStocksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/price-alerts-cron': {
+      id: '/api/public/price-alerts-cron'
+      path: '/api/public/price-alerts-cron'
+      fullPath: '/api/public/price-alerts-cron'
+      preLoaderRoute: typeof ApiPublicPriceAlertsCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/pair-history': {
       id: '/api/public/pair-history'
       path: '/api/public/pair-history'
@@ -748,6 +769,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
+  ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
 }
