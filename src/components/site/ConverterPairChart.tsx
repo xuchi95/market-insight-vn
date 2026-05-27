@@ -145,24 +145,63 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   useEffect(() => {
     const el = chartWrapRef.current;
     if (!el) return;
+    let rafId: number | null = null;
+    let pendingX: number | null = null;
+    let startX = 0;
+    let startT = 0;
+    let activated = false;
+    const TAP_SLOP = 8; // px — chỉ bắt đầu kéo khi vượt ngưỡng này (tránh nhiễu khi chạm)
+
+    const flush = () => {
+      rafId = null;
+      if (pendingX == null) return;
+      const t = touchToTime(pendingX);
+      pendingX = null;
+      if (t == null) return;
+      if (!activated) {
+        activated = true;
+        setIsDragging(true);
+        setDragLeft(startT);
+      }
+      dragRightRef.current = t;
+      setDragRight(t);
+    };
+    const schedule = () => {
+      if (rafId != null) return;
+      rafId = requestAnimationFrame(flush);
+    };
+
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return;
-      const t = touchToTime(e.touches[0].clientX);
+      const x = e.touches[0].clientX;
+      const t = touchToTime(x);
       if (t == null) return;
-      e.preventDefault();
-      setIsDragging(true);
-      setDragLeft(t);
-      setDragRight(t);
+      startX = x;
+      startT = t;
+      activated = false;
+      dragLeftRef.current = t;
+      dragRightRef.current = t;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (!isDragging || e.touches.length !== 1) return;
-      const t = touchToTime(e.touches[0].clientX);
-      if (t == null) return;
+      if (e.touches.length !== 1) return;
+      const x = e.touches[0].clientX;
+      if (!activated && Math.abs(x - startX) < TAP_SLOP) return;
       e.preventDefault();
-      setDragRight(t);
+      pendingX = x;
+      schedule();
     };
     const onTouchEnd = (e: TouchEvent) => {
-      if (!isDragging) return;
+      if (rafId != null) { cancelAnimationFrame(rafId); rafId = null; }
+      pendingX = null;
+      if (!activated) {
+        // chỉ là tap — không zoom
+        dragLeftRef.current = null;
+        dragRightRef.current = null;
+        setDragLeft(null);
+        setDragRight(null);
+        setIsDragging(false);
+        return;
+      }
       e.preventDefault();
       commitZoom();
     };
@@ -171,13 +210,14 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     el.addEventListener("touchend", onTouchEnd, { passive: false });
     el.addEventListener("touchcancel", onTouchEnd, { passive: false });
     return () => {
+      if (rafId != null) cancelAnimationFrame(rafId);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
       el.removeEventListener("touchcancel", onTouchEnd);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDragging, visibleData]);
+  }, [visibleData]);
 
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
