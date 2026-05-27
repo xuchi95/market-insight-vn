@@ -4,16 +4,40 @@ import { Footer } from "@/components/site/Footer";
 import { Ticker } from "@/components/site/Ticker";
 import { BentoTiles } from "@/components/site/BentoTiles";
 
+const SITE = "https://market-insight-vn.lovable.app";
+const URL = `${SITE}/`;
+const TITLE = "MarketWatch — Giá vàng SJC, Bitcoin, USD/VND realtime hôm nay";
+const DESC = "Giá vàng SJC, DOJI, PNJ, Bitcoin (BTC), Ethereum (ETH), USDT, tỷ giá USD/VND, EUR, JPY, CNY cập nhật realtime — dashboard tài chính tiếng Việt cho nhà đầu tư.";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MarketWatch — Giá vàng SJC, DOJI, Bitcoin, USD realtime" },
-      { name: "description", content: "Cập nhật giá vàng SJC, DOJI, BTC, ETH, USDT, USD, CNY và tỷ giá ngoại tệ theo thời gian thực — dashboard tài chính chuyên nghiệp tiếng Việt." },
-      { property: "og:title", content: "MarketWatch — Theo dõi giá vàng, crypto, ngoại tệ realtime" },
-      { property: "og:description", content: "Dashboard tài chính realtime: giá vàng SJC, BTC, ETH, USDT, USD và nhiều tài sản khác." },
+      { title: TITLE },
+      { name: "description", content: DESC },
+      { name: "keywords", content: "giá vàng hôm nay, giá vàng sjc, giá bitcoin hôm nay, giá btc, giá eth, tỷ giá usd, tỷ giá usd vietcombank, tỷ giá ngoại tệ, vn-index, dashboard tài chính" },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESC },
+      { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "vi_VN" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: URL }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: TITLE,
+          description: DESC,
+          url: URL,
+          inLanguage: "vi-VN",
+          about: ["Giá vàng SJC", "Giá Bitcoin", "Tỷ giá USD/VND", "Crypto", "Ngoại tệ"],
+        }),
+      },
+    ],
   }),
   component: Index,
 });
