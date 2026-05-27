@@ -100,7 +100,7 @@ function EconomicCalendarPage() {
       <Header />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-5 py-8">
-          <Breadcrumbs items={[{ label: "Lịch kinh tế" }]} />
+          <Breadcrumbs />
           <header className="mt-4 mb-8">
             <h1 className="font-display text-3xl md:text-5xl">Lịch kinh tế</h1>
             <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
