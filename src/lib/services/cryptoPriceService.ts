@@ -41,7 +41,12 @@ function normalizeCoin(raw: any, usdVnd: number): CryptoCoin | null {
 
 export async function fetchCryptoPrices(usdVnd = USD_VND_FALLBACK): Promise<CryptoCoin[]> {
   try {
-    const res = await fetch("/api/public/crypto", { headers: { accept: "application/json" } });
+    // Bypass browser HTTP cache so the manual refresh button always hits the
+    // server (which has its own short-lived in-memory cache).
+    const res = await fetch(`/api/public/crypto?t=${Date.now()}`, {
+      headers: { accept: "application/json" },
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const j = await res.json();
     const rate = toNum(j?.usdVnd, usdVnd);
