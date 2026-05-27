@@ -84,12 +84,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "robots", content: "index,follow,max-image-preview:large,max-snippet:-1" },
       { name: "theme-color", content: "#0a0a0a" },
       { name: "author", content: "MarketWatch" },
+      { property: "og:image", content: "https://marketwatch.vn/og-image.png" },
+      { name: "twitter:image", content: "https://marketwatch.vn/og-image.png" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", type: "image/png", href: "/favicon.ico" },
+      { rel: "apple-touch-icon", href: "/og-image.png" },
     ],
     scripts: [
       {
