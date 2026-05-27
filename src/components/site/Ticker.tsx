@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
+import { fmtTrieu } from "@/lib/format";
 
 async function fetchXau(): Promise<{ price: number; changePct: number } | null> {
   try {
