@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ConverterTool } from "@/components/site/ConverterTool";
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://market-insight-vn.lovable.app";
 const URL = `${SITE}/converter`;
@@ -89,11 +90,11 @@ function ConverterPage() {
             </p>
             <h3 className="text-xl font-semibold">Hỗ trợ những loại tiền nào?</h3>
             <p className="text-muted-foreground">
-              Hơn 10 ngoại tệ phổ biến (USD, EUR, GBP, JPY, CNY, KRW, SGD, AUD, CAD, CHF, HKD), vàng miếng SJC/PNJ và các đồng crypto chủ chốt (BTC, ETH, BNB, SOL…).
+              Hơn 10 ngoại tệ phổ biến (USD, EUR, GBP, JPY, CNY, KRW, SGD, AUD, CAD, CHF, HKD) — xem chi tiết tại trang <Link to="/forex" className="text-primary hover:underline">tỷ giá ngoại tệ hôm nay</Link>, <Link to="/gold" className="text-primary hover:underline">vàng miếng SJC/PNJ</Link> và các đồng <Link to="/crypto" className="text-primary hover:underline">crypto chủ chốt (BTC, ETH, BNB, SOL…)</Link>.
             </p>
             <h3 className="text-xl font-semibold">Spread mua–bán là gì?</h3>
             <p className="text-muted-foreground">
-              Là chênh lệch giữa giá mua vào và giá bán ra của ngân hàng/đại lý. Spread càng lớn, chi phí đổi tiền càng cao — công cụ giúp bạn ước lượng phần thiệt hại này trước khi giao dịch thật.
+              Là chênh lệch giữa giá mua vào và giá bán ra của ngân hàng/đại lý. Spread càng lớn, chi phí đổi tiền càng cao — công cụ giúp bạn ước lượng phần thiệt hại này trước khi giao dịch thật. Đối chiếu thêm với <Link to="/bank-rates" className="text-primary hover:underline">tỷ giá Vietcombank niêm yết</Link>.
             </p>
           </section>
 
@@ -108,6 +109,7 @@ function ConverterPage() {
               ))}
             </div>
           </section>
+          <RelatedLinks current="converter" />
         </div>
       </main>
       <Footer />

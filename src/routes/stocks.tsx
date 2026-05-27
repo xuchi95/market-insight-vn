@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { StockIndexTable } from "@/components/site/StockIndexTable";
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://market-insight-vn.lovable.app";
 const URL = `${SITE}/stocks`;
@@ -75,9 +76,10 @@ function StocksPage() {
           <section className="prose prose-invert max-w-none space-y-3">
             <h2 className="text-2xl font-bold tracking-tight">Về dữ liệu chỉ số</h2>
             <p className="text-muted-foreground">
-              Dữ liệu được tổng hợp từ nguồn công khai (VNDirect) và mang tính tham khảo. Tỷ lệ thay đổi tính trên giá đóng cửa phiên trước. Trong giờ giao dịch, giá trị cập nhật mỗi vài phút; ngoài giờ giao dịch, hiển thị kết quả đóng cửa phiên gần nhất.
+              Dữ liệu được tổng hợp từ nguồn công khai (VNDirect) và mang tính tham khảo. Tỷ lệ thay đổi tính trên giá đóng cửa phiên trước. Trong giờ giao dịch, giá trị cập nhật mỗi vài phút; ngoài giờ giao dịch, hiển thị kết quả đóng cửa phiên gần nhất. Xem thêm <Link to="/forex" className="text-primary hover:underline">tỷ giá USD/VND hôm nay</Link>, <Link to="/gold" className="text-primary hover:underline">giá vàng SJC</Link> và <Link to="/crypto" className="text-primary hover:underline">giá Bitcoin</Link> để theo dõi toàn cảnh thị trường.
             </p>
           </section>
+          <RelatedLinks current="stocks" />
         </div>
       </main>
       <Footer />
