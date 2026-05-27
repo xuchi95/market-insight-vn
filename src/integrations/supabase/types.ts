@@ -14,7 +14,132 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          source: string | null
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          source?: string | null
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string | null
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          locale: string | null
+          updated_at: string
+          welcome_email_sent_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          locale?: string | null
+          updated_at?: string
+          welcome_email_sent_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          locale?: string | null
+          updated_at?: string
+          welcome_email_sent_at?: string | null
+        }
+        Relationships: []
+      }
+      user_price_alerts: {
+        Row: {
+          asset_type: Database["public"]["Enums"]["alert_asset_type"]
+          created_at: string
+          direction: Database["public"]["Enums"]["alert_direction"]
+          email_enabled: boolean
+          id: string
+          last_price_usd: number | null
+          symbol: string
+          threshold_usd: number
+          triggered: boolean
+          triggered_at: string | null
+          user_id: string
+        }
+        Insert: {
+          asset_type?: Database["public"]["Enums"]["alert_asset_type"]
+          created_at?: string
+          direction: Database["public"]["Enums"]["alert_direction"]
+          email_enabled?: boolean
+          id?: string
+          last_price_usd?: number | null
+          symbol: string
+          threshold_usd: number
+          triggered?: boolean
+          triggered_at?: string | null
+          user_id: string
+        }
+        Update: {
+          asset_type?: Database["public"]["Enums"]["alert_asset_type"]
+          created_at?: string
+          direction?: Database["public"]["Enums"]["alert_direction"]
+          email_enabled?: boolean
+          id?: string
+          last_price_usd?: number | null
+          symbol?: string
+          threshold_usd?: number
+          triggered?: boolean
+          triggered_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +148,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      alert_asset_type: "crypto" | "gold"
+      alert_direction: "above" | "below"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +276,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      alert_asset_type: ["crypto", "gold"],
+      alert_direction: ["above", "below"],
+    },
   },
 } as const
