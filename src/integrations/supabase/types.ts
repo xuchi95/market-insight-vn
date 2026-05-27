@@ -68,6 +68,45 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_holdings: {
+        Row: {
+          asset_type: Database["public"]["Enums"]["holding_asset_type"]
+          avg_cost_usd: number | null
+          avg_cost_vnd: number | null
+          created_at: string
+          id: string
+          note: string | null
+          quantity: number
+          symbol: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asset_type: Database["public"]["Enums"]["holding_asset_type"]
+          avg_cost_usd?: number | null
+          avg_cost_vnd?: number | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          quantity: number
+          symbol: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asset_type?: Database["public"]["Enums"]["holding_asset_type"]
+          avg_cost_usd?: number | null
+          avg_cost_vnd?: number | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          quantity?: number
+          symbol?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -150,6 +189,7 @@ export type Database = {
     Enums: {
       alert_asset_type: "crypto" | "gold"
       alert_direction: "above" | "below"
+      holding_asset_type: "crypto" | "gold"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -279,6 +319,7 @@ export const Constants = {
     Enums: {
       alert_asset_type: ["crypto", "gold"],
       alert_direction: ["above", "below"],
+      holding_asset_type: ["crypto", "gold"],
     },
   },
 } as const
