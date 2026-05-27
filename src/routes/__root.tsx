@@ -84,16 +84,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "robots", content: "index,follow,max-image-preview:large,max-snippet:-1" },
       { name: "theme-color", content: "#0a0a0a" },
       { name: "author", content: "MarketWatch" },
-      { property: "og:image", content: "https://marketwatch.vn/og-image.png" },
-      { name: "twitter:image", content: "https://marketwatch.vn/og-image.png" },
+      { property: "og:title", content: "MarketWatch — Giá vàng, crypto & ngoại tệ realtime" },
+      { name: "twitter:title", content: "MarketWatch — Giá vàng, crypto & ngoại tệ realtime" },
+      { property: "og:description", content: "Dashboard tài chính realtime: giá vàng SJC, DOJI, BTC, ETH, USD và tỷ giá ngoại tệ." },
+      { name: "twitter:description", content: "Dashboard tài chính realtime: giá vàng SJC, DOJI, BTC, ETH, USD và tỷ giá ngoại tệ." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b8c9b171-48fc-42a5-b09c-62d699f826fa" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b8c9b171-48fc-42a5-b09c-62d699f826fa" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", type: "image/png", href: "/favicon.ico" },
-      { rel: "apple-touch-icon", href: "/og-image.png" },
     ],
     scripts: [
       {
