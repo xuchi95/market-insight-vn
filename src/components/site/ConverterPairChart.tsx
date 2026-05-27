@@ -433,6 +433,28 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
 
   return (
     <div ref={exportRef} className="rounded-xl border bg-card/40">
+      {isExporting && (
+        <div className="flex items-start justify-between gap-4 px-4 pt-4 pb-3 border-b border-border/60">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Báo cáo biến động tỷ giá</div>
+            <div className="text-lg font-bold tracking-tight">
+              {from!.code} / {to!.code}
+              <span className="ml-2 text-xs font-medium text-muted-foreground">
+                ({from!.kind} → {to!.kind})
+              </span>
+            </div>
+            <div className="text-[11px] text-muted-foreground tabular">
+              Khung thời gian: <span className="text-foreground/80 font-semibold">{rangeLabel}</span>
+              <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-foreground/70">range={range}</span>
+              {source ? <> — Nguồn: {source}</> : null}
+            </div>
+          </div>
+          <div className="text-right text-[10px] text-muted-foreground tabular leading-tight">
+            <div>Xuất lúc</div>
+            <div className="text-foreground/80 font-semibold">{fmtDateLong(Date.now())}</div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4">
         <div className="flex items-center gap-2">
           <LCIcon className="h-4 w-4 text-primary" />
