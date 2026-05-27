@@ -219,30 +219,30 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             ))}
             <div className="mt-3">
               {user ? (
-                <div className="rounded-2xl border border-border bg-card/60 p-3 flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-sm font-bold uppercase">
-                    {(user.email ?? "?").slice(0, 1)}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Đã đăng nhập</div>
-                    <div className="text-xs text-foreground truncate">{user.email}</div>
+                <div className="space-y-2">
+                  <div className="rounded-2xl border border-border bg-card/60 p-3 flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-sm font-bold uppercase">
+                      {(user.email ?? "?").slice(0, 1)}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Đã đăng nhập</div>
+                      <div className="text-xs text-foreground truncate">{user.email}</div>
+                    </div>
+                    <button
+                      onClick={() => { setOpen(false); signOut().then(() => navigate({ to: "/" })); }}
+                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-rose-500 hover:bg-rose-500/10 transition-colors"
+                    >
+                      <LogOut className="h-3 w-3" /> Thoát
+                    </button>
                   </div>
-                  <button
-                    onClick={() => { setOpen(false); signOut().then(() => navigate({ to: "/" })); }}
-                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-rose-500 hover:bg-rose-500/10 transition-colors"
+                  <Link
+                    to="/cai-dat/ban-tin"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
                   >
-                    <LogOut className="h-3 w-3" /> Thoát
-                  </button>
+                    <Mail className="h-3 w-3" /> Quản lý bản tin
+                  </Link>
                 </div>
-              ) && null}
-              {user ? (
-                <Link
-                  to="/cai-dat/ban-tin"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
-                >
-                  <Mail className="h-3 w-3" /> Quản lý bản tin
-                </Link>
               ) : (
                 <div className="relative rounded-2xl overflow-hidden border border-[var(--gold)]/30 bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-4">
                   <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-[var(--gold)]/15 blur-2xl" aria-hidden />
