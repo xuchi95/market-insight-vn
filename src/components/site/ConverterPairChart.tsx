@@ -445,28 +445,47 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-8 px-2 text-xs gap-1"
-            onClick={exportPng}
-            disabled={isExporting || !visibleData.length}
-            aria-label="Xuất PNG"
-          >
-            <ImageDown className="h-3.5 w-3.5" /> PNG
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-8 px-2 text-xs gap-1"
-            onClick={exportPdf}
-            disabled={isExporting || !visibleData.length}
-            aria-label="Xuất PDF"
-          >
-            <FileDown className="h-3.5 w-3.5" /> PDF
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 px-2 text-xs gap-1"
+                disabled={isExporting || !visibleData.length}
+                aria-label="Xuất PNG"
+              >
+                <ImageDown className="h-3.5 w-3.5" /> PNG
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="text-xs">
+              <DropdownMenuLabel className="text-[11px]">Nền ảnh PNG</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => exportPng("light")}>Nền sáng (Light)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportPng("dark")}>Nền tối (Dark)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportPng("transparent")}>Nền trong suốt</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 px-2 text-xs gap-1"
+                disabled={isExporting || !visibleData.length}
+                aria-label="Xuất PDF"
+              >
+                <FileDown className="h-3.5 w-3.5" /> PDF
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="text-xs">
+              <DropdownMenuLabel className="text-[11px]">Nền trang PDF</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => exportPdf("light")}>Nền sáng (Light)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportPdf("dark")}>Nền tối (Dark)</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {hasSelection && (
             <>
               <Button
