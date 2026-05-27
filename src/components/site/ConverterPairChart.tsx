@@ -101,7 +101,9 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
       if (Math.abs(p.t - dragLeft) < Math.abs(leftBest.t - dragLeft)) leftBest = p;
       if (Math.abs(p.t - dragRight) < Math.abs(rightBest.t - dragRight)) rightBest = p;
     }
-    return { left: leftBest, right: rightBest };
+    const diff = rightBest.v - leftBest.v;
+    const pct = leftBest.v !== 0 ? (diff / leftBest.v) * 100 : 0;
+    return { left: leftBest, right: rightBest, diff, pct };
   }, [dragLeft, dragRight, visibleData]);
 
   const commitZoom = () => {
