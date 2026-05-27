@@ -52,7 +52,7 @@ export function Hero({ goldSjc, btc, usd }: Props) {
             icon={<Activity className="h-5 w-5 text-gold-foreground" />}
             accent="bg-gold-gradient"
             label="Vàng SJC (bán)"
-            value={goldSjc ? `${fmtTrieu(goldSjc.sell)} tr/lượng` : "—"}
+            value={goldSjc ? `${fmtTrieu(goldSjc.sell)} tr/chỉ` : "—"}
             change={goldSjc?.changePct}
             flashKey={goldSjc?.sell ?? 0}
           />
