@@ -122,7 +122,7 @@ function ForexPage() {
             </p>
             <h3 className="text-xl font-semibold">Quy đổi USD, EUR, CNY sang VND</h3>
             <p className="text-muted-foreground">
-              Sử dụng <Link to="/quy-doi-tien-te" className="text-primary hover:underline">công cụ quy đổi tiền tệ</Link> để tính nhanh số tiền cần đổi giữa các loại ngoại tệ và VND theo tỷ giá realtime — phù hợp khi gửi tiền, du lịch hay nhập hàng quốc tế. Tham khảo thêm <Link to="/lai-suat-ngan-hang" className="text-primary hover:underline">tỷ giá Vietcombank hôm nay</Link> trước khi giao dịch.
+              Sử dụng <Link to="/quy-doi-tien-te" className="text-primary hover:underline">công cụ quy đổi tiền tệ</Link> để tính nhanh số tiền cần đổi giữa các loại ngoại tệ và VND theo tỷ giá realtime — phù hợp khi gửi tiền, du lịch hay nhập hàng quốc tế. Tham khảo thêm <Link to="/ty-gia-ngan-hang" className="text-primary hover:underline">tỷ giá Vietcombank hôm nay</Link> trước khi giao dịch.
             </p>
             <h3 className="text-xl font-semibold">Vì sao tỷ giá ngoại tệ thay đổi liên tục?</h3>
             <p className="text-muted-foreground">

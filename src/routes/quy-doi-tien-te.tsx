@@ -89,7 +89,7 @@ function ConverterPage() {
             </p>
             <h3 className="text-xl font-semibold">Spread mua–bán là gì?</h3>
             <p className="text-muted-foreground">
-              Là chênh lệch giữa giá mua vào và giá bán ra của ngân hàng/đại lý. Spread càng lớn, chi phí đổi tiền càng cao — công cụ giúp bạn ước lượng phần thiệt hại này trước khi giao dịch thật. Đối chiếu thêm với <Link to="/lai-suat-ngan-hang" className="text-primary hover:underline">tỷ giá Vietcombank niêm yết</Link>.
+              Là chênh lệch giữa giá mua vào và giá bán ra của ngân hàng/đại lý. Spread càng lớn, chi phí đổi tiền càng cao — công cụ giúp bạn ước lượng phần thiệt hại này trước khi giao dịch thật. Đối chiếu thêm với <Link to="/ty-gia-ngan-hang" className="text-primary hover:underline">tỷ giá Vietcombank niêm yết</Link>.
             </p>
           </section>
 
