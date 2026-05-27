@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowRightLeft, Wrench, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowUpDown, Wrench, TrendingDown, TrendingUp, Sparkles } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SectionCard } from "./SectionCard";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,10 @@ export function ConverterTool() {
   };
 
   const codeLabel = (a: AssetOpt) => a.label.split(" — ")[0];
+  const nameLabel = (a: AssetOpt) => {
+    const parts = a.label.split(" — ");
+    return parts[1] ?? parts[0];
+  };
 
   const fromAsset = assets.find((x) => x.key === from) ?? null;
   const toAsset = assets.find((x) => x.key === to) ?? null;
@@ -101,138 +105,245 @@ export function ConverterTool() {
       title="Công cụ chuyển đổi"
       description="Chọn cặp tiền, nhập số lượng — tính lãi/lỗ theo giá mua/bán thực tế"
     >
-      <div className="p-4 lg:p-6 grid gap-4 md:grid-cols-[1fr_auto_1fr] items-end">
-        <div className="space-y-2">
-          <label className="text-xs text-muted-foreground font-medium uppercase">Từ</label>
-          <div className="flex gap-2">
+      {/* Editorial pair selector */}
+      <div className="relative p-4 sm:p-6 lg:p-8">
+        <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch lg:gap-4">
+          {/* FROM */}
+          <PairPanel
+            eyebrow="Bạn đổi"
+            code={fromAsset ? codeLabel(fromAsset) : "—"}
+            name={fromAsset ? nameLabel(fromAsset) : ""}
+            assets={assets}
+            value={from}
+            onChange={setFrom}
+          >
             <Input
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               type="text"
               inputMode="decimal"
-              className="text-lg tabular font-semibold h-12"
+              aria-label="Số lượng"
+              className="h-14 border-0 bg-transparent px-0 text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground shadow-none focus-visible:ring-0 focus-visible:border-0"
             />
-            <Select value={from} onValueChange={setFrom}>
-              <SelectTrigger className="h-12 w-[200px]"><SelectValue /></SelectTrigger>
-              <SelectContent className="max-h-72">
-                {assets.length <= 1 && <SelectItem value="loading" disabled>Đang tải...</SelectItem>}
-                {assets.map((a) => <SelectItem key={a.key} value={a.key}>{a.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={swap}
-          className={cn(
-            "h-12 w-12 rounded-full mx-auto transition-transform duration-300 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/30",
-            swapped && "rotate-180"
-          )}
-          aria-label="Đảo chiều Từ ↔ Sang"
-        >
-          <ArrowRightLeft className="h-5 w-5" />
-        </Button>
-        <div className="space-y-2">
-          <label className="text-xs text-muted-foreground font-medium uppercase">Sang</label>
-          <div className="flex gap-2">
-            <div className="flex-1 h-12 px-4 flex items-center rounded-md border border-input bg-muted/40 text-lg tabular font-bold text-gold overflow-hidden">
-              {result ? fmtAmount(result.amountB_realistic, result.b.kind, result.b.key) : "—"}
+          </PairPanel>
+
+          {/* SWAP */}
+          <div className="flex items-center justify-center lg:px-1">
+            <div className="relative w-full lg:w-auto">
+              <div className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent lg:hidden" aria-hidden />
+              <div className="absolute inset-y-0 left-1/2 w-px bg-gradient-to-b from-transparent via-gold/30 to-transparent hidden lg:block" aria-hidden />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={swap}
+                className={cn(
+                  "relative h-12 w-12 rounded-full mx-auto block bg-card border-gold/30 text-gold shadow-[0_0_0_4px_var(--card)] hover:bg-gold/10 hover:text-gold hover:border-gold/50 transition-transform duration-300",
+                  swapped && "rotate-180",
+                )}
+                aria-label="Đảo chiều Từ ↔ Sang"
+              >
+                <ArrowUpDown className="h-4 w-4 lg:hidden" />
+                <ArrowUpDown className="h-4 w-4 hidden lg:block rotate-90" />
+              </Button>
             </div>
-            <Select value={to} onValueChange={setTo}>
-              <SelectTrigger className="h-12 w-[200px]"><SelectValue /></SelectTrigger>
-              <SelectContent className="max-h-72">
-                {assets.length <= 1 && <SelectItem value="loading" disabled>Đang tải...</SelectItem>}
-                {assets.map((a) => <SelectItem key={a.key} value={a.key}>{a.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
           </div>
+
+          {/* TO */}
+          <PairPanel
+            eyebrow="Bạn nhận"
+            code={toAsset ? codeLabel(toAsset) : "—"}
+            name={toAsset ? nameLabel(toAsset) : ""}
+            assets={assets}
+            value={to}
+            onChange={setTo}
+            tone="gold"
+          >
+            <div className="h-14 flex items-baseline gap-2 overflow-hidden">
+              <span className="font-serif text-3xl sm:text-4xl tabular font-normal tracking-tight text-gold leading-none truncate">
+                {result ? fmtAmount(result.amountB_realistic, result.b.kind, result.b.key) : "—"}
+              </span>
+            </div>
+          </PairPanel>
         </div>
       </div>
       {result && result.a.key !== result.b.key && (
-        <div className="px-4 lg:px-6 pb-4 space-y-3">
-          {/* Giá mua / giá bán rõ ràng */}
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border bg-muted/30 p-3">
-              <div className="text-[11px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                <TrendingDown className="h-3.5 w-3.5 text-blue-500" />
-                Giá mua vào <span className="text-muted-foreground/60 font-normal">(bạn bán {codeLabel(result.a)})</span>
-              </div>
-              <div className="mt-1.5 tabular font-semibold text-lg">
-                1 {codeLabel(result.a)} = {fmtVND(result.a.buyVnd)}
-              </div>
-              <div className="text-[11px] text-muted-foreground mt-0.5">
-                Bán {fmtAmount(result.n, result.a.kind, result.a.key)} {codeLabel(result.a)} → nhận {fmtVND(result.vndFromSelling)}
-              </div>
+        <>
+          {/* Hairline divider */}
+          <div className="mx-4 sm:mx-6 lg:mx-8 h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent" aria-hidden />
+
+          <div className="px-4 sm:px-6 lg:px-8 py-5 lg:py-6 space-y-5">
+            {/* Giá mua / giá bán — editorial split */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <RateTile
+                tone="down"
+                icon={<TrendingDown className="h-3.5 w-3.5" />}
+                eyebrow="Giá mua vào"
+                sub={`Bạn bán ${codeLabel(result.a)}`}
+                price={`1 ${codeLabel(result.a)} = ${fmtVND(result.a.buyVnd)}`}
+                detail={`Bán ${fmtAmount(result.n, result.a.kind, result.a.key)} ${codeLabel(result.a)} → nhận ${fmtVND(result.vndFromSelling)}`}
+              />
+              <RateTile
+                tone="up"
+                icon={<TrendingUp className="h-3.5 w-3.5" />}
+                eyebrow="Giá bán ra"
+                sub={`Bạn mua ${codeLabel(result.b)}`}
+                price={`1 ${codeLabel(result.b)} = ${fmtVND(result.b.sellVnd)}`}
+                detail={`Mua ${fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)} ${codeLabel(result.b)} → trả ${fmtVND(result.vndFromSelling)}`}
+              />
             </div>
-            <div className="rounded-lg border bg-muted/30 p-3">
-              <div className="text-[11px] uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                <TrendingUp className="h-3.5 w-3.5 text-orange-500" />
-                Giá bán ra <span className="text-muted-foreground/60 font-normal">(bạn mua {codeLabel(result.b)})</span>
-              </div>
-              <div className="mt-1.5 tabular font-semibold text-lg">
-                1 {codeLabel(result.b)} = {fmtVND(result.b.sellVnd)}
-              </div>
-              <div className="text-[11px] text-muted-foreground mt-0.5">
-                Mua {fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)} {codeLabel(result.b)} → trả {fmtVND(result.vndFromSelling)}
+
+            {/* Tổng kết — editorial result strip */}
+            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-gold/[0.06] via-card to-card">
+              <div className="absolute inset-0 bg-grid opacity-[0.12] [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_60%)]" aria-hidden />
+              <div className="relative p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="min-w-0">
+                    <div className="eyebrow flex items-center gap-1.5"><Sparkles className="h-3 w-3" /> Thực nhận</div>
+                    <div className="mt-1.5 flex items-baseline gap-2 flex-wrap">
+                      <span className="font-serif text-2xl sm:text-3xl tabular text-gold leading-none">
+                        {fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)}
+                      </span>
+                      <span className="text-xs font-semibold tracking-[0.18em] uppercase text-muted-foreground">
+                        {codeLabel(result.b)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right ml-auto">
+                    <div className="eyebrow">So với mid</div>
+                    <div className={cn(
+                      "mt-1.5 tabular text-base sm:text-lg font-semibold flex items-center justify-end gap-1",
+                      result.loss >= 0 ? "text-[color:var(--up)]" : "text-[color:var(--down)]",
+                    )}>
+                      {result.loss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                      {result.loss >= 0 ? "+" : ""}{fmtAmount(result.loss, result.b.kind, result.b.key)}
+                      <span className="text-[11px] font-medium opacity-80">
+                        ({result.lossPct >= 0 ? "+" : ""}{result.lossPct.toFixed(2)}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Thanh spread */}
+                <div className="mt-5">
+                  <div className="flex justify-between text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-2">
+                    <span>Mid · {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)} {codeLabel(result.b)}</span>
+                    <span>Spread · {Math.abs(result.lossPct).toFixed(2)}%</span>
+                  </div>
+                  <div className="relative h-1.5 w-full rounded-full bg-muted overflow-visible">
+                    <div
+                      className="absolute inset-0 rounded-full opacity-90"
+                      style={{ background: "linear-gradient(90deg, color-mix(in oklab, var(--down) 80%, transparent), color-mix(in oklab, var(--gold) 70%, transparent), color-mix(in oklab, var(--up) 80%, transparent))" }}
+                    />
+                    <div
+                      className="absolute top-1/2 h-3.5 w-[2px] bg-foreground -translate-y-1/2"
+                      style={{ left: `${Math.min(100, Math.max(0, 50 - (result.lossPct / 2)))}%` }}
+                      aria-hidden
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-muted-foreground/80 mt-1.5">
+                    <span>Bán rẻ hơn</span>
+                    <span>Mua đắt hơn</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Tổng kết so sánh */}
-          <div className="rounded-xl border bg-primary/5 p-4">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div>
-                <div className="text-[11px] uppercase text-muted-foreground font-semibold">Thực nhận</div>
-                <div className="mt-1 tabular font-bold text-xl text-gold">
-                  {fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)}{" "}
-                  <span className="text-sm text-muted-foreground font-semibold">{codeLabel(result.b)}</span>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-[11px] uppercase text-muted-foreground font-semibold">So với giá giữa (mid)</div>
-                <div className={cn(
-                  "mt-1 tabular font-semibold flex items-center justify-end gap-1",
-                  result.loss >= 0 ? "text-emerald-500" : "text-red-500"
-                )}>
-                  {result.loss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                  {result.loss >= 0 ? "+" : ""}{fmtAmount(result.loss, result.b.kind, result.b.key)}{" "}
-                  <span className="text-xs">({result.lossPct >= 0 ? "+" : ""}{result.lossPct.toFixed(2)}%)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Thanh spread trực quan */}
-            <div className="mt-3">
-              <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
-                <span>Giá giữa (mid): {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)} {codeLabel(result.b)}</span>
-                <span>Spread: {Math.abs(result.lossPct).toFixed(2)}%</span>
-              </div>
-              <div className="h-2 w-full bg-muted rounded-full overflow-hidden relative">
-                <div
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-primary to-orange-500 rounded-full"
-                  style={{ width: "100%" }}
-                />
-                <div
-                  className="absolute top-0 h-full w-1.5 bg-white rounded-full shadow"
-                  style={{ left: `${Math.min(100, Math.max(0, 50 - (result.lossPct / 2)))}%`, transform: "translateX(-50%)" }}
-                />
-              </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-                <span>Bạn bán rẻ hơn</span>
-                <span>Bạn mua đắt hơn</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        </>
       )}
-      <div className="px-4 lg:px-6 pb-4 text-xs text-muted-foreground">
-        Kết quả tính theo giá <strong>bán của bạn</strong> (thị trường mua vào) và <strong>mua của bạn</strong> (thị trường bán ra),
-        phản ánh lãi/lỗ do chênh lệch mua–bán. Chỉ mang tính tham khảo, không bao gồm phí giao dịch.
-      </div>
-      <div className="px-4 lg:px-6 pb-6">
+      <p className="px-4 sm:px-6 lg:px-8 pb-5 text-[11px] leading-relaxed text-muted-foreground">
+        Kết quả tính theo giá <span className="text-foreground/80">bán của bạn</span> (thị trường mua vào) và <span className="text-foreground/80">mua của bạn</span> (thị trường bán ra),
+        phản ánh lãi/lỗ do chênh lệch mua–bán. Chỉ mang tính tham khảo, chưa gồm phí giao dịch.
+      </p>
+      <div className="px-4 sm:px-6 lg:px-8 pb-6">
         <ConverterPairChart from={chartFrom} to={chartTo} />
       </div>
     </SectionCard>
+  );
+}
+
+/* ───────── Helper components ───────── */
+
+function PairPanel({
+  eyebrow,
+  code,
+  name,
+  assets,
+  value,
+  onChange,
+  children,
+  tone,
+}: {
+  eyebrow: string;
+  code: string;
+  name: string;
+  assets: AssetOpt[];
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+  tone?: "gold";
+}) {
+  return (
+    <div className={cn(
+      "group relative rounded-2xl border bg-card/60 backdrop-blur-sm p-4 sm:p-5 transition-colors",
+      tone === "gold"
+        ? "border-gold/25 bg-gradient-to-br from-gold/[0.05] to-transparent"
+        : "border-border hover:border-gold/25",
+    )}>
+      <div className="flex items-center justify-between gap-3">
+        <span className="eyebrow">{eyebrow}</span>
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger
+            aria-label={eyebrow}
+            className="h-9 w-auto max-w-[60%] gap-2 rounded-full border-border/80 bg-background/60 px-3 text-xs font-semibold tracking-wide hover:border-gold/40 focus:ring-0 focus:ring-offset-0"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
+            {assets.length <= 1 && <SelectItem value="loading" disabled>Đang tải...</SelectItem>}
+            {assets.map((a) => <SelectItem key={a.key} value={a.key}>{a.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="mt-3">
+        {children}
+      </div>
+      <div className="mt-2 flex items-baseline gap-2 text-xs text-muted-foreground">
+        <span className="font-mono font-semibold tracking-[0.12em] text-foreground/70">{code}</span>
+        <span className="truncate">· {name}</span>
+      </div>
+    </div>
+  );
+}
+
+function RateTile({
+  tone,
+  icon,
+  eyebrow,
+  sub,
+  price,
+  detail,
+}: {
+  tone: "up" | "down";
+  icon: React.ReactNode;
+  eyebrow: string;
+  sub: string;
+  price: string;
+  detail: string;
+}) {
+  return (
+    <div className="group relative rounded-xl border border-border/80 bg-muted/20 p-3.5 transition-colors hover:border-gold/25 hover:bg-muted/30">
+      <div className="flex items-center gap-2">
+        <span className={cn(
+          "grid h-6 w-6 place-items-center rounded-md",
+          tone === "down" ? "bg-[color:var(--down)]/12 text-[color:var(--down)]" : "bg-[color:var(--up)]/12 text-[color:var(--up)]",
+        )}>{icon}</span>
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase tracking-[0.18em] font-semibold text-foreground/80">{eyebrow}</div>
+          <div className="text-[10px] text-muted-foreground truncate">{sub}</div>
+        </div>
+      </div>
+      <div className="mt-2.5 tabular font-semibold text-[15px] leading-tight">{price}</div>
+      <div className="mt-1 text-[11px] text-muted-foreground leading-relaxed">{detail}</div>
+    </div>
   );
 }
