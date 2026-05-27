@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { keepPreviousData } from "@tanstack/react-query";
 import { AlertTriangle, LineChart, Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { fetchStockIndices } from "@/lib/services/stockIndexService";
 import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
@@ -82,7 +83,11 @@ export function StockIndexTable() {
               const up = r.change >= 0;
               return (
                 <tr key={r.code} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 font-bold text-gold">{r.name}</td>
+                  <td className="px-4 py-3 font-bold">
+                    <Link to="/asset/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline">
+                      {r.name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{r.exchange}</td>
                   <td className="px-4 py-3 text-right tabular font-semibold">{fmtNum(r.value, 2)}</td>
                   <td className={`px-4 py-3 text-right tabular ${up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>

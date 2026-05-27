@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { DollarSign, RefreshCw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fmtNum, fmtTime } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
@@ -51,8 +52,16 @@ export function ForexRateTable({ search }: { search?: string }) {
             ))}
             {rows.map((r) => (
               <tr key={r.code} className="hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3 font-bold text-gold">{r.code}</td>
-                <td className="px-4 py-3 text-muted-foreground">{r.name}</td>
+                <td className="px-4 py-3 font-bold">
+                  <Link to="/asset/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline">
+                    {r.code}
+                  </Link>
+                </td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  <Link to="/asset/$symbol" params={{ symbol: r.code.toLowerCase() }} className="hover:text-foreground">
+                    {r.name}
+                  </Link>
+                </td>
                 <td className="px-4 py-3 text-right tabular">{fmtNum(r.buy, 2)}</td>
                 <td className="px-4 py-3 text-right tabular font-semibold">{fmtNum(r.sell, 2)}</td>
                 <td className="px-4 py-3 text-right tabular text-muted-foreground hidden md:table-cell">{fmtNum(r.mid, 2)}</td>
