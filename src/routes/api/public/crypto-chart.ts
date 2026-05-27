@@ -9,26 +9,19 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// Map CoinGecko-style IDs (legacy clients) to CoinCap IDs
+// Map CoinCap-style IDs (legacy clients) to CoinGecko IDs
 const ID_ALIAS: Record<string, string> = {
-  binancecoin: "binance-coin",
-  ripple: "xrp",
-  "the-open-network": "toncoin",
-  "avalanche-2": "avalanche",
+  "binance-coin": "binancecoin",
+  xrp: "ripple",
+  toncoin: "the-open-network",
+  avalanche: "avalanche-2",
 };
 
-function withKey(u: string): string {
-  const key = process.env.COINCAP_API_KEY;
-  const url = new URL(u);
-  if (key) url.searchParams.set("apiKey", key);
-  return url.toString();
-}
-
-function intervalFor(days: number): string {
-  if (days <= 1) return "m15";
-  if (days <= 7) return "h2";
-  if (days <= 30) return "h6";
-  return "d1";
+function cgHeaders() {
+  const h: Record<string, string> = { accept: "application/json" };
+  const key = process.env.COINGECKO_API_KEY;
+  if (key) h["x-cg-demo-api-key"] = key;
+  return h;
 }
 
 export const Route = createFileRoute("/api/public/crypto-chart")({
@@ -48,16 +41,15 @@ export const Route = createFileRoute("/api/public/crypto-chart")({
           const cached = cache.get(key);
           if (!cached || Date.now() - cached.at > CACHE_MS) {
             const dn = Math.max(1, Number(days) || 7);
-            const end = Date.now();
-            const start = end - dn * 24 * 60 * 60 * 1000;
-            const interval = intervalFor(dn);
-            const up = withKey(`https://rest.coincap.io/v3/assets/${id}/history?interval=${interval}&start=${start}&end=${end}`);
-            const r = await fetch(up, { headers: { accept: "application/json" } });
+            const up = new URL(`https://api.coingecko.com/api/v3/coins/${id}/market_chart`);
+            up.searchParams.set("vs_currency", "usd");
+            up.searchParams.set("days", String(dn));
+            const r = await fetch(up, { headers: cgHeaders() });
             if (!r.ok) throw new Error(`upstream ${r.status}`);
             const j: any = await r.json();
-            const arr: any[] = Array.isArray(j?.data) ? j.data : [];
+            const arr: any[] = Array.isArray(j?.prices) ? j.prices : [];
             const prices = arr
-              .map((p) => ({ t: Number(p?.time), v: Number(p?.priceUsd) }))
+              .map((p) => ({ t: Number(p?.[0]), v: Number(p?.[1]) }))
               .filter((p) => Number.isFinite(p.t) && Number.isFinite(p.v));
             const payload = { id, days, prices };
             cache.set(key, { at: Date.now(), payload });
