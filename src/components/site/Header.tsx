@@ -3,6 +3,7 @@ import { Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
+import { ThemeToggle } from "@/components/site/ThemeToggle";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -130,6 +131,8 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             />
           </form>
           <span className="hidden sm:inline eyebrow opacity-60">Hà Nội · {time}</span>
+          <div className="hidden md:block h-5 w-px bg-border" aria-hidden />
+          <ThemeToggle />
           <button
             className="md:hidden text-muted-foreground hover:text-foreground"
             onClick={() => setOpen((v) => !v)}
