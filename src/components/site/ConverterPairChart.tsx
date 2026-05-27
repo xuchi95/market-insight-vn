@@ -6,6 +6,14 @@ import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { fmtNum } from "@/lib/format";
 
 type Range = "1" | "7" | "30";
@@ -334,34 +342,51 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     return `bieu-do-${from?.code}-${to?.code}-${range === "1" ? "24h" : range === "7" ? "7N" : "30N"}-${stamp}`;
   };
 
-  const renderPng = async (): Promise<string | null> => {
+  type ExportBg = "light" | "dark" | "transparent";
+
+  const renderPng = async (bg: ExportBg): Promise<string | null> => {
     const node = exportRef.current;
     if (!node) return null;
     setIsExporting(true);
+    const root = document.documentElement;
+    const prevDark = root.classList.contains("dark");
+    const prevInlineBg = node.style.background;
+    // Đổi tạm theme để màu chữ/biểu đồ tương phản với nền xuất
+    if (bg === "light" && prevDark) root.classList.remove("dark");
+    if (bg === "dark" && !prevDark) root.classList.add("dark");
+    // Với nền trong suốt → bỏ nền của card
+    if (bg === "transparent") node.style.background = "transparent";
     try {
-      // Đợi 1 frame để overlay xuất hiện trong ảnh
+      // Đợi 2 frame để theme/nền cập nhật trước khi capture
       await new Promise((r) => requestAnimationFrame(() => r(null)));
-      const cs = getComputedStyle(node);
-      const bg = cs.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)"
-        ? cs.backgroundColor
-        : getComputedStyle(document.body).backgroundColor || "#0a0a0a";
-      return await toPng(node, { pixelRatio: 2, backgroundColor: bg, cacheBust: true });
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      const fill =
+        bg === "transparent"
+          ? undefined
+          : bg === "light"
+            ? "#ffffff"
+            : "#0a0a0a";
+      return await toPng(node, { pixelRatio: 2, backgroundColor: fill, cacheBust: true });
     } finally {
+      // Khôi phục theme & inline style
+      if (bg === "light" && prevDark) root.classList.add("dark");
+      if (bg === "dark" && !prevDark) root.classList.remove("dark");
+      if (bg === "transparent") node.style.background = prevInlineBg;
       setIsExporting(false);
     }
   };
 
-  const exportPng = async () => {
-    const url = await renderPng();
+  const exportPng = async (bg: ExportBg) => {
+    const url = await renderPng(bg);
     if (!url) return;
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${exportBaseName()}.png`;
+    a.download = `${exportBaseName()}-${bg}.png`;
     a.click();
   };
 
-  const exportPdf = async () => {
-    const url = await renderPng();
+  const exportPdf = async (bg: Exclude<ExportBg, "transparent">) => {
+    const url = await renderPng(bg);
     if (!url) return;
     const img = new Image();
     img.src = url;
@@ -375,8 +400,12 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     const ratio = Math.min(maxW / img.width, maxH / img.height);
     const w = img.width * ratio;
     const h = img.height * ratio;
+    if (bg === "dark") {
+      pdf.setFillColor(10, 10, 10);
+      pdf.rect(0, 0, pageW, pageH, "F");
+    }
     pdf.addImage(url, "PNG", (pageW - w) / 2, (pageH - h) / 2, w, h);
-    pdf.save(`${exportBaseName()}.pdf`);
+    pdf.save(`${exportBaseName()}-${bg}.pdf`);
   };
 
   const positive = (stats?.change ?? 0) >= 0;
