@@ -41,6 +41,14 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { label: "Đổi tiền", to: "/quy-doi-tien-te" },
     ],
   },
+  {
+    label: "Công cụ",
+    items: [
+      { label: "DCA & ROI", to: "/cong-cu/dca-roi" },
+      { label: "Lịch kinh tế", to: "/lich-kinh-te" },
+      { label: "Danh mục", to: "/portfolio" },
+    ],
+  },
 ];
 
 const HOME: NavItem = { label: "Tổng quan", to: "/" };
