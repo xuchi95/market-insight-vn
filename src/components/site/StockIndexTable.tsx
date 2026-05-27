@@ -84,7 +84,7 @@ export function StockIndexTable() {
               return (
                 <tr key={r.code} className="hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 font-bold">
-                    <Link to="/asset/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline">
+                    <Link to="/tai-san/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline">
                       {r.name}
                     </Link>
                   </td>

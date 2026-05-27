@@ -22,21 +22,21 @@ export function Footer() {
           <div className="md:col-span-2">
             <h4 className="eyebrow mb-4">Mục</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><Link to="/gold" className="hover:text-foreground">Giá vàng</Link></li>
-              <li><Link to="/stocks" className="hover:text-foreground">Chứng khoán</Link></li>
-              <li><Link to="/crypto" className="hover:text-foreground">Crypto</Link></li>
-              <li><Link to="/forex" className="hover:text-foreground">Ngoại tệ</Link></li>
-              <li><Link to="/bank-rates" className="hover:text-foreground">Tỷ giá ngân hàng</Link></li>
-              <li><Link to="/converter" className="hover:text-foreground">Đổi ngoại tệ</Link></li>
+              <li><Link to="/gia-vang" className="hover:text-foreground">Giá vàng</Link></li>
+              <li><Link to="/chung-khoan" className="hover:text-foreground">Chứng khoán</Link></li>
+              <li><Link to="/tien-dien-tu" className="hover:text-foreground">Crypto</Link></li>
+              <li><Link to="/ty-gia-ngoai-te" className="hover:text-foreground">Ngoại tệ</Link></li>
+              <li><Link to="/ty-gia-ngan-hang" className="hover:text-foreground">Tỷ giá ngân hàng</Link></li>
+              <li><Link to="/quy-doi-tien-te" className="hover:text-foreground">Đổi ngoại tệ</Link></li>
             </ul>
           </div>
           <div className="md:col-span-2">
             <h4 className="eyebrow mb-4">Pháp lý</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><Link to="/terms" className="hover:text-foreground">Điều khoản sử dụng</Link></li>
-              <li><Link to="/privacy" className="hover:text-foreground">Chính sách dữ liệu</Link></li>
-              <li><Link to="/disclaimer" className="hover:text-foreground">Miễn trừ trách nhiệm</Link></li>
-              <li><Link to="/contact" className="hover:text-foreground">Liên hệ</Link></li>
+              <li><Link to="/dieu-khoan-su-dung" className="hover:text-foreground">Điều khoản sử dụng</Link></li>
+              <li><Link to="/chinh-sach-bao-mat" className="hover:text-foreground">Chính sách dữ liệu</Link></li>
+              <li><Link to="/mien-tru-trach-nhiem" className="hover:text-foreground">Miễn trừ trách nhiệm</Link></li>
+              <li><Link to="/lien-he" className="hover:text-foreground">Liên hệ</Link></li>
             </ul>
           </div>
           <div className="md:col-span-3">
@@ -47,7 +47,7 @@ export function Footer() {
 
         <div className="mt-10 rounded-lg border-l-4 border border-[var(--gold)]/60 border-l-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,var(--background))] p-4 text-xs text-foreground/90 leading-relaxed shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_20%,transparent)]">
           <strong className="text-[var(--gold)] uppercase tracking-wider text-[11px]">⚠ Lưu ý quan trọng:</strong>{" "}
-          MarketWatch là kênh thông tin <em>tham khảo</em>. Dữ liệu giá vàng, tiền mã hoá và ngoại tệ được tổng hợp từ nguồn công khai của bên thứ ba, <strong className="text-foreground">không phải báo giá chính thức</strong> và <strong className="text-foreground">không cấu thành khuyến nghị đầu tư</strong>. Theo pháp luật Việt Nam, tiền ảo / tài sản mã hoá không phải phương tiện thanh toán hợp pháp; Website không tổ chức, môi giới hoặc cung cấp dịch vụ giao dịch. Xem chi tiết tại <Link to="/disclaimer" className="underline font-medium text-[var(--gold)] hover:opacity-80">Tuyên bố miễn trừ trách nhiệm</Link>.
+          MarketWatch là kênh thông tin <em>tham khảo</em>. Dữ liệu giá vàng, tiền mã hoá và ngoại tệ được tổng hợp từ nguồn công khai của bên thứ ba, <strong className="text-foreground">không phải báo giá chính thức</strong> và <strong className="text-foreground">không cấu thành khuyến nghị đầu tư</strong>. Theo pháp luật Việt Nam, tiền ảo / tài sản mã hoá không phải phương tiện thanh toán hợp pháp; Website không tổ chức, môi giới hoặc cung cấp dịch vụ giao dịch. Xem chi tiết tại <Link to="/mien-tru-trach-nhiem" className="underline font-medium text-[var(--gold)] hover:opacity-80">Tuyên bố miễn trừ trách nhiệm</Link>.
         </div>
 
         <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">

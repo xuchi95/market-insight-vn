@@ -140,7 +140,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                 <tr key={c.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 text-muted-foreground tabular">{i + 1}</td>
                   <td className="px-4 py-3">
-                    <Link to="/asset/$symbol" params={{ symbol: c.symbol.toLowerCase() }} className="flex items-center gap-3 group">
+                    <Link to="/tai-san/$symbol" params={{ symbol: c.symbol.toLowerCase() }} className="flex items-center gap-3 group">
                       <img src={c.image} alt={c.name} className="h-7 w-7 rounded-full" loading="lazy" />
                       <div>
                         <div className="font-semibold group-hover:text-gold transition-colors">{c.name}</div>

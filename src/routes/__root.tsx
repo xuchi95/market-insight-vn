@@ -104,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "MarketWatch",
-          url: "https://market-insight-vn.lovable.app",
+          url: "https://marketwatch.vn",
           inLanguage: "vi-VN",
           description:
             "Dashboard tài chính tiếng Việt: giá vàng SJC, DOJI, PNJ, Bitcoin, Ethereum, USDT, tỷ giá USD/VND, EUR, JPY, CNY realtime.",
@@ -116,11 +116,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "MarketWatch",
-          url: "https://market-insight-vn.lovable.app",
+          url: "https://marketwatch.vn",
           inLanguage: "vi-VN",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://market-insight-vn.lovable.app/asset/{search_term_string}",
+            target: "https://marketwatch.vn/tai-san/{search_term_string}",
             "query-input": "required name=search_term_string",
           },
         }),

@@ -17,17 +17,17 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Thị trường",
     items: [
-      { label: "Vàng", to: "/gold" },
-      { label: "Chứng khoán", to: "/stocks" },
-      { label: "Crypto", to: "/crypto" },
+      { label: "Vàng", to: "/gia-vang" },
+      { label: "Chứng khoán", to: "/chung-khoan" },
+      { label: "Crypto", to: "/tien-dien-tu" },
     ],
   },
   {
     label: "Ngoại tệ",
     items: [
-      { label: "Ngoại tệ", to: "/forex" },
-      { label: "Tỷ giá NH", to: "/bank-rates" },
-      { label: "Đổi tiền", to: "/converter" },
+      { label: "Ngoại tệ", to: "/ty-gia-ngoai-te" },
+      { label: "Tỷ giá NH", to: "/ty-gia-ngan-hang" },
+      { label: "Đổi tiền", to: "/quy-doi-tien-te" },
     ],
   },
 ];
@@ -113,12 +113,12 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               const term = q.trim().toLowerCase();
               if (!term) return;
               onSearch?.(term);
-              if (/btc|eth|crypto|bitcoin/.test(term)) navigate({ to: "/crypto" });
-              else if (/sjc|xau|vàng|vang|gold/.test(term)) navigate({ to: "/gold" });
-              else if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) navigate({ to: "/forex" });
-              else if (/lãi|lai|ngân hàng|ngan hang|bank/.test(term)) navigate({ to: "/bank-rates" });
-              else if (/đổi|doi|convert/.test(term)) navigate({ to: "/converter" });
-              else if (/vn-?index|hose|hnx|chứng|chung|stock/.test(term)) navigate({ to: "/stocks" });
+              if (/btc|eth|crypto|bitcoin/.test(term)) navigate({ to: "/tien-dien-tu" });
+              else if (/sjc|xau|vàng|vang|gold/.test(term)) navigate({ to: "/gia-vang" });
+              else if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) navigate({ to: "/ty-gia-ngoai-te" });
+              else if (/lãi|lai|ngân hàng|ngan hang|bank/.test(term)) navigate({ to: "/ty-gia-ngan-hang" });
+              else if (/đổi|doi|convert/.test(term)) navigate({ to: "/quy-doi-tien-te" });
+              else if (/vn-?index|hose|hnx|chứng|chung|stock/.test(term)) navigate({ to: "/chung-khoan" });
             }}
           >
             <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />

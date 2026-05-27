@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const BASE_URL = "https://market-insight-vn.lovable.app";
+const BASE_URL = "https://marketwatch.vn";
 
 interface SitemapEntry {
   path: string;
@@ -11,16 +11,16 @@ interface SitemapEntry {
 
 const STATIC_ENTRIES: SitemapEntry[] = [
   { path: "/", changefreq: "hourly", priority: "1.0" },
-  { path: "/gold", changefreq: "hourly", priority: "0.9" },
-  { path: "/stocks", changefreq: "hourly", priority: "0.9" },
-  { path: "/crypto", changefreq: "hourly", priority: "0.9" },
-  { path: "/forex", changefreq: "hourly", priority: "0.9" },
-  { path: "/bank-rates", changefreq: "hourly", priority: "0.9" },
-  { path: "/converter", changefreq: "daily", priority: "0.8" },
-  { path: "/contact", changefreq: "weekly", priority: "0.6" },
-  { path: "/privacy", changefreq: "monthly", priority: "0.4" },
-  { path: "/terms", changefreq: "monthly", priority: "0.4" },
-  { path: "/disclaimer", changefreq: "monthly", priority: "0.4" },
+  { path: "/gia-vang", changefreq: "hourly", priority: "0.9" },
+  { path: "/chung-khoan", changefreq: "hourly", priority: "0.9" },
+  { path: "/tien-dien-tu", changefreq: "hourly", priority: "0.9" },
+  { path: "/ty-gia-ngoai-te", changefreq: "hourly", priority: "0.9" },
+  { path: "/ty-gia-ngan-hang", changefreq: "hourly", priority: "0.9" },
+  { path: "/quy-doi-tien-te", changefreq: "daily", priority: "0.8" },
+  { path: "/lien-he", changefreq: "weekly", priority: "0.6" },
+  { path: "/chinh-sach-bao-mat", changefreq: "monthly", priority: "0.4" },
+  { path: "/dieu-khoan-su-dung", changefreq: "monthly", priority: "0.4" },
+  { path: "/mien-tru-trach-nhiem", changefreq: "monthly", priority: "0.4" },
 ];
 
 async function fetchAssetEntries(): Promise<SitemapEntry[]> {
@@ -34,7 +34,7 @@ async function fetchAssetEntries(): Promise<SitemapEntry[]> {
     const j: any = await res.json();
     if (!Array.isArray(j?.coins)) return [];
     return j.coins.map((c: any) => ({
-      path: `/asset/${String(c.symbol).toLowerCase()}`,
+      path: `/tai-san/${String(c.symbol).toLowerCase()}`,
       changefreq: "hourly" as const,
       priority: "0.7",
     }));
