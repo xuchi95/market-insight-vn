@@ -74,6 +74,23 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
   const pendingXRef = useRef<number | null>(null);
   const [cursor, setCursor] = useState<string>("crosshair");
 
+  useEffect(() => { dragLeftRef.current = dragLeft; }, [dragLeft]);
+  useEffect(() => { dragRightRef.current = dragRight; }, [dragRight]);
+
+  // Reset zoom khi đổi cặp tiền hoặc khung thời gian.
+  useEffect(() => {
+    setZoom(null);
+    setDragLeft(null);
+    setDragRight(null);
+    setIsDragging(false);
+  }, [pairKey, range]);
+
+  const visibleData = useMemo(() => {
+    if (!zoom || !data.length) return data;
+    const [lo, hi] = zoom.from <= zoom.to ? [zoom.from, zoom.to] : [zoom.to, zoom.from];
+    return data.filter((p) => p.t >= lo && p.t <= hi);
+  }, [data, zoom]);
+
   // Bước snap (ms) suy ra từ độ rộng vùng đang xem.
   const snapStep = useMemo(() => {
     if (!visibleData.length) return 5 * 60_000;
@@ -92,23 +109,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
     const snapped = tMin + Math.round((t - tMin) / snapStep) * snapStep;
     return Math.min(Math.max(snapped, tMin), tMax);
   };
-
-  useEffect(() => { dragLeftRef.current = dragLeft; }, [dragLeft]);
-  useEffect(() => { dragRightRef.current = dragRight; }, [dragRight]);
-
-  // Reset zoom khi đổi cặp tiền hoặc khung thời gian.
-  useEffect(() => {
-    setZoom(null);
-    setDragLeft(null);
-    setDragRight(null);
-    setIsDragging(false);
-  }, [pairKey, range]);
-
-  const visibleData = useMemo(() => {
-    if (!zoom || !data.length) return data;
-    const [lo, hi] = zoom.from <= zoom.to ? [zoom.from, zoom.to] : [zoom.to, zoom.from];
-    return data.filter((p) => p.t >= lo && p.t <= hi);
-  }, [data, zoom]);
 
   const stats = useMemo(() => {
     if (!visibleData.length) return null;
