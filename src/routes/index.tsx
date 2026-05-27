@@ -3,6 +3,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Ticker } from "@/components/site/Ticker";
 import { BentoTiles } from "@/components/site/BentoTiles";
+import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://market-insight-vn.lovable.app";
 const URL = `${SITE}/`;
@@ -81,6 +82,10 @@ function Index() {
               <div className="eyebrow opacity-60 hidden sm:block">Cập nhật mỗi 30 giây</div>
             </div>
             <BentoTiles />
+          </section>
+
+          <section className="py-8 md:py-10">
+            <RelatedLinks current="home" title="Khám phá theo chủ đề" />
           </section>
 
         </div>
