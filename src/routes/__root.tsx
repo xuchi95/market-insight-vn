@@ -78,12 +78,46 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Dashboard tài chính realtime: giá vàng SJC, DOJI, BTC, ETH, USD và tỷ giá ngoại tệ." },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "MarketWatch" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:locale", content: "vi_VN" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@MarketWatchVN" },
+      { name: "robots", content: "index,follow,max-image-preview:large,max-snippet:-1" },
+      { name: "theme-color", content: "#0a0a0a" },
+      { name: "author", content: "MarketWatch" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "MarketWatch",
+          url: "https://market-insight-vn.lovable.app",
+          inLanguage: "vi-VN",
+          description:
+            "Dashboard tài chính tiếng Việt: giá vàng SJC, DOJI, PNJ, Bitcoin, Ethereum, USDT, tỷ giá USD/VND, EUR, JPY, CNY realtime.",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "MarketWatch",
+          url: "https://market-insight-vn.lovable.app",
+          inLanguage: "vi-VN",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://market-insight-vn.lovable.app/asset/{search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        }),
       },
     ],
   }),

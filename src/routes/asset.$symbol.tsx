@@ -13,15 +13,42 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/asset/$symbol")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.symbol.toUpperCase()} — Giá realtime | MarketWatch` },
-      { name: "description", content: `Theo dõi giá ${params.symbol.toUpperCase()} theo thời gian thực: biến động 24h, biểu đồ, vốn hoá và khối lượng giao dịch.` },
-      { property: "og:title", content: `${params.symbol.toUpperCase()} realtime — MarketWatch` },
-      { property: "og:description", content: `Giá ${params.symbol.toUpperCase()} cập nhật realtime với biểu đồ và phân tích chi tiết.` },
-    ],
-    links: [{ rel: "canonical", href: `/asset/${params.symbol}` }],
-  }),
+  head: ({ params }) => {
+    const SYM = params.symbol.toUpperCase();
+    const SITE = "https://market-insight-vn.lovable.app";
+    const URL = `${SITE}/asset/${params.symbol.toLowerCase()}`;
+    const TITLE = `Giá ${SYM} hôm nay — Biểu đồ ${SYM}/USD realtime | MarketWatch`;
+    const DESC = `Giá ${SYM} hôm nay cập nhật realtime: biến động 24h, vốn hoá thị trường, khối lượng giao dịch và biểu đồ giá ${SYM}/USD chi tiết.`;
+    return {
+      meta: [
+        { title: TITLE },
+        { name: "description", content: DESC },
+        { name: "keywords", content: `giá ${SYM.toLowerCase()}, giá ${SYM.toLowerCase()} hôm nay, ${SYM.toLowerCase()}/usd, biểu đồ ${SYM.toLowerCase()}, vốn hoá ${SYM.toLowerCase()}` },
+        { property: "og:title", content: TITLE },
+        { property: "og:description", content: DESC },
+        { property: "og:url", content: URL },
+        { property: "og:type", content: "website" },
+        { property: "og:locale", content: "vi_VN" },
+        { name: "twitter:title", content: TITLE },
+        { name: "twitter:description", content: DESC },
+      ],
+      links: [{ rel: "canonical", href: URL }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Trang chủ", item: `${SITE}/` },
+              { "@type": "ListItem", position: 2, name: "Crypto", item: `${SITE}/crypto` },
+              { "@type": "ListItem", position: 3, name: SYM, item: URL },
+            ],
+          }),
+        },
+      ],
+    };
+  },
   component: AssetDetail,
 });
 
