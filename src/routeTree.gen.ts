@@ -44,6 +44,7 @@ import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
+import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-preview'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
@@ -240,6 +241,11 @@ const AssetSymbolRoute = AssetSymbolRouteImport.update({
   path: '/asset/$symbol',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminEmailPreviewRoute = AdminEmailPreviewRouteImport.update({
+  id: '/admin/email-preview',
+  path: '/admin/email-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicXauRoute = ApiPublicXauRouteImport.update({
   id: '/api/public/xau',
   path: '/api/public/xau',
@@ -378,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
+  '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -435,6 +442,7 @@ export interface FileRoutesByTo {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
+  '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -493,6 +501,7 @@ export interface FileRoutesById {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
+  '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -552,6 +561,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
+    | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -609,6 +619,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
+    | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -666,6 +677,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
+    | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -724,6 +736,7 @@ export interface RootRouteChildren {
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   ViMoVietNamRoute: typeof ViMoVietNamRoute
+  AdminEmailPreviewRoute: typeof AdminEmailPreviewRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
@@ -997,6 +1010,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssetSymbolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/email-preview': {
+      id: '/admin/email-preview'
+      path: '/admin/email-preview'
+      fullPath: '/admin/email-preview'
+      preLoaderRoute: typeof AdminEmailPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/xau': {
       id: '/api/public/xau'
       path: '/api/public/xau'
@@ -1172,6 +1192,7 @@ const rootRouteChildren: RootRouteChildren = {
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   ViMoVietNamRoute: ViMoVietNamRoute,
+  AdminEmailPreviewRoute: AdminEmailPreviewRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
@@ -1201,3 +1222,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
