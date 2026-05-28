@@ -114,7 +114,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   <Link
                     to={HOME.to}
                     activeOptions={{ exact: true }}
-                    className="inline-flex items-center rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
+                    className="inline-flex items-center rounded-md px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
                   >
                     {HOME.label}
                   </Link>
@@ -123,14 +123,14 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
               {NAV_GROUPS.map((group) => (
                 <NavigationMenuItem key={group.label}>
-                  <NavigationMenuTrigger className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
+                  <NavigationMenuTrigger className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
                     {group.label}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="grid grid-cols-2 gap-6 p-4 w-[480px] bg-popover">
                       {group.columns.map((col) => (
                         <div key={col.heading} className="space-y-2">
-                          <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/70 px-2">
+                          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 px-2">
                             {col.heading}
                           </div>
                           <ul className="space-y-0.5">
@@ -142,11 +142,11 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                                     activeOptions={{ exact: true }}
                                     className="group block rounded-md px-2 py-1.5 hover:bg-accent transition-colors data-[status=active]:bg-accent/60"
                                   >
-                                    <div className="text-xs font-medium text-foreground group-hover:text-[var(--gold)] data-[status=active]:text-[var(--gold)] transition-colors">
+                                    <div className="text-sm font-medium text-foreground group-hover:text-[var(--gold)] data-[status=active]:text-[var(--gold)] transition-colors">
                                       {item.label}
                                     </div>
                                     {item.hint && (
-                                      <div className="text-[10px] text-muted-foreground/80 mt-0.5">
+                                      <div className="text-xs text-muted-foreground/80 mt-0.5">
                                         {item.hint}
                                       </div>
                                     )}
@@ -184,14 +184,14 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   setSearchOpen(false);
                 }}
               >
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   ref={searchInputRef}
                   value={q}
                   onChange={(e) => { setQ(e.target.value); onSearch?.(e.target.value); }}
                   onBlur={() => { if (!q) setSearchOpen(false); }}
                   placeholder="BTC, SJC, USD…"
-                  className="pl-8 w-48 h-8 rounded-full border border-border bg-card/60 text-xs focus-visible:ring-1 focus-visible:ring-[var(--gold)]/50"
+                  className="pl-8 w-52 h-9 rounded-full border border-border bg-card/60 text-sm focus-visible:ring-1 focus-visible:ring-[var(--gold)]/50"
                 />
               </form>
             ) : (
@@ -201,11 +201,11 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 aria-label="Tìm kiếm"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
-                <Search className="h-3.5 w-3.5" />
+                <Search className="h-4 w-4" />
               </button>
             )}
           </div>
-          <span className="hidden xl:inline eyebrow opacity-50 text-[10px]">{time}</span>
+          <span className="hidden xl:inline eyebrow opacity-50">{time}</span>
           <ThemeToggle />
           {user ? (
             <DropdownMenu>
@@ -214,10 +214,10 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   className="hidden md:inline-flex items-center gap-2 h-8 pl-1 pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
                   aria-label="Tài khoản"
                 >
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-[10px] font-bold uppercase">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-xs font-bold uppercase">
                     {(user.email ?? "?").slice(0, 1)}
                   </span>
-                  <span className="text-xs max-w-[120px] truncate text-foreground/90">{user.email}</span>
+                  <span className="text-sm max-w-[140px] truncate text-foreground/90">{user.email}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -238,13 +238,13 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             <div className="hidden md:flex items-center gap-1">
               <Link
                 to="/dang-nhap"
-                className="inline-flex items-center rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center rounded-full px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
               >
                 Đăng nhập
               </Link>
               <Link
                 to="/dang-ky"
-                className="inline-flex items-center rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-background bg-gradient-to-r from-[var(--gold)] to-amber-600 shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_40%,transparent),0_6px_18px_-6px_color-mix(in_oklab,var(--gold)_50%,transparent)] hover:shadow-[0_0_0_1px_var(--gold),0_8px_24px_-6px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-shadow"
+                className="inline-flex items-center rounded-full px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-background bg-gradient-to-r from-[var(--gold)] to-amber-600 shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_40%,transparent),0_6px_18px_-6px_color-mix(in_oklab,var(--gold)_50%,transparent)] hover:shadow-[0_0_0_1px_var(--gold),0_8px_24px_-6px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-shadow"
               >
                 Đăng ký
               </Link>
@@ -274,7 +274,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             </Link>
             {NAV_GROUPS.map((group) => (
               <div key={group.label} className="space-y-2">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/70">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                   {group.label}
                 </div>
                 <div className="grid grid-cols-2 gap-1">
@@ -284,7 +284,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                       to={n.to}
                       activeOptions={{ exact: true }}
                       onClick={() => setOpen(false)}
-                      className="block rounded-md px-2 py-2 text-sm text-foreground/90 hover:bg-accent data-[status=active]:text-[var(--gold)]"
+                      className="block rounded-md px-2 py-2 text-base text-foreground/90 hover:bg-accent data-[status=active]:text-[var(--gold)]"
                     >
                       {n.label}
                     </Link>
@@ -300,12 +300,12 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                       {(user.email ?? "?").slice(0, 1)}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Đã đăng nhập</div>
-                      <div className="text-xs text-foreground truncate">{user.email}</div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Đã đăng nhập</div>
+                      <div className="text-sm text-foreground truncate">{user.email}</div>
                     </div>
                     <button
                       onClick={() => { setOpen(false); signOut().then(() => navigate({ to: "/" })); }}
-                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-rose-500 hover:bg-rose-500/10 transition-colors"
+                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 hover:bg-rose-500/10 transition-colors"
                     >
                       <LogOut className="h-3 w-3" /> Thoát
                     </button>
@@ -313,7 +313,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   <Link
                     to="/cai-dat/ban-tin"
                     onClick={() => setOpen(false)}
-                    className="inline-flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+                    className="inline-flex items-center gap-2 px-1 text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
                   >
                     <Mail className="h-3 w-3" /> Quản lý bản tin
                   </Link>
@@ -322,24 +322,24 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 <div className="relative rounded-2xl overflow-hidden border border-[var(--gold)]/30 bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-4">
                   <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-[var(--gold)]/15 blur-2xl" aria-hidden />
                   <div className="relative">
-                    <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[var(--gold)]">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--gold)]">
                       <Sparkles className="h-3 w-3" /> Tham gia MarketWatch
                     </div>
-                    <p className="mt-2 text-sm text-foreground/90 leading-snug">
+                    <p className="mt-2 text-base text-foreground/90 leading-snug">
                       Đặt cảnh báo giá vàng & crypto, nhận email khi thị trường chạm ngưỡng.
                     </p>
                     <div className="mt-4 grid grid-cols-2 gap-2">
                       <Link
                         to="/dang-nhap"
                         onClick={() => setOpen(false)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-background/40 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground hover:bg-background/70 transition-colors"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-background/40 px-3 py-2 text-sm font-semibold uppercase tracking-[0.14em] text-foreground hover:bg-background/70 transition-colors"
                       >
                         <UserIcon className="h-3 w-3" /> Đăng nhập
                       </Link>
                       <Link
                         to="/dang-ky"
                         onClick={() => setOpen(false)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[var(--gold)] to-amber-600 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-background shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--gold)_70%,transparent)]"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[var(--gold)] to-amber-600 px-3 py-2 text-sm font-semibold uppercase tracking-[0.14em] text-background shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--gold)_70%,transparent)]"
                       >
                         Đăng ký <ArrowUpRight className="h-3 w-3" />
                       </Link>

@@ -60,7 +60,7 @@ function Index() {
                 </h1>
               </div>
               <div className="md:col-span-4 md:pl-6 md:border-l md:border-border">
-                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   Một bản tin số liệu súc tích cho nhà đầu tư Việt — SJC, DOJI, BTC, ETH, USD/VND và hơn thế, cập nhật tức thì từ các sàn lớn.
                 </p>
                 <div className="mt-4 eyebrow opacity-60">Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường</div>
