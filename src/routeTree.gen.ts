@@ -46,6 +46,7 @@ import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/publi
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
+import { Route as ApiPublicFearGreedRouteImport } from './routes/api/public/fear-greed'
 import { Route as ApiPublicEconomicCalendarRouteImport } from './routes/api/public/economic-calendar'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
@@ -239,6 +240,11 @@ const ApiPublicForexRoute = ApiPublicForexRouteImport.update({
   path: '/api/public/forex',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFearGreedRoute = ApiPublicFearGreedRouteImport.update({
+  id: '/api/public/fear-greed',
+  path: '/api/public/fear-greed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicEconomicCalendarRoute =
   ApiPublicEconomicCalendarRouteImport.update({
     id: '/api/public/economic-calendar',
@@ -308,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
+  '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
@@ -353,6 +360,7 @@ export interface FileRoutesByTo {
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
+  '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
@@ -399,6 +407,7 @@ export interface FileRoutesById {
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
+  '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
@@ -446,6 +455,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/economic-calendar'
+    | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
@@ -491,6 +501,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/economic-calendar'
+    | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
@@ -536,6 +547,7 @@ export interface FileRouteTypes {
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/economic-calendar'
+    | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/pair-history'
@@ -582,6 +594,7 @@ export interface RootRouteChildren {
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
   ApiPublicEconomicCalendarRoute: typeof ApiPublicEconomicCalendarRoute
+  ApiPublicFearGreedRoute: typeof ApiPublicFearGreedRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
@@ -852,6 +865,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicForexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/fear-greed': {
+      id: '/api/public/fear-greed'
+      path: '/api/public/fear-greed'
+      fullPath: '/api/public/fear-greed'
+      preLoaderRoute: typeof ApiPublicFearGreedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/economic-calendar': {
       id: '/api/public/economic-calendar'
       path: '/api/public/economic-calendar'
@@ -934,6 +954,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
   ApiPublicEconomicCalendarRoute: ApiPublicEconomicCalendarRoute,
+  ApiPublicFearGreedRoute: ApiPublicFearGreedRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,

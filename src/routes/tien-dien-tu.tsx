@@ -7,6 +7,7 @@ import { CryptoPriceTable } from "@/components/site/CryptoPriceTable";
 import { PriceChart } from "@/components/site/PriceChart";
 import { PriceAlerts } from "@/components/site/PriceAlerts";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { FearGreedGauge } from "@/components/site/FearGreedGauge";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/tien-dien-tu`;
@@ -109,6 +110,7 @@ function CryptoPage() {
             </p>
           </header>
           <CryptoPriceTable search={search} />
+          <FearGreedGauge />
           <PriceAlerts />
           <PriceChart defaultAsset="btc" assets={["btc", "eth"]} />
 
