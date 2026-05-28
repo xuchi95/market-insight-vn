@@ -47,7 +47,10 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          last_digest_sent_at: string | null
           source: string | null
+          topics: string[]
+          unsubscribe_token: string
           unsubscribed_at: string | null
         }
         Insert: {
@@ -55,7 +58,10 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          last_digest_sent_at?: string | null
           source?: string | null
+          topics?: string[]
+          unsubscribe_token?: string
           unsubscribed_at?: string | null
         }
         Update: {
@@ -63,7 +69,10 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          last_digest_sent_at?: string | null
           source?: string | null
+          topics?: string[]
+          unsubscribe_token?: string
           unsubscribed_at?: string | null
         }
         Relationships: []

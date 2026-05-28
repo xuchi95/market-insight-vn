@@ -24,6 +24,7 @@ import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-n
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
 import { Route as LaiSuatTietKiemRouteImport } from './routes/lai-suat-tiet-kiem'
+import { Route as HuyBanTinRouteImport } from './routes/huy-ban-tin'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
@@ -49,6 +50,7 @@ import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
+import { Route as ApiPublicNewsletterWeeklyDigestRouteImport } from './routes/api/public/newsletter-weekly-digest'
 import { Route as ApiPublicMetalsRouteImport } from './routes/api/public/metals'
 import { Route as ApiPublicMacroVnRouteImport } from './routes/api/public/macro-vn'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
@@ -58,6 +60,7 @@ import { Route as ApiPublicEconomicCalendarRouteImport } from './routes/api/publ
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
+import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
@@ -135,6 +138,11 @@ const LichKinhTeRoute = LichKinhTeRouteImport.update({
 const LaiSuatTietKiemRoute = LaiSuatTietKiemRouteImport.update({
   id: '/lai-suat-tiet-kiem',
   path: '/lai-suat-tiet-kiem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HuyBanTinRoute = HuyBanTinRouteImport.update({
+  id: '/huy-ban-tin',
+  path: '/huy-ban-tin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoldRoute = GoldRouteImport.update({
@@ -263,6 +271,12 @@ const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
   path: '/api/public/pair-history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicNewsletterWeeklyDigestRoute =
+  ApiPublicNewsletterWeeklyDigestRouteImport.update({
+    id: '/api/public/newsletter-weekly-digest',
+    path: '/api/public/newsletter-weekly-digest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicMetalsRoute = ApiPublicMetalsRouteImport.update({
   id: '/api/public/metals',
   path: '/api/public/metals',
@@ -309,6 +323,12 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
   path: '/api/public/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNewsletterUnsubscribeRoute =
+  ApiNewsletterUnsubscribeRouteImport.update({
+    id: '/api/newsletter/unsubscribe',
+    path: '/api/newsletter/unsubscribe',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiNewsletterSubscribeRoute = ApiNewsletterSubscribeRouteImport.update({
   id: '/api/newsletter/subscribe',
   path: '/api/newsletter/subscribe',
@@ -342,6 +362,7 @@ export interface FileRoutesByFullPath {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/huy-ban-tin': typeof HuyBanTinRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -363,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -372,6 +394,7 @@ export interface FileRoutesByFullPath {
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
+  '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -396,6 +419,7 @@ export interface FileRoutesByTo {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/huy-ban-tin': typeof HuyBanTinRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -417,6 +441,7 @@ export interface FileRoutesByTo {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -426,6 +451,7 @@ export interface FileRoutesByTo {
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
+  '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -451,6 +477,7 @@ export interface FileRoutesById {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/huy-ban-tin': typeof HuyBanTinRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -472,6 +499,7 @@ export interface FileRoutesById {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -481,6 +509,7 @@ export interface FileRoutesById {
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
+  '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -507,6 +536,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/huy-ban-tin'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -528,6 +558,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
+    | '/api/newsletter/unsubscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -537,6 +568,7 @@ export interface FileRouteTypes {
     | '/api/public/gold'
     | '/api/public/macro-vn'
     | '/api/public/metals'
+    | '/api/public/newsletter-weekly-digest'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -561,6 +593,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/huy-ban-tin'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -582,6 +615,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
+    | '/api/newsletter/unsubscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -591,6 +625,7 @@ export interface FileRouteTypes {
     | '/api/public/gold'
     | '/api/public/macro-vn'
     | '/api/public/metals'
+    | '/api/public/newsletter-weekly-digest'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -615,6 +650,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/huy-ban-tin'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -636,6 +672,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
+    | '/api/newsletter/unsubscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -645,6 +682,7 @@ export interface FileRouteTypes {
     | '/api/public/gold'
     | '/api/public/macro-vn'
     | '/api/public/metals'
+    | '/api/public/newsletter-weekly-digest'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -670,6 +708,7 @@ export interface RootRouteChildren {
   ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
+  HuyBanTinRoute: typeof HuyBanTinRoute
   LaiSuatTietKiemRoute: typeof LaiSuatTietKiemRoute
   LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
@@ -691,6 +730,7 @@ export interface RootRouteChildren {
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
+  ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
@@ -700,6 +740,7 @@ export interface RootRouteChildren {
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
   ApiPublicMacroVnRoute: typeof ApiPublicMacroVnRoute
   ApiPublicMetalsRoute: typeof ApiPublicMetalsRoute
+  ApiPublicNewsletterWeeklyDigestRoute: typeof ApiPublicNewsletterWeeklyDigestRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
@@ -814,6 +855,13 @@ declare module '@tanstack/react-router' {
       path: '/lai-suat-tiet-kiem'
       fullPath: '/lai-suat-tiet-kiem'
       preLoaderRoute: typeof LaiSuatTietKiemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/huy-ban-tin': {
+      id: '/huy-ban-tin'
+      path: '/huy-ban-tin'
+      fullPath: '/huy-ban-tin'
+      preLoaderRoute: typeof HuyBanTinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gold': {
@@ -991,6 +1039,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPairHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/newsletter-weekly-digest': {
+      id: '/api/public/newsletter-weekly-digest'
+      path: '/api/public/newsletter-weekly-digest'
+      fullPath: '/api/public/newsletter-weekly-digest'
+      preLoaderRoute: typeof ApiPublicNewsletterWeeklyDigestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/metals': {
       id: '/api/public/metals'
       path: '/api/public/metals'
@@ -1054,6 +1109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/newsletter/unsubscribe': {
+      id: '/api/newsletter/unsubscribe'
+      path: '/api/newsletter/unsubscribe'
+      fullPath: '/api/newsletter/unsubscribe'
+      preLoaderRoute: typeof ApiNewsletterUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/newsletter/subscribe': {
       id: '/api/newsletter/subscribe'
       path: '/api/newsletter/subscribe'
@@ -1094,6 +1156,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
+  HuyBanTinRoute: HuyBanTinRoute,
   LaiSuatTietKiemRoute: LaiSuatTietKiemRoute,
   LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
@@ -1115,6 +1178,7 @@ const rootRouteChildren: RootRouteChildren = {
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
+  ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
@@ -1124,6 +1188,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGoldRoute: ApiPublicGoldRoute,
   ApiPublicMacroVnRoute: ApiPublicMacroVnRoute,
   ApiPublicMetalsRoute: ApiPublicMetalsRoute,
+  ApiPublicNewsletterWeeklyDigestRoute: ApiPublicNewsletterWeeklyDigestRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
