@@ -187,7 +187,7 @@ export function Ticker() {
   if (ticks.length === 0) return <div className="h-9 border-y border-border bg-card/40" />;
 
   const Row = () => (
-    <div className="flex shrink-0 gap-10 px-5 text-[11px] font-medium tracking-[0.18em] uppercase">
+    <div className="flex shrink-0 gap-10 px-5 text-xs font-medium tracking-[0.14em] uppercase">
       {ticks.map((t, i) => (
         <Tooltip key={i}>
           <TooltipTrigger asChild>
