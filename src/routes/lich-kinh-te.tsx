@@ -142,7 +142,7 @@ function EconomicCalendarPage() {
                 <>
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Dữ liệu realtime · nguồn {SOURCE_LABEL[data.source] ?? data.source ?? "API"}
+                    {data.source === "reference" ? "Dữ liệu dự phòng" : "Dữ liệu realtime"} · nguồn {SOURCE_LABEL[data.source] ?? data.source ?? "API"}
                   </span>
                   <span>· Cập nhật {new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }).format(new Date(data.fetchedAt))}</span>
                   {isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
