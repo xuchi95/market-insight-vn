@@ -40,6 +40,7 @@ import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
+import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
@@ -207,6 +208,11 @@ const ApiPublicXauRoute = ApiPublicXauRouteImport.update({
   path: '/api/public/xau',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicUsStocksRoute = ApiPublicUsStocksRouteImport.update({
+  id: '/api/public/us-stocks',
+  path: '/api/public/us-stocks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   id: '/api/public/stocks',
   path: '/api/public/stocks',
@@ -307,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
 export interface FileRoutesByTo {
@@ -351,6 +358,7 @@ export interface FileRoutesByTo {
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
 export interface FileRoutesById {
@@ -396,6 +404,7 @@ export interface FileRoutesById {
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
 }
 export interface FileRouteTypes {
@@ -442,6 +451,7 @@ export interface FileRouteTypes {
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
+    | '/api/public/us-stocks'
     | '/api/public/xau'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -486,6 +496,7 @@ export interface FileRouteTypes {
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
+    | '/api/public/us-stocks'
     | '/api/public/xau'
   id:
     | '__root__'
@@ -530,6 +541,7 @@ export interface FileRouteTypes {
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
+    | '/api/public/us-stocks'
     | '/api/public/xau'
   fileRoutesById: FileRoutesById
 }
@@ -575,6 +587,7 @@ export interface RootRouteChildren {
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
+  ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
 }
 
@@ -797,6 +810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicXauRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/us-stocks': {
+      id: '/api/public/us-stocks'
+      path: '/api/public/us-stocks'
+      fullPath: '/api/public/us-stocks'
+      preLoaderRoute: typeof ApiPublicUsStocksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/stocks': {
       id: '/api/public/stocks'
       path: '/api/public/stocks'
@@ -919,6 +939,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
+  ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
 }
 export const routeTree = rootRouteImport
