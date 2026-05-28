@@ -17,14 +17,14 @@ import { listTransactions, addTransaction, deleteTransaction } from "@/lib/portf
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtVNDCompact, fmtNum, fmtPct } from "@/lib/format";
-import { Plus, Trash2, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { Plus, Trash2, ArrowDownRight, ArrowUpRight, Info, NotebookPen, Calculator, ShieldCheck } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/portfolio`;
-const TITLE = "Danh mục đầu tư — Theo dõi tài sản crypto & vàng realtime";
-const DESC = "Quản lý danh mục đầu tư cá nhân: theo dõi tổng giá trị, lợi nhuận lãi/lỗ realtime của Bitcoin, Ethereum, vàng SJC và các tài sản khác.";
+const TITLE = "Sổ tay danh mục — Tự ghi giao dịch & theo dõi lãi/lỗ";
+const DESC = "Công cụ ghi chép cá nhân (offline journal): bạn tự nhập các lệnh mua/bán đã thực hiện ở sàn/cửa hàng khác, hệ thống chỉ tính giá vốn trung bình và lãi/lỗ realtime — KHÔNG đặt lệnh, KHÔNG giữ tiền, KHÔNG kết nối sàn.";
 
 export const Route = createFileRoute("/portfolio")({
   head: () => ({
@@ -231,13 +231,52 @@ function PortfolioContent() {
     <div className="mt-4">
       <header className="flex flex-wrap items-end justify-between gap-3 mb-6">
         <div>
-          <h1 className="font-display text-3xl md:text-5xl">Danh mục của tôi</h1>
+          <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-2">
+            <NotebookPen className="h-3.5 w-3.5" />
+            Sổ tay cá nhân · Không phải sàn giao dịch
+          </div>
+          <h1 className="font-display text-3xl md:text-5xl">Sổ tay danh mục của tôi</h1>
           <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-            Ghi lại từng lệnh mua/bán — hệ thống tự tính giá vốn trung bình, số lượng còn lại và lãi/lỗ realtime.
+            Bạn tự ghi lại các lệnh mua/bán đã thực hiện ở nơi khác (sàn crypto, cửa hàng vàng…). MarketWatch chỉ giúp tính <strong className="text-foreground">giá vốn trung bình</strong>, <strong className="text-foreground">số lượng còn lại</strong> và <strong className="text-foreground">lãi/lỗ realtime</strong> theo giá thị trường.
           </p>
         </div>
         <TransactionDialog />
       </header>
+
+      <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+        <div className="flex items-start gap-3">
+          <Info className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold text-sm mb-1">Đây là công cụ ghi chép, không phải nơi đặt lệnh thật</div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              MarketWatch <strong className="text-foreground">không</strong> mua/bán hộ bạn, <strong className="text-foreground">không</strong> giữ tài sản và <strong className="text-foreground">không</strong> kết nối với bất kỳ sàn nào. Mọi giao dịch phải được bạn thực hiện thật ở sàn/cửa hàng bên ngoài, sau đó nhập vào đây để theo dõi hiệu suất tổng thể.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-3 mt-3">
+              <div className="flex items-start gap-2">
+                <NotebookPen className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                <div>
+                  <div className="text-xs font-medium">Tự nhập tay</div>
+                  <div className="text-[11px] text-muted-foreground">Mỗi lệnh = một dòng ghi chú giá, số lượng, ngày.</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Calculator className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                <div>
+                  <div className="text-xs font-medium">Tự động tính P/L</div>
+                  <div className="text-[11px] text-muted-foreground">Giá vốn TB, lãi/lỗ chưa & đã chốt theo giá realtime.</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <ShieldCheck className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                <div>
+                  <div className="text-xs font-medium">Riêng tư</div>
+                  <div className="text-[11px] text-muted-foreground">Chỉ bạn xem được dữ liệu sổ tay của mình.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         <Metric label="Tổng giá trị" value={fmtVNDCompact(totals.current)} title={fmtVND(totals.current)} />
