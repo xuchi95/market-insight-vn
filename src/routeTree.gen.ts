@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
 import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
 import { Route as TienDienTuRouteImport } from './routes/tien-dien-tu'
@@ -21,6 +22,7 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-nhiem'
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
+import { Route as LaiSuatTietKiemRouteImport } from './routes/lai-suat-tiet-kiem'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
@@ -42,10 +44,13 @@ import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
+import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
+import { Route as ApiPublicMacroVnRouteImport } from './routes/api/public/macro-vn'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
+import { Route as ApiPublicFearGreedRouteImport } from './routes/api/public/fear-greed'
 import { Route as ApiPublicEconomicCalendarRouteImport } from './routes/api/public/economic-calendar'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
@@ -53,6 +58,11 @@ import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
 
+const ViMoVietNamRoute = ViMoVietNamRouteImport.update({
+  id: '/vi-mo-viet-nam',
+  path: '/vi-mo-viet-nam',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TyGiaNgoaiTeRoute = TyGiaNgoaiTeRouteImport.update({
   id: '/ty-gia-ngoai-te',
   path: '/ty-gia-ngoai-te',
@@ -111,6 +121,11 @@ const LienHeRoute = LienHeRouteImport.update({
 const LichKinhTeRoute = LichKinhTeRouteImport.update({
   id: '/lich-kinh-te',
   path: '/lich-kinh-te',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LaiSuatTietKiemRoute = LaiSuatTietKiemRouteImport.update({
+  id: '/lai-suat-tiet-kiem',
+  path: '/lai-suat-tiet-kiem',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoldRoute = GoldRouteImport.update({
@@ -218,6 +233,11 @@ const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   path: '/api/public/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSavingsRatesRoute = ApiPublicSavingsRatesRouteImport.update({
+  id: '/api/public/savings-rates',
+  path: '/api/public/savings-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPriceAlertsCronRoute =
   ApiPublicPriceAlertsCronRouteImport.update({
     id: '/api/public/price-alerts-cron',
@@ -229,6 +249,11 @@ const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
   path: '/api/public/pair-history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMacroVnRoute = ApiPublicMacroVnRouteImport.update({
+  id: '/api/public/macro-vn',
+  path: '/api/public/macro-vn',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
   id: '/api/public/gold',
   path: '/api/public/gold',
@@ -237,6 +262,11 @@ const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
 const ApiPublicForexRoute = ApiPublicForexRouteImport.update({
   id: '/api/public/forex',
   path: '/api/public/forex',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicFearGreedRoute = ApiPublicFearGreedRouteImport.update({
+  id: '/api/public/fear-greed',
+  path: '/api/public/fear-greed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicEconomicCalendarRoute =
@@ -286,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
@@ -298,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -308,10 +340,13 @@ export interface FileRoutesByFullPath {
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
+  '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
+  '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -331,6 +366,7 @@ export interface FileRoutesByTo {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
@@ -343,6 +379,7 @@ export interface FileRoutesByTo {
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -353,10 +390,13 @@ export interface FileRoutesByTo {
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
+  '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
+  '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -377,6 +417,7 @@ export interface FileRoutesById {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
@@ -389,6 +430,7 @@ export interface FileRoutesById {
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -399,10 +441,13 @@ export interface FileRoutesById {
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
+  '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
+  '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -424,6 +469,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
@@ -436,6 +482,7 @@ export interface FileRouteTypes {
     | '/tien-dien-tu'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/vi-mo-viet-nam'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -446,10 +493,13 @@ export interface FileRouteTypes {
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/economic-calendar'
+    | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
+    | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
@@ -469,6 +519,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
@@ -481,6 +532,7 @@ export interface FileRouteTypes {
     | '/tien-dien-tu'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/vi-mo-viet-nam'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -491,10 +543,13 @@ export interface FileRouteTypes {
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/economic-calendar'
+    | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
+    | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
@@ -514,6 +569,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
@@ -526,6 +582,7 @@ export interface FileRouteTypes {
     | '/tien-dien-tu'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/vi-mo-viet-nam'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -536,10 +593,13 @@ export interface FileRouteTypes {
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
     | '/api/public/economic-calendar'
+    | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
+    | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
@@ -560,6 +620,7 @@ export interface RootRouteChildren {
   ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
+  LaiSuatTietKiemRoute: typeof LaiSuatTietKiemRoute
   LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
   MienTruTrachNhiemRoute: typeof MienTruTrachNhiemRoute
@@ -572,6 +633,7 @@ export interface RootRouteChildren {
   TienDienTuRoute: typeof TienDienTuRoute
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
+  ViMoVietNamRoute: typeof ViMoVietNamRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
@@ -582,10 +644,13 @@ export interface RootRouteChildren {
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
   ApiPublicEconomicCalendarRoute: typeof ApiPublicEconomicCalendarRoute
+  ApiPublicFearGreedRoute: typeof ApiPublicFearGreedRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
+  ApiPublicMacroVnRoute: typeof ApiPublicMacroVnRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
+  ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
@@ -593,6 +658,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vi-mo-viet-nam': {
+      id: '/vi-mo-viet-nam'
+      path: '/vi-mo-viet-nam'
+      fullPath: '/vi-mo-viet-nam'
+      preLoaderRoute: typeof ViMoVietNamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ty-gia-ngoai-te': {
       id: '/ty-gia-ngoai-te'
       path: '/ty-gia-ngoai-te'
@@ -675,6 +747,13 @@ declare module '@tanstack/react-router' {
       path: '/lich-kinh-te'
       fullPath: '/lich-kinh-te'
       preLoaderRoute: typeof LichKinhTeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lai-suat-tiet-kiem': {
+      id: '/lai-suat-tiet-kiem'
+      path: '/lai-suat-tiet-kiem'
+      fullPath: '/lai-suat-tiet-kiem'
+      preLoaderRoute: typeof LaiSuatTietKiemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gold': {
@@ -824,6 +903,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStocksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/savings-rates': {
+      id: '/api/public/savings-rates'
+      path: '/api/public/savings-rates'
+      fullPath: '/api/public/savings-rates'
+      preLoaderRoute: typeof ApiPublicSavingsRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/price-alerts-cron': {
       id: '/api/public/price-alerts-cron'
       path: '/api/public/price-alerts-cron'
@@ -838,6 +924,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPairHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/macro-vn': {
+      id: '/api/public/macro-vn'
+      path: '/api/public/macro-vn'
+      fullPath: '/api/public/macro-vn'
+      preLoaderRoute: typeof ApiPublicMacroVnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/gold': {
       id: '/api/public/gold'
       path: '/api/public/gold'
@@ -850,6 +943,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/forex'
       fullPath: '/api/public/forex'
       preLoaderRoute: typeof ApiPublicForexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/fear-greed': {
+      id: '/api/public/fear-greed'
+      path: '/api/public/fear-greed'
+      fullPath: '/api/public/fear-greed'
+      preLoaderRoute: typeof ApiPublicFearGreedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/economic-calendar': {
@@ -912,6 +1012,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
+  LaiSuatTietKiemRoute: LaiSuatTietKiemRoute,
   LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
   MienTruTrachNhiemRoute: MienTruTrachNhiemRoute,
@@ -924,6 +1025,7 @@ const rootRouteChildren: RootRouteChildren = {
   TienDienTuRoute: TienDienTuRoute,
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
+  ViMoVietNamRoute: ViMoVietNamRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
@@ -934,10 +1036,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
   ApiPublicEconomicCalendarRoute: ApiPublicEconomicCalendarRoute,
+  ApiPublicFearGreedRoute: ApiPublicFearGreedRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
+  ApiPublicMacroVnRoute: ApiPublicMacroVnRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
+  ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,

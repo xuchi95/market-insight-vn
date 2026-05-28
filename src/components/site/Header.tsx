@@ -46,6 +46,8 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { label: "DCA & ROI", to: "/cong-cu/dca-roi" },
       { label: "Lịch kinh tế", to: "/lich-kinh-te" },
+      { label: "Vĩ mô Việt Nam", to: "/vi-mo-viet-nam" },
+      { label: "Lãi suất tiết kiệm", to: "/lai-suat-tiet-kiem" },
       { label: "Danh mục", to: "/portfolio" },
     ],
   },
