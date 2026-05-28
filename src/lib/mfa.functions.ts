@@ -22,19 +22,18 @@ function authsignalBaseUrl(): string {
     "sydney": "au",
   };
   const region = regionMap[normalized] ?? (/^[a-z]{2,3}$/.test(normalized) ? normalized : "us");
-  // US dùng hostname không prefix; các region khác có prefix (eu, au).
-  const host = region === "us" ? "signal.authsignal.com" : `${region}.signal.authsignal.com`;
+  // Authsignal Server API: US dùng api.authsignal.com; các region khác có prefix (au/eu/ca).
+  const host = region === "us" ? "api.authsignal.com" : `${region}.api.authsignal.com`;
   return `https://${host}/v1`;
 }
 
 function authsignalAuthHeader(): string {
-  const tenantId = process.env.AUTHSIGNAL_TENANT_ID;
   const secret = process.env.AUTHSIGNAL_API_SECRET;
-  if (!tenantId || !secret) {
-    throw new Error("Authsignal chưa được cấu hình (thiếu AUTHSIGNAL_TENANT_ID hoặc AUTHSIGNAL_API_SECRET).");
+  if (!secret) {
+    throw new Error("Authsignal chưa được cấu hình (thiếu AUTHSIGNAL_API_SECRET).");
   }
-  // Basic auth: tenantId:secret
-  const token = Buffer.from(`${tenantId}:${secret}`).toString("base64");
+  // Authsignal Server API Basic auth: secret key làm username, password để trống.
+  const token = Buffer.from(`${secret}:`).toString("base64");
   return `Basic ${token}`;
 }
 
