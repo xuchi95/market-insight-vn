@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Sparkles, User as UserIcon, X } from "lucide-react";
+import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, User as UserIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
@@ -225,6 +225,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/portfolio" })}>
                   <PieChart className="h-3.5 w-3.5 mr-2" /> Danh mục của tôi
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/cai-dat" })}>
+                  <Settings className="h-3.5 w-3.5 mr-2" /> Cài đặt tài khoản
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/cai-dat/ban-tin" })}>
                   <Mail className="h-3.5 w-3.5 mr-2" /> Quản lý bản tin

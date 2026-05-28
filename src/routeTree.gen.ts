@@ -41,8 +41,10 @@ import { Route as ChungKhoanRouteImport } from './routes/chung-khoan'
 import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat'
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
+import { Route as CaiDatMatKhauRouteImport } from './routes/cai-dat.mat-khau'
 import { Route as CaiDatBaoMatRouteImport } from './routes/cai-dat.bao-mat'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
@@ -229,6 +231,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaiDatIndexRoute = CaiDatIndexRouteImport.update({
+  id: '/cai-dat/',
+  path: '/cai-dat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
   id: '/tai-san/$symbol',
   path: '/tai-san/$symbol',
@@ -237,6 +244,11 @@ const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
 const CongCuDcaRoiRoute = CongCuDcaRoiRouteImport.update({
   id: '/cong-cu/dca-roi',
   path: '/cong-cu/dca-roi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaiDatMatKhauRoute = CaiDatMatKhauRouteImport.update({
+  id: '/cai-dat/mat-khau',
+  path: '/cai-dat/mat-khau',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CaiDatBaoMatRoute = CaiDatBaoMatRouteImport.update({
@@ -407,8 +419,10 @@ export interface FileRoutesByFullPath {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/cai-dat/': typeof CaiDatIndexRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -468,8 +482,10 @@ export interface FileRoutesByTo {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/cai-dat': typeof CaiDatIndexRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -530,8 +546,10 @@ export interface FileRoutesById {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/cai-dat/': typeof CaiDatIndexRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -593,8 +611,10 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/cai-dat/'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -654,8 +674,10 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/cai-dat'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -715,8 +737,10 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/cai-dat/'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -777,8 +801,10 @@ export interface RootRouteChildren {
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
   CaiDatBaoMatRoute: typeof CaiDatBaoMatRoute
+  CaiDatMatKhauRoute: typeof CaiDatMatKhauRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
+  CaiDatIndexRoute: typeof CaiDatIndexRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
@@ -1028,6 +1054,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cai-dat/': {
+      id: '/cai-dat/'
+      path: '/cai-dat'
+      fullPath: '/cai-dat/'
+      preLoaderRoute: typeof CaiDatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tai-san/$symbol': {
       id: '/tai-san/$symbol'
       path: '/tai-san/$symbol'
@@ -1040,6 +1073,13 @@ declare module '@tanstack/react-router' {
       path: '/cong-cu/dca-roi'
       fullPath: '/cong-cu/dca-roi'
       preLoaderRoute: typeof CongCuDcaRoiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cai-dat/mat-khau': {
+      id: '/cai-dat/mat-khau'
+      path: '/cai-dat/mat-khau'
+      fullPath: '/cai-dat/mat-khau'
+      preLoaderRoute: typeof CaiDatMatKhauRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cai-dat/bao-mat': {
@@ -1257,8 +1297,10 @@ const rootRouteChildren: RootRouteChildren = {
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
   CaiDatBaoMatRoute: CaiDatBaoMatRoute,
+  CaiDatMatKhauRoute: CaiDatMatKhauRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
+  CaiDatIndexRoute: CaiDatIndexRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
