@@ -247,7 +247,7 @@ function PortfolioContent() {
         <Metric label="Lãi/Lỗ đã chốt" value={fmtVND(totals.realized)} accent={totals.realized >= 0 ? "up" : "down"} />
       </div>
 
-      <PortfolioChart transactions={transactions} totals={totals} />
+      <PortfolioChart transactions={transactions} enriched={enriched} totals={totals} />
 
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
         <div className="lg:col-span-2 rounded-lg border border-border overflow-hidden">
