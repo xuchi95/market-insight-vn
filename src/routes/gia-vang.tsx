@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { GoldPriceTable } from "@/components/site/GoldPriceTable";
+import { MetalsTable } from "@/components/site/MetalsTable";
 import { PriceChart } from "@/components/site/PriceChart";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
@@ -107,6 +108,7 @@ function GoldPage() {
             </p>
           </header>
           <GoldPriceTable search={search} />
+          <MetalsTable />
           <PriceChart defaultAsset="gold-sjc" assets={["gold-sjc"]} />
 
           <section aria-labelledby="gold-info" className="prose prose-invert max-w-none space-y-4">
