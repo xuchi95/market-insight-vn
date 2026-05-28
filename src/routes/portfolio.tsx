@@ -385,9 +385,10 @@ function labelFor(h: { asset_type: "crypto" | "gold"; symbol: string }) {
   return g ? g.name : h.symbol;
 }
 
-function computeHistory(transactions: Tx[]) {
+function computeHistory(transactions: Tx[], filterKey?: string) {
   const byDate = new Map<string, Tx[]>();
   for (const t of transactions) {
+    if (filterKey && `${t.asset_type}:${t.symbol}` !== filterKey) continue;
     const d = t.executed_at.slice(0, 10);
     if (!byDate.has(d)) byDate.set(d, []);
     byDate.get(d)!.push(t);
@@ -439,25 +440,57 @@ function computeHistory(transactions: Tx[]) {
   return history;
 }
 
-function PortfolioChart({ transactions, totals }: { transactions: Tx[]; totals: { current: number; cost: number; realized: number } }) {
+type EnrichedPos = {
+  asset_type: "crypto" | "gold"; symbol: string;
+  quantity: number; avgCostVnd: number; costVnd: number;
+  realizedPlVnd: number; currentVnd: number;
+};
+
+function PortfolioChart({ transactions, enriched, totals }: {
+  transactions: Tx[];
+  enriched: EnrichedPos[];
+  totals: { current: number; cost: number; realized: number };
+}) {
+  const [filter, setFilter] = useState<string>("all");
+
+  const assetOptions = useMemo(() => {
+    return enriched
+      .filter((h) => h.quantity > 0 || h.realizedPlVnd !== 0)
+      .map((h) => ({ key: `${h.asset_type}:${h.symbol}`, label: labelFor(h) }));
+  }, [enriched]);
+
+  // Reset filter if selected asset no longer exists
+  useEffect(() => {
+    if (filter !== "all" && !assetOptions.some((o) => o.key === filter)) {
+      setFilter("all");
+    }
+  }, [filter, assetOptions]);
+
+  const scopedTotals = useMemo(() => {
+    if (filter === "all") return totals;
+    const pos = enriched.find((h) => `${h.asset_type}:${h.symbol}` === filter);
+    if (!pos) return { current: 0, cost: 0, realized: 0 };
+    return { current: pos.currentVnd, cost: pos.costVnd, realized: pos.realizedPlVnd };
+  }, [filter, enriched, totals]);
+
   const history = useMemo(() => {
-    const h = computeHistory(transactions);
+    const h = computeHistory(transactions, filter === "all" ? undefined : filter);
     if (h.length === 0) return [];
     const today = new Date().toISOString().slice(0, 10);
     const last = h[h.length - 1];
-    const unrealized = totals.current - totals.cost;
-    const totalPl = totals.realized + unrealized;
+    const unrealized = scopedTotals.current - scopedTotals.cost;
+    const totalPl = scopedTotals.realized + unrealized;
     if (last.date !== today) {
-      h.push({ date: today, invested: last.invested, costBasis: totals.cost, realized: totals.realized, marketValue: totals.current, unrealized, totalPl });
+      h.push({ date: today, invested: last.invested, costBasis: scopedTotals.cost, realized: scopedTotals.realized, marketValue: scopedTotals.current, unrealized, totalPl });
     } else {
-      last.costBasis = totals.cost;
-      last.realized = totals.realized;
-      last.marketValue = totals.current;
+      last.costBasis = scopedTotals.cost;
+      last.realized = scopedTotals.realized;
+      last.marketValue = scopedTotals.current;
       last.unrealized = unrealized;
       last.totalPl = totalPl;
     }
     return h;
-  }, [transactions, totals]);
+  }, [transactions, scopedTotals, filter]);
 
   if (history.length < 2) return null;
 
@@ -465,7 +498,20 @@ function PortfolioChart({ transactions, totals }: { transactions: Tx[]; totals: 
     <div className="rounded-lg border border-border p-4 mb-6">
       <Tabs defaultValue="value">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Hiệu suất theo thời gian</div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Hiệu suất theo thời gian</div>
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="h-7 w-[200px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toàn bộ danh mục</SelectItem>
+                {assetOptions.map((o) => (
+                  <SelectItem key={o.key} value={o.key}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <TabsList className="h-7">
             <TabsTrigger value="value" className="text-xs px-2">Giá trị</TabsTrigger>
             <TabsTrigger value="pl" className="text-xs px-2">P/L</TabsTrigger>
