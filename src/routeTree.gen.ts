@@ -22,6 +22,7 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-nhiem'
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
+import { Route as LaiSuatTietKiemRouteImport } from './routes/lai-suat-tiet-kiem'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
@@ -43,6 +44,7 @@ import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
+import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
 import { Route as ApiPublicMacroVnRouteImport } from './routes/api/public/macro-vn'
@@ -119,6 +121,11 @@ const LienHeRoute = LienHeRouteImport.update({
 const LichKinhTeRoute = LichKinhTeRouteImport.update({
   id: '/lich-kinh-te',
   path: '/lich-kinh-te',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LaiSuatTietKiemRoute = LaiSuatTietKiemRouteImport.update({
+  id: '/lai-suat-tiet-kiem',
+  path: '/lai-suat-tiet-kiem',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoldRoute = GoldRouteImport.update({
@@ -226,6 +233,11 @@ const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   path: '/api/public/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSavingsRatesRoute = ApiPublicSavingsRatesRouteImport.update({
+  id: '/api/public/savings-rates',
+  path: '/api/public/savings-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPriceAlertsCronRoute =
   ApiPublicPriceAlertsCronRouteImport.update({
     id: '/api/public/price-alerts-cron',
@@ -304,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
@@ -333,6 +346,7 @@ export interface FileRoutesByFullPath {
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
+  '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -352,6 +366,7 @@ export interface FileRoutesByTo {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
@@ -381,6 +396,7 @@ export interface FileRoutesByTo {
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
+  '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -401,6 +417,7 @@ export interface FileRoutesById {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
@@ -430,6 +447,7 @@ export interface FileRoutesById {
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
+  '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -451,6 +469,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
@@ -480,6 +499,7 @@ export interface FileRouteTypes {
     | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
+    | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
@@ -499,6 +519,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
@@ -528,6 +549,7 @@ export interface FileRouteTypes {
     | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
+    | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
@@ -547,6 +569,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
@@ -576,6 +599,7 @@ export interface FileRouteTypes {
     | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
+    | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
@@ -596,6 +620,7 @@ export interface RootRouteChildren {
   ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
+  LaiSuatTietKiemRoute: typeof LaiSuatTietKiemRoute
   LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
   MienTruTrachNhiemRoute: typeof MienTruTrachNhiemRoute
@@ -625,6 +650,7 @@ export interface RootRouteChildren {
   ApiPublicMacroVnRoute: typeof ApiPublicMacroVnRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
+  ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
@@ -721,6 +747,13 @@ declare module '@tanstack/react-router' {
       path: '/lich-kinh-te'
       fullPath: '/lich-kinh-te'
       preLoaderRoute: typeof LichKinhTeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lai-suat-tiet-kiem': {
+      id: '/lai-suat-tiet-kiem'
+      path: '/lai-suat-tiet-kiem'
+      fullPath: '/lai-suat-tiet-kiem'
+      preLoaderRoute: typeof LaiSuatTietKiemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gold': {
@@ -870,6 +903,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStocksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/savings-rates': {
+      id: '/api/public/savings-rates'
+      path: '/api/public/savings-rates'
+      fullPath: '/api/public/savings-rates'
+      preLoaderRoute: typeof ApiPublicSavingsRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/price-alerts-cron': {
       id: '/api/public/price-alerts-cron'
       path: '/api/public/price-alerts-cron'
@@ -972,6 +1012,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
+  LaiSuatTietKiemRoute: LaiSuatTietKiemRoute,
   LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
   MienTruTrachNhiemRoute: MienTruTrachNhiemRoute,
@@ -1001,6 +1042,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMacroVnRoute: ApiPublicMacroVnRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
+  ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
