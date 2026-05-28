@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { NewsletterForm } from "./NewsletterForm";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles } from "lucide-react";
 
 const KEY_SUBSCRIBED = "mw_nl_subscribed";
 const KEY_LAST_SHOWN = "mw_nl_last_shown";
@@ -59,18 +58,16 @@ export function NewsletterPopup() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="border-[var(--gold)]/30 bg-card sm:max-w-md overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_12%,var(--card))]" />
-        <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[var(--gold)]/20 blur-3xl" />
-        <DialogHeader className="relative">
-          <div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--gold)]">
-            <Sparkles className="h-3 w-3" /> Bản tin MarketWatch
+        <DialogHeader>
+          <div className="mb-2 text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
+            Bản tin MarketWatch
           </div>
           <DialogTitle className="font-display text-2xl">Đừng bỏ lỡ biến động thị trường</DialogTitle>
           <DialogDescription className="text-sm">
             Đăng ký nhận tổng hợp ngắn gọn về vàng, crypto và ngoại tệ — gửi trực tiếp vào hộp thư mỗi sáng.
           </DialogDescription>
         </DialogHeader>
-        <div className="relative">
+        <div>
           <NewsletterForm />
           <p className="mt-3 text-[11px] text-muted-foreground">
             Miễn phí. Bạn có thể huỷ đăng ký bất cứ lúc nào.
