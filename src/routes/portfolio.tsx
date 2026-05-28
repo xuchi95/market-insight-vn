@@ -18,7 +18,8 @@ import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum, fmtPct } from "@/lib/format";
 import { Plus, Trash2, ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/portfolio`;
