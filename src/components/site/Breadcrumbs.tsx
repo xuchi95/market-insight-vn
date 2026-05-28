@@ -25,6 +25,8 @@ const PAGE_LABELS: Record<string, string> = {
   "cai-dat": "Cài đặt",
   "ban-tin": "Bản tin",
   "lich-kinh-te": "Lịch kinh tế",
+  "vi-mo-viet-nam": "Kinh tế vĩ mô Việt Nam",
+  "lai-suat-tiet-kiem": "Lãi suất tiết kiệm",
   "cong-cu": "Công cụ",
   "dca-roi": "DCA & ROI",
   "portfolio": "Danh mục",
