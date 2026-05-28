@@ -13,11 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
-import { listHoldings, upsertHolding, deleteHolding } from "@/lib/portfolio.functions";
+import { listTransactions, addTransaction, deleteTransaction } from "@/lib/portfolio.functions";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum, fmtPct } from "@/lib/format";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const SITE = "https://marketwatch.vn";
@@ -39,14 +39,29 @@ export const Route = createFileRoute("/portfolio")({
   component: PortfolioPage,
 });
 
-type Holding = {
+type Tx = {
   id: string;
   asset_type: "crypto" | "gold";
   symbol: string;
+  side: "buy" | "sell";
   quantity: number;
-  avg_cost_usd: number | null;
-  avg_cost_vnd: number | null;
+  price_vnd: number | null;
+  price_usd: number | null;
+  fee_vnd: number;
+  executed_at: string;
   note: string | null;
+};
+
+type Position = {
+  asset_type: "crypto" | "gold";
+  symbol: string;
+  quantity: number;       // số lượng còn lại
+  avgCostVnd: number;     // giá vốn trung bình/đơn vị
+  costVnd: number;        // tổng vốn còn nằm trong vị thế = qty * avgCost
+  realizedPlVnd: number;  // lãi/lỗ đã thực hiện
+  totalFeeVnd: number;
+  buyCount: number;
+  sellCount: number;
 };
 
 const CRYPTO_OPTIONS = [
@@ -108,11 +123,11 @@ function PortfolioPage() {
 
 function PortfolioContent() {
   const qc = useQueryClient();
-  const list = useServerFn(listHoldings);
-  const remove = useServerFn(deleteHolding);
+  const list = useServerFn(listTransactions);
+  const remove = useServerFn(deleteTransaction);
 
-  const holdingsQ = useQuery({
-    queryKey: ["portfolio-holdings"],
+  const txQ = useQuery({
+    queryKey: ["portfolio-transactions"],
     queryFn: () => list(),
   });
 
@@ -130,50 +145,77 @@ function PortfolioContent() {
 
   const removeMut = useMutation({
     mutationFn: (id: string) => remove({ data: { id } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio-holdings"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio-transactions"] }),
   });
 
-  const holdings: Holding[] = (holdingsQ.data?.items ?? []) as Holding[];
+  const transactions: Tx[] = (txQ.data?.items ?? []) as Tx[];
+
+  // Quy đổi USD/VND xấp xỉ cho giá nhập bằng USD
+  const usdVnd = 25_400;
+
+  // Tính các vị thế hiện tại bằng phương pháp giá vốn trung bình
+  const positions: Position[] = useMemo(() => {
+    const byKey = new Map<string, Position>();
+    const sorted = [...transactions].sort(
+      (a, b) => new Date(a.executed_at).getTime() - new Date(b.executed_at).getTime()
+    );
+    for (const t of sorted) {
+      const key = `${t.asset_type}:${t.symbol}`;
+      const priceVnd = t.price_vnd ?? (t.price_usd != null ? t.price_usd * usdVnd : 0);
+      const cur = byKey.get(key) ?? {
+        asset_type: t.asset_type, symbol: t.symbol,
+        quantity: 0, avgCostVnd: 0, costVnd: 0,
+        realizedPlVnd: 0, totalFeeVnd: 0, buyCount: 0, sellCount: 0,
+      };
+      cur.totalFeeVnd += t.fee_vnd ?? 0;
+      if (t.side === "buy") {
+        const newQty = cur.quantity + t.quantity;
+        const newCost = cur.costVnd + priceVnd * t.quantity + (t.fee_vnd ?? 0);
+        cur.quantity = newQty;
+        cur.costVnd = newCost;
+        cur.avgCostVnd = newQty > 0 ? newCost / newQty : 0;
+        cur.buyCount += 1;
+      } else {
+        const sellQty = Math.min(t.quantity, cur.quantity);
+        const proceeds = priceVnd * sellQty - (t.fee_vnd ?? 0);
+        const costBasis = cur.avgCostVnd * sellQty;
+        cur.realizedPlVnd += proceeds - costBasis;
+        cur.quantity -= sellQty;
+        cur.costVnd = cur.avgCostVnd * cur.quantity;
+        cur.sellCount += 1;
+      }
+      byKey.set(key, cur);
+    }
+    return Array.from(byKey.values());
+  }, [transactions]);
 
   const enriched = useMemo(() => {
-    const usdVnd = 25_400;
-    return holdings.map((h) => {
+    return positions.map((p) => {
       let priceVnd = 0;
-      let priceUsd = 0;
-      if (h.asset_type === "crypto") {
-        const coin = (cryptoQ.data ?? []).find((c) => c.id === h.symbol);
+      if (p.asset_type === "crypto") {
+        const coin = (cryptoQ.data ?? []).find((c) => c.id === p.symbol);
         priceVnd = coin?.priceVnd ?? 0;
-        priceUsd = coin?.priceUsd ?? 0;
       } else {
-        const g = (goldQ.data ?? []).find((x) => x.id === h.symbol);
+        const g = (goldQ.data ?? []).find((x) => x.id === p.symbol);
         if (g) {
-          if (g.unit.includes("USD")) {
-            priceUsd = (g.buy + g.sell) / 2;
-            priceVnd = priceUsd * usdVnd;
-          } else {
-            priceVnd = (g.buy + g.sell) / 2;
-            priceUsd = priceVnd / usdVnd;
-          }
+          if (g.unit.includes("USD")) priceVnd = ((g.buy + g.sell) / 2) * usdVnd;
+          else priceVnd = (g.buy + g.sell) / 2;
         }
       }
-      const currentVnd = priceVnd * h.quantity;
-      const costVnd = h.avg_cost_vnd != null
-        ? h.avg_cost_vnd * h.quantity
-        : h.avg_cost_usd != null
-        ? h.avg_cost_usd * usdVnd * h.quantity
-        : 0;
-      const pl = currentVnd - costVnd;
-      const plPct = costVnd > 0 ? (pl / costVnd) * 100 : 0;
-      return { ...h, priceVnd, priceUsd, currentVnd, costVnd, pl, plPct };
+      const currentVnd = priceVnd * p.quantity;
+      const unrealizedPl = currentVnd - p.costVnd;
+      const unrealizedPlPct = p.costVnd > 0 ? (unrealizedPl / p.costVnd) * 100 : 0;
+      return { ...p, priceVnd, currentVnd, unrealizedPl, unrealizedPlPct };
     });
-  }, [holdings, cryptoQ.data, goldQ.data]);
+  }, [positions, cryptoQ.data, goldQ.data]);
 
   const totals = useMemo(() => {
     const current = enriched.reduce((s, h) => s + h.currentVnd, 0);
     const cost = enriched.reduce((s, h) => s + h.costVnd, 0);
-    const pl = current - cost;
-    const plPct = cost > 0 ? (pl / cost) * 100 : 0;
-    return { current, cost, pl, plPct };
+    const unrealized = current - cost;
+    const unrealizedPct = cost > 0 ? (unrealized / cost) * 100 : 0;
+    const realized = enriched.reduce((s, h) => s + h.realizedPlVnd, 0);
+    return { current, cost, unrealized, unrealizedPct, realized };
   }, [enriched]);
 
   const allocation = useMemo(() => {
@@ -190,17 +232,18 @@ function PortfolioContent() {
         <div>
           <h1 className="font-display text-3xl md:text-5xl">Danh mục của tôi</h1>
           <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-            Theo dõi tổng giá trị, lãi/lỗ realtime cho crypto và vàng. Dữ liệu chỉ bạn nhìn thấy.
+            Ghi lại từng lệnh mua/bán — hệ thống tự tính giá vốn trung bình, số lượng còn lại và lãi/lỗ realtime.
           </p>
         </div>
-        <HoldingDialog />
+        <TransactionDialog />
       </header>
 
-      <div className="grid md:grid-cols-4 gap-3 mb-6">
+      <div className="grid md:grid-cols-5 gap-3 mb-6">
         <Metric label="Tổng giá trị" value={fmtVND(totals.current)} />
-        <Metric label="Tổng vốn" value={fmtVND(totals.cost)} />
-        <Metric label="Lãi / Lỗ" value={fmtVND(totals.pl)} accent={totals.pl >= 0 ? "up" : "down"} />
-        <Metric label="% Lãi / Lỗ" value={fmtPct(totals.plPct)} accent={totals.plPct >= 0 ? "up" : "down"} />
+        <Metric label="Vốn còn nắm giữ" value={fmtVND(totals.cost)} />
+        <Metric label="Lãi/Lỗ chưa chốt" value={fmtVND(totals.unrealized)} accent={totals.unrealized >= 0 ? "up" : "down"} />
+        <Metric label="% chưa chốt" value={fmtPct(totals.unrealizedPct)} accent={totals.unrealizedPct >= 0 ? "up" : "down"} />
+        <Metric label="Lãi/Lỗ đã chốt" value={fmtVND(totals.realized)} accent={totals.realized >= 0 ? "up" : "down"} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
@@ -208,47 +251,39 @@ function PortfolioContent() {
           <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2.5 bg-card text-[10px] uppercase tracking-[0.18em] text-muted-foreground border-b border-border">
             <div className="col-span-3">Tài sản</div>
             <div className="col-span-2 text-right">Số lượng</div>
+            <div className="col-span-2 text-right">Giá vốn TB</div>
             <div className="col-span-2 text-right">Giá hiện tại</div>
-            <div className="col-span-2 text-right">Giá trị</div>
-            <div className="col-span-2 text-right">P/L</div>
-            <div className="col-span-1 text-right" />
+            <div className="col-span-3 text-right">P/L chưa chốt / đã chốt</div>
           </div>
-          {holdingsQ.isLoading && (
+          {txQ.isLoading && (
             <div className="p-6 text-sm text-muted-foreground text-center">Đang tải…</div>
           )}
-          {!holdingsQ.isLoading && enriched.length === 0 && (
+          {!txQ.isLoading && enriched.length === 0 && (
             <div className="p-8 text-sm text-muted-foreground text-center">
-              Chưa có tài sản nào. Bấm “Thêm tài sản” để bắt đầu.
+              Chưa có giao dịch nào. Bấm “Thêm giao dịch” để bắt đầu.
             </div>
           )}
           {enriched.map((h) => (
             <div
-              key={h.id}
+              key={`${h.asset_type}:${h.symbol}`}
               className="grid grid-cols-2 md:grid-cols-12 gap-2 px-4 py-3 border-b border-border last:border-b-0 hover:bg-accent/40 transition-colors items-center"
             >
               <div className="md:col-span-3">
                 <div className="font-medium text-sm">{labelFor(h)}</div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{h.asset_type}</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {h.asset_type} · {h.buyCount} mua / {h.sellCount} bán
+                </div>
               </div>
               <div className="md:col-span-2 text-right tabular-nums text-sm">{fmtNum(h.quantity, 8)}</div>
+              <div className="md:col-span-2 text-right tabular-nums text-sm">{fmtVND(h.avgCostVnd)}</div>
               <div className="md:col-span-2 text-right tabular-nums text-sm">{fmtVND(h.priceVnd)}</div>
-              <div className="md:col-span-2 text-right tabular-nums text-sm">{fmtVND(h.currentVnd)}</div>
-              <div className={`md:col-span-2 text-right tabular-nums text-sm ${h.pl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
-                <div>{fmtVND(h.pl)}</div>
-                <div className="text-[10px]">{fmtPct(h.plPct)}</div>
-              </div>
-              <div className="md:col-span-1 flex justify-end gap-1">
-                <HoldingDialog initial={h} />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7 text-rose-500"
-                  onClick={() => {
-                    if (confirm(`Xoá ${labelFor(h)}?`)) removeMut.mutate(h.id);
-                  }}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+              <div className="md:col-span-3 text-right tabular-nums text-sm">
+                <div className={h.unrealizedPl >= 0 ? "text-emerald-500" : "text-rose-500"}>
+                  {fmtVND(h.unrealizedPl)} <span className="text-[10px]">({fmtPct(h.unrealizedPlPct)})</span>
+                </div>
+                <div className={`text-[10px] ${h.realizedPlVnd >= 0 ? "text-emerald-500/80" : "text-rose-500/80"}`}>
+                  Đã chốt: {fmtVND(h.realizedPlVnd)}
+                </div>
               </div>
             </div>
           ))}
@@ -291,6 +326,48 @@ function PortfolioContent() {
             ))}
           </ul>
         </div>
+      </div>
+
+      {/* Lịch sử giao dịch */}
+      <div className="rounded-lg border border-border overflow-hidden">
+        <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-card">
+          <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Lịch sử giao dịch</div>
+          <TransactionDialog />
+        </div>
+        {transactions.length === 0 ? (
+          <div className="p-6 text-sm text-muted-foreground text-center">Chưa có giao dịch.</div>
+        ) : (
+          [...transactions].reverse().map((t) => {
+            const priceVnd = t.price_vnd ?? (t.price_usd != null ? t.price_usd * usdVnd : 0);
+            return (
+              <div key={t.id} className="grid grid-cols-12 gap-2 px-4 py-2.5 border-b border-border last:border-b-0 items-center text-sm">
+                <div className="col-span-2 text-xs text-muted-foreground tabular-nums">
+                  {new Date(t.executed_at).toLocaleDateString("vi-VN")}
+                </div>
+                <div className="col-span-1">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                    t.side === "buy" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
+                  }`}>
+                    {t.side === "buy" ? <ArrowDownRight className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
+                    {t.side === "buy" ? "Mua" : "Bán"}
+                  </span>
+                </div>
+                <div className="col-span-3 truncate">{labelFor(t)}</div>
+                <div className="col-span-2 text-right tabular-nums">{fmtNum(t.quantity, 8)}</div>
+                <div className="col-span-2 text-right tabular-nums">{fmtVND(priceVnd)}</div>
+                <div className="col-span-1 text-right tabular-nums text-xs text-muted-foreground">{t.fee_vnd ? fmtVND(t.fee_vnd) : "—"}</div>
+                <div className="col-span-1 flex justify-end">
+                  <Button
+                    size="icon" variant="ghost" className="h-7 w-7 text-rose-500"
+                    onClick={() => { if (confirm("Xoá giao dịch này?")) removeMut.mutate(t.id); }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
