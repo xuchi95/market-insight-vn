@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const CACHE_MS = 6 * 60 * 60 * 1000; // 6h — free tier ~100 req/month
+// Gói Copper: 2,500 calls/tháng (~83/ngày).
+// Cache 30 phút => ~48 calls/ngày, ~1,440/tháng — chừa ~40% buffer cho retry/burst.
+const CACHE_MS = 30 * 60 * 1000;
 const SYMBOLS = ["XAU", "XAG", "XPT", "XPD"] as const;
 type Sym = (typeof SYMBOLS)[number];
 

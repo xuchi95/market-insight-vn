@@ -27,8 +27,9 @@ export function MetalsTable() {
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["metals"],
     queryFn: fetchMetals,
-    refetchInterval: 30 * 60 * 1000,
-    staleTime: 15 * 60 * 1000,
+    refetchInterval: 30 * 60 * 1000, // khớp cache server 30'
+    staleTime: 25 * 60 * 1000,
+    refetchOnWindowFocus: false,
     retry: 1,
   });
 
