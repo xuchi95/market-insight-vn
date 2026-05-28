@@ -167,14 +167,3 @@ export const sendTestEmail = createServerFn({ method: "POST" })
     });
     return { ok: true, to, subject, messageId: result.MessageID ?? null };
   });
-
-export const listEmailTemplates = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async () => {
-    return {
-      templates: EMAIL_TEMPLATES.map((t) => ({
-        ...t,
-        sample: SAMPLE_DATA[t.id],
-      })),
-    };
-  });
