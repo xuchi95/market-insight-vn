@@ -251,7 +251,7 @@ function PortfolioContent() {
 
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
         <div className="lg:col-span-2 rounded-lg border border-border overflow-hidden">
-          <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2.5 bg-card text-[10px] uppercase tracking-[0.18em] text-muted-foreground border-b border-border">
+          <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2.5 bg-card text-xs uppercase tracking-[0.14em] text-muted-foreground border-b border-border">
             <div className="col-span-3">Tài sản</div>
             <div className="col-span-2 text-right">Số lượng</div>
             <div className="col-span-2 text-right">Giá vốn TB</div>
@@ -273,7 +273,7 @@ function PortfolioContent() {
             >
               <div className="md:col-span-3">
                 <div className="font-medium text-sm">{labelFor(h)}</div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">
                   {h.asset_type} · {h.buyCount} mua / {h.sellCount} bán
                 </div>
               </div>
@@ -282,9 +282,9 @@ function PortfolioContent() {
               <div className="md:col-span-2 text-right tabular-nums text-sm">{fmtVND(h.priceVnd)}</div>
               <div className="md:col-span-3 text-right tabular-nums text-sm">
                 <div className={h.unrealizedPl >= 0 ? "text-emerald-500" : "text-rose-500"}>
-                  {fmtVND(h.unrealizedPl)} <span className="text-[10px]">({fmtPct(h.unrealizedPlPct)})</span>
+                  {fmtVND(h.unrealizedPl)} <span className="text-xs">({fmtPct(h.unrealizedPlPct)})</span>
                 </div>
-                <div className={`text-[10px] ${h.realizedPlVnd >= 0 ? "text-emerald-500/80" : "text-rose-500/80"}`}>
+                <div className={`text-xs ${h.realizedPlVnd >= 0 ? "text-emerald-500/80" : "text-rose-500/80"}`}>
                   Đã chốt: {fmtVND(h.realizedPlVnd)}
                 </div>
               </div>
@@ -348,7 +348,7 @@ function PortfolioContent() {
                   {new Date(t.executed_at).toLocaleDateString("vi-VN")}
                 </div>
                 <div className="col-span-1">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider ${
                     t.side === "buy" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
                   }`}>
                     {t.side === "buy" ? <ArrowDownRight className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
@@ -608,7 +608,7 @@ function Metric({ label, value, accent }: { label: string; value: string; accent
   const cls = accent === "up" ? "text-emerald-500" : accent === "down" ? "text-rose-500" : "text-foreground";
   return (
     <div className="rounded-lg border border-border p-4">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
       <div className={`mt-1 font-display text-xl tabular-nums ${cls}`}>{value}</div>
     </div>
   );
@@ -731,7 +731,7 @@ function TransactionDialog() {
             <Label htmlFor="note">Ghi chú</Label>
             <Input id="note" value={note} onChange={(e) => setNote(e.target.value)} className="mt-1" />
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Giá vốn trung bình và số lượng còn lại sẽ tự động tính từ toàn bộ giao dịch theo phương pháp <strong>Weighted Average Cost</strong>.
           </p>
         </div>

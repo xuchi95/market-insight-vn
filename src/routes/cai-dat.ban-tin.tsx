@@ -179,7 +179,7 @@ function SettingsCard() {
       <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-6">
         <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[var(--gold)]/15 blur-3xl" />
         <div className="relative">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[var(--gold)]">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[var(--gold)]">
             <Mail className="h-3.5 w-3.5" /> Trạng thái bản tin
           </div>
 
@@ -188,7 +188,7 @@ function SettingsCard() {
               <div className="mt-3 flex items-start justify-between gap-4 flex-wrap">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-sm font-medium text-emerald-400">
                       <BellRing className="h-3 w-3" /> Đang nhận
                     </span>
                   </div>
@@ -219,7 +219,7 @@ function SettingsCard() {
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Địa chỉ cũ sẽ tự động bị huỷ đăng ký.
                   </p>
                 </div>
@@ -322,7 +322,7 @@ function SubscribeForm({
   const [email, setEmail] = useState(defaultEmail);
   return (
     <div className="mt-3">
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-[11px] text-muted-foreground">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-sm text-muted-foreground">
         <BellOff className="h-3 w-3" /> Chưa đăng ký
       </span>
       <p className="mt-3 text-sm">
