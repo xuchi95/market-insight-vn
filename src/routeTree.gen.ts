@@ -17,6 +17,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
+import { Route as QuenMatKhauRouteImport } from './routes/quen-mat-khau'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-nhiem'
@@ -28,6 +29,7 @@ import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DieuKhoanSuDungRouteImport } from './routes/dieu-khoan-su-dung'
+import { Route as DatLaiMatKhauRouteImport } from './routes/dat-lai-mat-khau'
 import { Route as DangNhapRouteImport } from './routes/dang-nhap'
 import { Route as DangKyRouteImport } from './routes/dang-ky'
 import { Route as CryptoRouteImport } from './routes/crypto'
@@ -100,6 +102,11 @@ const QuyDoiTienTeRoute = QuyDoiTienTeRouteImport.update({
   path: '/quy-doi-tien-te',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuenMatKhauRoute = QuenMatKhauRouteImport.update({
+  id: '/quen-mat-khau',
+  path: '/quen-mat-khau',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -153,6 +160,11 @@ const DisclaimerRoute = DisclaimerRouteImport.update({
 const DieuKhoanSuDungRoute = DieuKhoanSuDungRouteImport.update({
   id: '/dieu-khoan-su-dung',
   path: '/dieu-khoan-su-dung',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatLaiMatKhauRoute = DatLaiMatKhauRouteImport.update({
+  id: '/dat-lai-mat-khau',
+  path: '/dat-lai-mat-khau',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DangNhapRoute = DangNhapRouteImport.update({
@@ -324,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/crypto': typeof CryptoRoute
   '/dang-ky': typeof DangKyRoute
   '/dang-nhap': typeof DangNhapRoute
+  '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -335,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
+  '/quen-mat-khau': typeof QuenMatKhauRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
@@ -376,6 +390,7 @@ export interface FileRoutesByTo {
   '/crypto': typeof CryptoRoute
   '/dang-ky': typeof DangKyRoute
   '/dang-nhap': typeof DangNhapRoute
+  '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -387,6 +402,7 @@ export interface FileRoutesByTo {
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
+  '/quen-mat-khau': typeof QuenMatKhauRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
@@ -429,6 +445,7 @@ export interface FileRoutesById {
   '/crypto': typeof CryptoRoute
   '/dang-ky': typeof DangKyRoute
   '/dang-nhap': typeof DangNhapRoute
+  '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
@@ -440,6 +457,7 @@ export interface FileRoutesById {
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
+  '/quen-mat-khau': typeof QuenMatKhauRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
@@ -483,6 +501,7 @@ export interface FileRouteTypes {
     | '/crypto'
     | '/dang-ky'
     | '/dang-nhap'
+    | '/dat-lai-mat-khau'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -494,6 +513,7 @@ export interface FileRouteTypes {
     | '/mien-tru-trach-nhiem'
     | '/portfolio'
     | '/privacy'
+    | '/quen-mat-khau'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
@@ -535,6 +555,7 @@ export interface FileRouteTypes {
     | '/crypto'
     | '/dang-ky'
     | '/dang-nhap'
+    | '/dat-lai-mat-khau'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -546,6 +567,7 @@ export interface FileRouteTypes {
     | '/mien-tru-trach-nhiem'
     | '/portfolio'
     | '/privacy'
+    | '/quen-mat-khau'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
@@ -587,6 +609,7 @@ export interface FileRouteTypes {
     | '/crypto'
     | '/dang-ky'
     | '/dang-nhap'
+    | '/dat-lai-mat-khau'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
@@ -598,6 +621,7 @@ export interface FileRouteTypes {
     | '/mien-tru-trach-nhiem'
     | '/portfolio'
     | '/privacy'
+    | '/quen-mat-khau'
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
@@ -640,6 +664,7 @@ export interface RootRouteChildren {
   CryptoRoute: typeof CryptoRoute
   DangKyRoute: typeof DangKyRoute
   DangNhapRoute: typeof DangNhapRoute
+  DatLaiMatKhauRoute: typeof DatLaiMatKhauRoute
   DieuKhoanSuDungRoute: typeof DieuKhoanSuDungRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
@@ -651,6 +676,7 @@ export interface RootRouteChildren {
   MienTruTrachNhiemRoute: typeof MienTruTrachNhiemRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacyRoute: typeof PrivacyRoute
+  QuenMatKhauRoute: typeof QuenMatKhauRoute
   QuyDoiTienTeRoute: typeof QuyDoiTienTeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StocksRoute: typeof StocksRoute
@@ -741,6 +767,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuyDoiTienTeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quen-mat-khau': {
+      id: '/quen-mat-khau'
+      path: '/quen-mat-khau'
+      fullPath: '/quen-mat-khau'
+      preLoaderRoute: typeof QuenMatKhauRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -816,6 +849,13 @@ declare module '@tanstack/react-router' {
       path: '/dieu-khoan-su-dung'
       fullPath: '/dieu-khoan-su-dung'
       preLoaderRoute: typeof DieuKhoanSuDungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dat-lai-mat-khau': {
+      id: '/dat-lai-mat-khau'
+      path: '/dat-lai-mat-khau'
+      fullPath: '/dat-lai-mat-khau'
+      preLoaderRoute: typeof DatLaiMatKhauRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dang-nhap': {
@@ -1048,6 +1088,7 @@ const rootRouteChildren: RootRouteChildren = {
   CryptoRoute: CryptoRoute,
   DangKyRoute: DangKyRoute,
   DangNhapRoute: DangNhapRoute,
+  DatLaiMatKhauRoute: DatLaiMatKhauRoute,
   DieuKhoanSuDungRoute: DieuKhoanSuDungRoute,
   DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
@@ -1059,6 +1100,7 @@ const rootRouteChildren: RootRouteChildren = {
   MienTruTrachNhiemRoute: MienTruTrachNhiemRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacyRoute: PrivacyRoute,
+  QuenMatKhauRoute: QuenMatKhauRoute,
   QuyDoiTienTeRoute: QuyDoiTienTeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StocksRoute: StocksRoute,
