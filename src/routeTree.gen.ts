@@ -59,6 +59,7 @@ import { Route as ApiPublicEconomicCalendarRouteImport } from './routes/api/publ
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
+import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
@@ -316,6 +317,12 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
   path: '/api/public/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiNewsletterUnsubscribeRoute =
+  ApiNewsletterUnsubscribeRouteImport.update({
+    id: '/api/newsletter/unsubscribe',
+    path: '/api/newsletter/unsubscribe',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiNewsletterSubscribeRoute = ApiNewsletterSubscribeRouteImport.update({
   id: '/api/newsletter/subscribe',
   path: '/api/newsletter/subscribe',
@@ -370,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -425,6 +433,7 @@ export interface FileRoutesByTo {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -481,6 +490,7 @@ export interface FileRoutesById {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
+  '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -538,6 +548,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
+    | '/api/newsletter/unsubscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
+    | '/api/newsletter/unsubscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -648,6 +660,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
+    | '/api/newsletter/unsubscribe'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -704,6 +717,7 @@ export interface RootRouteChildren {
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
+  ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
@@ -1075,6 +1089,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/newsletter/unsubscribe': {
+      id: '/api/newsletter/unsubscribe'
+      path: '/api/newsletter/unsubscribe'
+      fullPath: '/api/newsletter/unsubscribe'
+      preLoaderRoute: typeof ApiNewsletterUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/newsletter/subscribe': {
       id: '/api/newsletter/subscribe'
       path: '/api/newsletter/subscribe'
@@ -1136,6 +1157,7 @@ const rootRouteChildren: RootRouteChildren = {
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
+  ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
