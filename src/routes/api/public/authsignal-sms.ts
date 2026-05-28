@@ -13,10 +13,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 //                  (or https://project--52e41981-97fc-41b5-ab3a-9e7715246666.lovable.app/api/public/authsignal-sms)
 //   Tenant secret = AUTHSIGNAL_API_SECRET (already set as a project secret)
 //
-// Required secrets for Twilio (set via Project Settings → Secrets):
-//   TWILIO_ACCOUNT_SID
-//   TWILIO_AUTH_TOKEN
-//   TWILIO_FROM_NUMBER   (E.164, e.g. +15558675309 — or a Messaging Service SID starting with "MG")
+// Required secrets for eSMS.vn (set via Project Settings → Secrets):
+//   ESMS_API_KEY       (ApiKey từ trang quản trị eSMS.vn)
+//   ESMS_SECRET_KEY    (SecretKey)
+//   ESMS_BRANDNAME     (Brandname đã đăng ký, vd "MARKETWATCH")
+//   ESMS_SMS_TYPE      (tuỳ chọn — mặc định "2" cho Brandname CSKH/OTP)
 
 function verifySignature(rawBody: string, header: string | null, secret: string): boolean {
   if (!header) return false;
