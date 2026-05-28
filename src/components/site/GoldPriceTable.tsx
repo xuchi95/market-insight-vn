@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Coins } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtNum, fmtTime, fmtTrieu } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
@@ -72,8 +73,16 @@ export function GoldPriceTable({ search }: { search?: string }) {
                 : (n: number) => `${fmtTrieu(n)} tr`;
               return (
                 <tr key={g.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 font-semibold">{g.brand}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{g.type}</td>
+                  <td className="px-4 py-3 font-semibold">
+                    <Link to="/tai-san/$symbol" params={{ symbol: `gold-${g.id}` }} className="hover:text-gold hover:underline">
+                      {g.brand}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    <Link to="/tai-san/$symbol" params={{ symbol: `gold-${g.id}` }} className="hover:text-foreground">
+                      {g.type}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-right tabular">{fmt(g.buy)}</td>
                   <td className="px-4 py-3 text-right tabular font-semibold">{fmt(g.sell)}</td>
                   <td className="px-4 py-3 text-right tabular text-muted-foreground hidden md:table-cell">{fmt(g.sell - g.buy)}</td>
