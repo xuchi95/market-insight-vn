@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import type { EconAffects, EconImpact, EconomicEvent } from "@/lib/data/economicCalendar";
+import { ECONOMIC_EVENTS, type EconAffects, type EconImpact, type EconomicEvent } from "@/lib/data/economicCalendar";
 
 const CACHE_MS = 3 * 60 * 60 * 1000; // 3h
 const UPSTREAM_TIMEOUT_MS = 8000;
-let cache: { at: number; items: EconomicEvent[] } | null = null;
-let inflight: Promise<EconomicEvent[]> | null = null;
+type CalendarSource = "fmp" | "forexfactory" | "reference";
+let cache: { at: number; items: EconomicEvent[]; source: CalendarSource } | null = null;
+let inflight: Promise<{ items: EconomicEvent[]; source: CalendarSource }> | null = null;
 
 const COUNTRY_NAMES: Record<string, string> = {
   US: "Hoa Kỳ", EU: "Eurozone", DE: "Đức", FR: "Pháp", IT: "Ý", ES: "Tây Ban Nha",
@@ -77,7 +78,7 @@ function ymd(d: Date): string {
 function toIsoUtc(rawDate: string): string {
   // FMP returns "YYYY-MM-DD HH:mm:ss" (UTC). Normalise to ISO.
   if (!rawDate) return new Date().toISOString();
-  if (rawDate.includes("T")) return rawDate;
+  if (rawDate.includes("T")) return new Date(rawDate).toISOString();
   return rawDate.replace(" ", "T") + "Z";
 }
 
@@ -131,17 +132,73 @@ async function fetchFromFmp(): Promise<EconomicEvent[]> {
   }
 }
 
-function refresh(): Promise<EconomicEvent[]> {
+async function fetchFromForexFactory(): Promise<EconomicEvent[]> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
+  try {
+    const res = await fetch("https://nfs.faireconomy.media/ff_calendar_thisweek.json", {
+      headers: { accept: "application/json", "user-agent": "MarketWatch.vn/1.0" },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error(`ForexFactory HTTP ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("ForexFactory: unexpected response shape");
+
+    const items: EconomicEvent[] = [];
+    for (const r of data as Array<Record<string, unknown>>) {
+      const country = normCountry(String(r.country ?? ""));
+      const eventName = String(r.title ?? r.event ?? "").trim();
+      if (!country || !eventName) continue;
+      const datetime = toIsoUtc(String(r.date ?? ""));
+      const id = `ff-${country}-${eventName}-${datetime}`
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, "-")
+        .slice(0, 120);
+      items.push({
+        id,
+        datetime,
+        country,
+        countryName: COUNTRY_NAMES[country] ?? country,
+        event: eventName,
+        impact: normImpact(r.impact),
+        previous: fmtValue(r.previous),
+        forecast: fmtValue(r.forecast),
+        actual: fmtValue(r.actual),
+        affects: inferAffects(country, eventName),
+      });
+    }
+    items.sort((a, b) => a.datetime.localeCompare(b.datetime));
+    return items;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+function refresh(): Promise<{ items: EconomicEvent[]; source: CalendarSource }> {
   if (inflight) return inflight;
-  inflight = fetchFromFmp()
-    .then((items) => {
-      if (items.length) cache = { at: Date.now(), items };
-      return items;
+  const next = (async (): Promise<{ items: EconomicEvent[]; source: CalendarSource }> => {
+    const errors: string[] = [];
+    for (const source of ["fmp", "forexfactory"] as const) {
+      try {
+        const items = source === "fmp" ? await fetchFromFmp() : await fetchFromForexFactory();
+        if (items.length) return { items, source };
+        errors.push(`${source}: empty response`);
+      } catch (err) {
+        errors.push(`${source}: ${(err as Error).message}`);
+      }
+    }
+    if (ECONOMIC_EVENTS.length) return { items: ECONOMIC_EVENTS, source: "reference" };
+    throw new Error(errors.join("; ") || "No economic calendar source available");
+  })()
+    .then((result) => {
+      if (result.items.length) cache = { at: Date.now(), ...result };
+      return result;
     })
     .finally(() => {
       inflight = null;
     });
-  return inflight;
+  inflight = next;
+  return next;
 }
 
 const CORS = {
@@ -156,19 +213,25 @@ export const Route = createFileRoute("/api/public/economic-calendar")({
       GET: async () => {
         try {
           let items: EconomicEvent[];
+          let source: CalendarSource;
           let stale = false;
           if (cache && Date.now() - cache.at < CACHE_MS) {
             items = cache.items;
+            source = cache.source;
           } else {
             try {
-              items = await refresh();
+              const result = await refresh();
+              items = result.items;
+              source = result.source;
               if (!items.length && cache) {
                 items = cache.items;
+                source = cache.source;
                 stale = true;
               }
             } catch (err) {
               if (cache) {
                 items = cache.items;
+                source = cache.source;
                 stale = true;
               } else {
                 throw err;
@@ -176,7 +239,7 @@ export const Route = createFileRoute("/api/public/economic-calendar")({
             }
           }
           return Response.json(
-            { items, fetchedAt: cache?.at ?? Date.now(), stale, source: "fmp" },
+            { items, fetchedAt: cache?.at ?? Date.now(), stale, source },
             {
               headers: {
                 "Cache-Control": "public, max-age=300, s-maxage=10800, stale-while-revalidate=86400",
