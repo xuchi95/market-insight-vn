@@ -75,7 +75,7 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
           {/* ticker tape */}
           <div className="relative">
             <div className="hairline mb-4" />
-            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-3">
+            <div className="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-muted-foreground mb-3">
               <span>Live Tape · Phiên đang mở</span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="relative flex h-1.5 w-1.5">
@@ -88,9 +88,9 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
             <div className="grid grid-cols-5 gap-px overflow-hidden rounded-lg border border-border bg-border">
               {TICKER.map((t) => (
                 <div key={t.sym} className="bg-card px-3 py-3">
-                  <div className="text-[10px] font-semibold tracking-widest text-muted-foreground">{t.sym}</div>
+                  <div className="text-xs font-semibold tracking-widest text-muted-foreground">{t.sym}</div>
                   <div className="mt-1 font-mono text-sm font-semibold tabular">{t.val}</div>
-                  <div className={`mt-0.5 font-mono text-[11px] tabular ${t.up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>{t.chg}</div>
+                  <div className={`mt-0.5 font-mono text-xs tabular ${t.up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>{t.chg}</div>
                 </div>
               ))}
             </div>
@@ -126,7 +126,7 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
 
             <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>
 
-            <p className="mt-10 text-center text-[11px] leading-relaxed text-muted-foreground/80">
+            <p className="mt-10 text-center text-sm leading-relaxed text-muted-foreground/80">
               Bằng cách tiếp tục, bạn đồng ý với{" "}
               <Link to="/" className="underline underline-offset-2 hover:text-foreground">Điều khoản</Link>{" "}
               và{" "}
@@ -159,7 +159,7 @@ export function GoogleButton({ onClick, disabled, label }: { onClick: () => void
 
 export function Divider({ text = "hoặc" }: { text?: string }) {
   return (
-    <div className="my-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+    <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
       <div className="h-px flex-1 bg-border" />
       {text}
       <div className="h-px flex-1 bg-border" />

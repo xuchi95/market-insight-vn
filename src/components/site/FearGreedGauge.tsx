@@ -79,7 +79,7 @@ function HistoryItem({ label, point, current }: { label: string; point?: FngPoin
       <span className="text-xs text-muted-foreground">{label}</span>
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold tabular-nums" style={{ color: colorFor(point.value) }}>{point.value}</span>
-        <span className={cn("inline-flex items-center gap-0.5 text-[10px] tabular-nums", diff >= 0 ? "text-[var(--up)]" : "text-[var(--down)]")}>
+        <span className={cn("inline-flex items-center gap-0.5 text-xs tabular-nums", diff >= 0 ? "text-[var(--up)]" : "text-[var(--down)]")}>
           <Icon className="h-3 w-3" />{diff >= 0 ? "+" : ""}{diff}
         </span>
       </div>
@@ -129,7 +129,7 @@ export function FearGreedGauge() {
                 <div className="text-sm font-semibold" style={{ color: colorFor(data.current.value) }}>
                   {VI[data.current.classification] ?? data.current.classification}
                 </div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground mt-1">
+                <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground mt-1">
                   {fmtDate(data.current.timestamp)}
                 </div>
               </div>
@@ -138,7 +138,7 @@ export function FearGreedGauge() {
               <HistoryItem label="Hôm qua" point={data.yesterday} current={data.current.value} />
               <HistoryItem label="Tuần trước" point={data.lastWeek} current={data.current.value} />
               <HistoryItem label="Tháng trước" point={data.lastMonth} current={data.current.value} />
-              <div className="pt-2 text-[11px] text-muted-foreground leading-relaxed">
+              <div className="pt-2 text-sm text-muted-foreground leading-relaxed">
                 Khi thị trường <strong>Sợ hãi tột độ</strong> (giá trị thấp), nhà đầu tư đang quá lo lắng — có thể là cơ hội mua. Khi <strong>Tham lam tột độ</strong>, thị trường có thể đang quá nóng.
               </div>
             </div>

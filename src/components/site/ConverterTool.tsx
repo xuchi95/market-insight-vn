@@ -220,7 +220,7 @@ export function ConverterTool() {
                     )}>
                       {result.loss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                       {result.loss >= 0 ? "+" : ""}{fmtAmount(result.loss, result.b.kind, result.b.key)}
-                      <span className="text-[11px] font-medium opacity-80">
+                      <span className="text-sm font-medium opacity-80">
                         ({result.lossPct >= 0 ? "+" : ""}{result.lossPct.toFixed(2)}%)
                       </span>
                     </div>
@@ -229,7 +229,7 @@ export function ConverterTool() {
 
                 {/* Thanh spread */}
                 <div className="mt-5">
-                  <div className="flex justify-between text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-2">
+                  <div className="flex justify-between text-xs uppercase tracking-[0.14em] text-muted-foreground mb-2">
                     <span>Mid · {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)} {codeLabel(result.b)}</span>
                     <span>Spread · {Math.abs(result.lossPct).toFixed(2)}%</span>
                   </div>
@@ -244,7 +244,7 @@ export function ConverterTool() {
                       aria-hidden
                     />
                   </div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground/80 mt-1.5">
+                  <div className="flex justify-between text-xs text-muted-foreground/80 mt-1.5">
                     <span>Bán rẻ hơn</span>
                     <span>Mua đắt hơn</span>
                   </div>
@@ -254,7 +254,7 @@ export function ConverterTool() {
           </div>
         </>
       )}
-      <p className="px-4 sm:px-6 lg:px-8 pb-5 text-[11px] leading-relaxed text-muted-foreground">
+      <p className="px-4 sm:px-6 lg:px-8 pb-5 text-sm leading-relaxed text-muted-foreground">
         Kết quả tính theo giá <span className="text-foreground/80">bán của bạn</span> (thị trường mua vào) và <span className="text-foreground/80">mua của bạn</span> (thị trường bán ra),
         phản ánh lãi/lỗ do chênh lệch mua–bán. Chỉ mang tính tham khảo, chưa gồm phí giao dịch.
       </p>
@@ -342,12 +342,12 @@ function RateTile({
           tone === "down" ? "bg-[color:var(--down)]/12 text-[color:var(--down)]" : "bg-[color:var(--up)]/12 text-[color:var(--up)]",
         )}>{icon}</span>
         <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.18em] font-semibold text-foreground/80">{eyebrow}</div>
-          <div className="text-[10px] text-muted-foreground truncate">{sub}</div>
+          <div className="text-xs uppercase tracking-[0.14em] font-semibold text-foreground/80">{eyebrow}</div>
+          <div className="text-xs text-muted-foreground truncate">{sub}</div>
         </div>
       </div>
       <div className="mt-2.5 tabular font-semibold text-[15px] leading-tight">{price}</div>
-      <div className="mt-1 text-[11px] text-muted-foreground leading-relaxed">{detail}</div>
+      <div className="mt-1 text-sm text-muted-foreground leading-relaxed">{detail}</div>
     </div>
   );
 }
