@@ -392,96 +392,134 @@ function Metric({ label, value, accent }: { label: string; value: string; accent
   );
 }
 
-function HoldingDialog({ initial }: { initial?: Holding }) {
+function TransactionDialog() {
   const qc = useQueryClient();
-  const save = useServerFn(upsertHolding);
+  const save = useServerFn(addTransaction);
   const [open, setOpen] = useState(false);
-  const [assetType, setAssetType] = useState<"crypto" | "gold">(initial?.asset_type ?? "crypto");
-  const [symbol, setSymbol] = useState(initial?.symbol ?? CRYPTO_OPTIONS[0].id);
-  const [quantity, setQuantity] = useState(initial?.quantity ?? 0);
-  const [costVnd, setCostVnd] = useState(initial?.avg_cost_vnd ?? 0);
-  const [note, setNote] = useState(initial?.note ?? "");
+  const [assetType, setAssetType] = useState<"crypto" | "gold">("crypto");
+  const [symbol, setSymbol] = useState<string>(CRYPTO_OPTIONS[0].id);
+  const [side, setSide] = useState<"buy" | "sell">("buy");
+  const [quantity, setQuantity] = useState<number>(0);
+  const [priceVnd, setPriceVnd] = useState<number>(0);
+  const [feeVnd, setFeeVnd] = useState<number>(0);
+  const [executedAt, setExecutedAt] = useState<string>(() =>
+    new Date().toISOString().slice(0, 10)
+  );
+  const [note, setNote] = useState("");
+
+  const reset = () => {
+    setQuantity(0); setPriceVnd(0); setFeeVnd(0); setNote("");
+  };
 
   const saveMut = useMutation({
     mutationFn: () => save({
       data: {
-        id: initial?.id,
         asset_type: assetType,
         symbol,
+        side,
         quantity: Number(quantity),
-        avg_cost_vnd: Number(costVnd) || null,
-        avg_cost_usd: null,
+        price_vnd: Number(priceVnd) || 0,
+        price_usd: null,
+        fee_vnd: Number(feeVnd) || 0,
+        executed_at: new Date(executedAt).toISOString(),
         note: note || null,
       },
     }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["portfolio-holdings"] });
+      qc.invalidateQueries({ queryKey: ["portfolio-transactions"] });
+      reset();
       setOpen(false);
     },
   });
 
-  const options = assetType === "crypto" ? CRYPTO_OPTIONS.map(o => ({ id: o.id, label: `${o.symbol} · ${o.name}` })) : GOLD_OPTIONS.map(o => ({ id: o.id, label: o.name }));
+  const options = assetType === "crypto"
+    ? CRYPTO_OPTIONS.map((o) => ({ id: o.id, label: `${o.symbol} · ${o.name}` }))
+    : GOLD_OPTIONS.map((o) => ({ id: o.id, label: o.name }));
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {initial ? (
-          <Button size="icon" variant="ghost" className="h-7 w-7"><Pencil className="h-3.5 w-3.5" /></Button>
-        ) : (
-          <Button size="sm" className="gap-1"><Plus className="h-3.5 w-3.5" /> Thêm tài sản</Button>
-        )}
+        <Button size="sm" className="gap-1"><Plus className="h-3.5 w-3.5" /> Thêm giao dịch</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initial ? "Sửa tài sản" : "Thêm tài sản"}</DialogTitle>
+          <DialogTitle>Thêm giao dịch</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <div>
-            <Label>Loại</Label>
-            <Select value={assetType} onValueChange={(v) => {
-              const t = v as "crypto" | "gold";
-              setAssetType(t);
-              setSymbol(t === "crypto" ? CRYPTO_OPTIONS[0].id : GOLD_OPTIONS[0].id);
-            }}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="crypto">Crypto</SelectItem>
-                <SelectItem value="gold">Vàng</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Hướng</Label>
+              <Select value={side} onValueChange={(v) => setSide(v as "buy" | "sell")}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="buy">Mua</SelectItem>
+                  <SelectItem value="sell">Bán</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="executed_at">Ngày giao dịch</Label>
+              <Input id="executed_at" type="date" value={executedAt}
+                onChange={(e) => setExecutedAt(e.target.value)} className="mt-1" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Loại</Label>
+              <Select value={assetType} onValueChange={(v) => {
+                const t = v as "crypto" | "gold";
+                setAssetType(t);
+                setSymbol(t === "crypto" ? CRYPTO_OPTIONS[0].id : GOLD_OPTIONS[0].id);
+              }}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="crypto">Crypto</SelectItem>
+                  <SelectItem value="gold">Vàng</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Tài sản</Label>
+              <Select value={symbol} onValueChange={setSymbol}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {options.map((o) => <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="qty">Số lượng</Label>
+              <Input id="qty" type="number" step="any" value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))} className="mt-1" />
+            </div>
+            <div>
+              <Label htmlFor="price">Giá / đơn vị (VND)</Label>
+              <Input id="price" type="number" value={priceVnd}
+                onChange={(e) => setPriceVnd(Number(e.target.value))} className="mt-1" />
+            </div>
           </div>
           <div>
-            <Label>Tài sản</Label>
-            <Select value={symbol} onValueChange={setSymbol}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {options.map((o) => <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="qty">Số lượng</Label>
-            <Input id="qty" type="number" step="any" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} className="mt-1" />
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              {assetType === "gold" ? "Đơn vị: chỉ (vàng VN) hoặc oz (XAU)" : "Đơn vị: số đồng coin"}
-            </p>
-          </div>
-          <div>
-            <Label htmlFor="cost">Giá vốn trung bình (VND/đơn vị)</Label>
-            <Input id="cost" type="number" value={costVnd} onChange={(e) => setCostVnd(Number(e.target.value))} className="mt-1" />
+            <Label htmlFor="fee">Phí giao dịch (VND)</Label>
+            <Input id="fee" type="number" value={feeVnd}
+              onChange={(e) => setFeeVnd(Number(e.target.value))} className="mt-1" />
           </div>
           <div>
             <Label htmlFor="note">Ghi chú</Label>
             <Input id="note" value={note} onChange={(e) => setNote(e.target.value)} className="mt-1" />
           </div>
+          <p className="text-[11px] text-muted-foreground">
+            Giá vốn trung bình và số lượng còn lại sẽ tự động tính từ toàn bộ giao dịch theo phương pháp <strong>Weighted Average Cost</strong>.
+          </p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>Huỷ</Button>
           <Button
             onClick={() => saveMut.mutate()}
-            disabled={saveMut.isPending || !quantity || quantity <= 0}
+            disabled={saveMut.isPending || !quantity || quantity <= 0 || !priceVnd || priceVnd <= 0}
           >
-            {saveMut.isPending ? "Đang lưu…" : "Lưu"}
+            {saveMut.isPending ? "Đang lưu…" : "Lưu giao dịch"}
           </Button>
         </DialogFooter>
       </DialogContent>
