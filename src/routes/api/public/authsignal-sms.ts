@@ -13,10 +13,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 //                  (or https://project--52e41981-97fc-41b5-ab3a-9e7715246666.lovable.app/api/public/authsignal-sms)
 //   Tenant secret = AUTHSIGNAL_API_SECRET (already set as a project secret)
 //
-// Required secrets for Twilio (set via Project Settings → Secrets):
-//   TWILIO_ACCOUNT_SID
-//   TWILIO_AUTH_TOKEN
-//   TWILIO_FROM_NUMBER   (E.164, e.g. +15558675309 — or a Messaging Service SID starting with "MG")
+// Required secrets for eSMS.vn (set via Project Settings → Secrets):
+//   ESMS_API_KEY       (ApiKey từ trang quản trị eSMS.vn)
+//   ESMS_SECRET_KEY    (SecretKey)
+//   ESMS_BRANDNAME     (Brandname đã đăng ký, vd "MARKETWATCH")
+//   ESMS_SMS_TYPE      (tuỳ chọn — mặc định "2" cho Brandname CSKH/OTP)
 
 function verifySignature(rawBody: string, header: string | null, secret: string): boolean {
   if (!header) return false;
@@ -54,31 +55,53 @@ function verifySignature(rawBody: string, header: string | null, secret: string)
   return false;
 }
 
-async function sendSmsViaTwilio(to: string, body: string): Promise<void> {
-  const sid = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_FROM_NUMBER;
-  if (!sid || !token || !from) {
-    throw new Error("Twilio chưa được cấu hình (thiếu TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM_NUMBER).");
+// Chuẩn hoá số điện thoại sang định dạng eSMS yêu cầu (84xxxxxxxxx, không dấu +).
+function normalizePhoneVN(raw: string): string {
+  const digits = raw.replace(/[^\d]/g, "");
+  if (digits.startsWith("84")) return digits;
+  if (digits.startsWith("0")) return "84" + digits.slice(1);
+  return digits;
+}
+
+async function sendSmsViaEsms(to: string, body: string): Promise<void> {
+  const apiKey = process.env.ESMS_API_KEY;
+  const secretKey = process.env.ESMS_SECRET_KEY;
+  const brandname = process.env.ESMS_BRANDNAME;
+  const smsType = process.env.ESMS_SMS_TYPE || "2"; // 2 = Brandname CSKH (OTP)
+  if (!apiKey || !secretKey || !brandname) {
+    throw new Error("eSMS chưa được cấu hình (thiếu ESMS_API_KEY / ESMS_SECRET_KEY / ESMS_BRANDNAME).");
   }
 
-  const form = new URLSearchParams({ To: to, Body: body });
-  // Messaging Service SIDs start with "MG"; phone numbers start with "+".
-  if (from.startsWith("MG")) form.set("MessagingServiceSid", from);
-  else form.set("From", from);
+  const phone = normalizePhoneVN(to);
+  // Phát hiện ký tự ngoài ASCII → bật IsUnicode để eSMS gửi tin Unicode.
+  const isUnicode = /[^\x00-\x7F]/.test(body) ? "1" : "0";
 
-  const auth = Buffer.from(`${sid}:${token}`).toString("base64");
-  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
+  const payload = {
+    ApiKey: apiKey,
+    SecretKey: secretKey,
+    Content: body,
+    Phone: phone,
+    Brandname: brandname,
+    SmsType: smsType,
+    IsUnicode: isUnicode,
+  };
+
+  const res = await fetch(
+    "https://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_post_json/",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     },
-    body: form.toString(),
-  });
+  );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`Twilio gửi SMS thất bại [${res.status}]: ${text}`);
+    throw new Error(`eSMS HTTP lỗi [${res.status}]: ${text}`);
+  }
+  const json: any = await res.json().catch(() => null);
+  // eSMS trả về CodeResult "100" = thành công; các mã khác = lỗi.
+  if (!json || String(json.CodeResult) !== "100") {
+    throw new Error(`eSMS từ chối [${json?.CodeResult}]: ${json?.ErrorMessage ?? "unknown"}`);
   }
 }
 
@@ -131,7 +154,7 @@ export const Route = createFileRoute("/api/public/authsignal-sms")({
         }
 
         try {
-          await sendSmsViaTwilio(to, text);
+          await sendSmsViaEsms(to, text);
         } catch (e: any) {
           console.error("authsignal-sms: gửi SMS thất bại", e?.message ?? e);
           return Response.json({ ok: false, error: e?.message ?? "send_failed" }, { status: 502 });
