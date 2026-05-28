@@ -52,18 +52,18 @@ function Index() {
         <div className="mx-auto max-w-6xl px-5">
           {/* Hero — editorial masthead */}
           <section className="py-10 md:py-14 border-b border-border">
-            <div className="grid md:grid-cols-12 gap-8 items-end">
+            <div className="grid md:grid-cols-12 gap-8 md:gap-10 items-center">
               <div className="md:col-span-8">
-                <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[1.02] text-foreground">
+                <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[1.02] text-foreground text-balance">
                   Theo dõi giá <em className="text-[var(--gold)] not-italic font-display italic">vàng</em>,{" "}
                   <span className="text-[var(--gold)]">crypto</span> &amp; tỷ giá ngoại tệ.
                 </h1>
               </div>
-              <div className="md:col-span-4 md:pl-6 md:border-l md:border-border">
-                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+              <div className="md:col-span-4 md:pl-8 md:border-l md:border-border">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-pretty">
                   Một bản tin số liệu súc tích cho nhà đầu tư Việt — SJC, DOJI, BTC, ETH, USD/VND và hơn thế, cập nhật tức thì từ các sàn lớn.
                 </p>
-                <div className="mt-4 eyebrow opacity-60">Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường</div>
+                <div className="mt-5 eyebrow opacity-60">Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường</div>
               </div>
             </div>
           </section>
