@@ -604,12 +604,12 @@ function PortfolioChart({ transactions, enriched, totals }: {
   );
 }
 
-function Metric({ label, value, accent }: { label: string; value: string; accent?: "up" | "down" }) {
+function Metric({ label, value, accent, title }: { label: string; value: string; accent?: "up" | "down"; title?: string }) {
   const cls = accent === "up" ? "text-emerald-500" : accent === "down" ? "text-rose-500" : "text-foreground";
   return (
-    <div className="rounded-lg border border-border p-4">
+    <div className="rounded-lg border border-border p-4 min-w-0">
       <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
-      <div className={`mt-1 font-display text-xl tabular-nums ${cls}`}>{value}</div>
+      <div className={`mt-1 font-display text-lg md:text-xl tabular-nums truncate ${cls}`} title={title ?? value}>{value}</div>
     </div>
   );
 }
