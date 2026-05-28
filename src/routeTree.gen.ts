@@ -24,6 +24,7 @@ import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-n
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
 import { Route as LaiSuatTietKiemRouteImport } from './routes/lai-suat-tiet-kiem'
+import { Route as HuyBanTinRouteImport } from './routes/huy-ban-tin'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
@@ -137,6 +138,11 @@ const LichKinhTeRoute = LichKinhTeRouteImport.update({
 const LaiSuatTietKiemRoute = LaiSuatTietKiemRouteImport.update({
   id: '/lai-suat-tiet-kiem',
   path: '/lai-suat-tiet-kiem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HuyBanTinRoute = HuyBanTinRouteImport.update({
+  id: '/huy-ban-tin',
+  path: '/huy-ban-tin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoldRoute = GoldRouteImport.update({
@@ -356,6 +362,7 @@ export interface FileRoutesByFullPath {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/huy-ban-tin': typeof HuyBanTinRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/huy-ban-tin': typeof HuyBanTinRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -469,6 +477,7 @@ export interface FileRoutesById {
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
+  '/huy-ban-tin': typeof HuyBanTinRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -527,6 +536,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/huy-ban-tin'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -583,6 +593,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/huy-ban-tin'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -639,6 +650,7 @@ export interface FileRouteTypes {
     | '/forex'
     | '/gia-vang'
     | '/gold'
+    | '/huy-ban-tin'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -696,6 +708,7 @@ export interface RootRouteChildren {
   ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
+  HuyBanTinRoute: typeof HuyBanTinRoute
   LaiSuatTietKiemRoute: typeof LaiSuatTietKiemRoute
   LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
@@ -842,6 +855,13 @@ declare module '@tanstack/react-router' {
       path: '/lai-suat-tiet-kiem'
       fullPath: '/lai-suat-tiet-kiem'
       preLoaderRoute: typeof LaiSuatTietKiemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/huy-ban-tin': {
+      id: '/huy-ban-tin'
+      path: '/huy-ban-tin'
+      fullPath: '/huy-ban-tin'
+      preLoaderRoute: typeof HuyBanTinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gold': {
@@ -1136,6 +1156,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
+  HuyBanTinRoute: HuyBanTinRoute,
   LaiSuatTietKiemRoute: LaiSuatTietKiemRoute,
   LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
