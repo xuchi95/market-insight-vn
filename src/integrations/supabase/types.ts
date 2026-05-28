@@ -139,6 +139,7 @@ export type Database = {
           topics: string[]
           unsubscribe_token: string
           unsubscribed_at: string | null
+          user_id: string | null
         }
         Insert: {
           confirmed_at?: string | null
@@ -150,6 +151,7 @@ export type Database = {
           topics?: string[]
           unsubscribe_token?: string
           unsubscribed_at?: string | null
+          user_id?: string | null
         }
         Update: {
           confirmed_at?: string | null
@@ -161,6 +163,7 @@ export type Database = {
           topics?: string[]
           unsubscribe_token?: string
           unsubscribed_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
