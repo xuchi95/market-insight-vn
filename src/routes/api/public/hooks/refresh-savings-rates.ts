@@ -39,7 +39,7 @@ async function doRefresh() {
     .from("savings_rates_snapshot")
     .upsert({
       id: "latest",
-      payload,
+      payload: payload as unknown as never,
       source: "Techcombank blog",
       fetched_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
