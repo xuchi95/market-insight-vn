@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDownAZ, ArrowUpDown, Info } from "lucide-react";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
@@ -55,10 +55,31 @@ function SavingsPage() {
   const [q, setQ] = useState("");
   const [sortKey, setSortKey] = useState<keyof SavingsRate["rates"] | "bank">("m12");
   const [desc, setDesc] = useState(true);
+  const [items, setItems] = useState<SavingsRate[]>(SAVINGS_RATES);
+  const [updatedAt, setUpdatedAt] = useState<string>(SAVINGS_UPDATED_AT);
+  const [source, setSource] = useState<string>("Đang tải...");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/public/savings-rates")
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        if (Array.isArray(d?.items) && d.items.length > 0) {
+          setItems(d.items as SavingsRate[]);
+          if (d.updatedAt) setUpdatedAt(d.updatedAt);
+          if (d.source) setSource(d.source);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const rows = useMemo(() => {
     const term = q.trim().toLowerCase();
-    let r = SAVINGS_RATES.filter((b) =>
+    let r = items.filter((b) =>
       !term || b.bank.toLowerCase().includes(term) || b.shortName.toLowerCase().includes(term),
     );
     r = [...r].sort((a, b) => {
@@ -68,7 +89,7 @@ function SavingsPage() {
       return desc ? bv - av : av - bv;
     });
     return r;
-  }, [q, sortKey, desc]);
+  }, [q, sortKey, desc, items]);
 
   function toggleSort(k: keyof SavingsRate["rates"] | "bank") {
     if (sortKey === k) setDesc((v) => !v);
@@ -95,14 +116,14 @@ function SavingsPage() {
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Lãi suất tiết kiệm ngân hàng hôm nay</h1>
             <p className="text-muted-foreground max-w-2xl">
-              So sánh <strong>lãi suất gửi tiết kiệm</strong> tại {SAVINGS_RATES.length}+ ngân hàng cho các kỳ hạn 1 – 36 tháng (VND, gửi tại quầy, lĩnh lãi cuối kỳ). Cập nhật: <strong>{SAVINGS_UPDATED_AT}</strong>.
+              So sánh <strong>lãi suất gửi tiết kiệm</strong> tại {items.length}+ ngân hàng cho các kỳ hạn 1 – 36 tháng (VND, gửi tại quầy, lĩnh lãi cuối kỳ). Cập nhật: <strong>{updatedAt}</strong> · Nguồn: {source}.
             </p>
           </header>
 
           <SectionCard
             title="Bảng lãi suất tiết kiệm"
             description="Đơn vị: %/năm — Top 3 lãi suất cao nhất ở cột đang sort được tô màu vàng"
-            meta={<span>{rows.length}/{SAVINGS_RATES.length} ngân hàng</span>}
+            meta={<span>{rows.length}/{items.length} ngân hàng</span>}
             action={
               <Input
                 value={q}

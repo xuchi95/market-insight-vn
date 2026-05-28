@@ -58,6 +58,7 @@ import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
+import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 
 const ViMoVietNamRoute = ViMoVietNamRouteImport.update({
   id: '/vi-mo-viet-nam',
@@ -306,6 +307,12 @@ const ApiContactSubmitRoute = ApiContactSubmitRouteImport.update({
   path: '/api/contact/submit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksRefreshSavingsRatesRoute =
+  ApiPublicHooksRefreshSavingsRatesRouteImport.update({
+    id: '/api/public/hooks/refresh-savings-rates',
+    path: '/api/public/hooks/refresh-savings-rates',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -357,6 +364,7 @@ export interface FileRoutesByFullPath {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
+  '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -408,6 +416,7 @@ export interface FileRoutesByTo {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
+  '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -460,6 +469,7 @@ export interface FileRoutesById {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
+  '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -513,6 +523,7 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
+    | '/api/public/hooks/refresh-savings-rates'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -564,6 +575,7 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
+    | '/api/public/hooks/refresh-savings-rates'
   id:
     | '__root__'
     | '/'
@@ -615,6 +627,7 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
+    | '/api/public/hooks/refresh-savings-rates'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -667,6 +680,7 @@ export interface RootRouteChildren {
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
+  ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1014,6 +1028,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiContactSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/refresh-savings-rates': {
+      id: '/api/public/hooks/refresh-savings-rates'
+      path: '/api/public/hooks/refresh-savings-rates'
+      fullPath: '/api/public/hooks/refresh-savings-rates'
+      preLoaderRoute: typeof ApiPublicHooksRefreshSavingsRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1067,6 +1088,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
+  ApiPublicHooksRefreshSavingsRatesRoute:
+    ApiPublicHooksRefreshSavingsRatesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
