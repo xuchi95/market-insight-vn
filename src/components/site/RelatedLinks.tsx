@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Coins, Bitcoin, DollarSign, Repeat, LineChart, Landmark } from "lucide-react";
+import { ArrowUpRight, Coins, Bitcoin, DollarSign, Repeat, LineChart, Landmark, PiggyBank, Globe2 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 
 // Bản đồ từ khóa → đường dẫn nội bộ. Dùng để tự động gợi ý
@@ -12,7 +12,9 @@ export type PageKey =
   | "forex"
   | "converter"
   | "stocks"
-  | "bank-rates";
+  | "bank-rates"
+  | "savings"
+  | "economy";
 
 type LinkItem = {
   to: string;
@@ -65,17 +67,33 @@ const ALL: Record<Exclude<PageKey, "home">, LinkItem> = {
     eyebrow: "Ngân hàng",
     Icon: Landmark,
   },
+  savings: {
+    to: "/lai-suat-tiet-kiem",
+    keyword: "Lãi suất tiết kiệm 20+ ngân hàng",
+    desc: "So sánh lãi suất gửi tiết kiệm các kỳ hạn 1, 3, 6, 12 tháng.",
+    eyebrow: "Tiết kiệm",
+    Icon: PiggyBank,
+  },
+  economy: {
+    to: "/vi-mo-viet-nam",
+    keyword: "Kinh tế vĩ mô Việt Nam",
+    desc: "GDP, lạm phát CPI, thất nghiệp, dự trữ ngoại hối (World Bank).",
+    eyebrow: "Vĩ mô",
+    Icon: Globe2,
+  },
 };
 
 // Gợi ý liên kết liên quan cho mỗi trang (tránh tự liên kết).
 const RELATED: Record<PageKey, (keyof typeof ALL)[]> = {
-  home: ["gold", "crypto", "forex", "converter", "stocks", "bank-rates"],
-  gold: ["forex", "converter", "crypto", "bank-rates"],
+  home: ["gold", "crypto", "forex", "stocks", "savings", "economy"],
+  gold: ["forex", "converter", "crypto", "economy"],
   crypto: ["converter", "forex", "gold", "stocks"],
-  forex: ["converter", "bank-rates", "gold", "crypto"],
-  converter: ["forex", "crypto", "gold", "bank-rates"],
-  stocks: ["forex", "crypto", "gold", "bank-rates"],
-  "bank-rates": ["forex", "converter", "gold", "stocks"],
+  forex: ["converter", "bank-rates", "savings", "economy"],
+  converter: ["forex", "crypto", "gold", "savings"],
+  stocks: ["forex", "crypto", "economy", "savings"],
+  "bank-rates": ["savings", "forex", "converter", "economy"],
+  savings: ["bank-rates", "forex", "economy", "converter"],
+  economy: ["stocks", "forex", "savings", "gold"],
 };
 
 export function RelatedLinks({
