@@ -445,14 +445,17 @@ function PortfolioChart({ transactions, totals }: { transactions: Tx[]; totals: 
     if (h.length === 0) return [];
     const today = new Date().toISOString().slice(0, 10);
     const last = h[h.length - 1];
+    const unrealized = totals.current - totals.cost;
+    const totalPl = totals.realized + unrealized;
     if (last.date !== today) {
-      h.push({ date: today, invested: last.invested, costBasis: totals.cost, realized: totals.realized });
+      h.push({ date: today, invested: last.invested, costBasis: totals.cost, realized: totals.realized, marketValue: totals.current, unrealized, totalPl });
     } else {
       last.costBasis = totals.cost;
       last.realized = totals.realized;
+      last.marketValue = totals.current;
+      last.unrealized = unrealized;
+      last.totalPl = totalPl;
     }
-    const final = h[h.length - 1];
-    (final as any).marketValue = totals.current;
     return h;
   }, [transactions, totals]);
 
@@ -483,12 +486,23 @@ function PortfolioChart({ transactions, totals }: { transactions: Tx[]; totals: 
                 <Tooltip content={({ payload, label }) => {
                   if (!payload?.length) return null;
                   const p = payload[0].payload as any;
+                  const dateStr = new Date(label as string).toLocaleDateString("vi-VN");
+                  const hasMarket = p.marketValue != null && p.marketValue > 0;
+                  const hasUnrealized = p.unrealized != null;
+                  const plUp = hasUnrealized ? p.unrealized >= 0 : null;
                   return (
-                    <div className="bg-card border border-border rounded-md p-2 shadow-lg text-xs">
-                      <div className="font-medium mb-1">{new Date(label as string).toLocaleDateString("vi-VN")}</div>
-                      <div className="flex justify-between gap-4 text-muted-foreground"><span>Vốn đã bỏ ra</span><span className="tabular-nums text-foreground">{fmtVND(p.invested)}</span></div>
-                      <div className="flex justify-between gap-4 text-muted-foreground"><span>Giá trị sổ sách</span><span className="tabular-nums text-foreground">{fmtVND(p.costBasis)}</span></div>
-                      {p.marketValue != null && <div className="flex justify-between gap-4 text-emerald-500"><span>Giá trị thị trường</span><span className="tabular-nums font-medium">{fmtVND(p.marketValue)}</span></div>}
+                    <div className="bg-card border border-border rounded-md p-3 shadow-lg text-xs min-w-[220px]">
+                      <div className="font-medium mb-2 text-sm">{dateStr}</div>
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Vốn đã bỏ ra</span><span className="tabular-nums font-medium">{fmtVND(p.invested)}</span></div>
+                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Giá trị sổ sách</span><span className="tabular-nums font-medium">{fmtVND(p.costBasis)}</span></div>
+                        {hasMarket && (
+                          <div className="flex justify-between gap-4"><span className="text-emerald-500">Giá trị thị trị trường</span><span className="tabular-nums font-medium text-emerald-500">{fmtVND(p.marketValue)}</span></div>
+                        )}
+                        {hasUnrealized && (
+                          <div className="flex justify-between gap-4"><span className={plUp ? "text-emerald-500" : "text-rose-500"}>Lãi/Lỗ chưa chốt</span><span className={`tabular-nums font-medium ${plUp ? "text-emerald-500" : "text-rose-500"}`}>{fmtVND(p.unrealized)}</span></div>
+                        )}
+                      </div>
                     </div>
                   );
                 }} />
@@ -514,10 +528,23 @@ function PortfolioChart({ transactions, totals }: { transactions: Tx[]; totals: 
                 <Tooltip content={({ payload, label }) => {
                   if (!payload?.length) return null;
                   const p = payload[0].payload as any;
+                  const dateStr = new Date(label as string).toLocaleDateString("vi-VN");
+                  const realizedUp = p.realized >= 0;
+                  const hasUnrealized = p.unrealized != null;
+                  const unrealizedUp = hasUnrealized ? p.unrealized >= 0 : null;
+                  const totalUp = p.totalPl != null ? p.totalPl >= 0 : null;
                   return (
-                    <div className="bg-card border border-border rounded-md p-2 shadow-lg text-xs">
-                      <div className="font-medium mb-1">{new Date(label as string).toLocaleDateString("vi-VN")}</div>
-                      <div className="flex justify-between gap-4 text-muted-foreground"><span>Lãi/Lỗ đã chốt</span><span className={`tabular-nums font-medium ${p.realized >= 0 ? "text-emerald-500" : "text-rose-500"}`}>{fmtVND(p.realized)}</span></div>
+                    <div className="bg-card border border-border rounded-md p-3 shadow-lg text-xs min-w-[220px]">
+                      <div className="font-medium mb-2 text-sm">{dateStr}</div>
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Lãi/Lỗ đã chốt</span><span className={`tabular-nums font-medium ${realizedUp ? "text-emerald-500" : "text-rose-500"}`}>{fmtVND(p.realized)}</span></div>
+                        {hasUnrealized && (
+                          <div className="flex justify-between gap-4"><span className="text-muted-foreground">Lãi/Lỗ chưa chốt</span><span className={`tabular-nums font-medium ${unrealizedUp ? "text-emerald-500" : "text-rose-500"}`}>{fmtVND(p.unrealized)}</span></div>
+                        )}
+                        {p.totalPl != null && (
+                          <div className="pt-1 border-t border-border flex justify-between gap-4"><span className="font-medium">Tổng P/L</span><span className={`tabular-nums font-semibold ${totalUp ? "text-emerald-500" : "text-rose-500"}`}>{fmtVND(p.totalPl)}</span></div>
+                        )}
+                      </div>
                     </div>
                   );
                 }} />
