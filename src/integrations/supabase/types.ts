@@ -107,6 +107,51 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_transactions: {
+        Row: {
+          asset_type: Database["public"]["Enums"]["holding_asset_type"]
+          created_at: string
+          executed_at: string
+          fee_vnd: number
+          id: string
+          note: string | null
+          price_usd: number | null
+          price_vnd: number | null
+          quantity: number
+          side: Database["public"]["Enums"]["transaction_side"]
+          symbol: string
+          user_id: string
+        }
+        Insert: {
+          asset_type: Database["public"]["Enums"]["holding_asset_type"]
+          created_at?: string
+          executed_at?: string
+          fee_vnd?: number
+          id?: string
+          note?: string | null
+          price_usd?: number | null
+          price_vnd?: number | null
+          quantity: number
+          side: Database["public"]["Enums"]["transaction_side"]
+          symbol: string
+          user_id: string
+        }
+        Update: {
+          asset_type?: Database["public"]["Enums"]["holding_asset_type"]
+          created_at?: string
+          executed_at?: string
+          fee_vnd?: number
+          id?: string
+          note?: string | null
+          price_usd?: number | null
+          price_vnd?: number | null
+          quantity?: number
+          side?: Database["public"]["Enums"]["transaction_side"]
+          symbol?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -190,6 +235,7 @@ export type Database = {
       alert_asset_type: "crypto" | "gold"
       alert_direction: "above" | "below"
       holding_asset_type: "crypto" | "gold"
+      transaction_side: "buy" | "sell"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -320,6 +366,7 @@ export const Constants = {
       alert_asset_type: ["crypto", "gold"],
       alert_direction: ["above", "below"],
       holding_asset_type: ["crypto", "gold"],
+      transaction_side: ["buy", "sell"],
     },
   },
 } as const
