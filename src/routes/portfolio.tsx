@@ -543,7 +543,7 @@ function PortfolioChart({ transactions, enriched, totals }: {
                         <div className="flex justify-between gap-4"><span className="text-muted-foreground">Vốn đã bỏ ra</span><span className="tabular-nums font-medium">{fmtVND(p.invested)}</span></div>
                         <div className="flex justify-between gap-4"><span className="text-muted-foreground">Giá trị sổ sách</span><span className="tabular-nums font-medium">{fmtVND(p.costBasis)}</span></div>
                         {hasMarket && (
-                          <div className="flex justify-between gap-4"><span className="text-emerald-500">Giá trị thị trị trường</span><span className="tabular-nums font-medium text-emerald-500">{fmtVND(p.marketValue)}</span></div>
+                          <div className="flex justify-between gap-4"><span className="text-emerald-500">Giá trị thị trường</span><span className="tabular-nums font-medium text-emerald-500">{fmtVND(p.marketValue)}</span></div>
                         )}
                         {hasUnrealized && (
                           <div className="flex justify-between gap-4"><span className={plUp ? "text-emerald-500" : "text-rose-500"}>Lãi/Lỗ chưa chốt</span><span className={`tabular-nums font-medium ${plUp ? "text-emerald-500" : "text-rose-500"}`}>{fmtVND(p.unrealized)}</span></div>
