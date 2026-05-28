@@ -10,7 +10,7 @@ import { Eye, EyeOff, Loader2, ShieldCheck, ShieldAlert } from "lucide-react";
 
 const TITLE = "Đặt lại mật khẩu — MarketWatch";
 const DESC = "Tạo mật khẩu mới cho tài khoản MarketWatch của bạn.";
-const URL = "https://marketwatch.vn/dat-lai-mat-khau";
+const PAGE_URL = "https://marketwatch.vn/dat-lai-mat-khau";
 
 export const Route = createFileRoute("/dat-lai-mat-khau")({
   head: () => ({
@@ -19,10 +19,10 @@ export const Route = createFileRoute("/dat-lai-mat-khau")({
       { name: "description", content: DESC },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
-      { property: "og:url", content: URL },
+      { property: "og:url", content: PAGE_URL },
       { name: "robots", content: "noindex,nofollow" },
     ],
-    links: [{ rel: "canonical", href: URL }],
+    links: [{ rel: "canonical", href: PAGE_URL }],
   }),
   component: ResetPasswordPage,
 });
@@ -50,9 +50,9 @@ function ResetPasswordPage() {
     });
 
     (async () => {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get("code");
-      const errorDesc = url.searchParams.get("error_description") ?? url.hash.match(/error_description=([^&]+)/)?.[1];
+      const u = new URL(window.location.href);
+      const code = u.searchParams.get("code");
+      const errorDesc = u.searchParams.get("error_description") ?? u.hash.match(/error_description=([^&]+)/)?.[1];
 
       if (errorDesc) {
         if (!cancelled) setStatus("invalid");
@@ -64,8 +64,8 @@ function ResetPasswordPage() {
         if (cancelled) return;
         if (error) { setStatus("invalid"); return; }
         // Clean ?code from URL so refresh doesn't try to re-exchange.
-        url.searchParams.delete("code");
-        window.history.replaceState({}, "", url.pathname + (url.search ? `?${url.searchParams}` : ""));
+        u.searchParams.delete("code");
+        window.history.replaceState({}, "", u.pathname + (u.search ? `?${u.searchParams}` : ""));
         setStatus("ready");
         return;
       }
