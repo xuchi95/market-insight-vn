@@ -224,7 +224,7 @@ function Metric({ label, value, accent }: { label: string; value: string; accent
   const cls = accent === "up" ? "text-emerald-500" : accent === "down" ? "text-rose-500" : "text-foreground";
   return (
     <div className="rounded-lg border border-border p-4">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
       <div className={`mt-1 font-display text-xl tabular-nums ${cls}`}>{value}</div>
     </div>
   );

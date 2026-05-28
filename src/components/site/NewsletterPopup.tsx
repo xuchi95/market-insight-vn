@@ -59,7 +59,7 @@ export function NewsletterPopup() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="border-[var(--gold)]/30 bg-card sm:max-w-md overflow-hidden">
         <DialogHeader>
-          <div className="mb-2 text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
+          <div className="mb-2 text-xs uppercase tracking-[0.16em] text-[var(--gold)]">
             Bản tin MarketWatch
           </div>
           <DialogTitle className="font-display text-2xl">Đừng bỏ lỡ biến động thị trường</DialogTitle>
@@ -69,7 +69,7 @@ export function NewsletterPopup() {
         </DialogHeader>
         <div>
           <NewsletterForm />
-          <p className="mt-3 text-[11px] text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             Miễn phí. Bạn có thể huỷ đăng ký bất cứ lúc nào.
           </p>
         </div>

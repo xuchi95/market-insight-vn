@@ -52,7 +52,7 @@ function impactBadge(impact: EconImpact) {
       ? "bg-amber-500/15 text-amber-500 border-amber-500/30"
       : "bg-emerald-500/15 text-emerald-500 border-emerald-500/30";
   const label = impact === "high" ? "Cao" : impact === "medium" ? "Trung bình" : "Thấp";
-  return <Badge variant="outline" className={`text-[10px] uppercase tracking-wider ${cls}`}>{label}</Badge>;
+  return <Badge variant="outline" className={`text-xs uppercase tracking-wider ${cls}`}>{label}</Badge>;
 }
 
 const AFFECTS_LABEL: Record<string, string> = {
@@ -188,7 +188,7 @@ function EconomicCalendarPage() {
           </div>
 
           <div className="rounded-lg border border-border overflow-hidden">
-            <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2.5 bg-card text-[10px] uppercase tracking-[0.18em] text-muted-foreground border-b border-border">
+            <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2.5 bg-card text-xs uppercase tracking-[0.14em] text-muted-foreground border-b border-border">
               <div className="col-span-3">Thời gian (VN)</div>
               <div className="col-span-2">Quốc gia</div>
               <div className="col-span-3">Sự kiện</div>
@@ -215,7 +215,7 @@ function EconomicCalendarPage() {
                   <div className="md:col-span-3 text-sm">
                     {fmtVN(new Date(e.datetime))}
                     {soon && (
-                      <Badge className="ml-2 bg-[var(--gold)]/20 text-[var(--gold)] border-[var(--gold)]/30 text-[9px]" variant="outline">
+                      <Badge className="ml-2 bg-[var(--gold)]/20 text-[var(--gold)] border-[var(--gold)]/30 text-[10px]" variant="outline">
                         SẮP DIỄN RA
                       </Badge>
                     )}
@@ -230,7 +230,7 @@ function EconomicCalendarPage() {
                   <div className="md:col-span-1 text-sm text-right tabular-nums">{e.forecast ?? "—"}</div>
                   <div className="md:col-span-1 flex flex-wrap md:justify-end gap-1">
                     {e.affects.map((a) => (
-                      <Badge key={a} variant="outline" className="text-[9px] uppercase tracking-wider">
+                      <Badge key={a} variant="outline" className="text-[10px] uppercase tracking-wider">
                         {AFFECTS_LABEL[a] ?? a}
                       </Badge>
                     ))}

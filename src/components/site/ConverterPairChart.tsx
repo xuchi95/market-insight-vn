@@ -434,20 +434,20 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
       {isExporting && (
         <div className="flex items-start justify-between gap-4 px-4 pt-4 pb-3 border-b border-border/60">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Báo cáo biến động tỷ giá</div>
+            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Báo cáo biến động tỷ giá</div>
             <div className="text-lg font-bold tracking-tight">
               {from!.code} / {to!.code}
               <span className="ml-2 text-xs font-medium text-muted-foreground">
                 ({from!.kind} → {to!.kind})
               </span>
             </div>
-            <div className="text-[11px] text-muted-foreground tabular">
+            <div className="text-sm text-muted-foreground tabular">
               Khung thời gian: <span className="text-foreground/80 font-semibold">{rangeLabel}</span>
-              <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-foreground/70">range={range}</span>
+              <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground/70">range={range}</span>
               {source ? <> — Nguồn: {source}</> : null}
             </div>
           </div>
-          <div className="text-right text-[10px] text-muted-foreground tabular leading-tight">
+          <div className="text-right text-xs text-muted-foreground tabular leading-tight">
             <div>Xuất lúc</div>
             <div className="text-foreground/80 font-semibold">{fmtDateLong(Date.now())}</div>
           </div>
@@ -458,7 +458,7 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
           <LCIcon className="h-4 w-4 text-primary" />
           <div>
             <div className="text-sm font-semibold">Biến động {from!.code}/{to!.code}</div>
-            <div className="text-[11px] text-muted-foreground">
+            <div className="text-sm text-muted-foreground">
               Xu hướng tỷ giá {rangeLabel}
               {source ? <> — Nguồn: {source}</> : null}
             </div>
@@ -479,13 +479,13 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-xs">
-              <DropdownMenuLabel className="text-[11px]">Nền ảnh PNG</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs">Nền ảnh PNG</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => exportPng("light")}>Nền sáng (Light)</DropdownMenuItem>
               <DropdownMenuItem onClick={() => exportPng("dark")}>Nền tối (Dark)</DropdownMenuItem>
               <DropdownMenuItem onClick={() => exportPng("transparent")}>Nền trong suốt</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-[11px]">Độ phân giải</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs">Độ phân giải</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setExportScale(1); }} className={exportScale === 1 ? "bg-accent" : ""}>
                 <span className="flex items-center gap-2">
@@ -521,12 +521,12 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-xs">
-              <DropdownMenuLabel className="text-[11px]">Nền trang PDF</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs">Nền trang PDF</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => exportPdf("light")}>Nền sáng (Light)</DropdownMenuItem>
               <DropdownMenuItem onClick={() => exportPdf("dark")}>Nền tối (Dark)</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-[11px]">Độ phân giải</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs">Độ phân giải</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setExportScale(1); }} className={exportScale === 1 ? "bg-accent" : ""}>
                 <span className="flex items-center gap-2">
@@ -594,21 +594,21 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
         </div>
       </div>
       {zoomedLabel && (
-        <div className="px-4 pt-2 text-[11px] text-primary tabular">
+        <div className="px-4 pt-2 text-sm text-primary tabular">
           Đang xem: {zoomedLabel}
         </div>
       )}
       {stats && (
         <div className="flex flex-wrap items-end gap-x-6 gap-y-1 px-4 pt-3">
           <div>
-            <div className="text-[11px] text-muted-foreground">1 {from!.code} =</div>
+            <div className="text-sm text-muted-foreground">1 {from!.code} =</div>
             <div className="text-lg font-bold tabular tracking-tight">{fmtVal(stats.last)} <span className="text-xs text-muted-foreground font-semibold">{to!.code}</span></div>
           </div>
           <div>
-            <div className="text-[11px] text-muted-foreground">Thay đổi {rangeLabel}</div>
+            <div className="text-sm text-muted-foreground">Thay đổi {rangeLabel}</div>
             <div className="text-sm font-semibold tabular" style={{ color }}>{positive ? "+" : ""}{stats.change.toFixed(2)}%</div>
           </div>
-          <div className="text-[11px] text-muted-foreground tabular">
+          <div className="text-sm text-muted-foreground tabular">
             <div>Cao: {fmtVal(stats.max)}</div>
             <div>Thấp: {fmtVal(stats.min)}</div>
           </div>
@@ -636,19 +636,19 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
         )}
         {dragInfo && (
           <div className="absolute top-2 left-0 right-0 flex justify-between px-4 sm:px-10 pointer-events-none z-10">
-            <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-1 text-[11px] shadow-sm">
+            <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-1 text-sm shadow-sm">
               <div className="text-muted-foreground">{new Date(dragInfo.left.t).toLocaleString("vi-VN")}</div>
               <div className="font-semibold tabular">{fmtVal(dragInfo.left.v)} {to!.code}</div>
             </div>
             <div className="flex flex-col items-center gap-0.5">
-              <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-0.5 text-[11px] shadow-sm font-semibold tabular" style={{ color: dragInfo.pct >= 0 ? "var(--up)" : "var(--down)" }}>
+              <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-0.5 text-sm shadow-sm font-semibold tabular" style={{ color: dragInfo.pct >= 0 ? "var(--up)" : "var(--down)" }}>
                 {dragInfo.pct >= 0 ? "+" : ""}{dragInfo.pct.toFixed(2)}%
               </div>
-              <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-0.5 text-[11px] shadow-sm text-muted-foreground tabular">
+              <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-0.5 text-sm shadow-sm text-muted-foreground tabular">
                 {dragInfo.diff >= 0 ? "+" : ""}{fmtVal(dragInfo.diff)} {to!.code}
               </div>
             </div>
-            <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-1 text-[11px] shadow-sm">
+            <div className="bg-popover/90 backdrop-blur border rounded-md px-2 py-1 text-sm shadow-sm">
               <div className="text-muted-foreground">{new Date(dragInfo.right.t).toLocaleString("vi-VN")}</div>
               <div className="font-semibold tabular">{fmtVal(dragInfo.right.v)} {to!.code}</div>
             </div>
@@ -705,12 +705,12 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
         </ResponsiveContainer>
       </div>
       {visibleData.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-1 pb-2 text-[11px] tabular text-muted-foreground border-t border-border/40 mt-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-1 pb-2 text-sm tabular text-muted-foreground border-t border-border/40 mt-1">
           <span><span className="text-foreground/80 font-semibold">Bắt đầu:</span> {fmtDateLong(visibleData[0].t)}</span>
           <span><span className="text-foreground/80 font-semibold">Kết thúc:</span> {fmtDateLong(visibleData[visibleData.length - 1].t)}</span>
         </div>
       )}
-      <div className="px-4 pb-3 text-[11px] text-muted-foreground">
+      <div className="px-4 pb-3 text-sm text-muted-foreground">
         Mẹo: kéo để tạo vùng chọn (snap theo <strong>{snapStepLabel}</strong>) → kéo <strong>bên trong</strong> để dịch chuyển, kéo <strong>mép</strong> để chỉnh — bấm <em>Phóng to</em> để áp dụng, <em>nhấn đúp</em> để zoom nhanh.
       </div>
     </div>

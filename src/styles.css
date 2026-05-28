@@ -165,10 +165,10 @@
   }
   .eyebrow {
     font-family: var(--font-sans);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
     color: color-mix(in oklab, var(--gold) 85%, transparent);
   }
   .hairline { background-color: color-mix(in oklab, var(--gold) 20%, transparent); height: 1px; }

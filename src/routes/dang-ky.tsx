@@ -115,7 +115,7 @@ function SignupPage() {
                   <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < pwScore ? (pwScore >= 3 ? "bg-[var(--up)]" : pwScore === 2 ? "bg-gold" : "bg-[var(--down)]") : "bg-border"}`} />
                 ))}
               </div>
-              <div className="mt-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
+              <div className="mt-1.5 flex items-center justify-between text-sm text-muted-foreground">
                 <span>Độ mạnh: <span className="text-foreground">{pwLabel}</span></span>
                 <span className="inline-flex items-center gap-1">
                   <Check className={`h-3 w-3 ${password.length >= 8 ? "text-[var(--up)]" : "text-muted-foreground/40"}`} /> 8+ ký tự

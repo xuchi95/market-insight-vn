@@ -156,7 +156,7 @@ function SavingsPage() {
                     <tr key={b.shortName} className="border-b border-border/40 hover:bg-accent/40">
                       <td className="px-3 py-2.5 sticky left-0 bg-card group-hover:bg-accent/40">
                         <div className="font-semibold">{b.bank}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{GROUP_LABEL[b.group]}</div>
+                        <div className="text-xs uppercase tracking-wider text-muted-foreground">{GROUP_LABEL[b.group]}</div>
                       </td>
                       {TENORS.map((t) => {
                         const v = b.rates[t.key];
@@ -172,7 +172,7 @@ function SavingsPage() {
                 </tbody>
               </table>
             </div>
-            <div className="flex items-start gap-2 px-4 py-3 border-t border-border bg-muted/30 text-[11px] text-muted-foreground">
+            <div className="flex items-start gap-2 px-4 py-3 border-t border-border bg-muted/30 text-sm text-muted-foreground">
               <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
               <p>
                 Dữ liệu tham khảo, tổng hợp từ trang chính thức của các ngân hàng. Lãi suất có thể thay đổi theo từng chương trình ưu đãi, số tiền gửi và kênh gửi (quầy/online). Vui lòng xác nhận trực tiếp tại ngân hàng trước khi quyết định.

@@ -30,7 +30,7 @@ function Spark({ data, color }: { data: number[]; color: string }) {
 function ChangePill({ value }: { value: number }) {
   const up = value >= 0;
   return (
-    <span className={`font-mono text-[11px] font-medium ${up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+    <span className={`font-mono text-xs font-medium ${up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
       {up ? "▲" : "▼"} {Math.abs(value).toFixed(2)}%
     </span>
   );
@@ -97,7 +97,7 @@ export function BentoTiles() {
             </div>
             <div className="text-right">
               {sjc && <ChangePill value={sjc.changePct} />}
-              <div className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground/60">24 giờ</div>
+              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground/60">24 giờ</div>
             </div>
           </div>
 
@@ -139,7 +139,7 @@ export function BentoTiles() {
           <div className="mt-3">
             {btc && <Spark data={btc.sparkline} color={btc.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
           </div>
-          <div className="mt-2 flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground/60">
+          <div className="mt-2 flex justify-between text-xs uppercase tracking-widest text-muted-foreground/60">
             <span>Vol</span>
             <span className="font-mono">${btc ? fmt(btc.volume24h / 1_000_000_000, 1) : "—"}B</span>
           </div>
@@ -157,7 +157,7 @@ export function BentoTiles() {
           <div className="mt-3">
             {eth && <Spark data={eth.sparkline} color={eth.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
           </div>
-          <div className="mt-2 flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground/60">
+          <div className="mt-2 flex justify-between text-xs uppercase tracking-widest text-muted-foreground/60">
             <span>Vol</span>
             <span className="font-mono">${eth ? fmt(eth.volume24h / 1_000_000_000, 1) : "—"}B</span>
           </div>
@@ -186,8 +186,8 @@ export function BentoTiles() {
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="bg-card p-2.5">
-      <div className="text-[9px] uppercase tracking-widest text-muted-foreground/70">{label}</div>
-      <div className={`font-mono text-xs mt-0.5 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>{value}</div>
+      <div className="text-xs uppercase tracking-widest text-muted-foreground/70">{label}</div>
+      <div className={`font-mono text-sm mt-0.5 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>{value}</div>
     </div>
   );
 }
@@ -196,9 +196,9 @@ function FxCell({ rate, digits = 0 }: { rate?: ForexRate; digits?: number }) {
   if (!rate) return <div className="bg-card p-3 h-[60px]" />;
   return (
     <div className="bg-card p-3">
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground/70">{rate.code}/VND</div>
-      <div className="font-mono text-sm text-foreground mt-1">{fmt(rate.mid, digits)}</div>
-      <div className={`text-[10px] font-mono mt-0.5 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+      <div className="text-xs uppercase tracking-widest text-muted-foreground/70">{rate.code}/VND</div>
+      <div className="font-mono text-base text-foreground mt-1">{fmt(rate.mid, digits)}</div>
+      <div className={`text-xs font-mono mt-0.5 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
         {rate.changePct >= 0 ? "+" : ""}{rate.changePct.toFixed(2)}%
       </div>
     </div>

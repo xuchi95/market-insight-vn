@@ -70,11 +70,11 @@ function IndicatorCard({ ind }: { ind: MacroIndicator }) {
     <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{ind.name}</div>
-          <div className="text-[10px] text-muted-foreground/70 mt-0.5">Năm {ind.latest.year} · {ind.unit}</div>
+          <div className="text-sm uppercase tracking-[0.14em] text-muted-foreground">{ind.name}</div>
+          <div className="text-xs text-muted-foreground/70 mt-0.5">Năm {ind.latest.year} · {ind.unit}</div>
         </div>
         {ind.previous && (
-          <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold", up ? "bg-[var(--up)]/10 text-[var(--up)]" : "bg-[var(--down)]/10 text-[var(--down)]")}>
+          <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold", up ? "bg-[var(--up)]/10 text-[var(--up)]" : "bg-[var(--down)]/10 text-[var(--down)]")}>
             <Icon className="h-3 w-3" />
             {ind.unit === "USD"
               ? `${up ? "+" : ""}${diffPct.toFixed(1)}%`
