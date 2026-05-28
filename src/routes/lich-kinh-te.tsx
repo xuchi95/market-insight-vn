@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -76,6 +78,24 @@ function EconomicCalendarPage() {
   const [impact, setImpact] = useState<"all" | EconImpact>("all");
   const [range, setRange] = useState<RangeValue>("month");
 
+  const { data, isLoading, isFetching, isError } = useQuery({
+    queryKey: ["economic-calendar"],
+    queryFn: async () => {
+      const res = await fetch("/api/public/economic-calendar", { headers: { accept: "application/json" } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const j = await res.json();
+      if (!Array.isArray(j?.items)) throw new Error("Invalid response");
+      return { items: j.items as EconomicEvent[], stale: Boolean(j.stale), fetchedAt: Number(j.fetchedAt) || Date.now() };
+    },
+    staleTime: 30 * 60_000,
+    refetchInterval: 60 * 60_000,
+    placeholderData: keepPreviousData,
+    retry: 1,
+  });
+
+  const usingFallback = isError || (!isLoading && (data?.items.length ?? 0) === 0);
+  const source: EconomicEvent[] = usingFallback ? ECONOMIC_EVENTS : (data?.items ?? []);
+
   const events = useMemo(() => {
     const now = Date.now();
     let cutoffStart = -Infinity;
@@ -87,13 +107,13 @@ function EconomicCalendarPage() {
       cutoffStart = now - 7 * 86400_000;
       cutoffEnd = now + 31 * 86400_000;
     }
-    return ECONOMIC_EVENTS.filter((e) => {
+    return source.filter((e) => {
       const t = new Date(e.datetime).getTime();
       if (t < cutoffStart || t > cutoffEnd) return false;
       if (impact !== "all" && e.impact !== impact) return false;
       return true;
     }).sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
-  }, [impact, range]);
+  }, [impact, range, source]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,6 +126,30 @@ function EconomicCalendarPage() {
             <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
               Các sự kiện kinh tế quan trọng từ Fed, ECB, BoJ, BLS… ảnh hưởng trực tiếp đến vàng, USD/VND, Bitcoin và chứng khoán. Giờ hiển thị theo múi giờ Việt Nam (UTC+7).
             </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              {isLoading && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Đang tải dữ liệu realtime…
+                </span>
+              )}
+              {!isLoading && !usingFallback && data && (
+                <>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Dữ liệu realtime · nguồn FMP
+                  </span>
+                  <span>· Cập nhật {new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }).format(new Date(data.fetchedAt))}</span>
+                  {isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  {data.stale && <span className="text-amber-500">(cache cũ)</span>}
+                </>
+              )}
+              {!isLoading && usingFallback && (
+                <span className="inline-flex items-center gap-1.5 text-amber-500">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Không tải được dữ liệu realtime — đang hiển thị lịch tham khảo.
+                </span>
+              )}
+            </div>
           </header>
 
           <div className="flex flex-wrap gap-2 mb-5">
