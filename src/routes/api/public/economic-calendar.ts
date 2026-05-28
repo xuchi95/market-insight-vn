@@ -176,7 +176,7 @@ async function fetchFromForexFactory(): Promise<EconomicEvent[]> {
 
 function refresh(): Promise<{ items: EconomicEvent[]; source: CalendarSource }> {
   if (inflight) return inflight;
-  inflight = (async () => {
+  const next = (async (): Promise<{ items: EconomicEvent[]; source: CalendarSource }> => {
     const errors: string[] = [];
     for (const source of ["fmp", "forexfactory"] as const) {
       try {
@@ -197,7 +197,8 @@ function refresh(): Promise<{ items: EconomicEvent[]; source: CalendarSource }> 
     .finally(() => {
       inflight = null;
     });
-  return inflight;
+  inflight = next;
+  return next;
 }
 
 const CORS = {
@@ -212,19 +213,25 @@ export const Route = createFileRoute("/api/public/economic-calendar")({
       GET: async () => {
         try {
           let items: EconomicEvent[];
+          let source: CalendarSource;
           let stale = false;
           if (cache && Date.now() - cache.at < CACHE_MS) {
             items = cache.items;
+            source = cache.source;
           } else {
             try {
-              items = await refresh();
+              const result = await refresh();
+              items = result.items;
+              source = result.source;
               if (!items.length && cache) {
                 items = cache.items;
+                source = cache.source;
                 stale = true;
               }
             } catch (err) {
               if (cache) {
                 items = cache.items;
+                source = cache.source;
                 stale = true;
               } else {
                 throw err;
@@ -232,7 +239,7 @@ export const Route = createFileRoute("/api/public/economic-calendar")({
             }
           }
           return Response.json(
-            { items, fetchedAt: cache?.at ?? Date.now(), stale, source: "fmp" },
+            { items, fetchedAt: cache?.at ?? Date.now(), stale, source },
             {
               headers: {
                 "Cache-Control": "public, max-age=300, s-maxage=10800, stale-while-revalidate=86400",
