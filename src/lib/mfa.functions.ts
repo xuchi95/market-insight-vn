@@ -6,8 +6,24 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 // --- Authsignal REST client (called directly from server — no Lovable AI Gateway, no Cloud credit) ---
 
 function authsignalBaseUrl(): string {
-  const region = (process.env.AUTHSIGNAL_REGION || "us").toLowerCase().trim();
-  // Authsignal regional server API endpoints
+  const raw = (process.env.AUTHSIGNAL_REGION || "us").toLowerCase().trim();
+  // Chấp nhận cả mã region (us, eu, au) lẫn tên hiển thị ("AP Southeast (Sydney)", "US Oregon", ...)
+  // Chuẩn hoá: bỏ khoảng trắng/dấu ngoặc rồi map về subdomain hợp lệ của Authsignal.
+  const normalized = raw.replace(/[()]/g, " ").replace(/\s+/g, " ").trim();
+  const regionMap: Record<string, string> = {
+    "us": "us",
+    "us oregon": "us",
+    "eu": "eu",
+    "eu ireland": "eu",
+    "au": "au",
+    "au sydney": "au",
+    "ap southeast": "au",
+    "ap southeast sydney": "au",
+    "ap-southeast": "au",
+    "ap-southeast-sydney": "au",
+    "sydney": "au",
+  };
+  const region = regionMap[normalized] ?? (/^[a-z]{2,3}$/.test(normalized) ? normalized : "us");
   return `https://${region}.signal.authsignal.com/v1`;
 }
 
