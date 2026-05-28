@@ -383,6 +383,152 @@ function labelFor(h: { asset_type: "crypto" | "gold"; symbol: string }) {
   return g ? g.name : h.symbol;
 }
 
+function computeHistory(transactions: Tx[]) {
+  const byDate = new Map<string, Tx[]>();
+  for (const t of transactions) {
+    const d = t.executed_at.slice(0, 10);
+    if (!byDate.has(d)) byDate.set(d, []);
+    byDate.get(d)!.push(t);
+  }
+  const dates = Array.from(byDate.keys()).sort();
+
+  type Pos = {
+    asset_type: "crypto" | "gold"; symbol: string;
+    quantity: number; avgCostVnd: number; costVnd: number;
+    realizedPlVnd: number; totalFeeVnd: number;
+  };
+
+  const positions = new Map<string, Pos>();
+  let totalInvested = 0;
+  const history: { date: string; invested: number; costBasis: number; realized: number }[] = [];
+
+  for (const d of dates) {
+    const txs = [...byDate.get(d)!].sort((a, b) => a.executed_at.localeCompare(b.executed_at));
+    for (const t of txs) {
+      const key = `${t.asset_type}:${t.symbol}`;
+      const priceVnd = t.price_vnd ?? (t.price_usd != null ? t.price_usd * 25_400 : 0);
+      const cur: Pos = positions.get(key) ?? {
+        asset_type: t.asset_type, symbol: t.symbol,
+        quantity: 0, avgCostVnd: 0, costVnd: 0,
+        realizedPlVnd: 0, totalFeeVnd: 0,
+      };
+      cur.totalFeeVnd += t.fee_vnd ?? 0;
+      if (t.side === "buy") {
+        const newQty = cur.quantity + t.quantity;
+        const newCost = cur.costVnd + priceVnd * t.quantity + (t.fee_vnd ?? 0);
+        cur.quantity = newQty;
+        cur.costVnd = newCost;
+        cur.avgCostVnd = newQty > 0 ? newCost / newQty : 0;
+        totalInvested += priceVnd * t.quantity + (t.fee_vnd ?? 0);
+      } else {
+        const sellQty = Math.min(t.quantity, cur.quantity);
+        const proceeds = priceVnd * sellQty - (t.fee_vnd ?? 0);
+        const cb = cur.avgCostVnd * sellQty;
+        cur.realizedPlVnd += proceeds - cb;
+        cur.quantity -= sellQty;
+        cur.costVnd = cur.avgCostVnd * cur.quantity;
+      }
+      positions.set(key, cur);
+    }
+    const costBasis = Array.from(positions.values()).reduce((s, p) => s + p.costVnd, 0);
+    const realized = Array.from(positions.values()).reduce((s, p) => s + p.realizedPlVnd, 0);
+    history.push({ date: d, invested: totalInvested, costBasis, realized });
+  }
+  return history;
+}
+
+function PortfolioChart({ transactions, totals }: { transactions: Tx[]; totals: { current: number; cost: number; realized: number } }) {
+  const history = useMemo(() => {
+    const h = computeHistory(transactions);
+    if (h.length === 0) return [];
+    const today = new Date().toISOString().slice(0, 10);
+    const last = h[h.length - 1];
+    if (last.date !== today) {
+      h.push({ date: today, invested: last.invested, costBasis: totals.cost, realized: totals.realized });
+    } else {
+      last.costBasis = totals.cost;
+      last.realized = totals.realized;
+    }
+    const final = h[h.length - 1];
+    (final as any).marketValue = totals.current;
+    return h;
+  }, [transactions, totals]);
+
+  if (history.length < 2) return null;
+
+  return (
+    <div className="rounded-lg border border-border p-4 mb-6">
+      <Tabs defaultValue="value">
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Hiệu suất theo thời gian</div>
+          <TabsList className="h-7">
+            <TabsTrigger value="value" className="text-xs px-2">Giá trị</TabsTrigger>
+            <TabsTrigger value="pl" className="text-xs px-2">P/L</TabsTrigger>
+          </TabsList>
+        </div>
+        <TabsContent value="value">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={history} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={(v: string) => new Date(v).toLocaleDateString("vi-VN", { day: "numeric", month: "short" })} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => {
+                  if (v >= 1_000_000_000) return (v / 1_000_000_000).toFixed(1) + "B";
+                  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1) + "M";
+                  if (v >= 1_000) return (v / 1_000).toFixed(0) + "k";
+                  return String(v);
+                }} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip content={({ payload, label }) => {
+                  if (!payload?.length) return null;
+                  const p = payload[0].payload as any;
+                  return (
+                    <div className="bg-card border border-border rounded-md p-2 shadow-lg text-xs">
+                      <div className="font-medium mb-1">{new Date(label as string).toLocaleDateString("vi-VN")}</div>
+                      <div className="flex justify-between gap-4 text-muted-foreground"><span>Vốn đã bỏ ra</span><span className="tabular-nums text-foreground">{fmtVND(p.invested)}</span></div>
+                      <div className="flex justify-between gap-4 text-muted-foreground"><span>Giá trị sổ sách</span><span className="tabular-nums text-foreground">{fmtVND(p.costBasis)}</span></div>
+                      {p.marketValue != null && <div className="flex justify-between gap-4 text-emerald-500"><span>Giá trị thị trường</span><span className="tabular-nums font-medium">{fmtVND(p.marketValue)}</span></div>}
+                    </div>
+                  );
+                }} />
+                <Area type="monotone" dataKey="invested" stroke="#94a3b8" fill="#94a3b8" fillOpacity={0.08} strokeWidth={2} dot={false} name="Vốn đã bỏ ra" />
+                <Area type="monotone" dataKey="costBasis" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.12} strokeWidth={2} dot={false} name="Giá trị sổ sách" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </TabsContent>
+        <TabsContent value="pl">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={history} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={(v: string) => new Date(v).toLocaleDateString("vi-VN", { day: "numeric", month: "short" })} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => {
+                  const abs = Math.abs(v);
+                  if (abs >= 1_000_000_000) return (v / 1_000_000_000).toFixed(1) + "B";
+                  if (abs >= 1_000_000) return (v / 1_000_000).toFixed(1) + "M";
+                  if (abs >= 1_000) return (v / 1_000).toFixed(0) + "k";
+                  return String(v);
+                }} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip content={({ payload, label }) => {
+                  if (!payload?.length) return null;
+                  const p = payload[0].payload as any;
+                  return (
+                    <div className="bg-card border border-border rounded-md p-2 shadow-lg text-xs">
+                      <div className="font-medium mb-1">{new Date(label as string).toLocaleDateString("vi-VN")}</div>
+                      <div className="flex justify-between gap-4 text-muted-foreground"><span>Lãi/Lỗ đã chốt</span><span className={`tabular-nums font-medium ${p.realized >= 0 ? "text-emerald-500" : "text-rose-500"}`}>{fmtVND(p.realized)}</span></div>
+                    </div>
+                  );
+                }} />
+                <Area type="monotone" dataKey="realized" stroke="#10b981" fill="#10b981" fillOpacity={0.12} strokeWidth={2} dot={false} name="Lãi/Lỗ đã chốt" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
 function Metric({ label, value, accent }: { label: string; value: string; accent?: "up" | "down" }) {
   const cls = accent === "up" ? "text-emerald-500" : accent === "down" ? "text-rose-500" : "text-foreground";
   return (
