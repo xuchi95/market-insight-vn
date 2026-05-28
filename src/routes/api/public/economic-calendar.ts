@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import type { EconAffects, EconImpact, EconomicEvent } from "@/lib/data/economicCalendar";
+import { ECONOMIC_EVENTS, type EconAffects, type EconImpact, type EconomicEvent } from "@/lib/data/economicCalendar";
 
 const CACHE_MS = 3 * 60 * 60 * 1000; // 3h
 const UPSTREAM_TIMEOUT_MS = 8000;
-let cache: { at: number; items: EconomicEvent[] } | null = null;
-let inflight: Promise<EconomicEvent[]> | null = null;
+type CalendarSource = "fmp" | "forexfactory" | "reference";
+let cache: { at: number; items: EconomicEvent[]; source: CalendarSource } | null = null;
+let inflight: Promise<{ items: EconomicEvent[]; source: CalendarSource }> | null = null;
 
 const COUNTRY_NAMES: Record<string, string> = {
   US: "Hoa Kỳ", EU: "Eurozone", DE: "Đức", FR: "Pháp", IT: "Ý", ES: "Tây Ban Nha",
@@ -77,7 +78,7 @@ function ymd(d: Date): string {
 function toIsoUtc(rawDate: string): string {
   // FMP returns "YYYY-MM-DD HH:mm:ss" (UTC). Normalise to ISO.
   if (!rawDate) return new Date().toISOString();
-  if (rawDate.includes("T")) return rawDate;
+  if (rawDate.includes("T")) return new Date(rawDate).toISOString();
   return rawDate.replace(" ", "T") + "Z";
 }
 
