@@ -290,16 +290,44 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       alert_asset_type: "crypto" | "gold"
       alert_direction: "above" | "below"
+      app_role: "admin" | "user"
       holding_asset_type: "crypto" | "gold"
       transaction_side: "buy" | "sell"
     }
@@ -431,6 +459,7 @@ export const Constants = {
     Enums: {
       alert_asset_type: ["crypto", "gold"],
       alert_direction: ["above", "below"],
+      app_role: ["admin", "user"],
       holding_asset_type: ["crypto", "gold"],
       transaction_side: ["buy", "sell"],
     },
