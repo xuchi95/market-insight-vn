@@ -13,11 +13,10 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 //                  (or https://project--52e41981-97fc-41b5-ab3a-9e7715246666.lovable.app/api/public/authsignal-sms)
 //   Tenant secret = AUTHSIGNAL_API_SECRET (already set as a project secret)
 //
-// Required secrets for eSMS.vn (set via Project Settings → Secrets):
-//   ESMS_API_KEY       (ApiKey từ trang quản trị eSMS.vn)
-//   ESMS_SECRET_KEY    (SecretKey)
-//   ESMS_BRANDNAME     (Brandname đã đăng ký, vd "MARKETWATCH")
-//   ESMS_SMS_TYPE      (tuỳ chọn — mặc định "2" cho Brandname CSKH/OTP)
+// Required secrets for Speedsms.vn (set via Project Settings → Secrets):
+//   SPEEDSMS_ACCESS_TOKEN  (Access token lấy trong trang quản trị Speedsms)
+//   SPEEDSMS_SENDER        (Brandname đã đăng ký, vd "MARKETWATCH")
+//   SPEEDSMS_SMS_TYPE      (tuỳ chọn — mặc định "3" = Brandname OTP; "2" = Brandname CSKH)
 
 function verifySignature(rawBody: string, header: string | null, secret: string): boolean {
   if (!header) return false;
@@ -63,45 +62,41 @@ function normalizePhoneVN(raw: string): string {
   return digits;
 }
 
-async function sendSmsViaEsms(to: string, body: string): Promise<void> {
-  const apiKey = process.env.ESMS_API_KEY;
-  const secretKey = process.env.ESMS_SECRET_KEY;
-  const brandname = process.env.ESMS_BRANDNAME;
-  const smsType = process.env.ESMS_SMS_TYPE || "2"; // 2 = Brandname CSKH (OTP)
-  if (!apiKey || !secretKey || !brandname) {
-    throw new Error("eSMS chưa được cấu hình (thiếu ESMS_API_KEY / ESMS_SECRET_KEY / ESMS_BRANDNAME).");
+async function sendSmsViaSpeedsms(to: string, body: string): Promise<void> {
+  const accessToken = process.env.SPEEDSMS_ACCESS_TOKEN;
+  const sender = process.env.SPEEDSMS_SENDER;
+  // 2 = Brandname CSKH, 3 = Brandname OTP (Speedsms quy ước)
+  const smsType = Number(process.env.SPEEDSMS_SMS_TYPE || "3");
+  if (!accessToken || !sender) {
+    throw new Error("Speedsms chưa được cấu hình (thiếu SPEEDSMS_ACCESS_TOKEN / SPEEDSMS_SENDER).");
   }
 
   const phone = normalizePhoneVN(to);
-  // Phát hiện ký tự ngoài ASCII → bật IsUnicode để eSMS gửi tin Unicode.
-  const isUnicode = /[^\x00-\x7F]/.test(body) ? "1" : "0";
-
   const payload = {
-    ApiKey: apiKey,
-    SecretKey: secretKey,
-    Content: body,
-    Phone: phone,
-    Brandname: brandname,
-    SmsType: smsType,
-    IsUnicode: isUnicode,
+    to: [phone],
+    content: body,
+    sms_type: smsType,
+    sender,
   };
 
-  const res = await fetch(
-    "https://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_post_json/",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+  // Speedsms dùng Basic auth: base64(accessToken + ":x")
+  const auth = Buffer.from(`${accessToken}:x`).toString("base64");
+  const res = await fetch("https://api.speedsms.vn/index.php/sms/send", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify(payload),
+  });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`eSMS HTTP lỗi [${res.status}]: ${text}`);
+    throw new Error(`Speedsms HTTP lỗi [${res.status}]: ${text}`);
   }
   const json: any = await res.json().catch(() => null);
-  // eSMS trả về CodeResult "100" = thành công; các mã khác = lỗi.
-  if (!json || String(json.CodeResult) !== "100") {
-    throw new Error(`eSMS từ chối [${json?.CodeResult}]: ${json?.ErrorMessage ?? "unknown"}`);
+  // Speedsms trả về { status: "success", ... } khi thành công.
+  if (!json || json.status !== "success") {
+    throw new Error(`Speedsms từ chối: ${json?.message ?? JSON.stringify(json)}`);
   }
 }
 
@@ -154,7 +149,7 @@ export const Route = createFileRoute("/api/public/authsignal-sms")({
         }
 
         try {
-          await sendSmsViaEsms(to, text);
+          await sendSmsViaSpeedsms(to, text);
         } catch (e: any) {
           console.error("authsignal-sms: gửi SMS thất bại", e?.message ?? e);
           return Response.json({ ok: false, error: e?.message ?? "send_failed" }, { status: 502 });
