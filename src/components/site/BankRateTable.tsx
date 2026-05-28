@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { AlertTriangle, Landmark, Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { fetchBankRates } from "@/lib/services/bankRateService";
 import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { SectionCard } from "./SectionCard";
@@ -85,8 +86,16 @@ export function BankRateTable() {
             ))}
             {rows.map((r) => (
               <tr key={r.code} className="hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3 font-bold text-gold">{r.code}</td>
-                <td className="px-4 py-3 text-muted-foreground">{r.name}</td>
+                <td className="px-4 py-3 font-bold text-gold">
+                  <Link to="/tai-san/$symbol" params={{ symbol: `bank-${r.code.toLowerCase()}` }} className="hover:underline">
+                    {r.code}
+                  </Link>
+                </td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  <Link to="/tai-san/$symbol" params={{ symbol: `bank-${r.code.toLowerCase()}` }} className="hover:text-foreground">
+                    {r.name}
+                  </Link>
+                </td>
                 <td className="px-4 py-3 text-right tabular">{r.cash ? fmtNum(r.cash, 2) : "—"}</td>
                 <td className="px-4 py-3 text-right tabular">{r.transfer ? fmtNum(r.transfer, 2) : "—"}</td>
                 <td className="px-4 py-3 text-right tabular font-semibold">{r.sell ? fmtNum(r.sell, 2) : "—"}</td>
