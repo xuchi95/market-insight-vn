@@ -284,12 +284,12 @@ function BackupCodesPanel({ codes, onDone }: { codes: string[]; onDone: () => vo
       [`MarketWatch — Mã dự phòng 2FA\nLưu file này ở nơi an toàn.\nMỗi mã chỉ dùng được 1 lần.\n\n${codes.join("\n")}\n`],
       { type: "text/plain" },
     );
-    const url = URL.createObjectURL(blob);
+    const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "marketwatch-backup-codes.txt";
     a.click();
-    URL.revokeObjectURL(url);
+    window.URL.revokeObjectURL(url);
   }
 
   return (

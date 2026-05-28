@@ -42,6 +42,7 @@ import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
+import { Route as CaiDatBaoMatRouteImport } from './routes/cai-dat.bao-mat'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-preview'
@@ -231,6 +232,11 @@ const CongCuDcaRoiRoute = CongCuDcaRoiRouteImport.update({
   path: '/cong-cu/dca-roi',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaiDatBaoMatRoute = CaiDatBaoMatRouteImport.update({
+  id: '/cai-dat/bao-mat',
+  path: '/cai-dat/bao-mat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaiDatBanTinRoute = CaiDatBanTinRouteImport.update({
   id: '/cai-dat/ban-tin',
   path: '/cai-dat/ban-tin',
@@ -387,6 +393,7 @@ export interface FileRoutesByFullPath {
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
+  '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
@@ -445,6 +452,7 @@ export interface FileRoutesByTo {
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
+  '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
@@ -504,6 +512,7 @@ export interface FileRoutesById {
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
+  '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
@@ -564,6 +573,7 @@ export interface FileRouteTypes {
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
+    | '/cai-dat/bao-mat'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
@@ -622,6 +632,7 @@ export interface FileRouteTypes {
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
+    | '/cai-dat/bao-mat'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
@@ -680,6 +691,7 @@ export interface FileRouteTypes {
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
+    | '/cai-dat/bao-mat'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/api/contact/submit'
@@ -739,6 +751,7 @@ export interface RootRouteChildren {
   AdminEmailPreviewRoute: typeof AdminEmailPreviewRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
+  CaiDatBaoMatRoute: typeof CaiDatBaoMatRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
@@ -996,6 +1009,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CongCuDcaRoiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cai-dat/bao-mat': {
+      id: '/cai-dat/bao-mat'
+      path: '/cai-dat/bao-mat'
+      fullPath: '/cai-dat/bao-mat'
+      preLoaderRoute: typeof CaiDatBaoMatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cai-dat/ban-tin': {
       id: '/cai-dat/ban-tin'
       path: '/cai-dat/ban-tin'
@@ -1195,6 +1215,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminEmailPreviewRoute: AdminEmailPreviewRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
+  CaiDatBaoMatRoute: CaiDatBaoMatRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
@@ -1222,13 +1243,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
