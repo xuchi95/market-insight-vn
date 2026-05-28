@@ -3,6 +3,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { StockIndexTable } from "@/components/site/StockIndexTable";
+import { UsStockTable } from "@/components/site/UsStockTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://marketwatch.vn";
@@ -83,6 +84,7 @@ function StocksPage() {
             </p>
           </header>
           <StockIndexTable />
+          <UsStockTable />
           <section className="prose prose-invert max-w-none space-y-3">
             <h2 className="text-2xl font-bold tracking-tight">Về dữ liệu chỉ số</h2>
             <p className="text-muted-foreground">
