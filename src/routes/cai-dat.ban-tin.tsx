@@ -15,6 +15,7 @@ import {
   subscribeNewsletter,
   unsubscribeNewsletter,
   changeNewsletterEmail,
+  updateNewsletterTopics,
 } from "@/lib/newsletter.functions";
 
 const TITLE = "Quản lý bản tin — MarketWatch";
@@ -83,6 +84,7 @@ function SettingsCard() {
   const subscribe = useServerFn(subscribeNewsletter);
   const unsubscribe = useServerFn(unsubscribeNewsletter);
   const changeEmail = useServerFn(changeNewsletterEmail);
+  const updateTopics = useServerFn(updateNewsletterTopics);
 
   const { data, isLoading } = useQuery({
     queryKey: ["my-newsletter"],
@@ -95,6 +97,26 @@ function SettingsCard() {
 
   const accountEmail = data?.accountEmail ?? "";
   const active = (data?.subscriptions ?? []).find((s) => !s.unsubscribed_at);
+  const topics = (active?.topics ?? ["gold", "btc", "usd"]) as ("gold" | "btc" | "usd")[];
+
+  async function handleToggleTopic(topic: "gold" | "btc" | "usd") {
+    if (!active) return;
+    const next = topics.includes(topic) ? topics.filter((t) => t !== topic) : [...topics, topic];
+    if (next.length === 0) {
+      toast.error("Chọn ít nhất 1 chủ đề");
+      return;
+    }
+    setBusy(true);
+    try {
+      await updateTopics({ data: { email: active.email, topics: next } });
+      toast.success("Đã cập nhật chủ đề");
+      qc.invalidateQueries({ queryKey: ["my-newsletter"] });
+    } catch (e: any) {
+      toast.error("Không thể cập nhật", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function handleSubscribe(email: string) {
     setBusy(true);
@@ -242,6 +264,48 @@ function SettingsCard() {
           Bạn có thể huỷ đăng ký bất cứ lúc nào tại trang này hoặc qua đường dẫn ở cuối mỗi email.
         </p>
       </section>
+
+      {active && (
+        <section className="rounded-2xl border border-border bg-card/40 p-6">
+          <h2 className="font-display text-lg text-foreground mb-1">Chủ đề bản tin tuần</h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            Chọn các chủ đề bạn muốn xuất hiện trong bản tin hàng tuần (kèm biểu đồ tóm tắt 7 ngày).
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {([
+              { key: "gold", label: "Vàng (XAU/USD)" },
+              { key: "btc", label: "Bitcoin (BTC)" },
+              { key: "usd", label: "Tỷ giá USD/VND" },
+            ] as const).map((t) => {
+              const on = topics.includes(t.key);
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => handleToggleTopic(t.key)}
+                  className={`text-left rounded-lg border px-4 py-3 transition ${
+                    on
+                      ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,transparent)]"
+                      : "border-border bg-background/40 hover:border-foreground/30"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">{t.label}</span>
+                    <span
+                      className={`h-4 w-4 rounded-sm border flex items-center justify-center ${
+                        on ? "bg-[var(--gold)] border-[var(--gold)]" : "border-muted-foreground/40"
+                      }`}
+                    >
+                      {on ? <Check className="h-3 w-3 text-background" /> : null}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
