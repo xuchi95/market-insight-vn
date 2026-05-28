@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as XacThuc2faRouteImport } from './routes/xac-thuc-2fa'
 import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
 import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
@@ -67,6 +68,11 @@ import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newslet
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 
+const XacThuc2faRoute = XacThuc2faRouteImport.update({
+  id: '/xac-thuc-2fa',
+  path: '/xac-thuc-2fa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ViMoVietNamRoute = ViMoVietNamRouteImport.update({
   id: '/vi-mo-viet-nam',
   path: '/vi-mo-viet-nam',
@@ -390,6 +396,7 @@ export interface FileRoutesByFullPath {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
+  '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -449,6 +456,7 @@ export interface FileRoutesByTo {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
+  '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -509,6 +517,7 @@ export interface FileRoutesById {
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
+  '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -570,6 +579,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
+    | '/xac-thuc-2fa'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -629,6 +639,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
+    | '/xac-thuc-2fa'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -688,6 +699,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
+    | '/xac-thuc-2fa'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -748,6 +760,7 @@ export interface RootRouteChildren {
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   ViMoVietNamRoute: typeof ViMoVietNamRoute
+  XacThuc2faRoute: typeof XacThuc2faRoute
   AdminEmailPreviewRoute: typeof AdminEmailPreviewRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
@@ -778,6 +791,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/xac-thuc-2fa': {
+      id: '/xac-thuc-2fa'
+      path: '/xac-thuc-2fa'
+      fullPath: '/xac-thuc-2fa'
+      preLoaderRoute: typeof XacThuc2faRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vi-mo-viet-nam': {
       id: '/vi-mo-viet-nam'
       path: '/vi-mo-viet-nam'
@@ -1212,6 +1232,7 @@ const rootRouteChildren: RootRouteChildren = {
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   ViMoVietNamRoute: ViMoVietNamRoute,
+  XacThuc2faRoute: XacThuc2faRoute,
   AdminEmailPreviewRoute: AdminEmailPreviewRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,

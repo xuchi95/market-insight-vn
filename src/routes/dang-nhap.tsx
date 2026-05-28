@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { AuthShell, GoogleButton, Divider } from "@/components/site/AuthShell";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { getMfaStatus } from "@/lib/mfa.functions";
+import { clearMfaVerified } from "@/routes/xac-thuc-2fa";
 
 const TITLE = "Đăng nhập — MarketWatch";
 const DESC = "Đăng nhập MarketWatch để đặt cảnh báo giá và nhận email khi vàng, crypto chạm ngưỡng.";
@@ -38,10 +40,21 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error("Đăng nhập không thành công", { description: error.message });
       return;
+    }
+    clearMfaVerified();
+    try {
+      const s = await getMfaStatus();
+      setLoading(false);
+      if (s.enrolled) {
+        navigate({ to: "/xac-thuc-2fa", replace: true });
+        return;
+      }
+    } catch {
+      setLoading(false);
     }
     toast.success("Đăng nhập thành công");
     navigate({ to: "/" });
@@ -49,6 +62,7 @@ function LoginPage() {
 
   async function onGoogle() {
     setLoading(true);
+    clearMfaVerified();
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
     if (result.error) {
       setLoading(false);
