@@ -86,6 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "robots", content: "index,follow,max-image-preview:large,max-snippet:-1" },
       { name: "theme-color", content: "#0a0a0a" },
       { name: "author", content: "MarketWatch" },
+      { name: "google-site-verification", content: "QM1xHGgwKqlqIn06cikiqkw6uwQ_bvTwhspQhG_5ezI" },
       { property: "og:title", content: "MarketWatch — Giá vàng, crypto & ngoại tệ realtime" },
       { name: "twitter:title", content: "MarketWatch — Giá vàng, crypto & ngoại tệ realtime" },
       { property: "og:description", content: "Dashboard tài chính realtime: giá vàng SJC, DOJI, BTC, ETH, USD và tỷ giá ngoại tệ." },
