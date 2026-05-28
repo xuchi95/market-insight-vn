@@ -402,7 +402,7 @@ function computeHistory(transactions: Tx[]) {
 
   const positions = new Map<string, Pos>();
   let totalInvested = 0;
-  const history: { date: string; invested: number; costBasis: number; realized: number }[] = [];
+  const history: { date: string; invested: number; costBasis: number; realized: number; marketValue?: number; unrealized?: number; totalPl?: number }[] = [];
 
   for (const d of dates) {
     const txs = [...byDate.get(d)!].sort((a, b) => a.executed_at.localeCompare(b.executed_at));
