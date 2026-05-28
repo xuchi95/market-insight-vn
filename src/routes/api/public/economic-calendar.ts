@@ -132,12 +132,67 @@ async function fetchFromFmp(): Promise<EconomicEvent[]> {
   }
 }
 
-function refresh(): Promise<EconomicEvent[]> {
+async function fetchFromForexFactory(): Promise<EconomicEvent[]> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
+  try {
+    const res = await fetch("https://nfs.faireconomy.media/ff_calendar_thisweek.json", {
+      headers: { accept: "application/json", "user-agent": "MarketWatch.vn/1.0" },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error(`ForexFactory HTTP ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("ForexFactory: unexpected response shape");
+
+    const items: EconomicEvent[] = [];
+    for (const r of data as Array<Record<string, unknown>>) {
+      const country = normCountry(String(r.country ?? ""));
+      const eventName = String(r.title ?? r.event ?? "").trim();
+      if (!country || !eventName) continue;
+      const datetime = toIsoUtc(String(r.date ?? ""));
+      const id = `ff-${country}-${eventName}-${datetime}`
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, "-")
+        .slice(0, 120);
+      items.push({
+        id,
+        datetime,
+        country,
+        countryName: COUNTRY_NAMES[country] ?? country,
+        event: eventName,
+        impact: normImpact(r.impact),
+        previous: fmtValue(r.previous),
+        forecast: fmtValue(r.forecast),
+        actual: fmtValue(r.actual),
+        affects: inferAffects(country, eventName),
+      });
+    }
+    items.sort((a, b) => a.datetime.localeCompare(b.datetime));
+    return items;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+function refresh(): Promise<{ items: EconomicEvent[]; source: CalendarSource }> {
   if (inflight) return inflight;
-  inflight = fetchFromFmp()
-    .then((items) => {
-      if (items.length) cache = { at: Date.now(), items };
-      return items;
+  inflight = (async () => {
+    const errors: string[] = [];
+    for (const source of ["fmp", "forexfactory"] as const) {
+      try {
+        const items = source === "fmp" ? await fetchFromFmp() : await fetchFromForexFactory();
+        if (items.length) return { items, source };
+        errors.push(`${source}: empty response`);
+      } catch (err) {
+        errors.push(`${source}: ${(err as Error).message}`);
+      }
+    }
+    if (ECONOMIC_EVENTS.length) return { items: ECONOMIC_EVENTS, source: "reference" };
+    throw new Error(errors.join("; ") || "No economic calendar source available");
+  })()
+    .then((result) => {
+      if (result.items.length) cache = { at: Date.now(), ...result };
+      return result;
     })
     .finally(() => {
       inflight = null;
