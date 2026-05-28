@@ -47,6 +47,7 @@ import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
+import { Route as ApiPublicMetalsRouteImport } from './routes/api/public/metals'
 import { Route as ApiPublicMacroVnRouteImport } from './routes/api/public/macro-vn'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
@@ -249,6 +250,11 @@ const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
   path: '/api/public/pair-history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMetalsRoute = ApiPublicMetalsRouteImport.update({
+  id: '/api/public/metals',
+  path: '/api/public/metals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMacroVnRoute = ApiPublicMacroVnRouteImport.update({
   id: '/api/public/macro-vn',
   path: '/api/public/macro-vn',
@@ -344,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
+  '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -394,6 +401,7 @@ export interface FileRoutesByTo {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
+  '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -445,6 +453,7 @@ export interface FileRoutesById {
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
+  '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -497,6 +506,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/macro-vn'
+    | '/api/public/metals'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -547,6 +557,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/macro-vn'
+    | '/api/public/metals'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -597,6 +608,7 @@ export interface FileRouteTypes {
     | '/api/public/forex'
     | '/api/public/gold'
     | '/api/public/macro-vn'
+    | '/api/public/metals'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -648,6 +660,7 @@ export interface RootRouteChildren {
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
   ApiPublicMacroVnRoute: typeof ApiPublicMacroVnRoute
+  ApiPublicMetalsRoute: typeof ApiPublicMetalsRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
@@ -924,6 +937,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPairHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/metals': {
+      id: '/api/public/metals'
+      path: '/api/public/metals'
+      fullPath: '/api/public/metals'
+      preLoaderRoute: typeof ApiPublicMetalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/macro-vn': {
       id: '/api/public/macro-vn'
       path: '/api/public/macro-vn'
@@ -1040,6 +1060,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
   ApiPublicMacroVnRoute: ApiPublicMacroVnRoute,
+  ApiPublicMetalsRoute: ApiPublicMetalsRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
