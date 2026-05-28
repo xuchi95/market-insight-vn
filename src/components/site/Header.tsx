@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Sparkles, User as UserIcon, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
@@ -23,32 +23,50 @@ import {
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu";
 
-type NavItem = { label: string; to: string };
-const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+type NavItem = { label: string; to: string; hint?: string };
+type NavColumn = { heading: string; items: NavItem[] };
+type NavGroup = { label: string; columns: NavColumn[] };
+
+const NAV_GROUPS: NavGroup[] = [
   {
     label: "Thị trường",
-    items: [
-      { label: "Vàng", to: "/gia-vang" },
-      { label: "Chứng khoán", to: "/chung-khoan" },
-      { label: "Crypto", to: "/tien-dien-tu" },
-    ],
-  },
-  {
-    label: "Ngoại tệ",
-    items: [
-      { label: "Ngoại tệ", to: "/ty-gia-ngoai-te" },
-      { label: "Tỷ giá NH", to: "/ty-gia-ngan-hang" },
-      { label: "Đổi tiền", to: "/quy-doi-tien-te" },
+    columns: [
+      {
+        heading: "Tài sản",
+        items: [
+          { label: "Vàng", to: "/gia-vang", hint: "SJC, PNJ, DOJI" },
+          { label: "Chứng khoán", to: "/chung-khoan", hint: "VN-Index, HOSE, HNX" },
+          { label: "Tiền điện tử", to: "/tien-dien-tu", hint: "BTC, ETH, top 100" },
+        ],
+      },
+      {
+        heading: "Tỷ giá",
+        items: [
+          { label: "Ngoại tệ", to: "/ty-gia-ngoai-te", hint: "USD, EUR, JPY…" },
+          { label: "Tỷ giá ngân hàng", to: "/ty-gia-ngan-hang", hint: "VCB, BIDV, TCB" },
+          { label: "Quy đổi tiền tệ", to: "/quy-doi-tien-te", hint: "Đổi tiền nhanh" },
+        ],
+      },
     ],
   },
   {
     label: "Công cụ",
-    items: [
-      { label: "DCA & ROI", to: "/cong-cu/dca-roi" },
-      { label: "Lịch kinh tế", to: "/lich-kinh-te" },
-      { label: "Vĩ mô Việt Nam", to: "/vi-mo-viet-nam" },
-      { label: "Lãi suất tiết kiệm", to: "/lai-suat-tiet-kiem" },
-      { label: "Danh mục", to: "/portfolio" },
+    columns: [
+      {
+        heading: "Đầu tư",
+        items: [
+          { label: "DCA & ROI", to: "/cong-cu/dca-roi", hint: "Tính lợi nhuận" },
+          { label: "Danh mục", to: "/portfolio", hint: "Theo dõi tài sản" },
+          { label: "Lãi suất tiết kiệm", to: "/lai-suat-tiet-kiem", hint: "So sánh ngân hàng" },
+        ],
+      },
+      {
+        heading: "Dữ liệu",
+        items: [
+          { label: "Lịch kinh tế", to: "/lich-kinh-te", hint: "Sự kiện vĩ mô" },
+          { label: "Vĩ mô Việt Nam", to: "/vi-mo-viet-nam", hint: "GDP, CPI, lãi suất" },
+        ],
+      },
     ],
   },
 ];
@@ -68,8 +86,14 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const time = useClock();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
@@ -82,10 +106,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </Link>
 
         {/* Desktop NavigationMenu */}
-        <div className="hidden md:flex items-center ml-4">
+        <div className="hidden md:flex items-center ml-6">
           <NavigationMenu>
-            <NavigationMenuList className="gap-1">
-              {/* Home standalone */}
+            <NavigationMenuList className="gap-0.5">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
@@ -98,28 +121,43 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
-              {/* Dropdown groups */}
               {NAV_GROUPS.map((group) => (
                 <NavigationMenuItem key={group.label}>
                   <NavigationMenuTrigger className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
                     {group.label}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid w-48 gap-1 p-2 bg-popover border border-border rounded-md shadow-md">
-                      {group.items.map((item) => (
-                        <li key={item.to}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              to={item.to}
-                              activeOptions={{ exact: true }}
-                              className="block rounded-sm px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors data-[status=active]:text-[var(--gold)]"
-                            >
-                              {item.label}
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
+                    <div className="grid grid-cols-2 gap-6 p-4 w-[480px] bg-popover">
+                      {group.columns.map((col) => (
+                        <div key={col.heading} className="space-y-2">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/70 px-2">
+                            {col.heading}
+                          </div>
+                          <ul className="space-y-0.5">
+                            {col.items.map((item) => (
+                              <li key={item.to}>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    to={item.to}
+                                    activeOptions={{ exact: true }}
+                                    className="group block rounded-md px-2 py-1.5 hover:bg-accent transition-colors data-[status=active]:bg-accent/60"
+                                  >
+                                    <div className="text-xs font-medium text-foreground group-hover:text-[var(--gold)] data-[status=active]:text-[var(--gold)] transition-colors">
+                                      {item.label}
+                                    </div>
+                                    {item.hint && (
+                                      <div className="text-[10px] text-muted-foreground/80 mt-0.5">
+                                        {item.hint}
+                                      </div>
+                                    )}
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
               ))}
@@ -127,32 +165,47 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </NavigationMenu>
         </div>
 
-        <div className="ml-auto flex items-center gap-4">
-          <form
-            className="relative hidden lg:block"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const term = q.trim().toLowerCase();
-              if (!term) return;
-              onSearch?.(term);
-              if (/btc|eth|crypto|bitcoin/.test(term)) navigate({ to: "/tien-dien-tu" });
-              else if (/sjc|xau|vàng|vang|gold/.test(term)) navigate({ to: "/gia-vang" });
-              else if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) navigate({ to: "/ty-gia-ngoai-te" });
-              else if (/lãi|lai|ngân hàng|ngan hang|bank/.test(term)) navigate({ to: "/ty-gia-ngan-hang" });
-              else if (/đổi|doi|convert/.test(term)) navigate({ to: "/quy-doi-tien-te" });
-              else if (/vn-?index|hose|hnx|chứng|chung|stock/.test(term)) navigate({ to: "/chung-khoan" });
-            }}
-          >
-            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input
-              value={q}
-              onChange={(e) => { setQ(e.target.value); onSearch?.(e.target.value); }}
-              placeholder="BTC, SJC, USD…"
-              className="pl-8 w-44 h-8 rounded-none border-x-0 border-t-0 border-b border-border bg-transparent text-xs focus-visible:ring-0"
-            />
-          </form>
-          <span className="hidden sm:inline eyebrow opacity-60">Hà Nội · {time}</span>
-          <div className="hidden md:block h-5 w-px bg-border" aria-hidden />
+        <div className="ml-auto flex items-center gap-2">
+          <div className="hidden md:flex items-center">
+            {searchOpen ? (
+              <form
+                className="relative animate-in fade-in slide-in-from-right-2 duration-200"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const term = q.trim().toLowerCase();
+                  if (!term) return;
+                  onSearch?.(term);
+                  if (/btc|eth|crypto|bitcoin/.test(term)) navigate({ to: "/tien-dien-tu" });
+                  else if (/sjc|xau|vàng|vang|gold/.test(term)) navigate({ to: "/gia-vang" });
+                  else if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) navigate({ to: "/ty-gia-ngoai-te" });
+                  else if (/lãi|lai|ngân hàng|ngan hang|bank/.test(term)) navigate({ to: "/ty-gia-ngan-hang" });
+                  else if (/đổi|doi|convert/.test(term)) navigate({ to: "/quy-doi-tien-te" });
+                  else if (/vn-?index|hose|hnx|chứng|chung|stock/.test(term)) navigate({ to: "/chung-khoan" });
+                  setSearchOpen(false);
+                }}
+              >
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  ref={searchInputRef}
+                  value={q}
+                  onChange={(e) => { setQ(e.target.value); onSearch?.(e.target.value); }}
+                  onBlur={() => { if (!q) setSearchOpen(false); }}
+                  placeholder="BTC, SJC, USD…"
+                  className="pl-8 w-48 h-8 rounded-full border border-border bg-card/60 text-xs focus-visible:ring-1 focus-visible:ring-[var(--gold)]/50"
+                />
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                aria-label="Tìm kiếm"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                <Search className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <span className="hidden xl:inline eyebrow opacity-50 text-[10px]">{time}</span>
           <ThemeToggle />
           {user ? (
             <DropdownMenu>
@@ -182,18 +235,18 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden md:flex items-center rounded-full border border-border bg-card/50 p-0.5 backdrop-blur-sm">
+            <div className="hidden md:flex items-center gap-1">
               <Link
                 to="/dang-nhap"
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
               >
-                <UserIcon className="h-3 w-3" /> Đăng nhập
+                Đăng nhập
               </Link>
               <Link
                 to="/dang-ky"
-                className="group relative inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-background bg-gradient-to-r from-[var(--gold)] to-amber-600 shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_40%,transparent),0_6px_18px_-6px_color-mix(in_oklab,var(--gold)_50%,transparent)] hover:shadow-[0_0_0_1px_var(--gold),0_8px_24px_-6px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-shadow"
+                className="inline-flex items-center rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-background bg-gradient-to-r from-[var(--gold)] to-amber-600 shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_40%,transparent),0_6px_18px_-6px_color-mix(in_oklab,var(--gold)_50%,transparent)] hover:shadow-[0_0_0_1px_var(--gold),0_8px_24px_-6px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-shadow"
               >
-                <Sparkles className="h-3 w-3" /> Đăng ký
+                Đăng ký
               </Link>
             </div>
           )}
@@ -220,12 +273,12 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               Tổng quan
             </Link>
             {NAV_GROUPS.map((group) => (
-              <div key={group.label} className="space-y-1">
+              <div key={group.label} className="space-y-2">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/70">
                   {group.label}
                 </div>
                 <div className="grid grid-cols-2 gap-1">
-                  {group.items.map((n) => (
+                  {group.columns.flatMap((col) => col.items).map((n) => (
                     <Link
                       key={n.to}
                       to={n.to}
