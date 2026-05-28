@@ -61,7 +61,7 @@ export function NewsletterPopup() {
       <DialogContent className="border-[var(--gold)]/30 bg-card sm:max-w-md overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_12%,var(--card))]" />
         <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[var(--gold)]/20 blur-3xl" />
-        <DialogHeader>
+        <DialogHeader className="relative">
           <div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--gold)]">
             <Sparkles className="h-3 w-3" /> Bản tin MarketWatch
           </div>
