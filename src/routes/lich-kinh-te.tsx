@@ -63,6 +63,12 @@ const AFFECTS_LABEL: Record<string, string> = {
   vnd: "VND",
 };
 
+const SOURCE_LABEL: Record<string, string> = {
+  fmp: "FMP",
+  forexfactory: "ForexFactory",
+  reference: "lịch tham khảo",
+};
+
 function fmtVN(date: Date) {
   return new Intl.DateTimeFormat("vi-VN", {
     timeZone: "Asia/Ho_Chi_Minh",
@@ -85,7 +91,7 @@ function EconomicCalendarPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const j = await res.json();
       if (!Array.isArray(j?.items)) throw new Error("Invalid response");
-      return { items: j.items as EconomicEvent[], stale: Boolean(j.stale), fetchedAt: Number(j.fetchedAt) || Date.now() };
+      return { items: j.items as EconomicEvent[], stale: Boolean(j.stale), fetchedAt: Number(j.fetchedAt) || Date.now(), source: String(j.source ?? "") };
     },
     staleTime: 30 * 60_000,
     refetchInterval: 60 * 60_000,
@@ -136,7 +142,7 @@ function EconomicCalendarPage() {
                 <>
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Dữ liệu realtime · nguồn FMP
+                    Dữ liệu realtime · nguồn {SOURCE_LABEL[data.source] ?? data.source ?? "API"}
                   </span>
                   <span>· Cập nhật {new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }).format(new Date(data.fetchedAt))}</span>
                   {isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
