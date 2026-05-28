@@ -21,6 +21,10 @@ const STATIC_ENTRIES: SitemapEntry[] = [
   { path: "/chinh-sach-bao-mat", changefreq: "monthly", priority: "0.4" },
   { path: "/dieu-khoan-su-dung", changefreq: "monthly", priority: "0.4" },
   { path: "/mien-tru-trach-nhiem", changefreq: "monthly", priority: "0.4" },
+  { path: "/contact", changefreq: "weekly", priority: "0.5" },
+  { path: "/privacy", changefreq: "monthly", priority: "0.3" },
+  { path: "/terms", changefreq: "monthly", priority: "0.3" },
+  { path: "/disclaimer", changefreq: "monthly", priority: "0.3" },
 ];
 
 async function fetchAssetEntries(): Promise<SitemapEntry[]> {
@@ -33,11 +37,13 @@ async function fetchAssetEntries(): Promise<SitemapEntry[]> {
     if (!res.ok) return [];
     const j: any = await res.json();
     if (!Array.isArray(j?.coins)) return [];
-    return j.coins.map((c: any) => ({
-      path: `/tai-san/${String(c.symbol).toLowerCase()}`,
-      changefreq: "hourly" as const,
-      priority: "0.7",
-    }));
+    const entries: SitemapEntry[] = [];
+    for (const c of j.coins) {
+      const sym = String(c.symbol).toLowerCase();
+      entries.push({ path: `/tai-san/${sym}`, changefreq: "hourly", priority: "0.7" });
+      entries.push({ path: `/asset/${sym}`, changefreq: "hourly", priority: "0.6" });
+    }
+    return entries;
   } catch {
     return [];
   }
