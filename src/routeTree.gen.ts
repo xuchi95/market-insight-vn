@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
 import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
 import { Route as TienDienTuRouteImport } from './routes/tien-dien-tu'
@@ -44,6 +45,7 @@ import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-st
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
+import { Route as ApiPublicMacroVnRouteImport } from './routes/api/public/macro-vn'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicFearGreedRouteImport } from './routes/api/public/fear-greed'
@@ -54,6 +56,11 @@ import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
 
+const ViMoVietNamRoute = ViMoVietNamRouteImport.update({
+  id: '/vi-mo-viet-nam',
+  path: '/vi-mo-viet-nam',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TyGiaNgoaiTeRoute = TyGiaNgoaiTeRouteImport.update({
   id: '/ty-gia-ngoai-te',
   path: '/ty-gia-ngoai-te',
@@ -230,6 +237,11 @@ const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
   path: '/api/public/pair-history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMacroVnRoute = ApiPublicMacroVnRouteImport.update({
+  id: '/api/public/macro-vn',
+  path: '/api/public/macro-vn',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
   id: '/api/public/gold',
   path: '/api/public/gold',
@@ -304,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -317,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
@@ -350,6 +364,7 @@ export interface FileRoutesByTo {
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -363,6 +378,7 @@ export interface FileRoutesByTo {
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
@@ -397,6 +413,7 @@ export interface FileRoutesById {
   '/tien-dien-tu': typeof TienDienTuRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -410,6 +427,7 @@ export interface FileRoutesById {
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
@@ -445,6 +463,7 @@ export interface FileRouteTypes {
     | '/tien-dien-tu'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/vi-mo-viet-nam'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -458,6 +477,7 @@ export interface FileRouteTypes {
     | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
@@ -491,6 +511,7 @@ export interface FileRouteTypes {
     | '/tien-dien-tu'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/vi-mo-viet-nam'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -504,6 +525,7 @@ export interface FileRouteTypes {
     | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
@@ -537,6 +559,7 @@ export interface FileRouteTypes {
     | '/tien-dien-tu'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/vi-mo-viet-nam'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cong-cu/dca-roi'
@@ -550,6 +573,7 @@ export interface FileRouteTypes {
     | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/macro-vn'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/stocks'
@@ -584,6 +608,7 @@ export interface RootRouteChildren {
   TienDienTuRoute: typeof TienDienTuRoute
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
+  ViMoVietNamRoute: typeof ViMoVietNamRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
@@ -597,6 +622,7 @@ export interface RootRouteChildren {
   ApiPublicFearGreedRoute: typeof ApiPublicFearGreedRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
+  ApiPublicMacroVnRoute: typeof ApiPublicMacroVnRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
@@ -606,6 +632,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vi-mo-viet-nam': {
+      id: '/vi-mo-viet-nam'
+      path: '/vi-mo-viet-nam'
+      fullPath: '/vi-mo-viet-nam'
+      preLoaderRoute: typeof ViMoVietNamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ty-gia-ngoai-te': {
       id: '/ty-gia-ngoai-te'
       path: '/ty-gia-ngoai-te'
@@ -851,6 +884,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPairHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/macro-vn': {
+      id: '/api/public/macro-vn'
+      path: '/api/public/macro-vn'
+      fullPath: '/api/public/macro-vn'
+      preLoaderRoute: typeof ApiPublicMacroVnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/gold': {
       id: '/api/public/gold'
       path: '/api/public/gold'
@@ -944,6 +984,7 @@ const rootRouteChildren: RootRouteChildren = {
   TienDienTuRoute: TienDienTuRoute,
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
+  ViMoVietNamRoute: ViMoVietNamRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
@@ -957,6 +998,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicFearGreedRoute: ApiPublicFearGreedRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
+  ApiPublicMacroVnRoute: ApiPublicMacroVnRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
