@@ -41,6 +41,7 @@ import { Route as ChungKhoanRouteImport } from './routes/chung-khoan'
 import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat'
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CaiDatBaoMatRouteImport } from './routes/cai-dat.bao-mat'
@@ -229,6 +230,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaiDatIndexRoute = CaiDatIndexRouteImport.update({
+  id: '/cai-dat/',
+  path: '/cai-dat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
   id: '/tai-san/$symbol',
   path: '/tai-san/$symbol',
@@ -409,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/cai-dat/': typeof CaiDatIndexRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -470,6 +477,7 @@ export interface FileRoutesByTo {
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/cai-dat': typeof CaiDatIndexRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -532,6 +540,7 @@ export interface FileRoutesById {
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/cai-dat/': typeof CaiDatIndexRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -595,6 +604,7 @@ export interface FileRouteTypes {
     | '/cai-dat/bao-mat'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/cai-dat/'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -656,6 +666,7 @@ export interface FileRouteTypes {
     | '/cai-dat/bao-mat'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/cai-dat'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -717,6 +728,7 @@ export interface FileRouteTypes {
     | '/cai-dat/bao-mat'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/cai-dat/'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -779,6 +791,7 @@ export interface RootRouteChildren {
   CaiDatBaoMatRoute: typeof CaiDatBaoMatRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
+  CaiDatIndexRoute: typeof CaiDatIndexRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
@@ -1028,6 +1041,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cai-dat/': {
+      id: '/cai-dat/'
+      path: '/cai-dat'
+      fullPath: '/cai-dat/'
+      preLoaderRoute: typeof CaiDatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tai-san/$symbol': {
       id: '/tai-san/$symbol'
       path: '/tai-san/$symbol'
@@ -1259,6 +1279,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaiDatBaoMatRoute: CaiDatBaoMatRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
+  CaiDatIndexRoute: CaiDatIndexRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
