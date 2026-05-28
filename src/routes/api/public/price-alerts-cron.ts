@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { sendEmail } from "@/lib/email/postmark.server";
+import { sendEmail } from "@/lib/email/resend.server";
 import { priceAlertEmail } from "@/lib/email/templates.server";
 
 const COIN_IDS = [
