@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { listTransactions, addTransaction, deleteTransaction } from "@/lib/portfolio.functions";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
-import { fmtVND, fmtNum, fmtPct } from "@/lib/format";
+import { fmtVND, fmtVNDCompact, fmtNum, fmtPct } from "@/lib/format";
 import { Plus, Trash2, ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -239,12 +239,12 @@ function PortfolioContent() {
         <TransactionDialog />
       </header>
 
-      <div className="grid md:grid-cols-5 gap-3 mb-6">
-        <Metric label="Tổng giá trị" value={fmtVND(totals.current)} />
-        <Metric label="Vốn còn nắm giữ" value={fmtVND(totals.cost)} />
-        <Metric label="Lãi/Lỗ chưa chốt" value={fmtVND(totals.unrealized)} accent={totals.unrealized >= 0 ? "up" : "down"} />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+        <Metric label="Tổng giá trị" value={fmtVNDCompact(totals.current)} title={fmtVND(totals.current)} />
+        <Metric label="Vốn còn nắm giữ" value={fmtVNDCompact(totals.cost)} title={fmtVND(totals.cost)} />
+        <Metric label="Lãi/Lỗ chưa chốt" value={fmtVNDCompact(totals.unrealized)} title={fmtVND(totals.unrealized)} accent={totals.unrealized >= 0 ? "up" : "down"} />
         <Metric label="% chưa chốt" value={fmtPct(totals.unrealizedPct)} accent={totals.unrealizedPct >= 0 ? "up" : "down"} />
-        <Metric label="Lãi/Lỗ đã chốt" value={fmtVND(totals.realized)} accent={totals.realized >= 0 ? "up" : "down"} />
+        <Metric label="Lãi/Lỗ đã chốt" value={fmtVNDCompact(totals.realized)} title={fmtVND(totals.realized)} accent={totals.realized >= 0 ? "up" : "down"} />
       </div>
 
       <PortfolioChart transactions={transactions} enriched={enriched} totals={totals} />
@@ -277,15 +277,15 @@ function PortfolioContent() {
                   {h.asset_type} · {h.buyCount} mua / {h.sellCount} bán
                 </div>
               </div>
-              <div className="md:col-span-2 text-right tabular-nums text-sm">{fmtNum(h.quantity, 8)}</div>
-              <div className="md:col-span-2 text-right tabular-nums text-sm">{fmtVND(h.avgCostVnd)}</div>
-              <div className="md:col-span-2 text-right tabular-nums text-sm">{fmtVND(h.priceVnd)}</div>
-              <div className="md:col-span-3 text-right tabular-nums text-sm">
-                <div className={h.unrealizedPl >= 0 ? "text-emerald-500" : "text-rose-500"}>
-                  {fmtVND(h.unrealizedPl)} <span className="text-xs">({fmtPct(h.unrealizedPlPct)})</span>
+              <div className="md:col-span-2 text-right tabular-nums text-sm min-w-0 truncate" title={fmtNum(h.quantity, 8)}>{fmtNum(h.quantity, 8)}</div>
+              <div className="md:col-span-2 text-right tabular-nums text-sm min-w-0 truncate" title={fmtVND(h.avgCostVnd)}>{fmtVNDCompact(h.avgCostVnd)}</div>
+              <div className="md:col-span-2 text-right tabular-nums text-sm min-w-0 truncate" title={fmtVND(h.priceVnd)}>{fmtVNDCompact(h.priceVnd)}</div>
+              <div className="md:col-span-3 text-right tabular-nums text-sm min-w-0">
+                <div className={`truncate ${h.unrealizedPl >= 0 ? "text-emerald-500" : "text-rose-500"}`} title={fmtVND(h.unrealizedPl)}>
+                  {fmtVNDCompact(h.unrealizedPl)} <span className="text-xs">({fmtPct(h.unrealizedPlPct)})</span>
                 </div>
-                <div className={`text-xs ${h.realizedPlVnd >= 0 ? "text-emerald-500/80" : "text-rose-500/80"}`}>
-                  Đã chốt: {fmtVND(h.realizedPlVnd)}
+                <div className={`text-xs truncate ${h.realizedPlVnd >= 0 ? "text-emerald-500/80" : "text-rose-500/80"}`} title={fmtVND(h.realizedPlVnd)}>
+                  Đã chốt: {fmtVNDCompact(h.realizedPlVnd)}
                 </div>
               </div>
             </div>
@@ -604,12 +604,12 @@ function PortfolioChart({ transactions, enriched, totals }: {
   );
 }
 
-function Metric({ label, value, accent }: { label: string; value: string; accent?: "up" | "down" }) {
+function Metric({ label, value, accent, title }: { label: string; value: string; accent?: "up" | "down"; title?: string }) {
   const cls = accent === "up" ? "text-emerald-500" : accent === "down" ? "text-rose-500" : "text-foreground";
   return (
-    <div className="rounded-lg border border-border p-4">
+    <div className="rounded-lg border border-border p-4 min-w-0">
       <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
-      <div className={`mt-1 font-display text-xl tabular-nums ${cls}`}>{value}</div>
+      <div className={`mt-1 font-display text-lg md:text-xl tabular-nums truncate ${cls}`} title={title ?? value}>{value}</div>
     </div>
   );
 }
