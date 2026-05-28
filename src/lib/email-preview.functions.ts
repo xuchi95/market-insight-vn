@@ -75,7 +75,7 @@ function mockDigestSeries(topic: DigestTopic) {
 
 const PreviewSchema = z.object({
   template: z.string().min(1),
-  data: z.record(z.string(), z.unknown()).optional(),
+  dataJson: z.string().max(8000).optional(),
 });
 
 async function renderTemplate(template: string, data: Record<string, any>): Promise<{ subject: string; html: string }> {
@@ -133,7 +133,8 @@ export const previewEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => PreviewSchema.parse(input))
   .handler(async ({ data }) => {
-    return renderTemplate(data.template, (data.data ?? {}) as Record<string, any>);
+    const parsed = data.dataJson ? (JSON.parse(data.dataJson) as Record<string, any>) : {};
+    return renderTemplate(data.template, parsed);
   });
 
 export const sendTestEmail = createServerFn({ method: "POST" })
@@ -141,7 +142,7 @@ export const sendTestEmail = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z.object({
       template: z.string().min(1),
-      data: z.record(z.string(), z.unknown()).optional(),
+      dataJson: z.string().max(8000).optional(),
       to: z.string().trim().toLowerCase().email().max(254).optional(),
     }).parse(input),
   )
@@ -158,7 +159,8 @@ export const sendTestEmail = createServerFn({ method: "POST" })
     }
     if (!to) throw new Error("Không xác định được email người nhận");
 
-    const { subject, html } = await renderTemplate(data.template, (data.data ?? {}) as Record<string, any>);
+    const parsed = data.dataJson ? (JSON.parse(data.dataJson) as Record<string, any>) : {};
+    const { subject, html } = await renderTemplate(data.template, parsed);
     const result = await sendEmail({
       to,
       subject: `[TEST] ${subject}`,
