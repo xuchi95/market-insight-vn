@@ -25,7 +25,7 @@ export const getMySubscriptions = createServerFn({ method: "GET" })
     const { data: subs, error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .select("id, email, source, confirmed_at, unsubscribed_at, created_at, topics")
-      .eq("email", profile?.email ?? "__none__")
+      .or(`user_id.eq.${userId},email.eq.${(profile?.email ?? "__none__").toLowerCase()}`)
       .order("created_at", { ascending: false })
       .limit(5);
     if (error) throw new Error(error.message);
@@ -56,12 +56,12 @@ export const updateNewsletterTopics = createServerFn({ method: "POST" })
 export const subscribeNewsletter = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => EmailSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { email } = data;
     const { error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .upsert(
-        { email, source: "settings", unsubscribed_at: null, confirmed_at: new Date().toISOString() },
+        { email, source: "settings", unsubscribed_at: null, confirmed_at: new Date().toISOString(), user_id: context.userId },
         { onConflict: "email" },
       );
     if (error) throw new Error(error.message);
@@ -94,7 +94,7 @@ export const changeNewsletterEmail = createServerFn({ method: "POST" })
       newEmail: z.string().trim().toLowerCase().email().max(254),
     }).parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     if (data.oldEmail === data.newEmail) return { ok: true };
     const { error: upErr } = await supabaseAdmin
       .from("newsletter_subscribers")
@@ -109,6 +109,7 @@ export const changeNewsletterEmail = createServerFn({ method: "POST" })
           source: "settings-change",
           unsubscribed_at: null,
           confirmed_at: new Date().toISOString(),
+          user_id: context.userId,
         },
         { onConflict: "email" },
       );
