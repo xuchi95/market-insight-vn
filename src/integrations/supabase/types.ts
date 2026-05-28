@@ -182,6 +182,30 @@ export type Database = {
         }
         Relationships: []
       }
+      savings_rates_snapshot: {
+        Row: {
+          fetched_at: string
+          id: string
+          payload: Json
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          fetched_at?: string
+          id?: string
+          payload: Json
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          fetched_at?: string
+          id?: string
+          payload?: Json
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_price_alerts: {
         Row: {
           asset_type: Database["public"]["Enums"]["alert_asset_type"]
