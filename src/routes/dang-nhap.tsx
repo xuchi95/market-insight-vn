@@ -77,7 +77,7 @@ function LoginPage() {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Mật khẩu</Label>
-            <Link to="/dang-nhap" className="text-xs text-muted-foreground hover:text-gold">Quên mật khẩu?</Link>
+            <Link to="/quen-mat-khau" className="text-xs text-muted-foreground hover:text-gold">Quên mật khẩu?</Link>
           </div>
           <div className="relative">
             <Input id="password" type={showPw ? "text" : "password"} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-11 pr-10" />
