@@ -208,27 +208,36 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
       {/* Mobile nav */}
       {open && (
         <nav className="md:hidden border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-5 py-3 grid gap-3">
+          <div className="mx-auto max-w-6xl px-5 py-4 space-y-5">
             <Link
               to="/"
               activeOptions={{ exact: true }}
               onClick={() => setOpen(false)}
-              className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground data-[status=active]:text-[var(--gold)]"
+              className="block py-2 text-sm font-semibold text-foreground data-[status=active]:text-[var(--gold)]"
             >
               Tổng quan
             </Link>
-            {NAV_GROUPS.flatMap((g) => g.items).map((n) => (
-              <Link
-                key={n.to}
-                to={n.to}
-                activeOptions={{ exact: true }}
-                onClick={() => setOpen(false)}
-                className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground data-[status=active]:text-[var(--gold)]"
-              >
-                {n.label}
-              </Link>
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label} className="space-y-1">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/70">
+                  {group.label}
+                </div>
+                <div className="grid grid-cols-2 gap-1">
+                  {group.items.map((n) => (
+                    <Link
+                      key={n.to}
+                      to={n.to}
+                      activeOptions={{ exact: true }}
+                      onClick={() => setOpen(false)}
+                      className="block rounded-md px-2 py-2 text-sm text-foreground/90 hover:bg-accent data-[status=active]:text-[var(--gold)]"
+                    >
+                      {n.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
-            <div className="mt-3">
+            <div className="pt-2 border-t border-border">
               {user ? (
                 <div className="space-y-2">
                   <div className="rounded-2xl border border-border bg-card/60 p-3 flex items-center gap-3">
