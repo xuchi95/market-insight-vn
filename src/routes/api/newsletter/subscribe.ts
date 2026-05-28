@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { sendEmail } from "@/lib/email/postmark.server";
+import { sendEmail } from "@/lib/email/resend.server";
 import { newsletterConfirmEmail } from "@/lib/email/templates.server";
 
 const Schema = z.object({

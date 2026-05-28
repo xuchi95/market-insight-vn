@@ -1,4 +1,4 @@
-import { sendEmail } from "./postmark.server";
+import { sendEmail } from "./resend.server";
 
 const SITE = "https://marketwatch.vn";
 const GOLD = "#C9A24A";

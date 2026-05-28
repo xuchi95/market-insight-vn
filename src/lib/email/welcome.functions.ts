@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { sendEmail } from "./postmark.server";
+import { sendEmail } from "./resend.server";
 import { welcomeEmail } from "./templates.server";
 
 export const sendWelcomeEmail = createServerFn({ method: "POST" })
