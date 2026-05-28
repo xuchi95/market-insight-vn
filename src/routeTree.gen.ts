@@ -69,6 +69,7 @@ import { Route as ApiPublicAuthsignalSmsRouteImport } from './routes/api/public/
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 
 const XacThuc2faRoute = XacThuc2faRouteImport.update({
@@ -375,6 +376,12 @@ const ApiContactSubmitRoute = ApiContactSubmitRouteImport.update({
   path: '/api/contact/submit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRefreshSavingsRatesRoute =
   ApiPublicHooksRefreshSavingsRatesRouteImport.update({
     id: '/api/public/hooks/refresh-savings-rates',
@@ -444,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -507,6 +515,7 @@ export interface FileRoutesByTo {
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -571,6 +580,7 @@ export interface FileRoutesById {
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -636,6 +646,7 @@ export interface FileRouteTypes {
     | '/api/public/us-stocks'
     | '/api/public/xau'
     | '/api/public/hooks/refresh-savings-rates'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -699,6 +710,7 @@ export interface FileRouteTypes {
     | '/api/public/us-stocks'
     | '/api/public/xau'
     | '/api/public/hooks/refresh-savings-rates'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -762,6 +774,7 @@ export interface FileRouteTypes {
     | '/api/public/us-stocks'
     | '/api/public/xau'
     | '/api/public/hooks/refresh-savings-rates'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -826,6 +839,7 @@ export interface RootRouteChildren {
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1250,6 +1264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiContactSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/refresh-savings-rates': {
       id: '/api/public/hooks/refresh-savings-rates'
       path: '/api/public/hooks/refresh-savings-rates'
@@ -1323,7 +1344,18 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicXauRoute: ApiPublicXauRoute,
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

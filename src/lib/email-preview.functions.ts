@@ -167,5 +167,5 @@ export const sendTestEmail = createServerFn({ method: "POST" })
       html,
       tags: ["email-preview-test"],
     });
-    return { ok: true, to, subject, messageId: result.MessageID ?? null };
+    return { ok: true, to, subject, messageId: result.id ?? null };
   });
