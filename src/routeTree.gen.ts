@@ -63,6 +63,7 @@ import { Route as ApiPublicEconomicCalendarRouteImport } from './routes/api/publ
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
+import { Route as ApiPublicAuthsignalSmsRouteImport } from './routes/api/public/authsignal-sms'
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
@@ -341,6 +342,11 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
   path: '/api/public/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAuthsignalSmsRoute = ApiPublicAuthsignalSmsRouteImport.update({
+  id: '/api/public/authsignal-sms',
+  path: '/api/public/authsignal-sms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiNewsletterUnsubscribeRoute =
   ApiNewsletterUnsubscribeRouteImport.update({
     id: '/api/newsletter/unsubscribe',
@@ -406,6 +412,7 @@ export interface FileRoutesByFullPath {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/authsignal-sms': typeof ApiPublicAuthsignalSmsRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -466,6 +473,7 @@ export interface FileRoutesByTo {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/authsignal-sms': typeof ApiPublicAuthsignalSmsRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -527,6 +535,7 @@ export interface FileRoutesById {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/authsignal-sms': typeof ApiPublicAuthsignalSmsRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -589,6 +598,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/authsignal-sms'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -649,6 +659,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/authsignal-sms'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -709,6 +720,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/authsignal-sms'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -770,6 +782,7 @@ export interface RootRouteChildren {
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
+  ApiPublicAuthsignalSmsRoute: typeof ApiPublicAuthsignalSmsRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
@@ -1169,6 +1182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/authsignal-sms': {
+      id: '/api/public/authsignal-sms'
+      path: '/api/public/authsignal-sms'
+      fullPath: '/api/public/authsignal-sms'
+      preLoaderRoute: typeof ApiPublicAuthsignalSmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/newsletter/unsubscribe': {
       id: '/api/newsletter/unsubscribe'
       path: '/api/newsletter/unsubscribe'
@@ -1242,6 +1262,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
+  ApiPublicAuthsignalSmsRoute: ApiPublicAuthsignalSmsRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
@@ -1264,13 +1285,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
