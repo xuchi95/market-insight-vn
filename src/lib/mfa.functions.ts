@@ -74,6 +74,44 @@ function generateBackupCodes(): string[] {
   return codes;
 }
 
+// Base32 (RFC 4648, no padding) encoder for TOTP secret.
+function base32Encode(bytes: Uint8Array): string {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0;
+  let value = 0;
+  let out = "";
+  for (let i = 0; i < bytes.length; i++) {
+    value = (value << 8) | bytes[i];
+    bits += 8;
+    while (bits >= 5) {
+      out += alphabet[(value >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+  if (bits > 0) {
+    out += alphabet[(value << (5 - bits)) & 31];
+  }
+  return out;
+}
+
+function generateTotpSecret(): string {
+  const buf = new Uint8Array(20); // 160-bit
+  crypto.getRandomValues(buf);
+  return base32Encode(buf);
+}
+
+function buildOtpauthUri(secret: string, label: string, issuer: string): string {
+  const encLabel = encodeURIComponent(`${issuer}:${label}`);
+  const params = new URLSearchParams({
+    secret,
+    issuer,
+    algorithm: "SHA1",
+    digits: "6",
+    period: "30",
+  });
+  return `otpauth://totp/${encLabel}?${params.toString()}`;
+}
+
 async function hashCode(code: string): Promise<string> {
   const data = new TextEncoder().encode(code.toLowerCase().trim());
   const digest = await crypto.subtle.digest("SHA-256", data);
