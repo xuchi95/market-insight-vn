@@ -62,32 +62,32 @@ export function MetalsTable() {
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-base">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="text-left px-4 py-3 font-semibold">Kim loại</th>
-              <th className="text-left px-4 py-3 font-semibold">Mã</th>
-              <th className="text-right px-4 py-3 font-semibold">USD/oz</th>
-              <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">USD/gram</th>
-              <th className="text-right px-4 py-3 font-semibold">Thay đổi</th>
+              <th className="text-left px-4 py-3 font-semibold tracking-wider">Kim loại</th>
+              <th className="text-left px-4 py-3 font-semibold tracking-wider">Mã</th>
+              <th className="text-right px-4 py-3 font-semibold tracking-wider">USD/oz</th>
+              <th className="text-right px-4 py-3 font-semibold tracking-wider hidden md:table-cell">USD/gram</th>
+              <th className="text-right px-4 py-3 font-semibold tracking-wider">Thay đổi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {isLoading &&
               Array.from({ length: 4 }).map((_, i) => (
                 <tr key={i}>
-                  <td colSpan={5} className="px-4 py-3"><Skeleton className="h-6 w-full" /></td>
+                  <td colSpan={5} className="px-4 py-4"><Skeleton className="h-7 w-full" /></td>
                 </tr>
               ))}
             {items.map((m) => (
               <tr key={m.symbol} className="hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3 font-semibold">{m.nameVi}</td>
-                <td className="px-4 py-3 text-muted-foreground">{m.symbol}</td>
-                <td className="px-4 py-3 text-right tabular font-semibold">${fmtNum(m.priceUsd, 2)}</td>
-                <td className="px-4 py-3 text-right tabular text-muted-foreground hidden md:table-cell">
+                <td className="px-4 py-4 font-display text-lg tracking-tight">{m.nameVi}</td>
+                <td className="px-4 py-4 text-sm font-mono uppercase text-muted-foreground tracking-wider">{m.symbol}</td>
+                <td className="px-4 py-4 text-right tabular font-display text-xl tracking-tight">${fmtNum(m.priceUsd, 2)}</td>
+                <td className="px-4 py-4 text-right tabular text-base text-muted-foreground hidden md:table-cell">
                   ${fmtNum(m.priceUsd / GRAM_PER_OZ, 2)}
                 </td>
-                <td className="px-4 py-3 text-right"><ChangeBadge value={m.changePct} /></td>
+                <td className="px-4 py-4 text-right"><ChangeBadge value={m.changePct} /></td>
               </tr>
             ))}
             {!isLoading && !isError && items.length === 0 && (
