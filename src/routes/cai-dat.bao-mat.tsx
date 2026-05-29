@@ -99,7 +99,7 @@ function SecuritySettingsPage() {
   const hasAny = enrolledMethods.length > 0;
 
   const methodCatalog: Array<{
-    type: MfaMethodType;
+    type: MfaMethodType | "recovery_codes" | "push" | "in_app" | "qr_code";
     title: string;
     desc: string;
     icon: any;
@@ -110,6 +110,10 @@ function SecuritySettingsPage() {
     { type: "email_otp", title: "Email OTP", desc: "Gửi mã 6 chữ số tới email của bạn.", icon: Mail, available: true },
     { type: "magic_link", title: "Magic Link", desc: "Bấm vào link trong email để xác thực, không cần nhập mã.", icon: Link2, available: true },
     { type: "passkey", title: "Passkey", desc: "Face ID / Touch ID / Windows Hello — không cần mật khẩu.", icon: Fingerprint, available: true },
+    { type: "recovery_codes", title: "Mã dự phòng", desc: "8 mã 1-lần dùng khi mất thiết bị. Cấp tự động khi bật Authenticator app — có thể tạo lại bất cứ lúc nào.", icon: KeyRoundIcon, available: true },
+    { type: "push", title: "Push notification", desc: "Xác nhận bằng thông báo đẩy trên app Authsignal. Cần cài app riêng — chưa khả dụng trên MarketWatch.", icon: Bell, available: false, soon: "Cần app Authsignal" },
+    { type: "in_app", title: "In-app verification", desc: "Xác nhận trong app Authsignal đã đăng nhập. Cần cài app riêng.", icon: MonitorSmartphone, available: false, soon: "Cần app Authsignal" },
+    { type: "qr_code", title: "QR code verification", desc: "Quét QR bằng app Authsignal để xác nhận. Cần cài app riêng.", icon: ScanLine, available: false, soon: "Cần app Authsignal" },
   ];
 
   return (
