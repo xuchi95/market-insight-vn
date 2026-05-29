@@ -113,6 +113,60 @@ function buildOtpauthUri(secret: string, label: string, issuer: string): string 
   return `otpauth://totp/${encLabel}?${params.toString()}`;
 }
 
+// Base32 (RFC 4648) decoder for TOTP secrets stored in DB.
+function base32Decode(input: string): Uint8Array {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const clean = input.replace(/=+$/g, "").toUpperCase().replace(/\s+/g, "");
+  const out: number[] = [];
+  let bits = 0;
+  let value = 0;
+  for (let i = 0; i < clean.length; i++) {
+    const idx = alphabet.indexOf(clean[i]);
+    if (idx < 0) throw new Error("TOTP secret không hợp lệ.");
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      out.push((value >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return new Uint8Array(out);
+}
+
+async function hotp(keyBytes: Uint8Array, counter: number): Promise<string> {
+  const buf = new ArrayBuffer(8);
+  const view = new DataView(buf);
+  view.setUint32(0, Math.floor(counter / 0x100000000));
+  view.setUint32(4, counter >>> 0);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyBytes.buffer.slice(keyBytes.byteOffset, keyBytes.byteOffset + keyBytes.byteLength) as ArrayBuffer,
+    { name: "HMAC", hash: "SHA-1" },
+    false,
+    ["sign"],
+  );
+  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", cryptoKey, buf));
+  const offset = sig[sig.length - 1] & 0x0f;
+  const code =
+    ((sig[offset] & 0x7f) << 24) |
+    ((sig[offset + 1] & 0xff) << 16) |
+    ((sig[offset + 2] & 0xff) << 8) |
+    (sig[offset + 3] & 0xff);
+  return (code % 1_000_000).toString().padStart(6, "0");
+}
+
+/** Verify a 6-digit TOTP code locally with ±1 step window (30s default). */
+async function verifyTotpCode(secret: string, code: string, window = 1): Promise<boolean> {
+  if (!/^\d{6}$/.test(code)) return false;
+  const key = base32Decode(secret);
+  const step = Math.floor(Date.now() / 1000 / 30);
+  for (let w = -window; w <= window; w++) {
+    const c = await hotp(key, step + w);
+    if (c === code) return true;
+  }
+  return false;
+}
+
 async function hashCode(code: string): Promise<string> {
   const data = new TextEncoder().encode(code.toLowerCase().trim());
   const digest = await crypto.subtle.digest("SHA-256", data);
@@ -296,6 +350,7 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
       user_id: userId,
       authsignal_user_id: authsignalUserId,
       authenticator_id: authenticatorId,
+      totp_secret: secret,
       enrolled: false,
     }, { onConflict: "user_id" });
 
@@ -311,6 +366,7 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
       type: "totp",
       authsignal_user_id: authsignalUserId,
       authenticator_id: authenticatorId,
+      totp_secret: secret,
       label: "Authenticator app",
       enrolled: false,
     });
@@ -329,27 +385,17 @@ export const confirmMfaEnrollment = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa")
-      .select("authsignal_user_id, authenticator_id, enrolled")
+      .select("authsignal_user_id, authenticator_id, enrolled, totp_secret")
       .eq("user_id", userId)
       .maybeSingle();
-    if (!row?.authenticator_id) {
+    if (!row?.authenticator_id || !row?.totp_secret) {
       throw new Error("Chưa có thiết bị đăng ký. Hãy bắt đầu lại.");
     }
     if (row.enrolled) {
       throw new Error("Đã đăng ký xong rồi.");
     }
 
-    const verifyResp = await authsignalFetch(
-      `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          verificationCode: data.code,
-          authenticatorId: row.authenticator_id,
-        }),
-      },
-    );
-    const isVerified = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+    const isVerified = await verifyTotpCode(row.totp_secret, data.code);
     if (!isVerified) {
       throw new Error("Mã không đúng. Hãy kiểm tra lại đồng hồ điện thoại và thử lại.");
     }
@@ -400,7 +446,7 @@ export const verifyMfaChallenge = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa")
-      .select("authsignal_user_id, authenticator_id, enrolled, backup_codes")
+      .select("authsignal_user_id, authenticator_id, enrolled, backup_codes, totp_secret")
       .eq("user_id", userId)
       .maybeSingle();
     if (!row?.enrolled || !row.authenticator_id) {
@@ -428,17 +474,10 @@ export const verifyMfaChallenge = createServerFn({ method: "POST" })
       throw new Error("Mã phải là 6 chữ số.");
     }
 
-    const verifyResp = await authsignalFetch(
-      `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          verificationCode: code,
-          authenticatorId: row.authenticator_id,
-        }),
-      },
-    );
-    const isVerified = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+    if (!row.totp_secret) {
+      throw new Error("Không tìm thấy khoá TOTP. Hãy đăng ký lại 2FA.");
+    }
+    const isVerified = await verifyTotpCode(row.totp_secret, code);
     if (!isVerified) {
       throw new Error("Mã không đúng hoặc đã hết hạn.");
     }
@@ -452,7 +491,7 @@ export const disableMfa = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa")
-      .select("authsignal_user_id, authenticator_id, enrolled, backup_codes")
+      .select("authsignal_user_id, authenticator_id, enrolled, backup_codes, totp_secret")
       .eq("user_id", userId)
       .maybeSingle();
     if (!row?.enrolled) {
@@ -465,18 +504,8 @@ export const disableMfa = createServerFn({ method: "POST" })
     if (code.includes("-")) {
       const hashed = await hashCode(code);
       verified = (row.backup_codes ?? []).includes(hashed);
-    } else if (/^\d{6}$/.test(code)) {
-      const verifyResp = await authsignalFetch(
-        `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            verificationCode: code,
-            authenticatorId: row.authenticator_id,
-          }),
-        },
-      );
-      verified = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+    } else if (/^\d{6}$/.test(code) && row.totp_secret) {
+      verified = await verifyTotpCode(row.totp_secret, code);
     }
 
     if (!verified) {
