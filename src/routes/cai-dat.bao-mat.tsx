@@ -949,3 +949,108 @@ function PasskeyPanel({
     </div>
   );
 }
+/* -------------------- Recovery codes panel -------------------- */
+
+function RecoveryCodesPanel({
+  onBackupCodes,
+  onClose,
+}: {
+  onBackupCodes: (codes: string[]) => void;
+  onClose: () => void;
+}) {
+  const { user } = useAuth();
+  const getStatus = useServerFn(getRecoveryCodesStatus);
+  const regenerate = useServerFn(regenerateBackupCodes);
+
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["recovery-codes-status", user?.id],
+    queryFn: () => getStatus(),
+    enabled: !!user,
+  });
+
+  const [busy, setBusy] = useState(false);
+  const [needsStepUp, setNeedsStepUp] = useState(false);
+
+  async function doRegenerate(stepUpToken?: string) {
+    setBusy(true);
+    try {
+      const res = await regenerate({ data: { stepUpToken } });
+      onBackupCodes(res.backupCodes);
+      onClose();
+      toast.success("Đã tạo lại mã dự phòng");
+    } catch (e: any) {
+      const msg = e?.message ?? "";
+      if (/xác minh 2 lớp/i.test(msg)) {
+        setNeedsStepUp(true);
+      } else {
+        toast.error("Không tạo lại được", { description: msg });
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Đang tải…
+      </div>
+    );
+  }
+
+  if (!status?.hasTotp) {
+    return (
+      <div className="space-y-3">
+        <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+          Mã dự phòng chỉ khả dụng khi bạn đã bật <b>Authenticator app</b>. Hãy bật phương thức đó trước.
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose}>Đóng</Button>
+      </div>
+    );
+  }
+
+  if (needsStepUp) {
+    return (
+      <div className="space-y-3">
+        <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+          Xác minh 2 lớp một lần nữa để tạo lại mã dự phòng. Mã cũ sẽ ngừng hoạt động ngay sau khi xác nhận.
+        </div>
+        <MfaStepUpForm
+          submitLabel="Xác minh & tạo mã mới"
+          username={user?.email}
+          onVerified={async (token) => {
+            setNeedsStepUp(false);
+            await doRegenerate(token);
+          }}
+        />
+        <Button variant="ghost" size="sm" onClick={() => setNeedsStepUp(false)} disabled={busy}>
+          Huỷ
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm">
+        <div className="font-medium">
+          Còn <span className="font-mono">{status.remaining}</span> / 8 mã chưa dùng
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Mỗi mã chỉ dùng được 1 lần. Khi sắp hết hoặc lo bị lộ, hãy tạo lại bộ mới — bộ cũ sẽ ngừng hoạt động ngay lập tức.
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          onClick={() => doRegenerate()}
+          disabled={busy}
+          className="bg-gold-gradient text-[var(--gold-foreground)]"
+        >
+          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+          Tạo lại 8 mã mới
+        </Button>
+        <Button variant="ghost" onClick={onClose} disabled={busy}>Đóng</Button>
+      </div>
+    </div>
+  );
+}
