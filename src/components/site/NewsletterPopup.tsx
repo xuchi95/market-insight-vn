@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Mail } from "lucide-react";
 import { NewsletterForm } from "./NewsletterForm";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -57,20 +58,40 @@ export function NewsletterPopup() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="border-[var(--gold)]/30 bg-card sm:max-w-md overflow-hidden">
-        <DialogHeader>
-          <div className="mb-2 text-xs uppercase tracking-[0.16em] text-[var(--gold)]">
-            Bản tin MarketWatch
+      <DialogContent className="border-[var(--gold)]/25 bg-card/95 backdrop-blur-xl sm:max-w-sm overflow-hidden p-0 gap-0 shadow-2xl shadow-[var(--gold)]/10">
+        {/* Gold accent glow */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-[var(--gold)]/10 blur-3xl"
+        />
+
+        <div className="relative p-6 sm:p-7">
+          <div className="flex items-center gap-2 mb-5 animate-fade-in">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/5 text-[var(--gold)]">
+              <Mail className="h-4 w-4" />
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.22em] text-[var(--gold)]">
+              Bản tin MarketWatch
+            </span>
           </div>
-          <DialogTitle className="font-display text-2xl">Đừng bỏ lỡ biến động thị trường</DialogTitle>
-          <DialogDescription className="text-sm">
-            Đăng ký nhận tổng hợp ngắn gọn về vàng, crypto và ngoại tệ — gửi trực tiếp vào hộp thư mỗi sáng.
+
+          <DialogTitle className="font-display text-2xl leading-tight animate-fade-in">
+            Thị trường <span className="italic text-[var(--gold)]">mỗi sáng</span>.
+          </DialogTitle>
+          <DialogDescription className="mt-1.5 text-sm text-muted-foreground animate-fade-in">
+            Vàng · Crypto · Ngoại tệ — gói gọn trong 1 email.
           </DialogDescription>
-        </DialogHeader>
-        <div>
-          <NewsletterForm />
-          <p className="mt-3 text-sm text-muted-foreground">
-            Miễn phí. Bạn có thể huỷ đăng ký bất cứ lúc nào.
+
+          <div className="mt-5 animate-scale-in">
+            <NewsletterForm />
+          </div>
+
+          <p className="mt-3 text-xs text-muted-foreground/80">
+            Miễn phí · Huỷ bất cứ lúc nào.
           </p>
         </div>
       </DialogContent>
