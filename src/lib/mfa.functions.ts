@@ -781,7 +781,7 @@ export const startEmailOtpEnrollment = createServerFn({ method: "POST" })
       .eq("type", "email_otp")
       .eq("enrolled", false);
     for (const p of pending ?? []) {
-      if (p.authenticator_id) {
+      if (p.authenticator_id && !p.authenticator_id.startsWith(LOCAL_EMAIL_OTP_PREFIX)) {
         try {
           await authsignalFetch(
             `/users/${encodeURIComponent(authsignalUserId)}/authenticators/${encodeURIComponent(p.authenticator_id)}`,
@@ -874,7 +874,7 @@ export const removeMfaMethod = createServerFn({ method: "POST" })
     if (!row) throw new Error("Không tìm thấy phương thức.");
 
     // Remove on Authsignal (best-effort)
-    if (row.authenticator_id) {
+    if (row.authenticator_id && !row.authenticator_id.startsWith("local-")) {
       try {
         await authsignalFetch(
           `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/${encodeURIComponent(row.authenticator_id)}`,
