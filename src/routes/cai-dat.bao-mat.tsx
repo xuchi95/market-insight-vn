@@ -7,6 +7,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   ShieldCheck, ShieldOff, Loader2, Copy, KeyRound, Smartphone,
   Mail, Link2, Fingerprint, Check, Star, Trash2, Plus, Send,
+  KeyRound as KeyRoundIcon, ScanLine, Bell, MonitorSmartphone, RefreshCw,
 } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -29,9 +30,15 @@ import {
   checkMagicLinkEnrollment,
   startPasskeyEnrollment,
   confirmPasskeyEnrollment,
+  getRecoveryCodesStatus,
+  regenerateBackupCodes,
+  listEnrolledMfaMethods,
+  startStepUp,
+  verifyStepUp,
   type MfaMethodType,
   type MfaMethodSummary,
 } from "@/lib/mfa.functions";
+import { MfaStepUpForm } from "@/components/auth/MfaStepUpForm";
 
 const TITLE = "Bảo mật 2 lớp — MarketWatch";
 const DESC = "Bật xác thực 2 lớp TOTP bằng Google Authenticator, Authy hoặc 1Password để bảo vệ tài khoản MarketWatch của bạn.";
