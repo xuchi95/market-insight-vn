@@ -40,6 +40,12 @@ function SettingsHubPage() {
       desc: "Cập nhật mật khẩu đăng nhập của bạn.",
     },
     {
+      to: "/cai-dat/email" as const,
+      icon: AtSign,
+      title: "Đổi email",
+      desc: "Cập nhật địa chỉ email đăng nhập của tài khoản.",
+    },
+    {
       to: "/cai-dat/bao-mat" as const,
       icon: ShieldCheck,
       title: "Bảo mật 2 lớp (OTP)",
