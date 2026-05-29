@@ -1,4 +1,5 @@
 import type { GoldPrice } from "./types";
+import { midOf } from "@/lib/gold-units";
 
 // Supplemental rows: world XAU/USD and brands not covered by the live gold feed.
 // These are jitter-simulated until a dedicated source is wired in.
@@ -19,25 +20,40 @@ function supplementalRows(now: number): GoldPrice[] {
     const prev = fallbackState.get(g.id);
     const buy = prev ? jitter(prev.buy) : g.buy;
     const sell = prev ? jitter(prev.sell) : g.sell;
-    const mid = (buy + sell) / 2;
+    const mid = midOf(buy, sell);
     const prevMid = prev?.prevMid ?? mid;
     const changePct = ((mid - prevMid) / prevMid) * 100;
     fallbackState.set(g.id, { buy, sell, prevMid: prev?.prevMid ?? mid });
     if (Math.random() < 0.15) fallbackState.get(g.id)!.prevMid = mid;
-    return { ...g, buy: Math.round(buy), sell: Math.round(sell), changePct, updatedAt: now };
+    return {
+      ...g,
+      buy: Math.round(buy),
+      sell: Math.round(sell),
+      mid: g.unit === "VND/chỉ" ? Math.round(mid) : undefined,
+      changePct,
+      updatedAt: now,
+    };
   });
 }
 
 // Full fallback (used when API endpoint fails completely)
-const FALLBACK_LIVE: GoldPrice[] = [
-  { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L", buy: 15_850_000, sell: 16_150_000, unit: "VND/chỉ", changePct: 0, updatedAt: Date.now() },
-  { id: "btmc-vrtl", brand: "Bảo Tín Minh Châu", type: "Vàng miếng Rồng Thăng Long", buy: 15_850_000, sell: 16_150_000, unit: "VND/chỉ", changePct: 0, updatedAt: Date.now() },
-  { id: "btmc-nhan", brand: "Bảo Tín Minh Châu", type: "Nhẫn tròn trơn 9999", buy: 15_850_000, sell: 16_150_000, unit: "VND/chỉ", changePct: 0, updatedAt: Date.now() },
-  { id: "doji", brand: "DOJI", type: "Vàng miếng 9999", buy: 15_750_000, sell: 15_950_000, unit: "VND/chỉ", changePct: 0, updatedAt: Date.now() },
-  { id: "pnj", brand: "PNJ", type: "Vàng miếng 9999", buy: 15_730_000, sell: 15_930_000, unit: "VND/chỉ", changePct: 0, updatedAt: Date.now() },
-  { id: "phuquy", brand: "Phú Quý", type: "Vàng miếng 9999", buy: 15_710_000, sell: 15_910_000, unit: "VND/chỉ", changePct: 0, updatedAt: Date.now() },
-  { id: "nguyenlieu", brand: "Vàng 24K", type: "Vàng nguyên liệu 24K", buy: 14_350_000, sell: 14_550_000, unit: "VND/chỉ", changePct: 0, updatedAt: Date.now() },
-];
+const FALLBACK_LIVE: GoldPrice[] = (
+  [
+    { id: "sjc-1l", brand: "SJC", type: "Vàng miếng SJC 1L", buy: 15_850_000, sell: 16_150_000 },
+    { id: "btmc-vrtl", brand: "Bảo Tín Minh Châu", type: "Vàng miếng Rồng Thăng Long", buy: 15_850_000, sell: 16_150_000 },
+    { id: "btmc-nhan", brand: "Bảo Tín Minh Châu", type: "Nhẫn tròn trơn 9999", buy: 15_850_000, sell: 16_150_000 },
+    { id: "doji", brand: "DOJI", type: "Vàng miếng 9999", buy: 15_750_000, sell: 15_950_000 },
+    { id: "pnj", brand: "PNJ", type: "Vàng miếng 9999", buy: 15_730_000, sell: 15_930_000 },
+    { id: "phuquy", brand: "Phú Quý", type: "Vàng miếng 9999", buy: 15_710_000, sell: 15_910_000 },
+    { id: "nguyenlieu", brand: "Vàng 24K", type: "Vàng nguyên liệu 24K", buy: 14_350_000, sell: 14_550_000 },
+  ] as const
+).map((g) => ({
+  ...g,
+  mid: midOf(g.buy, g.sell),
+  unit: "VND/chỉ",
+  changePct: 0,
+  updatedAt: Date.now(),
+}));
 
 export async function fetchGoldPrices(): Promise<GoldPrice[]> {
   const now = Date.now();
