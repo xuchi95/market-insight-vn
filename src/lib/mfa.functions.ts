@@ -1234,3 +1234,52 @@ export const verifyStepUp = createServerFn({ method: "POST" })
 
     throw new Error("Phương thức chưa hỗ trợ.");
   });
+/* -------------------- Recovery codes -------------------- */
+
+const RegenerateSchema = z.object({
+  stepUpToken: z.string().min(10).optional(),
+});
+
+export const getRecoveryCodesStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId } = context;
+    const { data: legacy } = await supabaseAdmin
+      .from("user_mfa")
+      .select("backup_codes, enrolled")
+      .eq("user_id", userId)
+      .maybeSingle();
+    return {
+      hasTotp: !!legacy?.enrolled,
+      remaining: (legacy?.backup_codes ?? []).length,
+    };
+  });
+
+/**
+ * Regenerates 8 fresh backup codes. Invalidates the old set.
+ * Requires step-up MFA verification if the user has any MFA method.
+ */
+export const regenerateBackupCodes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => RegenerateSchema.parse(input))
+  .handler(async ({ data, context }): Promise<{ backupCodes: string[] }> => {
+    const { userId } = context;
+    await requireStepUp(userId, data.stepUpToken ?? null);
+
+    const { data: legacy } = await supabaseAdmin
+      .from("user_mfa")
+      .select("enrolled")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!legacy?.enrolled) {
+      throw new Error("Hãy bật Authenticator app trước khi tạo mã dự phòng.");
+    }
+
+    const codes = generateBackupCodes();
+    const hashed = await Promise.all(codes.map(hashCode));
+    await supabaseAdmin
+      .from("user_mfa")
+      .update({ backup_codes: hashed })
+      .eq("user_id", userId);
+    return { backupCodes: codes };
+  });

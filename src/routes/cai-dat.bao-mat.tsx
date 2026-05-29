@@ -7,6 +7,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   ShieldCheck, ShieldOff, Loader2, Copy, KeyRound, Smartphone,
   Mail, Link2, Fingerprint, Check, Star, Trash2, Plus, Send,
+  KeyRound as KeyRoundIcon, ScanLine, Bell, MonitorSmartphone, RefreshCw,
 } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -29,9 +30,12 @@ import {
   checkMagicLinkEnrollment,
   startPasskeyEnrollment,
   confirmPasskeyEnrollment,
+  getRecoveryCodesStatus,
+  regenerateBackupCodes,
   type MfaMethodType,
   type MfaMethodSummary,
 } from "@/lib/mfa.functions";
+import { MfaStepUpForm } from "@/components/auth/MfaStepUpForm";
 
 const TITLE = "Bảo mật 2 lớp — MarketWatch";
 const DESC = "Bật xác thực 2 lớp TOTP bằng Google Authenticator, Authy hoặc 1Password để bảo vệ tài khoản MarketWatch của bạn.";
@@ -66,7 +70,8 @@ function SecuritySettingsPage() {
     enabled: !!user,
   });
 
-  const [activePanel, setActivePanel] = useState<MfaMethodType | null>(null);
+  type CatalogType = MfaMethodType | "recovery_codes" | "push" | "in_app" | "qr_code";
+  const [activePanel, setActivePanel] = useState<CatalogType | null>(null);
   const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
 
   useEffect(() => {
@@ -92,7 +97,7 @@ function SecuritySettingsPage() {
   const hasAny = enrolledMethods.length > 0;
 
   const methodCatalog: Array<{
-    type: MfaMethodType;
+    type: MfaMethodType | "recovery_codes" | "push" | "in_app" | "qr_code";
     title: string;
     desc: string;
     icon: any;
@@ -103,6 +108,10 @@ function SecuritySettingsPage() {
     { type: "email_otp", title: "Email OTP", desc: "Gửi mã 6 chữ số tới email của bạn.", icon: Mail, available: true },
     { type: "magic_link", title: "Magic Link", desc: "Bấm vào link trong email để xác thực, không cần nhập mã.", icon: Link2, available: true },
     { type: "passkey", title: "Passkey", desc: "Face ID / Touch ID / Windows Hello — không cần mật khẩu.", icon: Fingerprint, available: true },
+    { type: "recovery_codes", title: "Mã dự phòng", desc: "8 mã 1-lần dùng khi mất thiết bị. Cấp tự động khi bật Authenticator app — có thể tạo lại bất cứ lúc nào.", icon: KeyRoundIcon, available: true },
+    { type: "push", title: "Push notification", desc: "Xác nhận bằng thông báo đẩy trên app Authsignal. Cần cài app riêng — chưa khả dụng trên MarketWatch.", icon: Bell, available: false, soon: "Cần app Authsignal" },
+    { type: "in_app", title: "In-app verification", desc: "Xác nhận trong app Authsignal đã đăng nhập. Cần cài app riêng.", icon: MonitorSmartphone, available: false, soon: "Cần app Authsignal" },
+    { type: "qr_code", title: "QR code verification", desc: "Quét QR bằng app Authsignal để xác nhận. Cần cài app riêng.", icon: ScanLine, available: false, soon: "Cần app Authsignal" },
   ];
 
   return (
@@ -201,7 +210,7 @@ function MethodCard({
   onBackupCodes,
 }: {
   catalog: {
-    type: MfaMethodType;
+    type: MfaMethodType | "recovery_codes" | "push" | "in_app" | "qr_code";
     title: string;
     desc: string;
     icon: any;
@@ -303,6 +312,12 @@ function MethodCard({
             <PasskeyPanel
               enrolled={enrolled}
               onChange={onChange}
+              onClose={onToggle}
+            />
+          )}
+          {catalog.type === "recovery_codes" && (
+            <RecoveryCodesPanel
+              onBackupCodes={onBackupCodes}
               onClose={onToggle}
             />
           )}
@@ -927,6 +942,111 @@ function PasskeyPanel({
           Tạo Passkey
         </Button>
         <Button variant="ghost" onClick={onClose} disabled={busy}>Huỷ</Button>
+      </div>
+    </div>
+  );
+}
+/* -------------------- Recovery codes panel -------------------- */
+
+function RecoveryCodesPanel({
+  onBackupCodes,
+  onClose,
+}: {
+  onBackupCodes: (codes: string[]) => void;
+  onClose: () => void;
+}) {
+  const { user } = useAuth();
+  const getStatus = useServerFn(getRecoveryCodesStatus);
+  const regenerate = useServerFn(regenerateBackupCodes);
+
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["recovery-codes-status", user?.id],
+    queryFn: () => getStatus(),
+    enabled: !!user,
+  });
+
+  const [busy, setBusy] = useState(false);
+  const [needsStepUp, setNeedsStepUp] = useState(false);
+
+  async function doRegenerate(stepUpToken?: string) {
+    setBusy(true);
+    try {
+      const res = await regenerate({ data: { stepUpToken } });
+      onBackupCodes(res.backupCodes);
+      onClose();
+      toast.success("Đã tạo lại mã dự phòng");
+    } catch (e: any) {
+      const msg = e?.message ?? "";
+      if (/xác minh 2 lớp/i.test(msg)) {
+        setNeedsStepUp(true);
+      } else {
+        toast.error("Không tạo lại được", { description: msg });
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Đang tải…
+      </div>
+    );
+  }
+
+  if (!status?.hasTotp) {
+    return (
+      <div className="space-y-3">
+        <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+          Mã dự phòng chỉ khả dụng khi bạn đã bật <b>Authenticator app</b>. Hãy bật phương thức đó trước.
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose}>Đóng</Button>
+      </div>
+    );
+  }
+
+  if (needsStepUp) {
+    return (
+      <div className="space-y-3">
+        <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+          Xác minh 2 lớp một lần nữa để tạo lại mã dự phòng. Mã cũ sẽ ngừng hoạt động ngay sau khi xác nhận.
+        </div>
+        <MfaStepUpForm
+          submitLabel="Xác minh & tạo mã mới"
+          username={user?.email}
+          onVerified={async (token) => {
+            setNeedsStepUp(false);
+            await doRegenerate(token);
+          }}
+        />
+        <Button variant="ghost" size="sm" onClick={() => setNeedsStepUp(false)} disabled={busy}>
+          Huỷ
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm">
+        <div className="font-medium">
+          Còn <span className="font-mono">{status.remaining}</span> / 8 mã chưa dùng
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Mỗi mã chỉ dùng được 1 lần. Khi sắp hết hoặc lo bị lộ, hãy tạo lại bộ mới — bộ cũ sẽ ngừng hoạt động ngay lập tức.
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          onClick={() => doRegenerate()}
+          disabled={busy}
+          className="bg-gold-gradient text-[var(--gold-foreground)]"
+        >
+          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+          Tạo lại 8 mã mới
+        </Button>
+        <Button variant="ghost" onClick={onClose} disabled={busy}>Đóng</Button>
       </div>
     </div>
   );
