@@ -463,6 +463,160 @@ function TotpPanel({
   );
 }
 
+/* -------------------- Email OTP enrol/remove panel -------------------- */
+
+function EmailOtpPanel({
+  enrolled,
+  onChange,
+  onClose,
+}: {
+  enrolled: MfaMethodSummary | undefined;
+  onChange: () => void;
+  onClose: () => void;
+}) {
+  const { user } = useAuth();
+  const startEnroll = useServerFn(startEmailOtpEnrollment);
+  const confirmEnroll = useServerFn(confirmEmailOtpEnrollment);
+  const remove = useServerFn(removeMfaMethod);
+
+  const [busy, setBusy] = useState(false);
+  const [step, setStep] = useState<"email" | "code">("email");
+  const [email, setEmail] = useState(user?.email ?? "");
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+
+  async function onSend() {
+    setBusy(true);
+    try {
+      const res = await startEnroll({ data: { email: email.trim() } });
+      setSentTo(res.maskedEmail);
+      setStep("code");
+      toast.success("Đã gửi mã", { description: `Kiểm tra hộp thư ${res.maskedEmail}` });
+    } catch (e: any) {
+      toast.error("Không gửi được mã", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onConfirm() {
+    setBusy(true);
+    try {
+      await confirmEnroll({ data: { code: code.trim() } });
+      setCode("");
+      setStep("email");
+      setSentTo(null);
+      onChange();
+      onClose();
+      toast.success("Đã bật Email OTP");
+    } catch (e: any) {
+      toast.error("Xác minh thất bại", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onRemove() {
+    if (!enrolled) return;
+    setBusy(true);
+    try {
+      await remove({ data: { methodId: enrolled.id } });
+      onChange();
+      onClose();
+      toast.success("Đã gỡ Email OTP");
+    } catch (e: any) {
+      toast.error("Không gỡ được", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (enrolled) {
+    return (
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Gỡ Email OTP</Label>
+        <p className="text-xs text-muted-foreground">
+          Email <span className="font-mono">{enrolled.label}</span> sẽ không còn nhận mã xác thực.
+        </p>
+        <div className="flex gap-2">
+          <Button onClick={onRemove} disabled={busy} variant="destructive" size="sm">
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-3.5 w-3.5" />}
+            Gỡ phương thức
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>Đóng</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "email") {
+    return (
+      <div className="space-y-3">
+        <div>
+          <Label htmlFor="email-otp-addr" className="text-xs uppercase tracking-wider text-muted-foreground">
+            Bước 1 · Nhập email nhận mã
+          </Label>
+          <Input
+            id="email-otp-addr"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="ban@gmail.com"
+            autoComplete="email"
+            className="mt-1 h-10"
+          />
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Bạn có thể dùng email khác email tài khoản. Mã có hiệu lực vài phút.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={onSend}
+            disabled={busy || !email.includes("@")}
+            className="bg-gold-gradient text-[var(--gold-foreground)]"
+          >
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            Gửi mã
+          </Button>
+          <Button variant="ghost" onClick={onClose} disabled={busy}>Huỷ</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <Label htmlFor="email-otp-code" className="text-xs uppercase tracking-wider text-muted-foreground">
+          Bước 2 · Nhập mã 6 chữ số đã gửi tới {sentTo}
+        </Label>
+        <Input
+          id="email-otp-code"
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          placeholder="123456"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          className="mt-1 h-11 text-center font-mono text-lg tracking-[0.4em]"
+        />
+      </div>
+      <div className="flex gap-2">
+        <Button
+          onClick={onConfirm}
+          disabled={busy || code.length !== 6}
+          className="bg-gold-gradient text-[var(--gold-foreground)]"
+        >
+          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
+          Xác minh & bật
+        </Button>
+        <Button variant="ghost" onClick={() => { setStep("email"); setCode(""); }} disabled={busy}>
+          Gửi lại
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function BackupCodesPanel({ codes, onDone }: { codes: string[]; onDone: () => void }) {
   function downloadTxt() {
     const blob = new Blob(
