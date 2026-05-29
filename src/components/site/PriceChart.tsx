@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { LineChart as LCIcon } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { LineChart as LCIcon, TrendingDown, TrendingUp, Minus, ArrowUp, ArrowDown } from "lucide-react";
 import { SectionCard, LiveDot } from "./SectionCard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -121,9 +121,24 @@ export function PriceChart({
   const stats = useMemo(() => {
     if (!data || !data.length) return null;
     const first = data[0].v, last = data[data.length - 1].v;
-    const min = Math.min(...data.map((d) => d.v));
-    const max = Math.max(...data.map((d) => d.v));
-    return { first, last, min, max, change: ((last - first) / first) * 100 };
+    const vals = data.map((d) => d.v);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const minIdx = vals.indexOf(min);
+    const maxIdx = vals.indexOf(max);
+    return {
+      first,
+      last,
+      min,
+      max,
+      avg,
+      minPoint: data[minIdx],
+      maxPoint: data[maxIdx],
+      change: ((last - first) / first) * 100,
+      changeAbs: last - first,
+      position: max === min ? 50 : ((last - min) / (max - min)) * 100,
+    };
   }, [data]);
 
   const positive = (stats?.change ?? 0) >= 0;
@@ -135,6 +150,12 @@ export function PriceChart({
     if (isForex) return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0 }).format(v);
     return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(v);
   };
+
+  const rangeLabel = range === "1" ? "24 giờ qua" : range === "7" ? "7 ngày qua" : "30 ngày qua";
+  const trendStrength = Math.abs(stats?.change ?? 0);
+  const trendWord = trendStrength < 0.3 ? "gần như đi ngang" : trendStrength < 1.5 ? (positive ? "tăng nhẹ" : "giảm nhẹ") : trendStrength < 4 ? (positive ? "tăng" : "giảm") : (positive ? "tăng mạnh" : "giảm mạnh");
+  const summary = stats ? `Trong ${rangeLabel}, giá ${trendWord} ${Math.abs(stats.change).toFixed(2)}% so với đầu kỳ.` : "";
+  const TrendIcon = trendStrength < 0.3 ? Minus : positive ? TrendingUp : TrendingDown;
 
   return (
     <SectionCard
@@ -163,25 +184,43 @@ export function PriceChart({
     >
       <div className="p-4 lg:p-6">
         {stats && (
-          <div className="flex flex-wrap items-end gap-x-8 gap-y-2 mb-4">
-            <div>
-              <div className="text-xs text-muted-foreground">Giá hiện tại</div>
-              <div className="text-3xl font-bold tabular tracking-tight">{fmtVal(stats.last)}</div>
+          <>
+            <div className="flex flex-wrap items-end gap-x-8 gap-y-3 mb-3">
+              <div>
+                <div className="text-xs text-muted-foreground">Giá hiện tại</div>
+                <div className="text-3xl font-bold tabular tracking-tight">{fmtVal(stats.last)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Thay đổi {rangeLabel}</div>
+                <div className="flex items-center gap-1.5 text-lg font-semibold tabular" style={{ color }}>
+                  <TrendIcon className="h-4 w-4" />
+                  {positive ? "+" : ""}{stats.change.toFixed(2)}%
+                  <span className="text-xs font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="text-xs text-muted-foreground">Thay đổi {range === "1" ? "24h" : range === "7" ? "7 ngày" : "30 ngày"}</div>
-              <div className="text-lg font-semibold tabular" style={{ color }}>{positive ? "+" : ""}{stats.change.toFixed(2)}%</div>
+            <div className="mb-4 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-sm flex items-start gap-2">
+              <TrendIcon className="h-4 w-4 mt-0.5 shrink-0" style={{ color }} />
+              <span className="text-foreground/90">{summary} <span className="text-muted-foreground">Giá đầu kỳ {fmtVal(stats.first)}.</span></span>
             </div>
-            <div className="text-xs text-muted-foreground tabular space-y-0.5">
-              <div>Cao: {fmtVal(stats.max)}</div>
-              <div>Thấp: {fmtVal(stats.min)}</div>
+            {/* Range position bar */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+                <span className="flex items-center gap-1"><ArrowDown className="h-3 w-3" />Thấp nhất {fmtVal(stats.min)}</span>
+                <span className="text-foreground/70">Vị trí hiện tại trong khoảng {rangeLabel}</span>
+                <span className="flex items-center gap-1">Cao nhất {fmtVal(stats.max)}<ArrowUp className="h-3 w-3" /></span>
+              </div>
+              <div className="relative h-2 rounded-full bg-muted overflow-visible">
+                <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${stats.position}%`, background: `linear-gradient(90deg, var(--muted) 0%, ${color} 100%)` }} />
+                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-4 rounded-full border-2 border-background shadow" style={{ left: `${stats.position}%`, background: color }} />
+              </div>
             </div>
-          </div>
+          </>
         )}
         <div className="h-72 w-full">
           {isLoading ? <Skeleton className="h-full w-full" /> : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
+              <AreaChart data={data} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -194,12 +233,35 @@ export function PriceChart({
                 <Tooltip
                   contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
                   labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")}
-                  formatter={(v: number) => [fmtVal(v), "Giá"]}
+                  formatter={(v: number) => {
+                    if (!stats) return [fmtVal(v), "Giá"];
+                    const diff = v - stats.first;
+                    const pct = (diff / stats.first) * 100;
+                    const sign = diff >= 0 ? "+" : "";
+                    return [`${fmtVal(v)}  (${sign}${pct.toFixed(2)}% so với đầu kỳ)`, "Giá"];
+                  }}
                 />
+                {stats && (
+                  <ReferenceLine y={stats.first} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.7} label={{ value: `Đầu kỳ ${fmtVal(stats.first)}`, position: "insideTopLeft", fill: "var(--muted-foreground)", fontSize: 10 }} />
+                )}
                 <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill="url(#chartFill)" />
+                {stats && (
+                  <>
+                    <ReferenceDot x={stats.maxPoint.t} y={stats.max} r={4} fill="var(--up)" stroke="var(--background)" strokeWidth={2} label={{ value: `Cao nhất ${fmtVal(stats.max)}`, position: "top", fill: "var(--up)", fontSize: 10, fontWeight: 600 }} />
+                    <ReferenceDot x={stats.minPoint.t} y={stats.min} r={4} fill="var(--down)" stroke="var(--background)" strokeWidth={2} label={{ value: `Thấp nhất ${fmtVal(stats.min)}`, position: "bottom", fill: "var(--down)", fontSize: 10, fontWeight: 600 }} />
+                    <ReferenceDot x={data![data!.length - 1].t} y={stats.last} r={5} fill={color} stroke="var(--background)" strokeWidth={2} />
+                  </>
+                )}
               </AreaChart>
             </ResponsiveContainer>
           )}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: color }} /> Đường giá</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-muted-foreground/70" /> Giá đầu kỳ (đường đứt)</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--up)" }} /> Đỉnh</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--down)" }} /> Đáy</span>
+          <span className="ml-auto">Di chuột vào biểu đồ để xem chi tiết từng thời điểm</span>
         </div>
       </div>
     </SectionCard>
