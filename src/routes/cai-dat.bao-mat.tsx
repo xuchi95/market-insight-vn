@@ -25,6 +25,10 @@ import {
   startEmailOtpEnrollment,
   confirmEmailOtpEnrollment,
   removeMfaMethod,
+  startMagicLinkEnrollment,
+  checkMagicLinkEnrollment,
+  startPasskeyEnrollment,
+  confirmPasskeyEnrollment,
   type MfaMethodType,
   type MfaMethodSummary,
 } from "@/lib/mfa.functions";
@@ -97,8 +101,8 @@ function SecuritySettingsPage() {
   }> = [
     { type: "totp", title: "Authenticator app", desc: "Google Authenticator, Authy, 1Password — mã 6 chữ số đổi mỗi 30 giây.", icon: Smartphone, available: true },
     { type: "email_otp", title: "Email OTP", desc: "Gửi mã 6 chữ số tới email của bạn.", icon: Mail, available: true },
-    { type: "magic_link", title: "Magic Link", desc: "Bấm vào link trong email để xác thực, không cần nhập mã.", icon: Link2, available: false, soon: "PR3" },
-    { type: "passkey", title: "Passkey", desc: "Face ID / Touch ID / Windows Hello — không cần mật khẩu.", icon: Fingerprint, available: false, soon: "PR3" },
+    { type: "magic_link", title: "Magic Link", desc: "Bấm vào link trong email để xác thực, không cần nhập mã.", icon: Link2, available: true },
+    { type: "passkey", title: "Passkey", desc: "Face ID / Touch ID / Windows Hello — không cần mật khẩu.", icon: Fingerprint, available: true },
   ];
 
   return (
