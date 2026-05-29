@@ -33,7 +33,7 @@ export function NewsletterForm() {
       <Input
         type="email"
         required
-        placeholder="email@cua-ban.vn"
+        placeholder="abc@emailcuaban.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="flex-1"
