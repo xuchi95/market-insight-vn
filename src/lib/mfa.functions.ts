@@ -350,6 +350,7 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
       user_id: userId,
       authsignal_user_id: authsignalUserId,
       authenticator_id: authenticatorId,
+      totp_secret: secret,
       enrolled: false,
     }, { onConflict: "user_id" });
 
@@ -365,6 +366,7 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
       type: "totp",
       authsignal_user_id: authsignalUserId,
       authenticator_id: authenticatorId,
+      totp_secret: secret,
       label: "Authenticator app",
       enrolled: false,
     });
@@ -383,27 +385,17 @@ export const confirmMfaEnrollment = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa")
-      .select("authsignal_user_id, authenticator_id, enrolled")
+      .select("authsignal_user_id, authenticator_id, enrolled, totp_secret")
       .eq("user_id", userId)
       .maybeSingle();
-    if (!row?.authenticator_id) {
+    if (!row?.authenticator_id || !row?.totp_secret) {
       throw new Error("Chưa có thiết bị đăng ký. Hãy bắt đầu lại.");
     }
     if (row.enrolled) {
       throw new Error("Đã đăng ký xong rồi.");
     }
 
-    const verifyResp = await authsignalFetch(
-      `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          verificationCode: data.code,
-          authenticatorId: row.authenticator_id,
-        }),
-      },
-    );
-    const isVerified = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+    const isVerified = await verifyTotpCode(row.totp_secret, data.code);
     if (!isVerified) {
       throw new Error("Mã không đúng. Hãy kiểm tra lại đồng hồ điện thoại và thử lại.");
     }
