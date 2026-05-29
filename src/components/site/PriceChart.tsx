@@ -185,17 +185,17 @@ export function PriceChart({
       <div className="p-4 lg:p-6">
         {stats && (
           <>
-            <div className="flex flex-wrap items-end gap-x-8 gap-y-3 mb-3">
+            <div className="flex flex-wrap items-end gap-x-10 gap-y-4 mb-4">
               <div>
-                <div className="text-xs text-muted-foreground">Giá hiện tại</div>
-                <div className="text-3xl font-bold tabular tracking-tight">{fmtVal(stats.last)}</div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Giá hiện tại</div>
+                <div className="font-display text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">{fmtVal(stats.last)}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Thay đổi {rangeLabel}</div>
-                <div className="flex items-center gap-1.5 text-lg font-semibold tabular" style={{ color }}>
-                  <TrendIcon className="h-4 w-4" />
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Thay đổi {rangeLabel}</div>
+                <div className="flex items-center gap-2 font-display text-2xl md:text-3xl font-semibold tabular tracking-tight leading-none mt-1" style={{ color }}>
+                  <TrendIcon className="h-5 w-5 md:h-6 md:w-6" />
                   {positive ? "+" : ""}{stats.change.toFixed(2)}%
-                  <span className="text-xs font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
+                  <span className="font-sans text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
                 </div>
               </div>
             </div>
