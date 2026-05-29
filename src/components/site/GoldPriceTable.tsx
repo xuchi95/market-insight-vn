@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtNum, fmtTime, fmtTrieu } from "@/lib/format";
+import { midOf } from "@/lib/gold-units";
 import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -57,6 +58,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
               <th className="text-left px-4 py-3 font-semibold">Loại vàng</th>
               <th className="text-right px-4 py-3 font-semibold">Mua vào</th>
               <th className="text-right px-4 py-3 font-semibold">Bán ra</th>
+              <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Giá trung bình</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Chênh lệch</th>
               <th className="text-right px-4 py-3 font-semibold">Thay đổi</th>
               <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell">Cập nhật</th>
@@ -64,13 +66,14 @@ export function GoldPriceTable({ search }: { search?: string }) {
           </thead>
           <tbody className="divide-y divide-border">
             {isLoading && Array.from({ length: 6 }).map((_, i) => (
-              <tr key={i}><td colSpan={7} className="px-4 py-3"><Skeleton className="h-6 w-full" /></td></tr>
+              <tr key={i}><td colSpan={8} className="px-4 py-3"><Skeleton className="h-6 w-full" /></td></tr>
             ))}
             {rows.map((g) => {
               const isUsd = g.unit.includes("USD");
               const fmt = isUsd
                 ? (n: number) => `$${fmtNum(n, 2)}`
                 : (n: number) => `${fmtTrieu(n)} tr`;
+              const mid = g.mid ?? midOf(g.buy, g.sell);
               return (
                 <tr key={g.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 font-semibold">
@@ -85,6 +88,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">{fmt(g.buy)}</td>
                   <td className="px-4 py-3 text-right tabular-nums font-semibold">{fmt(g.sell)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums hidden md:table-cell">{fmt(mid)}</td>
                   <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden md:table-cell">{fmt(g.sell - g.buy)}</td>
                   <td className="px-4 py-3 text-right"><ChangeBadge value={g.changePct} /></td>
                   <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(g.updatedAt)}</td>
@@ -92,7 +96,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
               );
             })}
             {!isLoading && rows.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">Không tìm thấy kết quả phù hợp.</td></tr>
+              <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Không tìm thấy kết quả phù hợp.</td></tr>
             )}
           </tbody>
         </table>
