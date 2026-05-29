@@ -362,6 +362,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mfa_methods: {
+        Row: {
+          authenticator_id: string | null
+          authsignal_user_id: string
+          created_at: string
+          enrolled: boolean
+          enrolled_at: string | null
+          id: string
+          is_default: boolean
+          label: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          authenticator_id?: string | null
+          authsignal_user_id: string
+          created_at?: string
+          enrolled?: boolean
+          enrolled_at?: string | null
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          authenticator_id?: string | null
+          authsignal_user_id?: string
+          created_at?: string
+          enrolled?: boolean
+          enrolled_at?: string | null
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_price_alerts: {
         Row: {
           asset_type: Database["public"]["Enums"]["alert_asset_type"]
