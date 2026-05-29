@@ -1,12 +1,11 @@
 import type { GoldPrice } from "./types";
 import { midOf } from "@/lib/gold-units";
 
-// Supplemental rows: world XAU/USD and brands not covered by the live gold feed.
-// These are jitter-simulated until a dedicated source is wired in.
+// Bổ sung các thương hiệu chưa có trong feed PNJ — jitter giả lập quanh giá gần đây.
+// XAU/USD KHÔNG nằm đây nữa: lấy realtime từ `/api/public/xau` (xem `fetchXauRow`).
 const SUPPLEMENTAL: Omit<GoldPrice, "changePct" | "updatedAt">[] = [
   { id: "mihong-9999", brand: "Mi Hồng", type: "Vàng miếng 9999", buy: 15_780_000, sell: 16_080_000, unit: "VND/chỉ" },
   { id: "18k", brand: "Vàng 18K", type: "Vàng trang sức 18K", buy: 11_800_000, sell: 12_100_000, unit: "VND/chỉ" },
-  { id: "xauusd", brand: "Vàng thế giới", type: "XAU/USD (ounce)", buy: 2_640, sell: 2_645, unit: "USD/oz" },
 ];
 
 const fallbackState = new Map<string, { buy: number; sell: number; prevMid: number }>();
@@ -57,6 +56,7 @@ const FALLBACK_LIVE: GoldPrice[] = (
 
 export async function fetchGoldPrices(): Promise<GoldPrice[]> {
   const now = Date.now();
+  const [supplemental, xau] = [supplementalRows(now), await fetchXauRow().catch(() => null)];
   try {
     const res = await fetch("/api/public/gold", {
       headers: { Accept: "application/json" },
@@ -65,8 +65,48 @@ export async function fetchGoldPrices(): Promise<GoldPrice[]> {
     const json = (await res.json()) as { items?: GoldPrice[] };
     const live = (json.items ?? []) as GoldPrice[];
     if (live.length === 0) throw new Error("empty");
-    return [...live, ...supplementalRows(now)];
+    return [...live, ...supplemental, ...(xau ? [xau] : [])];
   } catch {
-    return [...FALLBACK_LIVE, ...supplementalRows(now)];
+    return [...FALLBACK_LIVE, ...supplemental, ...(xau ? [xau] : [])];
+  }
+}
+
+/**
+ * Lấy giá vàng thế giới XAU/USD realtime từ `/api/public/xau` (gold-api.com),
+ * chuẩn hoá thành 1 dòng `GoldPrice` cùng schema với các thương hiệu VN.
+ *
+ * - Đơn vị giữ nguyên USD/oz — không quy đổi sang VND/chỉ ở đây.
+ * - Nếu upstream có `bid`/`ask` → dùng làm buy/sell, ngược lại dùng `price`
+ *   làm cả buy/sell (chênh lệch = 0) để không hiển thị spread giả.
+ */
+async function fetchXauRow(): Promise<GoldPrice | null> {
+  try {
+    const res = await fetch("/api/public/xau", { headers: { Accept: "application/json" } });
+    if (!res.ok) return null;
+    const j = (await res.json()) as {
+      price?: number;
+      bid?: number | null;
+      ask?: number | null;
+      changePct?: number;
+      updatedAt?: number;
+      unit?: string;
+    };
+    const price = Number(j?.price);
+    if (!Number.isFinite(price) || price <= 0) return null;
+    const buy = Number.isFinite(Number(j?.bid)) ? Number(j!.bid) : price;
+    const sell = Number.isFinite(Number(j?.ask)) ? Number(j!.ask) : price;
+    return {
+      id: "xauusd",
+      brand: "Vàng thế giới",
+      type: "XAU/USD (ounce)",
+      buy,
+      sell,
+      mid: midOf(buy, sell),
+      unit: j?.unit ?? "USD/oz",
+      changePct: Number(j?.changePct) || 0,
+      updatedAt: typeof j?.updatedAt === "number" ? j.updatedAt : Date.now(),
+    };
+  } catch {
+    return null;
   }
 }
