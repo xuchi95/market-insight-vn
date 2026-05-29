@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { AuthShell, GoogleButton, Divider } from "@/components/site/AuthShell";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { getMfaStatus } from "@/lib/mfa.functions";
+import { listEnrolledMfaMethods } from "@/lib/mfa.functions";
 import { clearMfaVerified } from "@/routes/xac-thuc-2fa";
 
 const TITLE = "Đăng nhập — MarketWatch";
@@ -49,9 +49,9 @@ function LoginPage() {
     }
     clearMfaVerified();
     try {
-      const s = await getMfaStatus();
+      const s = await listEnrolledMfaMethods();
       setLoading(false);
-      if (s.enrolled) {
+      if (s.methods && s.methods.length > 0) {
         navigate({ to: "/xac-thuc-2fa", replace: true });
         return;
       }
