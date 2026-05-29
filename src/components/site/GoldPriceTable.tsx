@@ -50,7 +50,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
       }
     >
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-base">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="text-left px-4 py-3 font-semibold">Thương hiệu</th>
@@ -83,11 +83,11 @@ export function GoldPriceTable({ search }: { search?: string }) {
                       {g.type}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-right tabular">{fmt(g.buy)}</td>
-                  <td className="px-4 py-3 text-right tabular font-semibold">{fmt(g.sell)}</td>
-                  <td className="px-4 py-3 text-right tabular text-muted-foreground hidden md:table-cell">{fmt(g.sell - g.buy)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">{fmt(g.buy)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums font-semibold">{fmt(g.sell)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden md:table-cell">{fmt(g.sell - g.buy)}</td>
                   <td className="px-4 py-3 text-right"><ChangeBadge value={g.changePct} /></td>
-                  <td className="px-4 py-3 text-right text-xs text-muted-foreground tabular hidden lg:table-cell">{fmtTime(g.updatedAt)}</td>
+                  <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(g.updatedAt)}</td>
                 </tr>
               );
             })}
