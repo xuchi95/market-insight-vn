@@ -25,7 +25,7 @@ function groupOf(a: Asset): AssetGroup {
 
 const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" };
 
-interface Point { t: number; v: number }
+interface Point { t: number; v: number; buy?: number; sell?: number }
 interface SourceMeta {
   name: string;
   url: string;
