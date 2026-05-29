@@ -797,25 +797,8 @@ export const startEmailOtpEnrollment = createServerFn({ method: "POST" })
       .eq("type", "email_otp")
       .eq("enrolled", false);
 
-    // Enroll Email OTP — Authsignal sẽ gửi mã qua webhook /api/public/authsignal-email
-    const enrollResp = await authsignalFetch(
-      `/users/${encodeURIComponent(authsignalUserId)}/authenticators`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          verificationMethod: "EMAIL_OTP",
-          email,
-        }),
-      },
-    );
-    const authenticator = enrollResp?.authenticator ?? enrollResp;
-    const authenticatorId: string | undefined =
-      authenticator?.userAuthenticatorId ||
-      authenticator?.authenticatorId ||
-      enrollResp?.userAuthenticatorId;
-    if (!authenticatorId) {
-      throw new Error("Không nhận được authenticatorId từ Authsignal.");
-    }
+    const { code, authenticatorId } = await createEmailOtpChallenge(email);
+    await sendEmailOtpCode(email, code);
 
     await supabaseAdmin.from("user_mfa_methods").insert({
       user_id: userId,
@@ -850,17 +833,7 @@ export const confirmEmailOtpEnrollment = createServerFn({ method: "POST" })
     if (!row?.authenticator_id) {
       throw new Error("Chưa có yêu cầu Email OTP đang chờ. Hãy gửi mã lại.");
     }
-    const verifyResp = await authsignalFetch(
-      `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          verificationCode: data.code,
-          authenticatorId: row.authenticator_id,
-        }),
-      },
-    );
-    const isVerified = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+    const isVerified = await verifyLocalEmailOtp(row.authenticator_id, data.code);
     if (!isVerified) {
       throw new Error("Mã không đúng hoặc đã hết hạn. Hãy gửi mã lại.");
     }
