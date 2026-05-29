@@ -290,6 +290,7 @@ async function fetchBtmcGold(): Promise<MappedItem[]> {
         ...spec,
         buy,
         sell,
+        mid: midOf(buy, sell),
         unit: "VND/chỉ",
         updatedAt,
       });
