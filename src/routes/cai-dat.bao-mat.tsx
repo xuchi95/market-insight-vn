@@ -292,6 +292,20 @@ function MethodCard({
               onClose={onToggle}
             />
           )}
+          {catalog.type === "magic_link" && (
+            <MagicLinkPanel
+              enrolled={enrolled}
+              onChange={onChange}
+              onClose={onToggle}
+            />
+          )}
+          {catalog.type === "passkey" && (
+            <PasskeyPanel
+              enrolled={enrolled}
+              onChange={onChange}
+              onClose={onToggle}
+            />
+          )}
         </div>
       )}
     </section>
