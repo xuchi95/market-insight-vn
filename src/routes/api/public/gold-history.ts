@@ -1,4 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  isValidVndChi,
+  midOf,
+  parseVnNumber,
+  vndPerChiFromNganLuong,
+} from "@/lib/gold-units";
 
 interface HistoryPoint { gia_ban: string; gia_mua: string; updated_at: string }
 interface HistoryGoldType { name: string; data: HistoryPoint[] }
@@ -10,16 +16,6 @@ interface SeriesPoint { t: number; v: number; buy: number; sell: number }
 const CORS = { "Access-Control-Allow-Origin": "*" } as const;
 const UPSTREAM_TIMEOUT_MS = 4_000;
 const CACHE_MS = 60_000;
-
-// Quy đổi đơn vị PNJ history: API trả "ngàn VND / lượng" (vd "158.500" → 158500).
-//   ngàn/lượng → VND/lượng  : × 1000
-//   VND/lượng  → VND/chỉ    : ÷ 10   (1 lượng = 10 chỉ)
-// ⇒ ngàn/lượng → VND/chỉ    : × 100
-const NGAN_LUONG_TO_VND_CHI = 100;
-
-// Khoảng hợp lệ cho giá vàng VN (VND/chỉ) — loại bỏ dữ liệu bất thường.
-const MIN_VND_CHI = 5_000_000;
-const MAX_VND_CHI = 50_000_000;
 
 interface Payload {
   points: SeriesPoint[];
@@ -36,19 +32,6 @@ function parseVnDate(s: string): number {
   if (!m) return Date.now();
   const [, d, mo, y, h, mi, se] = m;
   return new Date(`${y}-${mo}-${d}T${h}:${mi}:${se ?? "00"}+07:00`).getTime();
-}
-
-function parseVnNumber(s: string): number {
-  if (!s) return 0;
-  // "160.500" → 160500 (Vietnamese thousands separator)
-  const cleaned = String(s).replace(/\./g, "").replace(/,/g, ".").trim();
-  const n = parseFloat(cleaned);
-  return Number.isFinite(n) ? n : 0;
-}
-
-/** ngàn VND/lượng (số thô parse từ PNJ history) → VND/chỉ. */
-function toVndPerChi(ngangPerLuong: number): number {
-  return ngangPerLuong * NGAN_LUONG_TO_VND_CHI;
 }
 
 function ymdVN(date: Date): string {
@@ -82,11 +65,11 @@ async function fetchDay(ymd: string, type: string): Promise<SeriesPoint[]> {
     const gt = loc.gold_type.find((g) => g.name === type);
     if (!gt?.data?.length) return [];
     return gt.data.map((p) => {
-      const buy = toVndPerChi(parseVnNumber(p.gia_mua));
-      const sell = toVndPerChi(parseVnNumber(p.gia_ban));
-      const mid = (buy + sell) / 2;
+      const buy = vndPerChiFromNganLuong(parseVnNumber(p.gia_mua));
+      const sell = vndPerChiFromNganLuong(parseVnNumber(p.gia_ban));
+      const mid = midOf(buy, sell);
       return { t: parseVnDate(p.updated_at), v: mid, buy, sell };
-    }).filter((p) => p.v >= MIN_VND_CHI && p.v <= MAX_VND_CHI && p.buy > 0 && p.sell > 0);
+    }).filter((p) => isValidVndChi(p.v) && p.buy > 0 && p.sell > 0);
   } finally {
     clearTimeout(timer);
   }

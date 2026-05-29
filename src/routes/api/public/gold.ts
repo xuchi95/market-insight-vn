@@ -1,4 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  midOf,
+  parseVnNumber,
+  vndPerChiFromNganChi,
+  vndPerChiFromNganLuong,
+} from "@/lib/gold-units";
 
 // In-memory state for change computation between fetches
 let cache: { at: number; data: MappedItem[] } | null = null;
@@ -29,6 +35,7 @@ interface MappedItem {
   type: string;
   buy: number;
   sell: number;
+  mid: number;
   unit: string;
   updatedAt: number;
 }
@@ -71,24 +78,15 @@ function mapLiveRows(items: PnjRow[], updatedAt: number): MappedItem[] {
   for (const it of items) {
     const m = PNJ_MAP[it.masp];
     if (!m) continue;
-    const buy = (typeof it.giamua === "number" ? it.giamua : parseFloat(it.giamua) || 0) * 1000;
-    let sell = (typeof it.giaban === "number" ? it.giaban : parseFloat(it.giaban) || 0) * 1000;
+    const buyRaw = typeof it.giamua === "number" ? it.giamua : parseFloat(String(it.giamua)) || 0;
+    const sellRaw = typeof it.giaban === "number" ? it.giaban : parseFloat(String(it.giaban)) || 0;
+    const buy = vndPerChiFromNganChi(buyRaw);
+    let sell = vndPerChiFromNganChi(sellRaw);
     if (!buy) continue;
     if (!sell) sell = buy + 200_000; // raw material rows have no sell price
-    out.push({ ...m, buy, sell, unit: "VND/chỉ", updatedAt });
+    out.push({ ...m, buy, sell, mid: midOf(buy, sell), unit: "VND/chỉ", updatedAt });
   }
   return out;
-}
-
-// PNJ history endpoint returns prices as Vietnamese-formatted strings in ngàn VND / lượng
-// (e.g. "163.000" → 163000). Today's live feed reports in ngàn VND / chỉ
-// (e.g. 16150). 1 lượng = 10 chỉ, so to compare both at the same scale we divide
-// the history value by 10.
-function parseVnNumber(s: string): number {
-  if (!s) return 0;
-  const cleaned = String(s).replace(/\./g, "").replace(/,/g, ".").trim();
-  const n = parseFloat(cleaned);
-  return Number.isFinite(n) ? n : 0;
 }
 
 interface HistoryPoint {
@@ -141,8 +139,8 @@ async function fetchHistoryFor(ymd: string): Promise<Record<string, number>> {
       const buy = parseVnNumber(last.gia_mua);
       const sell = parseVnNumber(last.gia_ban);
       if (!buy || !sell) continue;
-      // Convert from ngàn/lượng to ngàn/chỉ to match today's live unit.
-      mids[gt.name] = (buy + sell) / 2 / 10;
+      // History đơn vị "ngàn/lượng" → chuyển về VND/chỉ để so sánh đồng nhất với live.
+      mids[gt.name] = midOf(vndPerChiFromNganLuong(buy), vndPerChiFromNganLuong(sell));
     }
     return mids;
   } finally {
@@ -292,6 +290,7 @@ async function fetchBtmcGold(): Promise<MappedItem[]> {
         ...spec,
         buy,
         sell,
+        mid: midOf(buy, sell),
         unit: "VND/chỉ",
         updatedAt,
       });
@@ -377,7 +376,7 @@ export const Route = createFileRoute("/api/public/gold")({
 
           const mids = baseline?.mids ?? {};
           const out = items.map((g) => {
-            const todayMid = (g.buy + g.sell) / 2 / 1000; // back to ngàn/chỉ
+            const todayMid = g.mid; // đã ở đơn vị VND/chỉ
             const key = baselineKeyFor(g);
             const prev = mids[key] ?? 0;
             const changePct =
