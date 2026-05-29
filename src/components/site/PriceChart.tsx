@@ -263,17 +263,7 @@ export function PriceChart({
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="t" tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis dataKey="v" tickFormatter={fmtVal} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} />
-                <Tooltip
-                  contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
-                  labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")}
-                  formatter={(v: number) => {
-                    if (!stats) return [fmtVal(v), "Giá"];
-                    const diff = v - stats.first;
-                    const pct = (diff / stats.first) * 100;
-                    const sign = diff >= 0 ? "+" : "";
-                    return [`${fmtVal(v)}  (${sign}${pct.toFixed(2)}% so với đầu kỳ)`, "Giá"];
-                  }}
-                />
+                <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }} />
                 {stats && (
                   <ReferenceLine y={stats.first} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.7} label={{ value: `Đầu kỳ ${fmtVal(stats.first)}`, position: "insideTopLeft", fill: "var(--muted-foreground)", fontSize: 10 }} />
                 )}
