@@ -32,9 +32,6 @@ import {
   confirmPasskeyEnrollment,
   getRecoveryCodesStatus,
   regenerateBackupCodes,
-  listEnrolledMfaMethods,
-  startStepUp,
-  verifyStepUp,
   type MfaMethodType,
   type MfaMethodSummary,
 } from "@/lib/mfa.functions";
