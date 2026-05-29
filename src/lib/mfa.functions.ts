@@ -1195,7 +1195,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       );
       const ok = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
       if (!ok) throw new Error("Mã không đúng hoặc đã hết hạn.");
-      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+      return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
     if (row.type === "magic_link") {
@@ -1212,7 +1212,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       const verifiedAt = target?.verifiedAt ? new Date(target.verifiedAt).getTime() : 0;
       const fresh = verifiedAt && Date.now() - verifiedAt < 10 * 60 * 1000;
       if (!fresh) throw new Error("Chưa thấy bạn bấm link. Hãy kiểm tra email.");
-      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+      return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
     if (row.type === "passkey") {
@@ -1229,7 +1229,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       if (!isValid || (state && state !== "CHALLENGE_SUCCEEDED")) {
         throw new Error("Xác minh passkey thất bại.");
       }
-      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+      return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
     throw new Error("Phương thức chưa hỗ trợ.");
