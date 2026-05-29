@@ -639,7 +639,7 @@ export const disableMfa = createServerFn({ method: "POST" })
       throw new Error("Mã không đúng. Không thể tắt 2FA.");
     }
 
-    if (row.authenticator_id) {
+    if (row.authenticator_id && !row.authenticator_id.startsWith("local-")) {
       try {
         await authsignalFetch(
           `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/${encodeURIComponent(row.authenticator_id)}`,
@@ -1253,9 +1253,21 @@ export const startStepUp = createServerFn({ method: "POST" })
 
     await assertMethodNotLocked(row.id);
 
-    if (row.type === "email_otp" || row.type === "magic_link") {
-      // Trigger AuthSignal to re-send the challenge to this authenticator.
-      // Per docs: POST /users/{userId}/authenticators/{authId}/challenge.
+    if (row.type === "email_otp") {
+      const existing = parseLocalEmailOtpAuthenticator(row.authenticator_id);
+      if (!existing?.email) {
+        throw new Error("Email OTP cũ cần được gỡ và bật lại để dùng cơ chế xác minh mới.");
+      }
+      const { code, authenticatorId } = await createEmailOtpChallenge(existing.email);
+      await sendEmailOtpCode(existing.email, code);
+      await supabaseAdmin
+        .from("user_mfa_methods")
+        .update({ authenticator_id: authenticatorId })
+        .eq("id", row.id);
+      return { ok: true, type: row.type, label: row.label };
+    }
+
+    if (row.type === "magic_link") {
       try {
         await authsignalFetch(
           `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/${encodeURIComponent(row.authenticator_id!)}/challenge`,
@@ -1305,7 +1317,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa_methods")
-      .select("id, type, authsignal_user_id, authenticator_id, enrolled, locked_until")
+      .select("id, type, authsignal_user_id, authenticator_id, enrolled, locked_until, totp_secret")
       .eq("user_id", userId)
       .eq("id", data.methodId)
       .maybeSingle();
@@ -1314,20 +1326,24 @@ export const verifyStepUp = createServerFn({ method: "POST" })
     // Reject up-front if this method is currently locked.
     await assertMethodNotLocked(row.id);
 
-    if (row.type === "totp" || row.type === "email_otp") {
+    if (row.type === "totp") {
       const code = (data.code ?? "").trim();
       if (!/^\d{6}$/.test(code)) throw new Error("Mã phải là 6 chữ số.");
-      const verifyResp = await authsignalFetch(
-        `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            verificationCode: code,
-            authenticatorId: row.authenticator_id,
-          }),
-        },
-      );
-      const ok = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+      if (!row.totp_secret) {
+        throw new Error("Khoá Authenticator cũ không còn xác minh được. Vui lòng gỡ và bật lại 2FA.");
+      }
+      const ok = await verifyTotpCode(row.totp_secret, code);
+      if (!ok) {
+        await registerMfaFailure(row.id);
+      }
+      await resetMfaFailures(row.id);
+      return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
+    }
+
+    if (row.type === "email_otp") {
+      const code = (data.code ?? "").trim();
+      if (!/^\d{6}$/.test(code)) throw new Error("Mã phải là 6 chữ số.");
+      const ok = await verifyLocalEmailOtp(row.authenticator_id, code);
       if (!ok) {
         await registerMfaFailure(row.id);
       }
