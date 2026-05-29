@@ -119,7 +119,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
         )}
 
         <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full text-sm">
+          <table className="w-full text-base">
             <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold w-10">#</th>
@@ -138,21 +138,21 @@ export function CryptoPriceTable({ search }: { search?: string }) {
               ))}
               {rows.map((c, i) => (
                 <tr key={c.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-muted-foreground tabular">{i + 1}</td>
+                  <td className="px-4 py-3 text-muted-foreground tabular-nums">{i + 1}</td>
                   <td className="px-4 py-3">
                     <Link to="/tai-san/$symbol" params={{ symbol: c.symbol.toLowerCase() }} className="flex items-center gap-3 group">
                       <img src={c.image} alt={c.name} className="h-7 w-7 rounded-full" loading="lazy" />
                       <div>
                         <div className="font-semibold group-hover:text-gold transition-colors">{c.name}</div>
-                        <div className="text-xs text-muted-foreground">{c.symbol}</div>
+                        <div className="text-sm text-muted-foreground">{c.symbol}</div>
                       </div>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-right tabular font-semibold">{fmtUSD(c.priceUsd, c.priceUsd < 1 ? 4 : 2)}</td>
-                  <td className="px-4 py-3 text-right tabular text-muted-foreground hidden md:table-cell">{fmtVND(c.priceVnd)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums font-semibold">{fmtUSD(c.priceUsd, c.priceUsd < 1 ? 4 : 2)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden md:table-cell">{fmtVND(c.priceVnd)}</td>
                   <td className="px-4 py-3 text-right"><ChangeBadge value={c.change24h} /></td>
-                  <td className="px-4 py-3 text-right tabular text-muted-foreground hidden lg:table-cell">{fmtCompactUSD(c.marketCap)}</td>
-                  <td className="px-4 py-3 text-right tabular text-muted-foreground hidden lg:table-cell">{fmtCompactUSD(c.volume24h)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden lg:table-cell">{fmtCompactUSD(c.marketCap)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden lg:table-cell">{fmtCompactUSD(c.volume24h)}</td>
                   <td className="px-4 py-3 text-right hidden md:table-cell"><div className="inline-block"><Sparkline data={c.sparkline} /></div></td>
                 </tr>
               ))}
