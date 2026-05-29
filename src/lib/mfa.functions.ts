@@ -140,7 +140,7 @@ async function hotp(keyBytes: Uint8Array, counter: number): Promise<string> {
   view.setUint32(4, counter >>> 0);
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
-    keyBytes,
+    keyBytes.buffer.slice(keyBytes.byteOffset, keyBytes.byteOffset + keyBytes.byteLength) as ArrayBuffer,
     { name: "HMAC", hash: "SHA-1" },
     false,
     ["sign"],
