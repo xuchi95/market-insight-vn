@@ -1277,11 +1277,14 @@ export const verifyStepUp = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa_methods")
-      .select("id, type, authsignal_user_id, authenticator_id, enrolled")
+      .select("id, type, authsignal_user_id, authenticator_id, enrolled, locked_until")
       .eq("user_id", userId)
       .eq("id", data.methodId)
       .maybeSingle();
     if (!row?.enrolled) throw new Error("Phương thức không khả dụng.");
+
+    // Reject up-front if this method is currently locked.
+    await assertMethodNotLocked(row.id);
 
     if (row.type === "totp" || row.type === "email_otp") {
       const code = (data.code ?? "").trim();
@@ -1297,7 +1300,10 @@ export const verifyStepUp = createServerFn({ method: "POST" })
         },
       );
       const ok = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
-      if (!ok) throw new Error("Mã không đúng hoặc đã hết hạn.");
+      if (!ok) {
+        await registerMfaFailure(row.id);
+      }
+      await resetMfaFailures(row.id);
       return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
@@ -1315,6 +1321,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       const verifiedAt = target?.verifiedAt ? new Date(target.verifiedAt).getTime() : 0;
       const fresh = verifiedAt && Date.now() - verifiedAt < 10 * 60 * 1000;
       if (!fresh) throw new Error("Chưa thấy bạn bấm link. Hãy kiểm tra email.");
+      await resetMfaFailures(row.id);
       return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
@@ -1330,8 +1337,9 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       const isValid = validateResp?.isValid ?? false;
       const state: string | undefined = validateResp?.state;
       if (!isValid || (state && state !== "CHALLENGE_SUCCEEDED")) {
-        throw new Error("Xác minh passkey thất bại.");
+        await registerMfaFailure(row.id);
       }
+      await resetMfaFailures(row.id);
       return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
