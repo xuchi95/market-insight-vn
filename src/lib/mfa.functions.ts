@@ -173,6 +173,80 @@ async function hashCode(code: string): Promise<string> {
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/* -------------------- Rate-limit / lockout for MFA verification --------------------
+ * Ad-hoc per-method lockout: too many wrong codes lock the method temporarily.
+ * Backend does not (yet) have a dedicated rate-limiting primitive, so we track
+ * counters in the `user_mfa_methods` row itself.
+ */
+
+const MFA_MAX_ATTEMPTS = 5;          // số lần sai liên tiếp tối đa
+const MFA_ATTEMPT_WINDOW_MS = 15 * 60 * 1000; // cửa sổ đếm 15 phút
+const MFA_LOCK_MS = 15 * 60 * 1000;  // khoá 15 phút sau khi vượt ngưỡng
+
+function formatLockMessage(lockedUntil: Date): string {
+  const ms = lockedUntil.getTime() - Date.now();
+  const mins = Math.max(1, Math.ceil(ms / 60_000));
+  return `Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ${mins} phút.`;
+}
+
+/** Throws if the method is currently locked. */
+async function assertMethodNotLocked(methodId: string): Promise<void> {
+  const { data } = await supabaseAdmin
+    .from("user_mfa_methods")
+    .select("locked_until")
+    .eq("id", methodId)
+    .maybeSingle();
+  const lockedUntilStr = data?.locked_until as string | null | undefined;
+  if (lockedUntilStr) {
+    const lockedUntil = new Date(lockedUntilStr);
+    if (lockedUntil.getTime() > Date.now()) {
+      throw new Error(formatLockMessage(lockedUntil));
+    }
+  }
+}
+
+/** Increment fail counter; lock the method once the limit is reached. */
+async function registerMfaFailure(methodId: string): Promise<void> {
+  const { data } = await supabaseAdmin
+    .from("user_mfa_methods")
+    .select("fail_count, last_failed_at")
+    .eq("id", methodId)
+    .maybeSingle();
+  const now = Date.now();
+  const lastFailedAt = data?.last_failed_at ? new Date(data.last_failed_at as string).getTime() : 0;
+  const withinWindow = lastFailedAt && now - lastFailedAt < MFA_ATTEMPT_WINDOW_MS;
+  const nextCount = (withinWindow ? (data?.fail_count ?? 0) : 0) + 1;
+  const lockedUntil =
+    nextCount >= MFA_MAX_ATTEMPTS ? new Date(now + MFA_LOCK_MS).toISOString() : null;
+
+  await supabaseAdmin
+    .from("user_mfa_methods")
+    .update({
+      fail_count: nextCount,
+      last_failed_at: new Date(now).toISOString(),
+      locked_until: lockedUntil,
+    })
+    .eq("id", methodId);
+
+  if (lockedUntil) {
+    throw new Error(formatLockMessage(new Date(lockedUntil)));
+  }
+  const remaining = MFA_MAX_ATTEMPTS - nextCount;
+  throw new Error(
+    remaining > 0
+      ? `Mã không đúng hoặc đã hết hạn. Còn ${remaining} lần thử trước khi bị khoá tạm thời.`
+      : "Mã không đúng hoặc đã hết hạn.",
+  );
+}
+
+/** Reset counters after a successful verification. */
+async function resetMfaFailures(methodId: string): Promise<void> {
+  await supabaseAdmin
+    .from("user_mfa_methods")
+    .update({ fail_count: 0, last_failed_at: null, locked_until: null })
+    .eq("id", methodId);
+}
+
 /* -------------------- Step-up token (HMAC) -------------------- */
 
 const STEP_UP_TTL_SEC = 5 * 60;
@@ -1145,11 +1219,13 @@ export const startStepUp = createServerFn({ method: "POST" })
     const { userId, supabase } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa_methods")
-      .select("id, type, authsignal_user_id, authenticator_id, label, enrolled")
+      .select("id, type, authsignal_user_id, authenticator_id, label, enrolled, locked_until")
       .eq("user_id", userId)
       .eq("id", data.methodId)
       .maybeSingle();
     if (!row?.enrolled) throw new Error("Phương thức không khả dụng.");
+
+    await assertMethodNotLocked(row.id);
 
     if (row.type === "email_otp" || row.type === "magic_link") {
       // Trigger AuthSignal to re-send the challenge to this authenticator.
@@ -1203,11 +1279,14 @@ export const verifyStepUp = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa_methods")
-      .select("id, type, authsignal_user_id, authenticator_id, enrolled")
+      .select("id, type, authsignal_user_id, authenticator_id, enrolled, locked_until")
       .eq("user_id", userId)
       .eq("id", data.methodId)
       .maybeSingle();
     if (!row?.enrolled) throw new Error("Phương thức không khả dụng.");
+
+    // Reject up-front if this method is currently locked.
+    await assertMethodNotLocked(row.id);
 
     if (row.type === "totp" || row.type === "email_otp") {
       const code = (data.code ?? "").trim();
@@ -1223,7 +1302,10 @@ export const verifyStepUp = createServerFn({ method: "POST" })
         },
       );
       const ok = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
-      if (!ok) throw new Error("Mã không đúng hoặc đã hết hạn.");
+      if (!ok) {
+        await registerMfaFailure(row.id);
+      }
+      await resetMfaFailures(row.id);
       return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
@@ -1241,6 +1323,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       const verifiedAt = target?.verifiedAt ? new Date(target.verifiedAt).getTime() : 0;
       const fresh = verifiedAt && Date.now() - verifiedAt < 10 * 60 * 1000;
       if (!fresh) throw new Error("Chưa thấy bạn bấm link. Hãy kiểm tra email.");
+      await resetMfaFailures(row.id);
       return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
@@ -1256,8 +1339,9 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       const isValid = validateResp?.isValid ?? false;
       const state: string | undefined = validateResp?.state;
       if (!isValid || (state && state !== "CHALLENGE_SUCCEEDED")) {
-        throw new Error("Xác minh passkey thất bại.");
+        await registerMfaFailure(row.id);
       }
+      await resetMfaFailures(row.id);
       return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
