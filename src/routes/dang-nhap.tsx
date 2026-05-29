@@ -35,6 +35,8 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [mode, setMode] = useState<"password" | "magic">("password");
+  const [magicSent, setMagicSent] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,6 +76,31 @@ function LoginPage() {
     }
   }
 
+  async function onMagicLink(e: React.FormEvent) {
+    e.preventDefault();
+    const target = email.trim();
+    if (!target) {
+      toast.error("Vui lòng nhập email");
+      return;
+    }
+    setLoading(true);
+    clearMfaVerified();
+    const { error } = await supabase.auth.signInWithOtp({
+      email: target,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        shouldCreateUser: false,
+      },
+    });
+    setLoading(false);
+    if (error) {
+      toast.error("Không gửi được magic link", { description: error.message });
+      return;
+    }
+    setMagicSent(true);
+    toast.success("Đã gửi magic link", { description: `Kiểm tra hộp thư ${target} và bấm vào liên kết để đăng nhập.` });
+  }
+
   return (
     <AuthShell
       eyebrow="Tài khoản MarketWatch"
@@ -83,6 +110,7 @@ function LoginPage() {
     >
       <GoogleButton onClick={onGoogle} disabled={loading} label="Tiếp tục với Google" />
       <Divider />
+      {mode === "password" ? (
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
@@ -103,7 +131,28 @@ function LoginPage() {
         <Button type="submit" disabled={loading} className="h-11 w-full bg-gold-gradient text-[var(--gold-foreground)] font-medium tracking-wide shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] hover:opacity-95">
           {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang xử lý…</>) : "Đăng nhập"}
         </Button>
+        <button type="button" onClick={() => { setMode("magic"); setMagicSent(false); }} className="block w-full text-center text-xs text-muted-foreground hover:text-gold">
+          Đăng nhập bằng magic link qua email
+        </button>
       </form>
+      ) : (
+      <form onSubmit={onMagicLink} className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="magic-email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
+          <Input id="magic-email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ban@congty.vn" className="h-11" />
+          <p className="text-xs text-muted-foreground">Chúng tôi sẽ gửi một liên kết đăng nhập đến email của bạn. Bấm vào liên kết để đăng nhập — không cần mật khẩu.</p>
+        </div>
+        <Button type="submit" disabled={loading || magicSent} className="h-11 w-full bg-gold-gradient text-[var(--gold-foreground)] font-medium tracking-wide shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] hover:opacity-95">
+          {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang gửi…</>) : magicSent ? "Đã gửi — kiểm tra email" : "Gửi magic link"}
+        </Button>
+        {magicSent && (
+          <p className="text-center text-xs text-muted-foreground">Không thấy email? Kiểm tra thư mục Spam hoặc thử lại sau ít phút.</p>
+        )}
+        <button type="button" onClick={() => { setMode("password"); setMagicSent(false); }} className="block w-full text-center text-xs text-muted-foreground hover:text-gold">
+          Quay lại đăng nhập bằng mật khẩu
+        </button>
+      </form>
+      )}
     </AuthShell>
   );
 }
