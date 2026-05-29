@@ -34,7 +34,7 @@ export function ForexRateTable({ search }: { search?: string }) {
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-base">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="text-left px-4 py-3 font-semibold">Mã</th>
@@ -62,11 +62,11 @@ export function ForexRateTable({ search }: { search?: string }) {
                     {r.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-right tabular">{fmtNum(r.buy, 2)}</td>
-                <td className="px-4 py-3 text-right tabular font-semibold">{fmtNum(r.sell, 2)}</td>
-                <td className="px-4 py-3 text-right tabular text-muted-foreground hidden md:table-cell">{fmtNum(r.mid, 2)}</td>
+                <td className="px-4 py-3 text-right tabular-nums">{fmtNum(r.buy, 2)}</td>
+                <td className="px-4 py-3 text-right tabular-nums font-semibold">{fmtNum(r.sell, 2)}</td>
+                <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden md:table-cell">{fmtNum(r.mid, 2)}</td>
                 <td className="px-4 py-3 text-right"><ChangeBadge value={r.changePct} /></td>
-                <td className="px-4 py-3 text-right text-xs text-muted-foreground tabular hidden lg:table-cell">{fmtTime(r.updatedAt)}</td>
+                <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(r.updatedAt)}</td>
               </tr>
             ))}
             {!isLoading && rows.length === 0 && (
