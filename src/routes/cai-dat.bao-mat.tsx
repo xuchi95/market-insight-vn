@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import {
   ShieldCheck, ShieldOff, Loader2, Copy, KeyRound, Smartphone,
-  Mail, MessageSquare, Link2, Fingerprint, Check, Star, Trash2, Plus,
+  Mail, Link2, Fingerprint, Check, Star, Trash2, Plus, Send,
 } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -278,6 +278,13 @@ function MethodCard({
               enrolled={!!enrolled}
               onChange={onChange}
               onBackupCodes={onBackupCodes}
+              onClose={onToggle}
+            />
+          )}
+          {catalog.type === "email_otp" && (
+            <EmailOtpPanel
+              enrolled={enrolled}
+              onChange={onChange}
               onClose={onToggle}
             />
           )}
