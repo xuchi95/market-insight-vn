@@ -314,6 +314,13 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     </button>
                   </div>
                   <Link
+                    to="/cai-dat"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center gap-2 px-1 text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+                  >
+                    <Settings className="h-3 w-3" /> Cài đặt tài khoản
+                  </Link>
+                  <Link
                     to="/cai-dat/ban-tin"
                     onClick={() => setOpen(false)}
                     className="inline-flex items-center gap-2 px-1 text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
