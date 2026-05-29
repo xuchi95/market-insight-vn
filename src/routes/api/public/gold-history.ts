@@ -5,13 +5,28 @@ interface HistoryGoldType { name: string; data: HistoryPoint[] }
 interface HistoryLocation { name: string; gold_type: HistoryGoldType[] }
 interface HistoryResponse { locations?: HistoryLocation[] }
 
-interface SeriesPoint { t: number; v: number }
+interface SeriesPoint { t: number; v: number; buy: number; sell: number }
 
 const CORS = { "Access-Control-Allow-Origin": "*" } as const;
 const UPSTREAM_TIMEOUT_MS = 4_000;
 const CACHE_MS = 60_000;
 
-interface Payload { points: SeriesPoint[]; updatedAt?: number }
+// Quy đổi đơn vị PNJ history: API trả "ngàn VND / lượng" (vd "158.500" → 158500).
+//   ngàn/lượng → VND/lượng  : × 1000
+//   VND/lượng  → VND/chỉ    : ÷ 10   (1 lượng = 10 chỉ)
+// ⇒ ngàn/lượng → VND/chỉ    : × 100
+const NGAN_LUONG_TO_VND_CHI = 100;
+
+// Khoảng hợp lệ cho giá vàng VN (VND/chỉ) — loại bỏ dữ liệu bất thường.
+const MIN_VND_CHI = 5_000_000;
+const MAX_VND_CHI = 50_000_000;
+
+interface Payload {
+  points: SeriesPoint[];
+  updatedAt?: number;
+  latest?: { buy: number; sell: number; mid: number; t: number };
+  unit: "VND/chỉ";
+}
 
 // Simple in-memory cache keyed by `${type}-${days}`.
 const cache = new Map<string, { at: number; payload: Payload }>();
@@ -29,6 +44,11 @@ function parseVnNumber(s: string): number {
   const cleaned = String(s).replace(/\./g, "").replace(/,/g, ".").trim();
   const n = parseFloat(cleaned);
   return Number.isFinite(n) ? n : 0;
+}
+
+/** ngàn VND/lượng (số thô parse từ PNJ history) → VND/chỉ. */
+function toVndPerChi(ngangPerLuong: number): number {
+  return ngangPerLuong * NGAN_LUONG_TO_VND_CHI;
 }
 
 function ymdVN(date: Date): string {
@@ -62,12 +82,11 @@ async function fetchDay(ymd: string, type: string): Promise<SeriesPoint[]> {
     const gt = loc.gold_type.find((g) => g.name === type);
     if (!gt?.data?.length) return [];
     return gt.data.map((p) => {
-      const buy = parseVnNumber(p.gia_mua);
-      const sell = parseVnNumber(p.gia_ban);
-      // ngàn/lượng → VND/chỉ: × 1000 / 10 = × 100
-      const mid = ((buy + sell) / 2) * 100;
-      return { t: parseVnDate(p.updated_at), v: mid };
-    }).filter((p) => p.v > 0);
+      const buy = toVndPerChi(parseVnNumber(p.gia_mua));
+      const sell = toVndPerChi(parseVnNumber(p.gia_ban));
+      const mid = (buy + sell) / 2;
+      return { t: parseVnDate(p.updated_at), v: mid, buy, sell };
+    }).filter((p) => p.v >= MIN_VND_CHI && p.v <= MAX_VND_CHI && p.buy > 0 && p.sell > 0);
   } finally {
     clearTimeout(timer);
   }
@@ -100,7 +119,13 @@ export const Route = createFileRoute("/api/public/gold-history")({
           // Dedupe identical timestamps.
           const seen = new Set<number>();
           const dedup = points.filter((p) => (seen.has(p.t) ? false : (seen.add(p.t), true)));
-          const payload: Payload = { points: dedup, updatedAt: latestTimestamp(dedup) };
+          const last = dedup[dedup.length - 1];
+          const payload: Payload = {
+            points: dedup,
+            updatedAt: latestTimestamp(dedup),
+            latest: last ? { buy: last.buy, sell: last.sell, mid: last.v, t: last.t } : undefined,
+            unit: "VND/chỉ",
+          };
           cache.set(key, { at: Date.now(), payload });
           return Response.json(payload, {
             headers: { "Cache-Control": "public, max-age=60, s-maxage=120", ...CORS },

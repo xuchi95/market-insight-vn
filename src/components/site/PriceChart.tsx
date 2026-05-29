@@ -26,7 +26,13 @@ function groupOf(a: Asset): AssetGroup {
 const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" };
 
 interface Point { t: number; v: number }
-interface SourceMeta { name: string; url: string; updatedAt?: number }
+interface SourceMeta {
+  name: string;
+  url: string;
+  updatedAt?: number;
+  latest?: { buy: number; sell: number; mid: number };
+  unit?: string;
+}
 interface SeriesData { points: Point[]; source?: SourceMeta }
 
 const BASE_VALUES: Record<Exclude<Asset, "btc" | "eth">, number> = {
@@ -62,11 +68,22 @@ async function loadSeries(asset: Asset, days: Range): Promise<SeriesData> {
     try {
       const res = await fetch(`/api/public/gold-history?type=SJC&days=${days}`);
       if (res.ok) {
-        const j = (await res.json()) as { points?: Point[]; updatedAt?: number };
+        const j = (await res.json()) as {
+          points?: Point[];
+          updatedAt?: number;
+          unit?: string;
+          latest?: { buy: number; sell: number; mid: number };
+        };
         if (j.points && j.points.length) {
           return {
             points: j.points,
-            source: { name: "PNJ", url: "https://www.pnj.com.vn", updatedAt: j.updatedAt },
+            source: {
+              name: "PNJ",
+              url: "https://www.pnj.com.vn",
+              updatedAt: j.updatedAt,
+              unit: j.unit ?? "VND/chỉ",
+              latest: j.latest,
+            },
           };
         }
       }
@@ -283,6 +300,12 @@ export function PriceChart({
           <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground border-t border-border/40 pt-2">
             <span>Nguồn dữ liệu:</span>
             <a href={source.url} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground/80 hover:text-primary hover:underline">{source.name}</a>
+            {source.unit && <span className="text-muted-foreground/80">• Đơn vị {source.unit}</span>}
+            {source.latest && (
+              <span className="text-muted-foreground/80">
+                • Mua {fmtVal(source.latest.buy)} / Bán {fmtVal(source.latest.sell)}
+              </span>
+            )}
             {source.updatedAt && (
               <span className="ml-auto">Cập nhật cuối: {new Date(source.updatedAt).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" })}</span>
             )}
