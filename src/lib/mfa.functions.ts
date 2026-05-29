@@ -1329,10 +1329,19 @@ export const verifyStepUp = createServerFn({ method: "POST" })
     if (row.type === "totp") {
       const code = (data.code ?? "").trim();
       if (!/^\d{6}$/.test(code)) throw new Error("Mã phải là 6 chữ số.");
-      if (!row.totp_secret) {
+      let totpSecret = row.totp_secret as string | null | undefined;
+      if (!totpSecret) {
+        const { data: legacy } = await supabaseAdmin
+          .from("user_mfa")
+          .select("totp_secret")
+          .eq("user_id", userId)
+          .maybeSingle();
+        totpSecret = legacy?.totp_secret;
+      }
+      if (!totpSecret) {
         throw new Error("Khoá Authenticator cũ không còn xác minh được. Vui lòng gỡ và bật lại 2FA.");
       }
-      const ok = await verifyTotpCode(row.totp_secret, code);
+      const ok = await verifyTotpCode(totpSecret, code);
       if (!ok) {
         await registerMfaFailure(row.id);
       }
