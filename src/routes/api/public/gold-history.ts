@@ -11,8 +11,10 @@ const CORS = { "Access-Control-Allow-Origin": "*" } as const;
 const UPSTREAM_TIMEOUT_MS = 4_000;
 const CACHE_MS = 60_000;
 
+interface Payload { points: SeriesPoint[]; updatedAt?: number }
+
 // Simple in-memory cache keyed by `${type}-${days}`.
-const cache = new Map<string, { at: number; payload: { points: SeriesPoint[] } }>();
+const cache = new Map<string, { at: number; payload: Payload }>();
 
 function parseVnDate(s: string): number {
   const m = s?.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?/);
@@ -35,6 +37,11 @@ function ymdVN(date: Date): string {
   const m = String(vn.getUTCMonth() + 1).padStart(2, "0");
   const d = String(vn.getUTCDate()).padStart(2, "0");
   return `${y}${m}${d}`;
+}
+
+function latestTimestamp(points: SeriesPoint[]): number | undefined {
+  if (!points.length) return undefined;
+  return Math.max(...points.map((p) => p.t));
 }
 
 async function fetchDay(ymd: string, type: string): Promise<SeriesPoint[]> {
@@ -93,7 +100,7 @@ export const Route = createFileRoute("/api/public/gold-history")({
           // Dedupe identical timestamps.
           const seen = new Set<number>();
           const dedup = points.filter((p) => (seen.has(p.t) ? false : (seen.add(p.t), true)));
-          const payload = { points: dedup };
+          const payload: Payload = { points: dedup, updatedAt: latestTimestamp(dedup) };
           cache.set(key, { at: Date.now(), payload });
           return Response.json(payload, {
             headers: { "Cache-Control": "public, max-age=60, s-maxage=120", ...CORS },
