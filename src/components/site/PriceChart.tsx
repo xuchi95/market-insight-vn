@@ -28,7 +28,7 @@ const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" }
 interface Point { t: number; v: number; }
 
 const BASE_VALUES: Record<Exclude<Asset, "btc" | "eth">, number> = {
-  "gold-sjc": 8_400_000,
+  "gold-sjc": 15_700_000,
   "usd-vnd": 25_400,
   "eur-vnd": 27_500,
   "gbp-vnd": 32_200,
@@ -52,6 +52,15 @@ async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
       if (res.ok) {
         const j = await res.json();
         return (j.prices as [number, number][]).map(([t, v]) => ({ t, v }));
+      }
+    } catch {}
+  }
+  if (asset === "gold-sjc") {
+    try {
+      const res = await fetch(`/api/public/gold-history?type=SJC&days=${days}`);
+      if (res.ok) {
+        const j = (await res.json()) as { points?: Point[] };
+        if (j.points && j.points.length) return j.points;
       }
     } catch {}
   }
