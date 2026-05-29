@@ -4,7 +4,6 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ForexRateTable } from "@/components/site/ForexRateTable";
-import { ConverterTool } from "@/components/site/ConverterTool";
 import { PriceChart } from "@/components/site/PriceChart";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
@@ -17,7 +16,7 @@ const FAQ = [
   { q: "Giá USD hôm nay bao nhiêu VND?", a: "Giá USD hôm nay được MarketWatch cập nhật realtime mỗi 10 giây theo tỷ giá thị trường — bao gồm giá mua vào và bán ra quy đổi sang VND." },
   { q: "Tỷ giá EUR, JPY, CNY, GBP hôm nay tại MarketWatch lấy từ đâu?", a: "Tỷ giá được tổng hợp từ thị trường ngoại hối quốc tế và tham chiếu theo tỷ giá liên ngân hàng, cập nhật liên tục trong giờ giao dịch." },
   { q: "Giá mua và giá bán ngoại tệ khác nhau như thế nào?", a: "Giá mua là mức ngân hàng/đại lý mua ngoại tệ từ bạn; giá bán là mức họ bán ngoại tệ ra. Chênh lệch mua – bán là chi phí giao dịch bạn cần lưu ý." },
-  { q: "Làm sao quy đổi nhanh USD, EUR sang VND?", a: "Sử dụng công cụ quy đổi ngoại tệ ngay trên trang này — nhập số tiền, chọn loại tiền và xem kết quả VND theo tỷ giá realtime." },
+  { q: "Làm sao quy đổi nhanh USD, EUR sang VND?", a: "Dùng công cụ quy đổi tiền tệ riêng tại /quy-doi-tien-te — nhập số tiền, chọn loại tiền và xem kết quả VND theo tỷ giá realtime." },
 ];
 
 export const Route = createFileRoute("/ty-gia-ngoai-te")({
@@ -113,7 +112,6 @@ function ForexPage() {
             defaultAsset="usd-vnd"
             assets={["usd-vnd", "eur-vnd", "cny-vnd", "jpy-vnd", "gbp-vnd", "krw-vnd", "sgd-vnd", "aud-vnd"]}
           />
-          <ConverterTool />
 
           <section aria-labelledby="forex-info" className="prose prose-invert max-w-none space-y-4">
             <h2 id="forex-info" className="text-2xl font-bold tracking-tight">Bảng tỷ giá ngoại tệ hôm nay</h2>
