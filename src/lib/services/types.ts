@@ -4,6 +4,7 @@ export interface GoldPrice {
   type: string;
   buy: number;   // VND per chỉ (or per oz for XAU)
   sell: number;
+  mid?: number;  // (buy+sell)/2 — chỉ có cho dữ liệu VND/chỉ
   unit: string;  // "VND/chỉ" | "USD/oz"
   changePct: number;
   updatedAt: number;
