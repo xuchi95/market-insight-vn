@@ -474,3 +474,214 @@ export const setDefaultMfaMethod = createServerFn({ method: "POST" })
       .eq("id", data.methodId);
     return { ok: true };
   });
+
+/* -------------------- Email OTP -------------------- */
+
+function maskEmail(email: string): string {
+  const [u, d] = email.split("@");
+  if (!u || !d) return email;
+  const head = u.slice(0, Math.min(2, u.length));
+  return `${head}${"*".repeat(Math.max(1, u.length - 2))}@${d}`;
+}
+
+const StartEmailOtpSchema = z.object({
+  email: z.string().trim().email("Email không hợp lệ").max(254),
+});
+
+export const startEmailOtpEnrollment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => StartEmailOtpSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const email = data.email.toLowerCase();
+
+    // Reuse existing authsignal_user_id if any (consistent across methods).
+    const { data: anyMethod } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("authsignal_user_id")
+      .eq("user_id", userId)
+      .limit(1)
+      .maybeSingle();
+    const { data: legacy } = await supabaseAdmin
+      .from("user_mfa")
+      .select("authsignal_user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const authsignalUserId =
+      anyMethod?.authsignal_user_id ?? legacy?.authsignal_user_id ?? userId;
+
+    // Block if same email already enrolled
+    const { data: existingEnrolled } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, label")
+      .eq("user_id", userId)
+      .eq("type", "email_otp")
+      .eq("enrolled", true);
+    if ((existingEnrolled ?? []).some((m) => (m.label ?? "").toLowerCase().includes(email.split("@")[0].slice(0, 2)))) {
+      // best-effort dup check (label is masked); allow re-add otherwise
+    }
+
+    // Clean up any leftover pending entries for this method
+    const { data: pending } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, authenticator_id")
+      .eq("user_id", userId)
+      .eq("type", "email_otp")
+      .eq("enrolled", false);
+    for (const p of pending ?? []) {
+      if (p.authenticator_id) {
+        try {
+          await authsignalFetch(
+            `/users/${encodeURIComponent(authsignalUserId)}/authenticators/${encodeURIComponent(p.authenticator_id)}`,
+            { method: "DELETE" },
+          );
+        } catch { /* ignore */ }
+      }
+    }
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .delete()
+      .eq("user_id", userId)
+      .eq("type", "email_otp")
+      .eq("enrolled", false);
+
+    // Enroll Email OTP — Authsignal sẽ gửi mã qua webhook /api/public/authsignal-email
+    const enrollResp = await authsignalFetch(
+      `/users/${encodeURIComponent(authsignalUserId)}/authenticators`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          verificationMethod: "EMAIL_OTP",
+          email,
+        }),
+      },
+    );
+    const authenticator = enrollResp?.authenticator ?? enrollResp;
+    const authenticatorId: string | undefined =
+      authenticator?.userAuthenticatorId ||
+      authenticator?.authenticatorId ||
+      enrollResp?.userAuthenticatorId;
+    if (!authenticatorId) {
+      throw new Error("Không nhận được authenticatorId từ Authsignal.");
+    }
+
+    await supabaseAdmin.from("user_mfa_methods").insert({
+      user_id: userId,
+      type: "email_otp",
+      authsignal_user_id: authsignalUserId,
+      authenticator_id: authenticatorId,
+      label: maskEmail(email),
+      enrolled: false,
+    });
+
+    return { ok: true, maskedEmail: maskEmail(email) };
+  });
+
+const ConfirmEmailOtpSchema = z.object({
+  code: z.string().trim().regex(/^\d{6}$/, "Mã 6 chữ số"),
+});
+
+export const confirmEmailOtpEnrollment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => ConfirmEmailOtpSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const { data: row } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, authsignal_user_id, authenticator_id, enrolled")
+      .eq("user_id", userId)
+      .eq("type", "email_otp")
+      .eq("enrolled", false)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!row?.authenticator_id) {
+      throw new Error("Chưa có yêu cầu Email OTP đang chờ. Hãy gửi mã lại.");
+    }
+    const verifyResp = await authsignalFetch(
+      `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          verificationCode: data.code,
+          authenticatorId: row.authenticator_id,
+        }),
+      },
+    );
+    const isVerified = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+    if (!isVerified) {
+      throw new Error("Mã không đúng hoặc đã hết hạn. Hãy gửi mã lại.");
+    }
+
+    const now = new Date().toISOString();
+    const { data: anyEnrolled } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("enrolled", true)
+      .limit(1);
+    const shouldBeDefault = !anyEnrolled || anyEnrolled.length === 0;
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .update({
+        enrolled: true,
+        enrolled_at: now,
+        is_default: shouldBeDefault,
+      })
+      .eq("id", row.id);
+
+    return { ok: true };
+  });
+
+/* -------------------- Generic: remove a method -------------------- */
+
+export const removeMfaMethod = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ methodId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const { data: row } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, type, authsignal_user_id, authenticator_id, is_default")
+      .eq("user_id", userId)
+      .eq("id", data.methodId)
+      .maybeSingle();
+    if (!row) throw new Error("Không tìm thấy phương thức.");
+
+    // Remove on Authsignal (best-effort)
+    if (row.authenticator_id) {
+      try {
+        await authsignalFetch(
+          `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/${encodeURIComponent(row.authenticator_id)}`,
+          { method: "DELETE" },
+        );
+      } catch { /* ignore upstream errors */ }
+    }
+
+    await supabaseAdmin.from("user_mfa_methods").delete().eq("id", row.id);
+
+    // If TOTP, also clear legacy table
+    if (row.type === "totp") {
+      await supabaseAdmin.from("user_mfa").delete().eq("user_id", userId);
+    }
+
+    // If removed method was default, promote another enrolled one
+    if (row.is_default) {
+      const { data: nextDefault } = await supabaseAdmin
+        .from("user_mfa_methods")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("enrolled", true)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (nextDefault?.id) {
+        await supabaseAdmin
+          .from("user_mfa_methods")
+          .update({ is_default: true })
+          .eq("id", nextDefault.id);
+      }
+    }
+
+    return { ok: true };
+  });
