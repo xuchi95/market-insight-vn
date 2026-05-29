@@ -121,6 +121,56 @@ const ASSETS: { value: Asset; label: string }[] = [
   { value: "thb-vnd", label: "THB/VND" },
 ];
 
+function ChartTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload?: Point }>;
+}) {
+  if (!active || !payload?.length) return null;
+  const p = payload[0].payload;
+  if (!p) return null;
+
+  const time = new Date(p.t).toLocaleString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  const fmt = (n: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(n);
+  const hasBuySell = typeof p.buy === "number" && typeof p.sell === "number";
+
+  return (
+    <div className="rounded-xl border border-border bg-popover p-3 shadow-lg text-sm min-w-[220px]">
+      <div className="text-xs text-muted-foreground mb-2">{time}</div>
+      {hasBuySell ? (
+        <>
+          <div className="flex justify-between gap-4">
+            <span className="text-muted-foreground">Mua</span>
+            <span className="font-semibold text-foreground">{fmt(p.buy!)} VND/chỉ</span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-muted-foreground">Bán</span>
+            <span className="font-semibold text-foreground">{fmt(p.sell!)} VND/chỉ</span>
+          </div>
+          <div className="flex justify-between gap-4 mt-1 pt-1 border-t border-border/50">
+            <span className="text-muted-foreground">Mid</span>
+            <span className="font-semibold text-primary">{fmt(p.v)} VND/chỉ</span>
+          </div>
+        </>
+      ) : (
+        <div className="flex justify-between gap-4">
+          <span className="text-muted-foreground">Giá</span>
+          <span className="font-semibold text-foreground">{fmt(p.v)}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function PriceChart({
   defaultAsset = "btc",
   assets,
