@@ -1,75 +1,112 @@
-# Kế hoạch triển khai 3 tính năng mới
+## Phạm vi method được tích hợp
 
-## 1. Portfolio Tracker (`/portfolio`)
+Trong 9 method bạn enable trên AuthSignal, có 3 cái **không dùng được trên web thuần** (cần native mobile app marketwatch.vn — hiện chưa có):
+- ❌ **Push verification** — cần app native nhận push (FCM/APNs)
+- ❌ **In-app verification** — cần app native render UI verify
+- ❌ **QR code verification** — cần thiết bị thứ 2 đã login bằng app native quét QR
 
-**Mô tả:** User đăng nhập → thêm tài sản (crypto/vàng) với số lượng & giá vốn → dashboard tổng giá trị realtime, % lãi/lỗ, phân bổ.
+→ Sẽ **bỏ qua** 3 cái này. Khi nào có mobile app sẽ thêm sau.
 
-**Database (migration mới):**
-- Bảng `portfolio_holdings`:
-  - `user_id` (uuid, FK auth.users)
-  - `asset_type` (enum: `crypto` | `gold`)
-  - `symbol` (text — vd: `BTC`, `ETH`, `SJC`, `XAU`)
-  - `quantity` (numeric)
-  - `avg_cost_usd` (numeric, nullable — vàng dùng VND)
-  - `avg_cost_vnd` (numeric, nullable)
-  - `note` (text, nullable)
-  - `created_at`, `updated_at`
-- RLS: chỉ owner CRUD (`auth.uid() = user_id`)
-- GRANT: `authenticated` + `service_role`
+**5 method sẽ tích hợp:**
+| Method | Trạng thái |
+|---|---|
+| Authenticator app (TOTP) | ✅ Đã có, giữ nguyên |
+| Recovery codes | ✅ Đã có (đi kèm TOTP) |
+| 📱 SMS OTP | Mới — dùng SpeedSMS (đã có secret) |
+| 📧 Email OTP | Mới — dùng Resend (đã có webhook) |
+| 🔗 Email magic link | Mới — dùng Resend (đã có webhook) |
+| 🔑 Passkey (WebAuthn) | Mới — dùng AuthSignal Server SDK |
 
-**Code:**
-- Route `/portfolio` (yêu cầu đăng nhập, redirect `/dang-nhap` nếu chưa)
-- Components:
-  - `PortfolioSummary` — tổng giá trị, P/L tuyệt đối + %, biểu đồ tròn phân bổ (dùng Recharts đã có)
-  - `HoldingsTable` — danh sách + nút Edit/Delete
-  - `AddHoldingDialog` — form thêm/sửa (select asset từ list crypto/gold đã có)
-- Tính giá realtime: dùng `fetchCryptoPrices` + `fetchGoldPrices` đã có, join theo symbol
-- Link vào header dropdown user
+## Use case
 
-## 2. DCA & ROI Calculator (`/cong-cu/dca-roi`)
+### 1. Quản lý phương thức (`/cai-dat/bao-mat`)
+Rework trang hiện tại thành dashboard tổng:
+- List 5 method với trạng thái On/Off, ngày enroll, nút Enroll/Remove
+- Mỗi method có flow enroll riêng (modal hoặc inline panel tiếng Việt):
+  - **TOTP**: như hiện tại (QR + 6 số)
+  - **SMS OTP**: nhập số điện thoại → gửi OTP qua SpeedSMS → nhập 6 số xác minh
+  - **Email OTP**: nhập email (mặc định email tài khoản) → gửi OTP → nhập 6 số
+  - **Magic Link**: nhập email → gửi link → user click link để verify
+  - **Passkey**: bấm "Tạo passkey" → trình duyệt prompt Face ID/Touch ID/Windows Hello
+- Recovery codes: nút "Tạo lại 8 mã" (yêu cầu verify 1 method khác trước)
+- Cho phép đặt **method mặc định** dùng cho step-up
 
-**Mô tả:** Pure frontend, không cần DB.
+### 2. Step-up khi đăng nhập (rework `/xac-thuc-2fa`)
+Sau khi nhập mật khẩu đúng:
+- Nếu user có ≥1 method → hiện màn "Chọn phương thức xác thực"
+- Mỗi tile = 1 method đã enroll (TOTP, SMS, Email OTP, Magic Link, Passkey, Recovery code)
+- User chọn → render form verify tương ứng → server fn `verifyMfaChallenge` accept mọi loại code
 
-**Tabs:**
-- **DCA Calculator:** Nhập tài sản (BTC/ETH/SJC), số tiền/kỳ, tần suất (tuần/tháng), khoảng thời gian → kết quả: tổng đầu tư, số lượng tích lũy, giá trị hiện tại, ROI%. Dùng historical data từ `/api/public/crypto-chart` (đã có) hoặc nhập manual giá trung bình.
-- **ROI Calculator:** Giá mua, giá bán, số lượng, phí → lợi nhuận tuyệt đối + %, ROI annualized.
+### 3. Step-up cho hành động nhạy cảm
+Tạo hook `useStepUpVerification()` + component `<StepUpDialog />`:
+- Trả Promise — caller `await stepUp({ action: "change-password" })`
+- Modal mở ra, user chọn method + nhập code → resolve hoặc reject
+- Áp dụng cho 3 chỗ:
+  - `/cai-dat/mat-khau` (đổi mật khẩu)
+  - `/cai-dat/index` khi đổi email
+  - Xóa method MFA trong trang Bảo mật
 
-**Components:**
-- `DcaCalculator` + `RoiCalculator` với form + result card + biểu đồ tăng trưởng (Recharts AreaChart)
+## Technical
 
-## 3. Lịch kinh tế (`/lich-kinh-te`)
+### Database
+Đổi `user_mfa` (hiện chỉ lưu 1 authenticator) thành `user_mfa_methods` 1-n:
+```
+user_mfa_methods(
+  id, user_id, type ('totp'|'sms'|'email_otp'|'magic_link'|'passkey'),
+  authsignal_user_id, authenticator_id, label (số đt mask / email),
+  is_default, enrolled, enrolled_at, created_at
+)
+user_mfa_backup_codes(user_id, codes[])  -- giữ riêng
+```
+Migration sẽ chuyển dữ liệu TOTP cũ sang.
 
-**Mô tả:** Bảng các sự kiện kinh tế quan trọng (Fed FOMC, CPI Mỹ, NFP, GDP, lãi suất ECB...) ảnh hưởng đến vàng/USD/crypto.
+### Server functions (`src/lib/mfa.functions.ts` mở rộng)
+- `listMfaMethods()` — list tất cả method đã enroll
+- `startSmsEnrollment({phone})` / `confirmSmsEnrollment({code})`
+- `startEmailOtpEnrollment({email})` / `confirmEmailOtpEnrollment({code})`
+- `startMagicLinkEnrollment({email})` (AuthSignal tự gửi qua webhook `/api/public/authsignal-magic-link` đã có)
+- `startPasskeyEnrollment()` → trả challenge → client gọi `navigator.credentials.create()` → `confirmPasskeyEnrollment({attestation})`
+- `removeMfaMethod({methodId})` (yêu cầu verify trước)
+- `setDefaultMfaMethod({methodId})`
+- `challengeMfa({methodId})` — start verify (gửi SMS/Email)
+- `verifyMfaChallenge({methodId, code|assertion})` — accept mọi loại
+- `regenerateBackupCodes()`
 
-**Data source:** Dùng API miễn phí từ Trading Economics calendar via scraping fallback, hoặc đơn giản nhất: **dữ liệu tĩnh JSON** (cập nhật thủ công hàng tháng) — đảm bảo hoạt động ngay, không phụ thuộc API có phí.
-- File `src/lib/data/economicCalendar.ts` — mảng sự kiện với `date, time, country, event, impact (low/med/high), previous, forecast, actual, affects[]` (vd: `['gold','usd','btc']`).
-- Server route `/api/public/economic-calendar` trả về JSON (cho phép sau này swap qua API thật).
+Mọi flow đi qua AuthSignal Server API (`api.authsignal.com/v1/users/{id}/authenticators`) bằng `AUTHSIGNAL_API_SECRET` — không gọi gì từ client trừ WebAuthn ceremony.
 
-**UI:**
-- Filter: theo tuần này / tháng / mức ảnh hưởng / quốc gia
-- Bảng: cờ quốc gia, ngày/giờ (Asia/Ho_Chi_Minh), tên sự kiện, mức ảnh hưởng (badge màu), dự báo, thực tế, tài sản ảnh hưởng
-- Highlight sự kiện sắp diễn ra trong 24h
+### SMS sending
+SMS OTP của AuthSignal cần provider. Hai lựa chọn:
+- **A**: Cấu hình AuthSignal Portal → SMS provider = Webhook → URL `/api/public/authsignal-sms` (mình tạo mới, dùng SpeedSMS đã có secret)
+- **B**: Mình tự sinh OTP, gửi SpeedSMS, verify nội bộ (không dùng AuthSignal cho SMS)
 
-## Thứ tự thực hiện
+Khuyến nghị A để thống nhất với Email OTP đã làm.
 
-1. **DCA/ROI Calculator** (đơn giản nhất, không DB) — làm trước để có quick win
-2. **Lịch kinh tế** (data tĩnh, không DB)
-3. **Portfolio Tracker** (cần migration + auth flow)
+### Passkey
+Dùng AuthSignal Passkey API:
+- Server: `POST /users/{id}/authenticators` với `verificationMethod: "PASSKEY"` → trả `options` (PublicKeyCredentialCreationOptions)
+- Client: `navigator.credentials.create({publicKey: options})` → gửi attestation lên server
+- Server: `POST /users/{id}/authenticators/verify` với attestation
+- Verify ngược: `POST /users/{id}/authenticators/challenge` → assertion → `verify`
 
-## Điều hướng
+### Routes mới / sửa
+- ✏️ `src/routes/cai-dat.bao-mat.tsx` — rework thành dashboard
+- ➕ `src/components/security/MethodCard.tsx` + 5 panel enroll
+- ➕ `src/components/security/StepUpDialog.tsx` + hook
+- ✏️ `src/routes/xac-thuc-2fa.tsx` — multi-method selector
+- ➕ `src/routes/api/public/authsignal-sms.ts` — webhook SMS provider
+- ➕ `src/routes/cai-dat.bao-mat.magic-link-callback.tsx` — handle magic link click khi enroll
 
-Thêm vào Header dropdown "Công cụ":
-- Quy đổi tiền tệ (có sẵn)
-- **Máy tính DCA & ROI** (mới)
-- **Lịch kinh tế** (mới)
-- **Danh mục của tôi** (mới — chỉ hiện khi đã login)
+## Khối lượng & đề xuất chia nhỏ
 
-## Chi tiết kỹ thuật
+Đây là ~15-20 file mới/sửa, ~1500-2000 dòng code. Để dễ review & test, mình đề xuất chia làm **4 PR tuần tự**:
 
-- Portfolio dùng `createServerFn` + `requireSupabaseAuth` cho CRUD holdings
-- DCA/ROI hoàn toàn client-side, không server
-- Economic calendar v1 dùng JSON tĩnh embed trong code (~50-100 sự kiện cho 2-3 tháng tới), v2 có thể chuyển sang API
-- SEO: mỗi trang có `head()` riêng với title/desc tiếng Việt + JSON-LD
-- Realtime: Portfolio reuse cùng pattern fetch 30s như crypto/gold đã có
+1. **PR1 (foundation)**: Migration DB, refactor `mfa.functions.ts` thành multi-method, rework UI trang Bảo mật dạng list — giữ TOTP hoạt động như cũ. *(~1 ngày code)*
+2. **PR2 (SMS + Email OTP)**: Thêm 2 method này + webhook SMS provider. *(~1 ngày)*
+3. **PR3 (Magic Link + Passkey)**: Thêm 2 method này. *(~1 ngày)*
+4. **PR4 (Step-up framework)**: `StepUpDialog`, áp vào login + đổi password + đổi email. Rework `/xac-thuc-2fa`. *(~1 ngày)*
 
-Sau khi bạn duyệt, tôi sẽ làm theo thứ tự 1→2→3 trong các turn riêng (hoặc gộp nếu bạn muốn nhanh).
+## Câu cần bạn quyết
+
+1. **Có OK bỏ Push / In-app / QR** (cần mobile app native) không?
+2. **SMS provider** — đi hướng A (AuthSignal webhook → SpeedSMS) hay B (tự xử lý)?
+3. **Bắt đầu từ PR1** ngay, hay làm liền 1 lượt cả 4 (lâu hơn nhưng 1 lần xong)?
