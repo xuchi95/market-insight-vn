@@ -318,6 +318,12 @@ function MethodCard({
               onClose={onToggle}
             />
           )}
+          {catalog.type === "recovery_codes" && (
+            <RecoveryCodesPanel
+              onBackupCodes={onBackupCodes}
+              onClose={onToggle}
+            />
+          )}
         </div>
       )}
     </section>
