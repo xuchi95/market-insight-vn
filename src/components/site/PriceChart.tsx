@@ -69,7 +69,7 @@ async function loadSeries(asset: Asset, days: Range): Promise<SeriesData> {
       const res = await fetch(`/api/public/gold-history?type=SJC&days=${days}`);
       if (res.ok) {
         const j = (await res.json()) as {
-          points?: Point[];
+          points?: Array<{ t: number; v: number; buy?: number; sell?: number }>;
           updatedAt?: number;
           unit?: string;
           latest?: { buy: number; sell: number; mid: number };
