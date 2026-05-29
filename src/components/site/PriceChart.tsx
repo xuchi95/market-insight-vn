@@ -25,7 +25,9 @@ function groupOf(a: Asset): AssetGroup {
 
 const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" };
 
-interface Point { t: number; v: number; }
+interface Point { t: number; v: number }
+interface SourceMeta { name: string; url: string; updatedAt?: number }
+interface SeriesData { points: Point[]; source?: SourceMeta }
 
 const BASE_VALUES: Record<Exclude<Asset, "btc" | "eth">, number> = {
   "gold-sjc": 15_700_000,
@@ -43,7 +45,7 @@ const BASE_VALUES: Record<Exclude<Asset, "btc" | "eth">, number> = {
   "thb-vnd": 720,
 };
 
-async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
+async function loadSeries(asset: Asset, days: Range): Promise<SeriesData> {
   if (asset === "btc" || asset === "eth") {
     const id = COINGECKO_ID[asset];
     const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${days}`;
@@ -51,7 +53,8 @@ async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
       const res = await fetch(url);
       if (res.ok) {
         const j = await res.json();
-        return (j.prices as [number, number][]).map(([t, v]) => ({ t, v }));
+        const points = (j.prices as [number, number][]).map(([t, v]) => ({ t, v }));
+        return { points, source: { name: "CoinGecko", url: "https://www.coingecko.com" } };
       }
     } catch {}
   }
@@ -59,8 +62,13 @@ async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
     try {
       const res = await fetch(`/api/public/gold-history?type=SJC&days=${days}`);
       if (res.ok) {
-        const j = (await res.json()) as { points?: Point[] };
-        if (j.points && j.points.length) return j.points;
+        const j = (await res.json()) as { points?: Point[]; updatedAt?: number };
+        if (j.points && j.points.length) {
+          return {
+            points: j.points,
+            source: { name: "PNJ", url: "https://www.pnj.com.vn", updatedAt: j.updatedAt },
+          };
+        }
       }
     } catch {}
   }
@@ -75,7 +83,7 @@ async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
     v = v * (1 + (Math.random() - 0.48) * 0.005);
     out.push({ t: now - (n - i) * step, v });
   }
-  return out;
+  return { points: out };
 }
 
 const ASSETS: { value: Asset; label: string }[] = [
@@ -103,9 +111,6 @@ export function PriceChart({
   defaultAsset?: Asset;
   assets?: Asset[];
 } = {}) {
-  // Lock the chart to a single coherent asset group derived from defaultAsset.
-  // This prevents BTC/ETH from leaking into the gold or forex sections even if
-  // a caller passes a mixed `assets` array by mistake.
   const group = groupOf(defaultAsset);
   const allowed = ASSET_GROUPS[group];
   const available = useMemo(() => {
@@ -115,22 +120,24 @@ export function PriceChart({
   }, [assets, allowed]);
   const initial = available.some((a) => a.value === defaultAsset) ? defaultAsset : available[0].value;
   const [asset, setAsset] = useState<Asset>(initial);
-  // If the parent swaps the group at runtime, snap back to a valid asset.
   if (!available.some((a) => a.value === asset)) {
     setAsset(initial);
   }
   const [range, setRange] = useState<Range>("7");
 
-  const { data, isLoading, dataUpdatedAt } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["chart", asset, range],
     queryFn: () => loadSeries(asset, range),
     refetchInterval: 60_000,
   });
 
+  const points = data?.points ?? [];
+  const source = data?.source;
+
   const stats = useMemo(() => {
-    if (!data || !data.length) return null;
-    const first = data[0].v, last = data[data.length - 1].v;
-    const vals = data.map((d) => d.v);
+    if (!points.length) return null;
+    const first = points[0].v, last = points[points.length - 1].v;
+    const vals = points.map((d) => d.v);
     const min = Math.min(...vals);
     const max = Math.max(...vals);
     const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
@@ -142,13 +149,13 @@ export function PriceChart({
       min,
       max,
       avg,
-      minPoint: data[minIdx],
-      maxPoint: data[maxIdx],
+      minPoint: points[minIdx],
+      maxPoint: points[maxIdx],
       change: ((last - first) / first) * 100,
       changeAbs: last - first,
       position: max === min ? 50 : ((last - min) / (max - min)) * 100,
     };
-  }, [data]);
+  }, [points]);
 
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
@@ -229,7 +236,7 @@ export function PriceChart({
         <div className="h-72 w-full">
           {isLoading ? <Skeleton className="h-full w-full" /> : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
+              <AreaChart data={points} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -258,7 +265,7 @@ export function PriceChart({
                   <>
                     <ReferenceDot x={stats.maxPoint.t} y={stats.max} r={4} fill="var(--up)" stroke="var(--background)" strokeWidth={2} label={{ value: `Cao nhất ${fmtVal(stats.max)}`, position: "top", fill: "var(--up)", fontSize: 10, fontWeight: 600 }} />
                     <ReferenceDot x={stats.minPoint.t} y={stats.min} r={4} fill="var(--down)" stroke="var(--background)" strokeWidth={2} label={{ value: `Thấp nhất ${fmtVal(stats.min)}`, position: "bottom", fill: "var(--down)", fontSize: 10, fontWeight: 600 }} />
-                    <ReferenceDot x={data![data!.length - 1].t} y={stats.last} r={5} fill={color} stroke="var(--background)" strokeWidth={2} />
+                    <ReferenceDot x={points[points.length - 1].t} y={stats.last} r={5} fill={color} stroke="var(--background)" strokeWidth={2} />
                   </>
                 )}
               </AreaChart>
@@ -272,6 +279,15 @@ export function PriceChart({
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--down)" }} /> Đáy</span>
           <span className="ml-auto">Di chuột vào biểu đồ để xem chi tiết từng thời điểm</span>
         </div>
+        {source && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground border-t border-border/40 pt-2">
+            <span>Nguồn dữ liệu:</span>
+            <a href={source.url} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground/80 hover:text-primary hover:underline">{source.name}</a>
+            {source.updatedAt && (
+              <span className="ml-auto">Cập nhật cuối: {new Date(source.updatedAt).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" })}</span>
+            )}
+          </div>
+        )}
       </div>
     </SectionCard>
   );
