@@ -100,7 +100,7 @@ export const Route = createFileRoute("/api/public/gold-history")({
           // Dedupe identical timestamps.
           const seen = new Set<number>();
           const dedup = points.filter((p) => (seen.has(p.t) ? false : (seen.add(p.t), true)));
-          const payload = { points: dedup };
+          const payload: Payload = { points: dedup, updatedAt: latestTimestamp(dedup) };
           cache.set(key, { at: Date.now(), payload });
           return Response.json(payload, {
             headers: { "Cache-Control": "public, max-age=60, s-maxage=120", ...CORS },
