@@ -28,7 +28,7 @@ const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" }
 interface Point { t: number; v: number; }
 
 const BASE_VALUES: Record<Exclude<Asset, "btc" | "eth">, number> = {
-  "gold-sjc": 8_400_000,
+  "gold-sjc": 15_700_000,
   "usd-vnd": 25_400,
   "eur-vnd": 27_500,
   "gbp-vnd": 32_200,
