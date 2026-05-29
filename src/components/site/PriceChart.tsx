@@ -25,7 +25,7 @@ function groupOf(a: Asset): AssetGroup {
 
 const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" };
 
-interface Point { t: number; v: number }
+interface Point { t: number; v: number; buy?: number; sell?: number }
 interface SourceMeta {
   name: string;
   url: string;
@@ -69,7 +69,7 @@ async function loadSeries(asset: Asset, days: Range): Promise<SeriesData> {
       const res = await fetch(`/api/public/gold-history?type=SJC&days=${days}`);
       if (res.ok) {
         const j = (await res.json()) as {
-          points?: Point[];
+          points?: Array<{ t: number; v: number; buy?: number; sell?: number }>;
           updatedAt?: number;
           unit?: string;
           latest?: { buy: number; sell: number; mid: number };
@@ -120,6 +120,56 @@ const ASSETS: { value: Asset; label: string }[] = [
   { value: "hkd-vnd", label: "HKD/VND" },
   { value: "thb-vnd", label: "THB/VND" },
 ];
+
+function ChartTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload?: Point }>;
+}) {
+  if (!active || !payload?.length) return null;
+  const p = payload[0].payload;
+  if (!p) return null;
+
+  const time = new Date(p.t).toLocaleString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  const fmt = (n: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(n);
+  const hasBuySell = typeof p.buy === "number" && typeof p.sell === "number";
+
+  return (
+    <div className="rounded-xl border border-border bg-popover p-3 shadow-lg text-sm min-w-[220px]">
+      <div className="text-xs text-muted-foreground mb-2">{time}</div>
+      {hasBuySell ? (
+        <>
+          <div className="flex justify-between gap-4">
+            <span className="text-muted-foreground">Mua</span>
+            <span className="font-semibold text-foreground">{fmt(p.buy!)} VND/chỉ</span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-muted-foreground">Bán</span>
+            <span className="font-semibold text-foreground">{fmt(p.sell!)} VND/chỉ</span>
+          </div>
+          <div className="flex justify-between gap-4 mt-1 pt-1 border-t border-border/50">
+            <span className="text-muted-foreground">Mid</span>
+            <span className="font-semibold text-primary">{fmt(p.v)} VND/chỉ</span>
+          </div>
+        </>
+      ) : (
+        <div className="flex justify-between gap-4">
+          <span className="text-muted-foreground">Giá</span>
+          <span className="font-semibold text-foreground">{fmt(p.v)}</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function PriceChart({
   defaultAsset = "btc",
@@ -263,17 +313,7 @@ export function PriceChart({
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="t" tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis dataKey="v" tickFormatter={fmtVal} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} />
-                <Tooltip
-                  contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
-                  labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")}
-                  formatter={(v: number) => {
-                    if (!stats) return [fmtVal(v), "Giá"];
-                    const diff = v - stats.first;
-                    const pct = (diff / stats.first) * 100;
-                    const sign = diff >= 0 ? "+" : "";
-                    return [`${fmtVal(v)}  (${sign}${pct.toFixed(2)}% so với đầu kỳ)`, "Giá"];
-                  }}
-                />
+                <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }} />
                 {stats && (
                   <ReferenceLine y={stats.first} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.7} label={{ value: `Đầu kỳ ${fmtVal(stats.first)}`, position: "insideTopLeft", fill: "var(--muted-foreground)", fontSize: 10 }} />
                 )}
