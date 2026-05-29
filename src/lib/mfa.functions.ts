@@ -685,3 +685,289 @@ export const removeMfaMethod = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+/* -------------------- Magic Link (Email) -------------------- */
+
+const StartMagicLinkSchema = z.object({
+  email: z.string().trim().email("Email không hợp lệ").max(254),
+});
+
+export const startMagicLinkEnrollment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => StartMagicLinkSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const email = data.email.toLowerCase();
+
+    const { data: anyMethod } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("authsignal_user_id")
+      .eq("user_id", userId)
+      .limit(1)
+      .maybeSingle();
+    const { data: legacy } = await supabaseAdmin
+      .from("user_mfa")
+      .select("authsignal_user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const authsignalUserId =
+      anyMethod?.authsignal_user_id ?? legacy?.authsignal_user_id ?? userId;
+
+    // Clean up pending magic-link entries
+    const { data: pending } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, authenticator_id")
+      .eq("user_id", userId)
+      .eq("type", "magic_link")
+      .eq("enrolled", false);
+    for (const p of pending ?? []) {
+      if (p.authenticator_id) {
+        try {
+          await authsignalFetch(
+            `/users/${encodeURIComponent(authsignalUserId)}/authenticators/${encodeURIComponent(p.authenticator_id)}`,
+            { method: "DELETE" },
+          );
+        } catch { /* ignore */ }
+      }
+    }
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .delete()
+      .eq("user_id", userId)
+      .eq("type", "magic_link")
+      .eq("enrolled", false);
+
+    const enrollResp = await authsignalFetch(
+      `/users/${encodeURIComponent(authsignalUserId)}/authenticators`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          verificationMethod: "EMAIL_MAGIC_LINK",
+          email,
+        }),
+      },
+    );
+    const authenticator = enrollResp?.authenticator ?? enrollResp;
+    const authenticatorId: string | undefined =
+      authenticator?.userAuthenticatorId ||
+      authenticator?.authenticatorId ||
+      enrollResp?.userAuthenticatorId;
+    if (!authenticatorId) {
+      throw new Error("Không nhận được authenticatorId từ Authsignal.");
+    }
+
+    await supabaseAdmin.from("user_mfa_methods").insert({
+      user_id: userId,
+      type: "magic_link",
+      authsignal_user_id: authsignalUserId,
+      authenticator_id: authenticatorId,
+      label: maskEmail(email),
+      enrolled: false,
+    });
+
+    return { ok: true, maskedEmail: maskEmail(email) };
+  });
+
+export const checkMagicLinkEnrollment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId } = context;
+    const { data: row } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, authsignal_user_id, authenticator_id, enrolled")
+      .eq("user_id", userId)
+      .eq("type", "magic_link")
+      .eq("enrolled", false)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!row?.authenticator_id) {
+      return { verified: false, pending: false };
+    }
+
+    // List all authenticators and find the one we're waiting on.
+    const list = await authsignalFetch(
+      `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators`,
+      { method: "GET" },
+    );
+    const items: any[] = Array.isArray(list) ? list : (list?.authenticators ?? []);
+    const target = items.find(
+      (a) => (a.userAuthenticatorId || a.authenticatorId) === row.authenticator_id,
+    );
+    const isVerified = !!(target?.verifiedAt || target?.isVerified);
+    if (!isVerified) {
+      return { verified: false, pending: true };
+    }
+
+    const now = new Date().toISOString();
+    const { data: anyEnrolled } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("enrolled", true)
+      .limit(1);
+    const shouldBeDefault = !anyEnrolled || anyEnrolled.length === 0;
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .update({
+        enrolled: true,
+        enrolled_at: now,
+        is_default: shouldBeDefault,
+      })
+      .eq("id", row.id);
+
+    return { verified: true, pending: false };
+  });
+
+/* -------------------- Passkey (WebAuthn via AuthSignal browser SDK) -------------------- */
+
+export const startPasskeyEnrollment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId, supabase } = context;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("email, full_name")
+      .eq("id", userId)
+      .maybeSingle();
+    const email = profile?.email ?? "user@marketwatch.vn";
+    const displayName = profile?.full_name ?? email;
+
+    const { data: anyMethod } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("authsignal_user_id")
+      .eq("user_id", userId)
+      .limit(1)
+      .maybeSingle();
+    const { data: legacy } = await supabaseAdmin
+      .from("user_mfa")
+      .select("authsignal_user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const authsignalUserId =
+      anyMethod?.authsignal_user_id ?? legacy?.authsignal_user_id ?? userId;
+
+    // Track an action to get a session token the browser SDK can use.
+    const trackResp = await authsignalFetch(
+      `/users/${encodeURIComponent(authsignalUserId)}/actions/enrollPasskey`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          attributes: {
+            email,
+            displayName,
+          },
+        }),
+      },
+    );
+    const token: string | undefined = trackResp?.token;
+    if (!token) {
+      throw new Error("Không lấy được token từ Authsignal.");
+    }
+    return {
+      token,
+      username: email,
+      displayName,
+      authsignalUserId,
+      tenantId: process.env.AUTHSIGNAL_TENANT_ID ?? "",
+      region: (process.env.AUTHSIGNAL_REGION || "us").toLowerCase().trim(),
+    };
+  });
+
+const ConfirmPasskeySchema = z.object({
+  token: z.string().min(10),
+});
+
+export const confirmPasskeyEnrollment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => ConfirmPasskeySchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const { data: anyMethod } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("authsignal_user_id")
+      .eq("user_id", userId)
+      .limit(1)
+      .maybeSingle();
+    const { data: legacy } = await supabaseAdmin
+      .from("user_mfa")
+      .select("authsignal_user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const authsignalUserId =
+      anyMethod?.authsignal_user_id ?? legacy?.authsignal_user_id ?? userId;
+
+    const validateResp = await authsignalFetch(`/validate-challenge`, {
+      method: "POST",
+      body: JSON.stringify({
+        token: data.token,
+        userId: authsignalUserId,
+      }),
+    });
+
+    const isValid = validateResp?.isValid ?? false;
+    const state: string | undefined = validateResp?.state;
+    if (!isValid || (state && state !== "CHALLENGE_SUCCEEDED")) {
+      throw new Error("Xác minh passkey thất bại.");
+    }
+
+    // Find the freshly-created passkey authenticator to record its ID + label.
+    const list = await authsignalFetch(
+      `/users/${encodeURIComponent(authsignalUserId)}/authenticators`,
+      { method: "GET" },
+    );
+    const items: any[] = Array.isArray(list) ? list : (list?.authenticators ?? []);
+    const passkeys = items.filter(
+      (a) =>
+        (a.verificationMethod || a.type || "").toString().toUpperCase() === "PASSKEY",
+    );
+    // Pick the most recently verified one
+    passkeys.sort((a, b) => {
+      const ta = new Date(a.verifiedAt || a.createdAt || 0).getTime();
+      const tb = new Date(b.verifiedAt || b.createdAt || 0).getTime();
+      return tb - ta;
+    });
+    const latest = passkeys[0];
+    const authenticatorId: string | undefined =
+      latest?.userAuthenticatorId || latest?.authenticatorId;
+    const label: string =
+      latest?.aaguidMapping?.name ||
+      latest?.deviceName ||
+      latest?.webauthnCredential?.aaguidMapping?.name ||
+      "Passkey";
+
+    if (!authenticatorId) {
+      throw new Error("Không tìm thấy passkey vừa tạo trên Authsignal.");
+    }
+
+    // Avoid duplicates
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .delete()
+      .eq("user_id", userId)
+      .eq("type", "passkey")
+      .eq("authenticator_id", authenticatorId);
+
+    const now = new Date().toISOString();
+    const { data: anyEnrolled } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("enrolled", true)
+      .limit(1);
+    const shouldBeDefault = !anyEnrolled || anyEnrolled.length === 0;
+
+    await supabaseAdmin.from("user_mfa_methods").insert({
+      user_id: userId,
+      type: "passkey",
+      authsignal_user_id: authsignalUserId,
+      authenticator_id: authenticatorId,
+      label,
+      enrolled: true,
+      enrolled_at: now,
+      is_default: shouldBeDefault,
+    });
+
+    return { ok: true, label };
+  });

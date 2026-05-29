@@ -25,6 +25,10 @@ import {
   startEmailOtpEnrollment,
   confirmEmailOtpEnrollment,
   removeMfaMethod,
+  startMagicLinkEnrollment,
+  checkMagicLinkEnrollment,
+  startPasskeyEnrollment,
+  confirmPasskeyEnrollment,
   type MfaMethodType,
   type MfaMethodSummary,
 } from "@/lib/mfa.functions";
@@ -97,8 +101,8 @@ function SecuritySettingsPage() {
   }> = [
     { type: "totp", title: "Authenticator app", desc: "Google Authenticator, Authy, 1Password — mã 6 chữ số đổi mỗi 30 giây.", icon: Smartphone, available: true },
     { type: "email_otp", title: "Email OTP", desc: "Gửi mã 6 chữ số tới email của bạn.", icon: Mail, available: true },
-    { type: "magic_link", title: "Magic Link", desc: "Bấm vào link trong email để xác thực, không cần nhập mã.", icon: Link2, available: false, soon: "PR3" },
-    { type: "passkey", title: "Passkey", desc: "Face ID / Touch ID / Windows Hello — không cần mật khẩu.", icon: Fingerprint, available: false, soon: "PR3" },
+    { type: "magic_link", title: "Magic Link", desc: "Bấm vào link trong email để xác thực, không cần nhập mã.", icon: Link2, available: true },
+    { type: "passkey", title: "Passkey", desc: "Face ID / Touch ID / Windows Hello — không cần mật khẩu.", icon: Fingerprint, available: true },
   ];
 
   return (
@@ -283,6 +287,20 @@ function MethodCard({
           )}
           {catalog.type === "email_otp" && (
             <EmailOtpPanel
+              enrolled={enrolled}
+              onChange={onChange}
+              onClose={onToggle}
+            />
+          )}
+          {catalog.type === "magic_link" && (
+            <MagicLinkPanel
+              enrolled={enrolled}
+              onChange={onChange}
+              onClose={onToggle}
+            />
+          )}
+          {catalog.type === "passkey" && (
+            <PasskeyPanel
               enrolled={enrolled}
               onChange={onChange}
               onClose={onToggle}
@@ -650,5 +668,266 @@ function BackupCodesPanel({ codes, onDone }: { codes: string[]; onDone: () => vo
         <Button onClick={onDone} className="bg-gold-gradient text-[var(--gold-foreground)]">Tôi đã lưu, đóng</Button>
       </div>
     </section>
+  );
+}
+
+/* -------------------- Magic Link panel -------------------- */
+
+function MagicLinkPanel({
+  enrolled,
+  onChange,
+  onClose,
+}: {
+  enrolled: MfaMethodSummary | undefined;
+  onChange: () => void;
+  onClose: () => void;
+}) {
+  const { user } = useAuth();
+  const startEnroll = useServerFn(startMagicLinkEnrollment);
+  const checkEnroll = useServerFn(checkMagicLinkEnrollment);
+  const remove = useServerFn(removeMfaMethod);
+
+  const [busy, setBusy] = useState(false);
+  const [step, setStep] = useState<"email" | "waiting">("email");
+  const [email, setEmail] = useState(user?.email ?? "");
+  const [sentTo, setSentTo] = useState<string | null>(null);
+
+  // Poll for verification while waiting
+  useEffect(() => {
+    if (step !== "waiting") return;
+    let cancelled = false;
+    let attempts = 0;
+    const tick = async () => {
+      attempts++;
+      try {
+        const res = await checkEnroll();
+        if (cancelled) return;
+        if (res.verified) {
+          onChange();
+          onClose();
+          toast.success("Đã bật Magic Link");
+          return;
+        }
+      } catch { /* keep polling */ }
+      if (attempts < 100 && !cancelled) {
+        setTimeout(tick, 3000);
+      }
+    };
+    const t = setTimeout(tick, 3000);
+    return () => { cancelled = true; clearTimeout(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  async function onSend() {
+    setBusy(true);
+    try {
+      const res = await startEnroll({ data: { email: email.trim() } });
+      setSentTo(res.maskedEmail);
+      setStep("waiting");
+      toast.success("Đã gửi link", { description: `Mở email ${res.maskedEmail} và bấm vào link.` });
+    } catch (e: any) {
+      toast.error("Không gửi được link", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onRemove() {
+    if (!enrolled) return;
+    setBusy(true);
+    try {
+      await remove({ data: { methodId: enrolled.id } });
+      onChange();
+      onClose();
+      toast.success("Đã gỡ Magic Link");
+    } catch (e: any) {
+      toast.error("Không gỡ được", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (enrolled) {
+    return (
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Gỡ Magic Link</Label>
+        <p className="text-xs text-muted-foreground">
+          Email <span className="font-mono">{enrolled.label}</span> sẽ không còn nhận link xác thực.
+        </p>
+        <div className="flex gap-2">
+          <Button onClick={onRemove} disabled={busy} variant="destructive" size="sm">
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-3.5 w-3.5" />}
+            Gỡ phương thức
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>Đóng</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "waiting") {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-4">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div className="text-sm">
+            <div className="font-medium">Đang chờ bạn bấm link…</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">
+              Đã gửi tới {sentTo}. Mở email và bấm link xác nhận. Trang này sẽ tự cập nhật.
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={() => { setStep("email"); }}>
+            Đổi email / gửi lại
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onClose}>Đóng</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <Label htmlFor="ml-addr" className="text-xs uppercase tracking-wider text-muted-foreground">
+          Email nhận link xác thực
+        </Label>
+        <Input
+          id="ml-addr"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="ban@gmail.com"
+          autoComplete="email"
+          className="mt-1 h-10"
+        />
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Mỗi lần xác thực, MarketWatch sẽ gửi 1 link 1-chạm tới email này.
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          onClick={onSend}
+          disabled={busy || !email.includes("@")}
+          className="bg-gold-gradient text-[var(--gold-foreground)]"
+        >
+          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+          Gửi link xác thực
+        </Button>
+        <Button variant="ghost" onClick={onClose} disabled={busy}>Huỷ</Button>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------- Passkey panel -------------------- */
+
+function authsignalBrowserBaseUrl(region: string): string {
+  const r = (region || "us").toLowerCase().trim();
+  const host = r === "us" ? "api.authsignal.com" : `${r}.api.authsignal.com`;
+  return `https://${host}/v1`;
+}
+
+function PasskeyPanel({
+  enrolled,
+  onChange,
+  onClose,
+}: {
+  enrolled: MfaMethodSummary | undefined;
+  onChange: () => void;
+  onClose: () => void;
+}) {
+  const startEnroll = useServerFn(startPasskeyEnrollment);
+  const confirmEnroll = useServerFn(confirmPasskeyEnrollment);
+  const remove = useServerFn(removeMfaMethod);
+
+  const [busy, setBusy] = useState(false);
+
+  async function onEnroll() {
+    setBusy(true);
+    try {
+      const init = await startEnroll();
+      if (!init.tenantId) {
+        throw new Error("Thiếu AUTHSIGNAL_TENANT_ID trên server.");
+      }
+      const mod = await import("@authsignal/browser");
+      const Authsignal = (mod as any).Authsignal ?? (mod as any).default;
+      const authsignal = new Authsignal({
+        tenantId: init.tenantId,
+        baseUrl: authsignalBrowserBaseUrl(init.region),
+      });
+      const result = await authsignal.passkey.signUp({
+        token: init.token,
+        username: init.username,
+        displayName: init.displayName,
+      });
+      const verifiedToken: string | undefined = result?.token ?? result?.data?.token;
+      if (!verifiedToken) {
+        throw new Error(result?.error ?? "Không tạo được passkey.");
+      }
+      await confirmEnroll({ data: { token: verifiedToken } });
+      onChange();
+      onClose();
+      toast.success("Đã bật Passkey");
+    } catch (e: any) {
+      const msg = e?.message || "Đã có lỗi xảy ra";
+      // Người dùng có thể đã huỷ prompt — giảm tiếng ồn.
+      if (/cancel|aborted|not allowed/i.test(msg)) {
+        toast.message("Đã huỷ tạo passkey");
+      } else {
+        toast.error("Tạo passkey thất bại", { description: msg });
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onRemove() {
+    if (!enrolled) return;
+    setBusy(true);
+    try {
+      await remove({ data: { methodId: enrolled.id } });
+      onChange();
+      onClose();
+      toast.success("Đã gỡ Passkey");
+    } catch (e: any) {
+      toast.error("Không gỡ được", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (enrolled) {
+    return (
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Gỡ Passkey</Label>
+        <p className="text-xs text-muted-foreground">
+          Passkey <span className="font-mono">{enrolled.label}</span> sẽ bị xoá khỏi tài khoản. Bạn vẫn có thể tạo lại sau.
+        </p>
+        <div className="flex gap-2">
+          <Button onClick={onRemove} disabled={busy} variant="destructive" size="sm">
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-3.5 w-3.5" />}
+            Gỡ Passkey
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>Đóng</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-border bg-muted/30 p-4 text-xs text-muted-foreground">
+        Trình duyệt sẽ hỏi bạn xác nhận bằng Face ID / Touch ID / Windows Hello hoặc khoá bảo mật (YubiKey). Passkey được lưu an toàn trên thiết bị của bạn.
+      </div>
+      <div className="flex gap-2">
+        <Button onClick={onEnroll} disabled={busy} className="bg-gold-gradient text-[var(--gold-foreground)]">
+          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Fingerprint className="mr-2 h-4 w-4" />}
+          Tạo Passkey
+        </Button>
+        <Button variant="ghost" onClick={onClose} disabled={busy}>Huỷ</Button>
+      </div>
+    </div>
   );
 }
