@@ -1040,3 +1040,170 @@ export const confirmPasskeyEnrollment = createServerFn({ method: "POST" })
 
     return { ok: true, label };
   });
+
+/* -------------------- Step-up: list / start / verify -------------------- */
+
+export interface EnrolledMethod {
+  id: string;
+  type: MfaMethodType;
+  label: string | null;
+  isDefault: boolean;
+}
+
+export const listEnrolledMfaMethods = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ methods: EnrolledMethod[]; passkeyTenantId: string; region: string }> => {
+    const { userId } = context;
+    const { data } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, type, label, is_default")
+      .eq("user_id", userId)
+      .eq("enrolled", true)
+      .order("is_default", { ascending: false })
+      .order("created_at", { ascending: true });
+    return {
+      methods: (data ?? []).map((r) => ({
+        id: r.id,
+        type: r.type as MfaMethodType,
+        label: r.label,
+        isDefault: r.is_default,
+      })),
+      passkeyTenantId: process.env.AUTHSIGNAL_TENANT_ID ?? "",
+      region: (process.env.AUTHSIGNAL_REGION || "us").toLowerCase().trim(),
+    };
+  });
+
+const StartStepUpSchema = z.object({
+  methodId: z.string().uuid(),
+});
+
+/**
+ * For email_otp & magic_link: sends a fresh challenge (OTP / link) to the
+ * authenticator. For TOTP / passkey: no-op (client handles UI directly).
+ * For passkey: also returns a fresh AuthSignal action token for the browser SDK.
+ */
+export const startStepUp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => StartStepUpSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId, supabase } = context;
+    const { data: row } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, type, authsignal_user_id, authenticator_id, label, enrolled")
+      .eq("user_id", userId)
+      .eq("id", data.methodId)
+      .maybeSingle();
+    if (!row?.enrolled) throw new Error("Phương thức không khả dụng.");
+
+    if (row.type === "email_otp" || row.type === "magic_link") {
+      // Trigger AuthSignal to re-send the challenge to this authenticator.
+      // Per docs: POST /users/{userId}/authenticators/{authId}/challenge.
+      try {
+        await authsignalFetch(
+          `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/${encodeURIComponent(row.authenticator_id!)}/challenge`,
+          { method: "POST", body: JSON.stringify({}) },
+        );
+      } catch (e: any) {
+        throw new Error(e?.message || "Không gửi được mã xác minh.");
+      }
+      return { ok: true, type: row.type, label: row.label };
+    }
+
+    if (row.type === "passkey") {
+      // Track a step-up action to get a session token the browser SDK uses
+      // for `authsignal.passkey.signIn`.
+      const trackResp = await authsignalFetch(
+        `/users/${encodeURIComponent(row.authsignal_user_id)}/actions/stepUp`,
+        { method: "POST", body: JSON.stringify({}) },
+      );
+      return {
+        ok: true,
+        type: row.type,
+        token: trackResp?.token as string | undefined,
+        tenantId: process.env.AUTHSIGNAL_TENANT_ID ?? "",
+        region: (process.env.AUTHSIGNAL_REGION || "us").toLowerCase().trim(),
+      };
+    }
+
+    // TOTP — nothing to do server-side.
+    void supabase;
+    return { ok: true, type: row.type, label: row.label };
+  });
+
+const VerifyStepUpSchema = z.object({
+  methodId: z.string().uuid(),
+  code: z.string().trim().min(1).max(20).optional(),
+  token: z.string().min(10).optional(),
+});
+
+/**
+ * Verifies a step-up challenge and returns a short-lived HMAC step-up token
+ * the client can attach to sensitive actions (change password, change email).
+ */
+export const verifyStepUp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => VerifyStepUpSchema.parse(input))
+  .handler(async ({ data, context }): Promise<{ ok: true; stepUpToken: string }> => {
+    const { userId } = context;
+    const { data: row } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, type, authsignal_user_id, authenticator_id, enrolled")
+      .eq("user_id", userId)
+      .eq("id", data.methodId)
+      .maybeSingle();
+    if (!row?.enrolled) throw new Error("Phương thức không khả dụng.");
+
+    if (row.type === "totp" || row.type === "email_otp") {
+      const code = (data.code ?? "").trim();
+      if (!/^\d{6}$/.test(code)) throw new Error("Mã phải là 6 chữ số.");
+      const verifyResp = await authsignalFetch(
+        `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            verificationCode: code,
+            authenticatorId: row.authenticator_id,
+          }),
+        },
+      );
+      const ok = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+      if (!ok) throw new Error("Mã không đúng hoặc đã hết hạn.");
+      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+    }
+
+    if (row.type === "magic_link") {
+      // Caller polls after triggering startStepUp. We check the authenticator's
+      // verifiedAt has updated to within the last 10 minutes.
+      const list = await authsignalFetch(
+        `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators`,
+        { method: "GET" },
+      );
+      const items: any[] = Array.isArray(list) ? list : (list?.authenticators ?? []);
+      const target = items.find(
+        (a) => (a.userAuthenticatorId || a.authenticatorId) === row.authenticator_id,
+      );
+      const verifiedAt = target?.verifiedAt ? new Date(target.verifiedAt).getTime() : 0;
+      const fresh = verifiedAt && Date.now() - verifiedAt < 10 * 60 * 1000;
+      if (!fresh) throw new Error("Chưa thấy bạn bấm link. Hãy kiểm tra email.");
+      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+    }
+
+    if (row.type === "passkey") {
+      if (!data.token) throw new Error("Thiếu token passkey.");
+      const validateResp = await authsignalFetch(`/validate-challenge`, {
+        method: "POST",
+        body: JSON.stringify({
+          token: data.token,
+          userId: row.authsignal_user_id,
+        }),
+      });
+      const isValid = validateResp?.isValid ?? false;
+      const state: string | undefined = validateResp?.state;
+      if (!isValid || (state && state !== "CHALLENGE_SUCCEEDED")) {
+        throw new Error("Xác minh passkey thất bại.");
+      }
+      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+    }
+
+    throw new Error("Phương thức chưa hỗ trợ.");
+  });
