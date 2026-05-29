@@ -209,7 +209,7 @@ export async function userHasEnrolledMfa(userId: string): Promise<boolean> {
 export async function requireStepUp(userId: string, token: string | undefined | null): Promise<void> {
   const hasMfa = await userHasEnrolledMfa(userId);
   if (!hasMfa) return; // nothing to enforce
-  if (!verifyStepUpToken(token, userId)) {
+  if (!(await verifyStepUpToken(token, userId))) {
     throw new Error("Bạn cần xác minh 2 lớp trước khi thực hiện hành động này.");
   }
 }
