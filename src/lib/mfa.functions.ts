@@ -74,6 +74,44 @@ function generateBackupCodes(): string[] {
   return codes;
 }
 
+// Base32 (RFC 4648, no padding) encoder for TOTP secret.
+function base32Encode(bytes: Uint8Array): string {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0;
+  let value = 0;
+  let out = "";
+  for (let i = 0; i < bytes.length; i++) {
+    value = (value << 8) | bytes[i];
+    bits += 8;
+    while (bits >= 5) {
+      out += alphabet[(value >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+  if (bits > 0) {
+    out += alphabet[(value << (5 - bits)) & 31];
+  }
+  return out;
+}
+
+function generateTotpSecret(): string {
+  const buf = new Uint8Array(20); // 160-bit
+  crypto.getRandomValues(buf);
+  return base32Encode(buf);
+}
+
+function buildOtpauthUri(secret: string, label: string, issuer: string): string {
+  const encLabel = encodeURIComponent(`${issuer}:${label}`);
+  const params = new URLSearchParams({
+    secret,
+    issuer,
+    algorithm: "SHA1",
+    digits: "6",
+    period: "30",
+  });
+  return `otpauth://totp/${encLabel}?${params.toString()}`;
+}
+
 async function hashCode(code: string): Promise<string> {
   const data = new TextEncoder().encode(code.toLowerCase().trim());
   const digest = await crypto.subtle.digest("SHA-256", data);
@@ -133,14 +171,18 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
       } catch { /* ignore */ }
     }
 
-    // Enroll a new TOTP authenticator
+    // Generate the TOTP secret + otpauth URI ourselves; Authsignal's
+    // "Enroll verified authenticator" endpoint requires us to supply otpUri.
+    const secret = generateTotpSecret();
+    const otpauthUri = buildOtpauthUri(secret, email, "MarketWatch");
+
     const enrollResp = await authsignalFetch(
       `/users/${encodeURIComponent(authsignalUserId)}/authenticators`,
       {
         method: "POST",
         body: JSON.stringify({
           verificationMethod: "AUTHENTICATOR_APP",
-          username: email,
+          otpUri: otpauthUri,
         }),
       },
     );
@@ -148,13 +190,9 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
     const authenticator = enrollResp?.authenticator ?? enrollResp;
     const authenticatorId: string | undefined =
       authenticator?.userAuthenticatorId || authenticator?.authenticatorId || enrollResp?.userAuthenticatorId;
-    const otpauthUri: string | undefined =
-      authenticator?.otpauthUri || enrollResp?.otpauthUri || authenticator?.oobChannel;
-    const secret: string | undefined =
-      authenticator?.secret || enrollResp?.secret;
 
-    if (!authenticatorId || !otpauthUri) {
-      throw new Error("Không nhận được dữ liệu đăng ký từ Authsignal.");
+    if (!authenticatorId) {
+      throw new Error("Không nhận được authenticatorId từ Authsignal.");
     }
 
     // Persist pending enrollment
