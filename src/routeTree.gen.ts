@@ -65,6 +65,7 @@ import { Route as ApiPublicEconomicCalendarRouteImport } from './routes/api/publ
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
+import { Route as ApiPublicAuthsignalPushRouteImport } from './routes/api/public/authsignal-push'
 import { Route as ApiPublicAuthsignalMagicLinkRouteImport } from './routes/api/public/authsignal-magic-link'
 import { Route as ApiPublicAuthsignalEmailRouteImport } from './routes/api/public/authsignal-email'
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
@@ -358,6 +359,11 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
   path: '/api/public/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAuthsignalPushRoute = ApiPublicAuthsignalPushRouteImport.update({
+  id: '/api/public/authsignal-push',
+  path: '/api/public/authsignal-push',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAuthsignalMagicLinkRoute =
   ApiPublicAuthsignalMagicLinkRouteImport.update({
     id: '/api/public/authsignal-magic-link',
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
+  '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -522,6 +529,7 @@ export interface FileRoutesByTo {
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
+  '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -590,6 +598,7 @@ export interface FileRoutesById {
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
+  '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -659,6 +668,7 @@ export interface FileRouteTypes {
     | '/api/newsletter/unsubscribe'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
+    | '/api/public/authsignal-push'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -726,6 +736,7 @@ export interface FileRouteTypes {
     | '/api/newsletter/unsubscribe'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
+    | '/api/public/authsignal-push'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -793,6 +804,7 @@ export interface FileRouteTypes {
     | '/api/newsletter/unsubscribe'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
+    | '/api/public/authsignal-push'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -861,6 +873,7 @@ export interface RootRouteChildren {
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
   ApiPublicAuthsignalEmailRoute: typeof ApiPublicAuthsignalEmailRoute
   ApiPublicAuthsignalMagicLinkRoute: typeof ApiPublicAuthsignalMagicLinkRoute
+  ApiPublicAuthsignalPushRoute: typeof ApiPublicAuthsignalPushRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
@@ -1277,6 +1290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/authsignal-push': {
+      id: '/api/public/authsignal-push'
+      path: '/api/public/authsignal-push'
+      fullPath: '/api/public/authsignal-push'
+      preLoaderRoute: typeof ApiPublicAuthsignalPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/authsignal-magic-link': {
       id: '/api/public/authsignal-magic-link'
       path: '/api/public/authsignal-magic-link'
@@ -1389,6 +1409,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
   ApiPublicAuthsignalEmailRoute: ApiPublicAuthsignalEmailRoute,
   ApiPublicAuthsignalMagicLinkRoute: ApiPublicAuthsignalMagicLinkRoute,
+  ApiPublicAuthsignalPushRoute: ApiPublicAuthsignalPushRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
