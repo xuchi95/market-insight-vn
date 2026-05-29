@@ -59,6 +59,7 @@ import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pa
 import { Route as ApiPublicNewsletterWeeklyDigestRouteImport } from './routes/api/public/newsletter-weekly-digest'
 import { Route as ApiPublicMetalsRouteImport } from './routes/api/public/metals'
 import { Route as ApiPublicMacroVnRouteImport } from './routes/api/public/macro-vn'
+import { Route as ApiPublicGoldHistoryRouteImport } from './routes/api/public/gold-history'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
 import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicFearGreedRouteImport } from './routes/api/public/fear-greed'
@@ -329,6 +330,11 @@ const ApiPublicMacroVnRoute = ApiPublicMacroVnRouteImport.update({
   path: '/api/public/macro-vn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicGoldHistoryRoute = ApiPublicGoldHistoryRouteImport.update({
+  id: '/api/public/gold-history',
+  path: '/api/public/gold-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGoldRoute = ApiPublicGoldRouteImport.update({
   id: '/api/public/gold',
   path: '/api/public/gold',
@@ -476,6 +482,7 @@ export interface FileRoutesByFullPath {
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/gold-history': typeof ApiPublicGoldHistoryRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
@@ -545,6 +552,7 @@ export interface FileRoutesByTo {
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/gold-history': typeof ApiPublicGoldHistoryRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
@@ -615,6 +623,7 @@ export interface FileRoutesById {
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
   '/api/public/forex': typeof ApiPublicForexRoute
   '/api/public/gold': typeof ApiPublicGoldRoute
+  '/api/public/gold-history': typeof ApiPublicGoldHistoryRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
@@ -686,6 +695,7 @@ export interface FileRouteTypes {
     | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/gold-history'
     | '/api/public/macro-vn'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
@@ -755,6 +765,7 @@ export interface FileRouteTypes {
     | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/gold-history'
     | '/api/public/macro-vn'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
@@ -824,6 +835,7 @@ export interface FileRouteTypes {
     | '/api/public/fear-greed'
     | '/api/public/forex'
     | '/api/public/gold'
+    | '/api/public/gold-history'
     | '/api/public/macro-vn'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
@@ -894,6 +906,7 @@ export interface RootRouteChildren {
   ApiPublicFearGreedRoute: typeof ApiPublicFearGreedRoute
   ApiPublicForexRoute: typeof ApiPublicForexRoute
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
+  ApiPublicGoldHistoryRoute: typeof ApiPublicGoldHistoryRoute
   ApiPublicMacroVnRoute: typeof ApiPublicMacroVnRoute
   ApiPublicMetalsRoute: typeof ApiPublicMetalsRoute
   ApiPublicNewsletterWeeklyDigestRoute: typeof ApiPublicNewsletterWeeklyDigestRoute
@@ -1261,6 +1274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMacroVnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/gold-history': {
+      id: '/api/public/gold-history'
+      path: '/api/public/gold-history'
+      fullPath: '/api/public/gold-history'
+      preLoaderRoute: typeof ApiPublicGoldHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/gold': {
       id: '/api/public/gold'
       path: '/api/public/gold'
@@ -1438,6 +1458,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicFearGreedRoute: ApiPublicFearGreedRoute,
   ApiPublicForexRoute: ApiPublicForexRoute,
   ApiPublicGoldRoute: ApiPublicGoldRoute,
+  ApiPublicGoldHistoryRoute: ApiPublicGoldHistoryRoute,
   ApiPublicMacroVnRoute: ApiPublicMacroVnRoute,
   ApiPublicMetalsRoute: ApiPublicMetalsRoute,
   ApiPublicNewsletterWeeklyDigestRoute: ApiPublicNewsletterWeeklyDigestRoute,

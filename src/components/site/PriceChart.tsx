@@ -55,6 +55,15 @@ async function loadSeries(asset: Asset, days: Range): Promise<Point[]> {
       }
     } catch {}
   }
+  if (asset === "gold-sjc") {
+    try {
+      const res = await fetch(`/api/public/gold-history?type=SJC&days=${days}`);
+      if (res.ok) {
+        const j = (await res.json()) as { points?: Point[] };
+        if (j.points && j.points.length) return j.points;
+      }
+    } catch {}
+  }
   // Synthesize plausible series for gold/forex or as fallback
   const n = Number(days) * 24;
   const base = (BASE_VALUES as Record<string, number>)[asset] ?? 25_400;
