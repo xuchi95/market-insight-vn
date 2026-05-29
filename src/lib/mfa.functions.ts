@@ -137,7 +137,7 @@ function b64urlDecode(s: string): Buffer {
   return Buffer.from(s.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64");
 }
 
-export function issueStepUpToken(userId: string, methodType: MfaMethodType, ttlSec = STEP_UP_TTL_SEC): string {
+export function issueStepUpToken(userId: string, methodType: string, ttlSec = STEP_UP_TTL_SEC): string {
   const payload = JSON.stringify({
     sub: userId,
     m: methodType,
