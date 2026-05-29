@@ -11,8 +11,10 @@ const CORS = { "Access-Control-Allow-Origin": "*" } as const;
 const UPSTREAM_TIMEOUT_MS = 4_000;
 const CACHE_MS = 60_000;
 
+interface Payload { points: SeriesPoint[]; updatedAt?: number }
+
 // Simple in-memory cache keyed by `${type}-${days}`.
-const cache = new Map<string, { at: number; payload: { points: SeriesPoint[] } }>();
+const cache = new Map<string, { at: number; payload: Payload }>();
 
 function parseVnDate(s: string): number {
   const m = s?.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?/);
