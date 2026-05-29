@@ -372,9 +372,12 @@ export type Database = {
           created_at: string
           enrolled: boolean
           enrolled_at: string | null
+          fail_count: number
           id: string
           is_default: boolean
           label: string | null
+          last_failed_at: string | null
+          locked_until: string | null
           totp_secret: string | null
           type: string
           updated_at: string
@@ -386,9 +389,12 @@ export type Database = {
           created_at?: string
           enrolled?: boolean
           enrolled_at?: string | null
+          fail_count?: number
           id?: string
           is_default?: boolean
           label?: string | null
+          last_failed_at?: string | null
+          locked_until?: string | null
           totp_secret?: string | null
           type: string
           updated_at?: string
@@ -400,9 +406,12 @@ export type Database = {
           created_at?: string
           enrolled?: boolean
           enrolled_at?: string | null
+          fail_count?: number
           id?: string
           is_default?: boolean
           label?: string | null
+          last_failed_at?: string | null
+          locked_until?: string | null
           totp_secret?: string | null
           type?: string
           updated_at?: string
