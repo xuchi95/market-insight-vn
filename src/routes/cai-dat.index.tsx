@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { KeyRound, ShieldCheck, Mail, ChevronRight } from "lucide-react";
+import { KeyRound, ShieldCheck, Mail, ChevronRight, AtSign } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,6 +38,12 @@ function SettingsHubPage() {
       icon: KeyRound,
       title: "Đổi mật khẩu",
       desc: "Cập nhật mật khẩu đăng nhập của bạn.",
+    },
+    {
+      to: "/cai-dat/email" as const,
+      icon: AtSign,
+      title: "Đổi email",
+      desc: "Cập nhật địa chỉ email đăng nhập của tài khoản.",
     },
     {
       to: "/cai-dat/bao-mat" as const,

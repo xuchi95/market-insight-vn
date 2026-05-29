@@ -45,6 +45,7 @@ import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CaiDatMatKhauRouteImport } from './routes/cai-dat.mat-khau'
+import { Route as CaiDatEmailRouteImport } from './routes/cai-dat.email'
 import { Route as CaiDatBaoMatRouteImport } from './routes/cai-dat.bao-mat'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
@@ -256,6 +257,11 @@ const CaiDatMatKhauRoute = CaiDatMatKhauRouteImport.update({
   path: '/cai-dat/mat-khau',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaiDatEmailRoute = CaiDatEmailRouteImport.update({
+  id: '/cai-dat/email',
+  path: '/cai-dat/email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaiDatBaoMatRoute = CaiDatBaoMatRouteImport.update({
   id: '/cai-dat/bao-mat',
   path: '/cai-dat/bao-mat',
@@ -452,6 +458,7 @@ export interface FileRoutesByFullPath {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
@@ -520,6 +527,7 @@ export interface FileRoutesByTo {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
@@ -589,6 +597,7 @@ export interface FileRoutesById {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
@@ -659,6 +668,7 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/email'
     | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
@@ -727,6 +737,7 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/email'
     | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
@@ -795,6 +806,7 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/email'
     | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
@@ -864,6 +876,7 @@ export interface RootRouteChildren {
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
   CaiDatBaoMatRoute: typeof CaiDatBaoMatRoute
+  CaiDatEmailRoute: typeof CaiDatEmailRoute
   CaiDatMatKhauRoute: typeof CaiDatMatKhauRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
@@ -1150,6 +1163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaiDatMatKhauRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cai-dat/email': {
+      id: '/cai-dat/email'
+      path: '/cai-dat/email'
+      fullPath: '/cai-dat/email'
+      preLoaderRoute: typeof CaiDatEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cai-dat/bao-mat': {
       id: '/cai-dat/bao-mat'
       path: '/cai-dat/bao-mat'
@@ -1400,6 +1420,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
   CaiDatBaoMatRoute: CaiDatBaoMatRoute,
+  CaiDatEmailRoute: CaiDatEmailRoute,
   CaiDatMatKhauRoute: CaiDatMatKhauRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
@@ -1435,3 +1456,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

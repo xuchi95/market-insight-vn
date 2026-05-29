@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { createHmac, timingSafeEqual } from "node:crypto";
+
 
 // --- Authsignal REST client (called directly from server — no Lovable AI Gateway, no Cloud credit) ---
 
@@ -129,37 +129,64 @@ function stepUpSecret(): string {
   return s;
 }
 
-function b64urlEncode(buf: Buffer): string {
-  return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-function b64urlDecode(s: string): Buffer {
-  const pad = s.length % 4 === 0 ? "" : "=".repeat(4 - (s.length % 4));
-  return Buffer.from(s.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64");
+function b64urlEncode(buf: Uint8Array): string {
+  let bin = "";
+  for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-export function issueStepUpToken(userId: string, methodType: string, ttlSec = STEP_UP_TTL_SEC): string {
+function b64urlDecode(s: string): Uint8Array {
+  const pad = s.length % 4 === 0 ? "" : "=".repeat(4 - (s.length % 4));
+  const b64 = s.replace(/-/g, "+").replace(/_/g, "/") + pad;
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+async function hmacSha256(key: string, message: string): Promise<Uint8Array> {
+  const enc = new TextEncoder();
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(key),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(message));
+  return new Uint8Array(sig);
+}
+
+export async function issueStepUpToken(userId: string, methodType: string, ttlSec = STEP_UP_TTL_SEC): Promise<string> {
   const payload = JSON.stringify({
     sub: userId,
     m: methodType,
     exp: Math.floor(Date.now() / 1000) + ttlSec,
   });
-  const p = b64urlEncode(Buffer.from(payload, "utf8"));
-  const sig = createHmac("sha256", stepUpSecret()).update(p).digest();
+  const p = b64urlEncode(new TextEncoder().encode(payload));
+  const sig = await hmacSha256(stepUpSecret(), p);
   return `${p}.${b64urlEncode(sig)}`;
 }
 
-export function verifyStepUpToken(token: string | undefined | null, userId: string): boolean {
+export async function verifyStepUpToken(token: string | undefined | null, userId: string): Promise<boolean> {
   if (!token) return false;
   const [p, sigB64] = token.split(".");
   if (!p || !sigB64) return false;
-  const expected = createHmac("sha256", stepUpSecret()).update(p).digest();
-  const got = b64urlDecode(sigB64);
+  const [expected, got] = await Promise.all([
+    hmacSha256(stepUpSecret(), p),
+    b64urlDecode(sigB64),
+  ]);
   if (got.length !== expected.length) return false;
-  try {
-    if (!timingSafeEqual(got, expected)) return false;
-  } catch { return false; }
+  if (!timingSafeEqual(got, expected)) return false;
   let obj: any;
-  try { obj = JSON.parse(b64urlDecode(p).toString("utf8")); } catch { return false; }
+  try { obj = JSON.parse(new TextDecoder().decode(b64urlDecode(p))); } catch { return false; }
   if (obj?.sub !== userId) return false;
   if (typeof obj?.exp !== "number" || obj.exp < Math.floor(Date.now() / 1000)) return false;
   return true;
@@ -182,7 +209,7 @@ export async function userHasEnrolledMfa(userId: string): Promise<boolean> {
 export async function requireStepUp(userId: string, token: string | undefined | null): Promise<void> {
   const hasMfa = await userHasEnrolledMfa(userId);
   if (!hasMfa) return; // nothing to enforce
-  if (!verifyStepUpToken(token, userId)) {
+  if (!(await verifyStepUpToken(token, userId))) {
     throw new Error("Bạn cần xác minh 2 lớp trước khi thực hiện hành động này.");
   }
 }
@@ -1168,7 +1195,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       );
       const ok = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
       if (!ok) throw new Error("Mã không đúng hoặc đã hết hạn.");
-      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+      return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
     if (row.type === "magic_link") {
@@ -1185,7 +1212,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       const verifiedAt = target?.verifiedAt ? new Date(target.verifiedAt).getTime() : 0;
       const fresh = verifiedAt && Date.now() - verifiedAt < 10 * 60 * 1000;
       if (!fresh) throw new Error("Chưa thấy bạn bấm link. Hãy kiểm tra email.");
-      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+      return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
     if (row.type === "passkey") {
@@ -1202,7 +1229,7 @@ export const verifyStepUp = createServerFn({ method: "POST" })
       if (!isValid || (state && state !== "CHALLENGE_SUCCEEDED")) {
         throw new Error("Xác minh passkey thất bại.");
       }
-      return { ok: true, stepUpToken: issueStepUpToken(userId, row.type) };
+      return { ok: true, stepUpToken: await issueStepUpToken(userId, row.type) };
     }
 
     throw new Error("Phương thức chưa hỗ trợ.");
