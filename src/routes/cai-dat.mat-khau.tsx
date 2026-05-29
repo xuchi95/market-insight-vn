@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { changePassword } from "@/lib/account.functions";
+import { useQuery } from "@tanstack/react-query";
+import { listEnrolledMfaMethods } from "@/lib/mfa.functions";
+import { MfaStepUpForm } from "@/components/auth/MfaStepUpForm";
 
 const TITLE = "Đổi mật khẩu — MarketWatch";
 const DESC = "Cập nhật mật khẩu đăng nhập của tài khoản MarketWatch.";
@@ -45,6 +48,15 @@ function ChangePasswordPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const change = useServerFn(changePassword);
+  const list = useServerFn(listEnrolledMfaMethods);
+
+  const { data: mfaList } = useQuery({
+    queryKey: ["mfa-enrolled-methods", user?.id],
+    queryFn: () => list(),
+    enabled: !!user,
+  });
+  const hasMfa = (mfaList?.methods?.length ?? 0) > 0;
+  const [stepUpToken, setStepUpToken] = useState<string | null>(null);
 
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
@@ -72,11 +84,18 @@ function ChangePasswordPage() {
     if (!canSubmit) return;
     setBusy(true);
     try {
-      await change({ data: { currentPassword: current, newPassword: next } });
+      await change({
+        data: {
+          currentPassword: current,
+          newPassword: next,
+          stepUpToken: stepUpToken ?? undefined,
+        },
+      });
       setDone(true);
       setCurrent("");
       setNext("");
       setConfirm("");
+      setStepUpToken(null);
       toast.success("Đã đổi mật khẩu", {
         description: "Lần đăng nhập tới hãy dùng mật khẩu mới.",
       });
@@ -124,6 +143,20 @@ function ChangePasswordPage() {
                   </Button>
                 </div>
               </div>
+            </div>
+          ) : hasMfa && !stepUpToken ? (
+            <div className="space-y-4">
+              <div>
+                <div className="text-sm font-medium">Xác minh 2 lớp</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Tài khoản đang bật bảo mật 2 lớp. Hãy xác minh trước khi đổi mật khẩu.
+                </p>
+              </div>
+              <MfaStepUpForm
+                username={user?.email ?? undefined}
+                submitLabel="Xác minh để tiếp tục"
+                onVerified={(token) => setStepUpToken(token)}
+              />
             </div>
           ) : (
             <form className="space-y-5" onSubmit={onSubmit} autoComplete="off">
