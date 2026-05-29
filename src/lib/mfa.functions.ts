@@ -1219,11 +1219,13 @@ export const startStepUp = createServerFn({ method: "POST" })
     const { userId, supabase } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa_methods")
-      .select("id, type, authsignal_user_id, authenticator_id, label, enrolled")
+      .select("id, type, authsignal_user_id, authenticator_id, label, enrolled, locked_until")
       .eq("user_id", userId)
       .eq("id", data.methodId)
       .maybeSingle();
     if (!row?.enrolled) throw new Error("Phương thức không khả dụng.");
+
+    await assertMethodNotLocked(row.id);
 
     if (row.type === "email_otp" || row.type === "magic_link") {
       // Trigger AuthSignal to re-send the challenge to this authenticator.
