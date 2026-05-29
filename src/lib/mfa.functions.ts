@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 // --- Authsignal REST client (called directly from server — no Lovable AI Gateway, no Cloud credit) ---
 
@@ -116,6 +117,74 @@ async function hashCode(code: string): Promise<string> {
   const data = new TextEncoder().encode(code.toLowerCase().trim());
   const digest = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/* -------------------- Step-up token (HMAC) -------------------- */
+
+const STEP_UP_TTL_SEC = 5 * 60;
+
+function stepUpSecret(): string {
+  const s = process.env.AUTHSIGNAL_API_SECRET;
+  if (!s) throw new Error("Thiếu AUTHSIGNAL_API_SECRET để ký step-up token.");
+  return s;
+}
+
+function b64urlEncode(buf: Buffer): string {
+  return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function b64urlDecode(s: string): Buffer {
+  const pad = s.length % 4 === 0 ? "" : "=".repeat(4 - (s.length % 4));
+  return Buffer.from(s.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64");
+}
+
+export function issueStepUpToken(userId: string, methodType: MfaMethodType, ttlSec = STEP_UP_TTL_SEC): string {
+  const payload = JSON.stringify({
+    sub: userId,
+    m: methodType,
+    exp: Math.floor(Date.now() / 1000) + ttlSec,
+  });
+  const p = b64urlEncode(Buffer.from(payload, "utf8"));
+  const sig = createHmac("sha256", stepUpSecret()).update(p).digest();
+  return `${p}.${b64urlEncode(sig)}`;
+}
+
+export function verifyStepUpToken(token: string | undefined | null, userId: string): boolean {
+  if (!token) return false;
+  const [p, sigB64] = token.split(".");
+  if (!p || !sigB64) return false;
+  const expected = createHmac("sha256", stepUpSecret()).update(p).digest();
+  const got = b64urlDecode(sigB64);
+  if (got.length !== expected.length) return false;
+  try {
+    if (!timingSafeEqual(got, expected)) return false;
+  } catch { return false; }
+  let obj: any;
+  try { obj = JSON.parse(b64urlDecode(p).toString("utf8")); } catch { return false; }
+  if (obj?.sub !== userId) return false;
+  if (typeof obj?.exp !== "number" || obj.exp < Math.floor(Date.now() / 1000)) return false;
+  return true;
+}
+
+export async function userHasEnrolledMfa(userId: string): Promise<boolean> {
+  const { data } = await supabaseAdmin
+    .from("user_mfa_methods")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("enrolled", true)
+    .limit(1);
+  return !!(data && data.length > 0);
+}
+
+/**
+ * Ensures the caller has stepped up with MFA recently. Throws if the user
+ * has any enrolled MFA method and the token is missing/invalid/expired.
+ */
+export async function requireStepUp(userId: string, token: string | undefined | null): Promise<void> {
+  const hasMfa = await userHasEnrolledMfa(userId);
+  if (!hasMfa) return; // nothing to enforce
+  if (!verifyStepUpToken(token, userId)) {
+    throw new Error("Bạn cần xác minh 2 lớp trước khi thực hiện hành động này.");
+  }
 }
 
 // --- Server functions ---
