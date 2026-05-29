@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendEmail } from "@/lib/email/resend.server";
 
 
 // --- Authsignal REST client (called directly from server — no Lovable AI Gateway, no Cloud credit) ---
@@ -173,6 +174,76 @@ async function hashCode(code: string): Promise<string> {
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+const LOCAL_TOTP_PREFIX = "local-totp:";
+const LOCAL_EMAIL_OTP_PREFIX = "local-email-otp:v1:";
+const EMAIL_OTP_TTL_MS = 10 * 60 * 1000;
+
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]!));
+}
+
+function generateNumericCode(digits = 6): string {
+  const max = 10 ** digits;
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return (buf[0] % max).toString().padStart(digits, "0");
+}
+
+async function signEmailOtp(email: string, code: string, expiresAt: number, nonce: string): Promise<string> {
+  const mac = await hmacSha256(stepUpSecret(), `email-otp:${email.toLowerCase()}:${code}:${expiresAt}:${nonce}`);
+  return b64urlEncode(mac);
+}
+
+async function createEmailOtpChallenge(email: string): Promise<{ code: string; authenticatorId: string }> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const code = generateNumericCode();
+  const expiresAt = Date.now() + EMAIL_OTP_TTL_MS;
+  const nonce = crypto.randomUUID();
+  const mac = await signEmailOtp(normalizedEmail, code, expiresAt, nonce);
+  const authenticatorId = `${LOCAL_EMAIL_OTP_PREFIX}${encodeURIComponent(normalizedEmail)}:${expiresAt}:${nonce}:${mac}`;
+  return { code, authenticatorId };
+}
+
+function parseLocalEmailOtpAuthenticator(authenticatorId: string | null | undefined):
+  | { email: string; expiresAt: number; nonce: string; mac: string }
+  | null {
+  if (!authenticatorId?.startsWith(LOCAL_EMAIL_OTP_PREFIX)) return null;
+  const raw = authenticatorId.slice(LOCAL_EMAIL_OTP_PREFIX.length);
+  const [emailPart, expiresPart, nonce, mac] = raw.split(":");
+  const expiresAt = Number(expiresPart);
+  if (!emailPart || !Number.isFinite(expiresAt) || !nonce || !mac) return null;
+  return { email: decodeURIComponent(emailPart), expiresAt, nonce, mac };
+}
+
+async function verifyLocalEmailOtp(authenticatorId: string | null | undefined, code: string): Promise<boolean> {
+  if (!/^\d{6}$/.test(code)) return false;
+  const parsed = parseLocalEmailOtpAuthenticator(authenticatorId);
+  if (!parsed || parsed.expiresAt < Date.now()) return false;
+  const expected = await signEmailOtp(parsed.email, code, parsed.expiresAt, parsed.nonce);
+  const enc = new TextEncoder();
+  return timingSafeEqual(enc.encode(expected), enc.encode(parsed.mac));
+}
+
+async function sendEmailOtpCode(email: string, code: string): Promise<void> {
+  const safeCode = escapeHtml(code);
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#ffffff;font-family:Arial,sans-serif;color:#0d0d0d;">
+  <div style="max-width:480px;margin:0 auto;padding:32px 24px;">
+    <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;">Mã xác thực MarketWatch</h1>
+    <p style="font-size:14px;line-height:1.5;color:#55575d;margin:0 0 24px;">Nhập mã sau để hoàn tất xác minh. Mã có hiệu lực trong 10 phút.</p>
+    <div style="font-size:32px;font-weight:700;letter-spacing:8px;background:#f5f5f7;border-radius:8px;padding:16px 20px;text-align:center;color:#0d0d0d;">${safeCode}</div>
+    <p style="font-size:12px;color:#999;margin:32px 0 0;">Nếu bạn không yêu cầu mã này, có thể bỏ qua email.</p>
+  </div></body></html>`;
+  await sendEmail({
+    to: email,
+    subject: `Mã xác thực MarketWatch: ${code}`,
+    html,
+    text: `Mã xác thực MarketWatch: ${code}\n\nMã có hiệu lực trong 10 phút.`,
+    tags: ["mfa", "email-otp"],
+  });
+}
+
 /* -------------------- Rate-limit / lockout for MFA verification --------------------
  * Ad-hoc per-method lockout: too many wrong codes lock the method temporarily.
  * Backend does not (yet) have a dedicated rate-limiting primitive, so we track
@@ -252,8 +323,8 @@ async function resetMfaFailures(methodId: string): Promise<void> {
 const STEP_UP_TTL_SEC = 5 * 60;
 
 function stepUpSecret(): string {
-  const s = process.env.AUTHSIGNAL_API_SECRET;
-  if (!s) throw new Error("Thiếu AUTHSIGNAL_API_SECRET để ký step-up token.");
+  const s = process.env.MFA_SIGNING_SECRET || process.env.AUTHSIGNAL_API_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!s) throw new Error("Thiếu secret server để ký phiên xác minh 2FA.");
   return s;
 }
 
