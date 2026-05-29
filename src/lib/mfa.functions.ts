@@ -171,14 +171,18 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
       } catch { /* ignore */ }
     }
 
-    // Enroll a new TOTP authenticator
+    // Generate the TOTP secret + otpauth URI ourselves; Authsignal's
+    // "Enroll verified authenticator" endpoint requires us to supply otpUri.
+    const secret = generateTotpSecret();
+    const otpauthUri = buildOtpauthUri(secret, email, "MarketWatch");
+
     const enrollResp = await authsignalFetch(
       `/users/${encodeURIComponent(authsignalUserId)}/authenticators`,
       {
         method: "POST",
         body: JSON.stringify({
           verificationMethod: "AUTHENTICATOR_APP",
-          username: email,
+          otpUri: otpauthUri,
         }),
       },
     );
@@ -186,13 +190,9 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
     const authenticator = enrollResp?.authenticator ?? enrollResp;
     const authenticatorId: string | undefined =
       authenticator?.userAuthenticatorId || authenticator?.authenticatorId || enrollResp?.userAuthenticatorId;
-    const otpauthUri: string | undefined =
-      authenticator?.otpauthUri || enrollResp?.otpauthUri || authenticator?.oobChannel;
-    const secret: string | undefined =
-      authenticator?.secret || enrollResp?.secret;
 
-    if (!authenticatorId || !otpauthUri) {
-      throw new Error("Không nhận được dữ liệu đăng ký từ Authsignal.");
+    if (!authenticatorId) {
+      throw new Error("Không nhận được authenticatorId từ Authsignal.");
     }
 
     // Persist pending enrollment
