@@ -37,6 +37,11 @@ function ymdVN(date: Date): string {
   return `${y}${m}${d}`;
 }
 
+function latestTimestamp(points: SeriesPoint[]): number | undefined {
+  if (!points.length) return undefined;
+  return Math.max(...points.map((p) => p.t));
+}
+
 async function fetchDay(ymd: string, type: string): Promise<SeriesPoint[]> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
