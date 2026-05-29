@@ -337,6 +337,7 @@ export type Database = {
           created_at: string
           enrolled: boolean
           enrolled_at: string | null
+          totp_secret: string | null
           updated_at: string
           user_id: string
         }
@@ -347,6 +348,7 @@ export type Database = {
           created_at?: string
           enrolled?: boolean
           enrolled_at?: string | null
+          totp_secret?: string | null
           updated_at?: string
           user_id: string
         }
@@ -357,6 +359,7 @@ export type Database = {
           created_at?: string
           enrolled?: boolean
           enrolled_at?: string | null
+          totp_secret?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -372,6 +375,7 @@ export type Database = {
           id: string
           is_default: boolean
           label: string | null
+          totp_secret: string | null
           type: string
           updated_at: string
           user_id: string
@@ -385,6 +389,7 @@ export type Database = {
           id?: string
           is_default?: boolean
           label?: string | null
+          totp_secret?: string | null
           type: string
           updated_at?: string
           user_id: string
@@ -398,6 +403,7 @@ export type Database = {
           id?: string
           is_default?: boolean
           label?: string | null
+          totp_secret?: string | null
           type?: string
           updated_at?: string
           user_id?: string
