@@ -203,6 +203,22 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
       enrolled: false,
     }, { onConflict: "user_id" });
 
+    // Also persist in the new multi-method table (pending)
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .delete()
+      .eq("user_id", userId)
+      .eq("type", "totp")
+      .eq("enrolled", false);
+    await supabaseAdmin.from("user_mfa_methods").insert({
+      user_id: userId,
+      type: "totp",
+      authsignal_user_id: authsignalUserId,
+      authenticator_id: authenticatorId,
+      label: "Authenticator app",
+      enrolled: false,
+    });
+
     return { otpauthUri, secret: secret ?? null };
   });
 
@@ -253,6 +269,26 @@ export const confirmMfaEnrollment = createServerFn({ method: "POST" })
         backup_codes: hashed,
       })
       .eq("user_id", userId);
+
+    // Sync the new table
+    const now = new Date().toISOString();
+    const { data: anyEnrolled } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("enrolled", true)
+      .limit(1);
+    const shouldBeDefault = !anyEnrolled || anyEnrolled.length === 0;
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .update({
+        enrolled: true,
+        enrolled_at: now,
+        is_default: shouldBeDefault,
+      })
+      .eq("user_id", userId)
+      .eq("type", "totp")
+      .eq("authenticator_id", row.authenticator_id);
 
     return { backupCodes };
   });
@@ -361,5 +397,80 @@ export const disableMfa = createServerFn({ method: "POST" })
     }
 
     await supabaseAdmin.from("user_mfa").delete().eq("user_id", userId);
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .delete()
+      .eq("user_id", userId)
+      .eq("type", "totp");
+    return { ok: true };
+  });
+
+// --- New: list all MFA methods for current user ---
+
+export type MfaMethodType = "totp" | "sms" | "email_otp" | "magic_link" | "passkey";
+
+export interface MfaMethodSummary {
+  id: string;
+  type: MfaMethodType;
+  label: string | null;
+  isDefault: boolean;
+  enrolled: boolean;
+  enrolledAt: string | null;
+  createdAt: string;
+}
+
+export const listMfaMethods = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{
+    methods: MfaMethodSummary[];
+    backupCodesRemaining: number;
+  }> => {
+    const { userId } = context;
+    const { data: rows } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, type, label, is_default, enrolled, enrolled_at, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: true });
+
+    const { data: legacy } = await supabaseAdmin
+      .from("user_mfa")
+      .select("backup_codes")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    return {
+      methods: (rows ?? []).map((r) => ({
+        id: r.id,
+        type: r.type as MfaMethodType,
+        label: r.label,
+        isDefault: r.is_default,
+        enrolled: r.enrolled,
+        enrolledAt: r.enrolled_at,
+        createdAt: r.created_at,
+      })),
+      backupCodesRemaining: (legacy?.backup_codes ?? []).length,
+    };
+  });
+
+export const setDefaultMfaMethod = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ methodId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const { data: target } = await supabaseAdmin
+      .from("user_mfa_methods")
+      .select("id, enrolled")
+      .eq("user_id", userId)
+      .eq("id", data.methodId)
+      .maybeSingle();
+    if (!target?.enrolled) throw new Error("Phương thức chưa được đăng ký.");
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .update({ is_default: false })
+      .eq("user_id", userId);
+    await supabaseAdmin
+      .from("user_mfa_methods")
+      .update({ is_default: true })
+      .eq("id", data.methodId);
     return { ok: true };
   });
