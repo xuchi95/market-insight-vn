@@ -457,7 +457,7 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
     const authsignalUserId = existing?.authsignal_user_id ?? userId;
 
     // If there is a leftover authenticator from a previous incomplete attempt, remove it.
-    if (existing?.authenticator_id) {
+    if (existing?.authenticator_id && !existing.authenticator_id.startsWith(LOCAL_TOTP_PREFIX)) {
       try {
         await authsignalFetch(
           `/users/${encodeURIComponent(authsignalUserId)}/authenticators/${encodeURIComponent(existing.authenticator_id)}`,
@@ -466,29 +466,11 @@ export const startMfaEnrollment = createServerFn({ method: "POST" })
       } catch { /* ignore */ }
     }
 
-    // Generate the TOTP secret + otpauth URI ourselves; Authsignal's
-    // "Enroll verified authenticator" endpoint requires us to supply otpUri.
+    // Generate and verify TOTP locally. Authsignal removed the old verify endpoint,
+    // so TOTP must not depend on their authenticator verification API.
     const secret = generateTotpSecret();
     const otpauthUri = buildOtpauthUri(secret, email, "MarketWatch");
-
-    const enrollResp = await authsignalFetch(
-      `/users/${encodeURIComponent(authsignalUserId)}/authenticators`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          verificationMethod: "AUTHENTICATOR_APP",
-          otpUri: otpauthUri,
-        }),
-      },
-    );
-
-    const authenticator = enrollResp?.authenticator ?? enrollResp;
-    const authenticatorId: string | undefined =
-      authenticator?.userAuthenticatorId || authenticator?.authenticatorId || enrollResp?.userAuthenticatorId;
-
-    if (!authenticatorId) {
-      throw new Error("Không nhận được authenticatorId từ Authsignal.");
-    }
+    const authenticatorId = `${LOCAL_TOTP_PREFIX}${crypto.randomUUID()}`;
 
     // Persist pending enrollment
     await supabaseAdmin.from("user_mfa").upsert({
