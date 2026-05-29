@@ -446,7 +446,7 @@ export const verifyMfaChallenge = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa")
-      .select("authsignal_user_id, authenticator_id, enrolled, backup_codes")
+      .select("authsignal_user_id, authenticator_id, enrolled, backup_codes, totp_secret")
       .eq("user_id", userId)
       .maybeSingle();
     if (!row?.enrolled || !row.authenticator_id) {
@@ -474,17 +474,10 @@ export const verifyMfaChallenge = createServerFn({ method: "POST" })
       throw new Error("Mã phải là 6 chữ số.");
     }
 
-    const verifyResp = await authsignalFetch(
-      `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          verificationCode: code,
-          authenticatorId: row.authenticator_id,
-        }),
-      },
-    );
-    const isVerified = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+    if (!row.totp_secret) {
+      throw new Error("Không tìm thấy khoá TOTP. Hãy đăng ký lại 2FA.");
+    }
+    const isVerified = await verifyTotpCode(row.totp_secret, code);
     if (!isVerified) {
       throw new Error("Mã không đúng hoặc đã hết hạn.");
     }
@@ -498,7 +491,7 @@ export const disableMfa = createServerFn({ method: "POST" })
     const { userId } = context;
     const { data: row } = await supabaseAdmin
       .from("user_mfa")
-      .select("authsignal_user_id, authenticator_id, enrolled, backup_codes")
+      .select("authsignal_user_id, authenticator_id, enrolled, backup_codes, totp_secret")
       .eq("user_id", userId)
       .maybeSingle();
     if (!row?.enrolled) {
@@ -511,18 +504,8 @@ export const disableMfa = createServerFn({ method: "POST" })
     if (code.includes("-")) {
       const hashed = await hashCode(code);
       verified = (row.backup_codes ?? []).includes(hashed);
-    } else if (/^\d{6}$/.test(code)) {
-      const verifyResp = await authsignalFetch(
-        `/users/${encodeURIComponent(row.authsignal_user_id)}/authenticators/verify`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            verificationCode: code,
-            authenticatorId: row.authenticator_id,
-          }),
-        },
-      );
-      verified = verifyResp?.isVerified ?? verifyResp?.verified ?? false;
+    } else if (/^\d{6}$/.test(code) && row.totp_secret) {
+      verified = await verifyTotpCode(row.totp_secret, code);
     }
 
     if (!verified) {
