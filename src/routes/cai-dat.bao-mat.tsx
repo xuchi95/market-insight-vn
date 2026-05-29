@@ -73,7 +73,8 @@ function SecuritySettingsPage() {
     enabled: !!user,
   });
 
-  const [activePanel, setActivePanel] = useState<MfaMethodType | null>(null);
+  type CatalogType = MfaMethodType | "recovery_codes" | "push" | "in_app" | "qr_code";
+  const [activePanel, setActivePanel] = useState<CatalogType | null>(null);
   const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
 
   useEffect(() => {
@@ -212,7 +213,7 @@ function MethodCard({
   onBackupCodes,
 }: {
   catalog: {
-    type: MfaMethodType;
+    type: MfaMethodType | "recovery_codes" | "push" | "in_app" | "qr_code";
     title: string;
     desc: string;
     icon: any;
