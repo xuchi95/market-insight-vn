@@ -108,7 +108,7 @@ function LoginPage() {
       subtitle="Đăng nhập để tiếp tục theo dõi cảnh báo giá và bản tin cá nhân hóa của bạn."
       footer={<>Chưa có tài khoản?{" "}<Link to="/dang-ky" className="font-medium text-foreground underline-offset-4 hover:underline">Tạo tài khoản miễn phí</Link></>}
     >
-      <GoogleButton onClick={onGoogle} disabled={loading} label="Tiếp tục với Google" />
+      <GoogleButton onClick={onGoogle} disabled={loading} loading={loading} label="Tiếp tục với Google" />
       <Divider />
       {mode === "password" ? (
       <form onSubmit={onSubmit} className="space-y-4">
