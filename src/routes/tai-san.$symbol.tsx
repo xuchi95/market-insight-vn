@@ -16,6 +16,8 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/format";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
+import { Star } from "lucide-react";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
@@ -149,6 +151,8 @@ function AssetDetail() {
     return null;
   }, [gold, bankRow, fx]);
 
+  const { isWatched, toggle } = useWatchlist();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -178,6 +182,7 @@ function AssetDetail() {
                   <div className="text-sm text-muted-foreground">Giá bán ra hiện tại</div>
                 </div>
                 <ChangeBadge value={gold.changePct} className="text-sm px-3 py-1" />
+                <WatchButton item={{ symbol: lower, label: `${gold.brand} ${gold.type}`, category: "Vàng", to: `/tai-san/${lower}` }} />
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <Stat label="Mua vào" value={gold.unit.includes("USD") ? `$${fmtNum(gold.buy, 2)}` : `${fmtTrieu(gold.buy)} tr`} />
@@ -203,6 +208,7 @@ function AssetDetail() {
                   <div className="text-4xl font-bold tabular tracking-tight">{bankRow.sell ? fmtNum(bankRow.sell, 2) : "—"}</div>
                   <div className="text-sm text-muted-foreground">VND / {bankRow.code} (bán ra)</div>
                 </div>
+                <WatchButton item={{ symbol: lower, label: `Vietcombank · ${bankRow.code}`, category: "Ngân hàng", to: `/tai-san/${lower}` }} />
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <Stat label="Mua tiền mặt" value={bankRow.cash ? fmtNum(bankRow.cash, 2) : "—"} />
@@ -230,6 +236,7 @@ function AssetDetail() {
                 </div>
               </div>
               <ChangeBadge value={stock.changePct} className="text-sm px-3 py-1" />
+              <WatchButton item={{ symbol: lower, label: stock.name, category: "Chứng khoán", to: `/tai-san/${lower}` }} />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <Stat label="Cao trong phiên" value={fmtNum(stock.high, 2)} />
@@ -253,6 +260,7 @@ function AssetDetail() {
                 <div className="text-sm text-muted-foreground">VND / {fx.code}</div>
               </div>
               <ChangeBadge value={fx.changePct} className="text-sm px-3 py-1" />
+              <WatchButton item={{ symbol: lower, label: fx.name, category: "Ngoại tệ", to: `/tai-san/${lower}` }} />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               <Stat label="Mua" value={fmtNum(fx.buy, 2)} />
@@ -282,6 +290,7 @@ function AssetDetail() {
                   <div className="text-sm text-muted-foreground tabular">{fmtVND(coin.priceVnd)}</div>
                 </div>
                 <ChangeBadge value={coin.change24h} className="text-sm px-3 py-1" />
+                <WatchButton item={{ symbol: coin.symbol, label: coin.name, category: "Tiền điện tử", to: `/tai-san/${coin.symbol.toLowerCase()}` }} />
               </div>
               <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <Stat label="Cao nhất 24h" value={stats ? fmtUSD(stats.max, 2) : "—"} />
@@ -391,5 +400,23 @@ function ChangeCard({ label, value }: { label: string; value: number | null | un
         {has ? `${pos ? "+" : ""}${value!.toFixed(2)}%` : "—"}
       </div>
     </div>
+  );
+}
+
+function WatchButton({ item }: { item: WatchItem }) {
+  const { isWatched, toggle } = useWatchlist();
+  const watched = isWatched(item.symbol);
+  return (
+    <button
+      onClick={() => toggle(item)}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
+        watched
+          ? "border-[var(--gold)]/60 bg-[var(--gold)]/10 text-[var(--gold)]"
+          : "border-border bg-card/60 text-muted-foreground hover:text-foreground hover:border-[var(--gold)]/40"
+      }`}
+    >
+      <Star className={`h-3.5 w-3.5 ${watched ? "fill-[var(--gold)]" : ""}`} />
+      {watched ? "Đang theo dõi" : "Theo dõi"}
+    </button>
   );
 }
