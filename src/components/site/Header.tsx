@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, User as UserIcon, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
@@ -73,6 +73,29 @@ const NAV_GROUPS: NavGroup[] = [
 
 const HOME: NavItem = { label: "Tổng quan", to: "/" };
 
+type SearchSuggestion = {
+  symbol: string;
+  label: string;
+  category: string;
+  to: string;
+  keywords: string[];
+};
+
+const SEARCH_SUGGESTIONS: SearchSuggestion[] = [
+  { symbol: "BTC", label: "Bitcoin", category: "Tiền điện tử", to: "/tien-dien-tu", keywords: ["btc", "bitcoin", "crypto"] },
+  { symbol: "ETH", label: "Ethereum", category: "Tiền điện tử", to: "/tien-dien-tu", keywords: ["eth", "ethereum", "crypto"] },
+  { symbol: "SOL", label: "Solana", category: "Tiền điện tử", to: "/tien-dien-tu", keywords: ["sol", "solana", "crypto"] },
+  { symbol: "SJC", label: "Vàng miếng SJC", category: "Vàng", to: "/gia-vang", keywords: ["sjc", "vang", "vàng", "gold"] },
+  { symbol: "XAU", label: "Vàng thế giới (XAU)", category: "Vàng", to: "/gia-vang", keywords: ["xau", "gold", "vàng thế giới"] },
+  { symbol: "PNJ", label: "Vàng PNJ", category: "Vàng", to: "/gia-vang", keywords: ["pnj", "vang", "vàng"] },
+  { symbol: "USD", label: "Đô la Mỹ", category: "Ngoại tệ", to: "/ty-gia-ngoai-te", keywords: ["usd", "dollar", "đô"] },
+  { symbol: "EUR", label: "Euro", category: "Ngoại tệ", to: "/ty-gia-ngoai-te", keywords: ["eur", "euro"] },
+  { symbol: "JPY", label: "Yên Nhật", category: "Ngoại tệ", to: "/ty-gia-ngoai-te", keywords: ["jpy", "yen", "yên"] },
+  { symbol: "VCB", label: "Tỷ giá Vietcombank", category: "Ngân hàng", to: "/ty-gia-ngan-hang", keywords: ["vcb", "vietcombank", "ngân hàng"] },
+  { symbol: "VN-Index", label: "Chỉ số VN-Index", category: "Chứng khoán", to: "/chung-khoan", keywords: ["vnindex", "vn-index", "hose", "chứng khoán"] },
+  { symbol: "DCA", label: "Công cụ DCA & ROI", category: "Công cụ", to: "/cong-cu/dca-roi", keywords: ["dca", "roi", "đầu tư"] },
+];
+
 function useClock() {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -87,6 +110,8 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -94,6 +119,39 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
+
+  const suggestions = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    const pool = term
+      ? SEARCH_SUGGESTIONS.filter(
+          (s) =>
+            s.symbol.toLowerCase().includes(term) ||
+            s.label.toLowerCase().includes(term) ||
+            s.keywords.some((k) => k.includes(term)),
+        )
+      : SEARCH_SUGGESTIONS.slice(0, 6);
+    return pool.slice(0, 6);
+  }, [q]);
+
+  useEffect(() => { setActiveIdx(0); }, [q]);
+
+  const goToSuggestion = (s: SearchSuggestion) => {
+    onSearch?.(s.symbol.toLowerCase());
+    navigate({ to: s.to });
+    setSearchOpen(false);
+    setSuggestOpen(false);
+    setQ("");
+  };
+
+  const fallbackRoute = (term: string): string | null => {
+    if (/btc|eth|sol|crypto|bitcoin/.test(term)) return "/tien-dien-tu";
+    if (/sjc|xau|pnj|vàng|vang|gold/.test(term)) return "/gia-vang";
+    if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) return "/ty-gia-ngoai-te";
+    if (/lãi|lai|ngân hàng|ngan hang|bank|vcb|bidv/.test(term)) return "/ty-gia-ngan-hang";
+    if (/đổi|doi|convert/.test(term)) return "/quy-doi-tien-te";
+    if (/vn-?index|hose|hnx|chứng|chung|stock/.test(term)) return "/chung-khoan";
+    return null;
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
@@ -172,27 +230,61 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 className="relative animate-in fade-in slide-in-from-right-2 duration-200"
                 onSubmit={(e) => {
                   e.preventDefault();
+                  if (suggestions[activeIdx]) {
+                    goToSuggestion(suggestions[activeIdx]);
+                    return;
+                  }
                   const term = q.trim().toLowerCase();
                   if (!term) return;
                   onSearch?.(term);
-                  if (/btc|eth|crypto|bitcoin/.test(term)) navigate({ to: "/tien-dien-tu" });
-                  else if (/sjc|xau|vàng|vang|gold/.test(term)) navigate({ to: "/gia-vang" });
-                  else if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) navigate({ to: "/ty-gia-ngoai-te" });
-                  else if (/lãi|lai|ngân hàng|ngan hang|bank/.test(term)) navigate({ to: "/ty-gia-ngan-hang" });
-                  else if (/đổi|doi|convert/.test(term)) navigate({ to: "/quy-doi-tien-te" });
-                  else if (/vn-?index|hose|hnx|chứng|chung|stock/.test(term)) navigate({ to: "/chung-khoan" });
+                  const dest = fallbackRoute(term);
+                  if (dest) navigate({ to: dest });
                   setSearchOpen(false);
+                  setSuggestOpen(false);
                 }}
               >
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gold)]/80" />
                 <Input
                   ref={searchInputRef}
                   value={q}
-                  onChange={(e) => { setQ(e.target.value); onSearch?.(e.target.value); }}
-                  onBlur={() => { if (!q) setSearchOpen(false); }}
-                  placeholder="BTC, SJC, USD…"
-                  className="pl-8 w-52 h-9 rounded-full border border-border bg-card/60 text-sm focus-visible:ring-1 focus-visible:ring-[var(--gold)]/50"
+                  onChange={(e) => { setQ(e.target.value); setSuggestOpen(true); onSearch?.(e.target.value); }}
+                  onFocus={() => setSuggestOpen(true)}
+                  onBlur={() => { setTimeout(() => { setSuggestOpen(false); if (!q) setSearchOpen(false); }, 150); }}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1)); }
+                    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx((i) => Math.max(i - 1, 0)); }
+                    else if (e.key === "Escape") { setSuggestOpen(false); setSearchOpen(false); }
+                  }}
+                  placeholder="BTC, SJC, USD, ETH…"
+                  className="pl-9 pr-3 w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
                 />
+                {suggestOpen && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 rounded-xl border border-border bg-popover/95 backdrop-blur-xl shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 border-b border-border/60">
+                      Gợi ý
+                    </div>
+                    <ul className="py-1 max-h-72 overflow-auto">
+                      {suggestions.map((s, idx) => (
+                        <li key={s.symbol}>
+                          <button
+                            type="button"
+                            onMouseDown={(e) => { e.preventDefault(); goToSuggestion(s); }}
+                            onMouseEnter={() => setActiveIdx(idx)}
+                            className={`w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
+                          >
+                            <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
+                              {s.symbol}
+                            </span>
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-sm text-foreground truncate">{s.label}</span>
+                              <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </form>
             ) : (
               <button
