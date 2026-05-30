@@ -108,6 +108,21 @@ function AssetDetail() {
     refetchInterval: 60_000,
   });
 
+  const { data: chart7d } = useQuery({
+    queryKey: ["chart", coin?.id, "7"],
+    queryFn: () => loadChart(coin!.id, "7"),
+    enabled: !!coin,
+    refetchInterval: 120_000,
+  });
+
+  const change7d = useMemo(() => {
+    if (!chart7d || chart7d.length < 2) return null;
+    const first = chart7d[0].v;
+    const last = chart7d[chart7d.length - 1].v;
+    if (!first) return null;
+    return ((last - first) / first) * 100;
+  }, [chart7d]);
+
   const stats = useMemo(() => {
     if (!chart || chart.length === 0) return null;
     const vals = chart.map((p) => p.v);
@@ -274,6 +289,11 @@ function AssetDetail() {
                 <Stat label="Vốn hoá" value={fmtCompactUSD(coin.marketCap)} />
                 <Stat label="Volume 24h" value={fmtCompactUSD(coin.volume24h)} />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <ChangeCard label="Biến động 24h" value={coin.change24h} />
+              <ChangeCard label="Biến động 7 ngày" value={change7d} />
             </div>
 
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
