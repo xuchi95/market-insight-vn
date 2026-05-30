@@ -374,3 +374,22 @@ function Stat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function ChangeCard({ label, value }: { label: string; value: number | null | undefined }) {
+  const has = typeof value === "number" && isFinite(value);
+  const pos = (value ?? 0) >= 0;
+  const tone = !has ? "text-muted-foreground" : pos ? "text-[var(--up)]" : "text-[var(--down)]";
+  const bg = !has
+    ? "bg-muted/30 border-border"
+    : pos
+      ? "bg-[color-mix(in_oklab,var(--up)_10%,transparent)] border-[color-mix(in_oklab,var(--up)_30%,var(--border))]"
+      : "bg-[color-mix(in_oklab,var(--down)_10%,transparent)] border-[color-mix(in_oklab,var(--down)_30%,var(--border))]";
+  return (
+    <div className={`rounded-xl border p-4 ${bg}`}>
+      <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+      <div className={`mt-1 text-2xl font-bold tabular ${tone}`}>
+        {has ? `${pos ? "+" : ""}${value!.toFixed(2)}%` : "—"}
+      </div>
+    </div>
+  );
+}
