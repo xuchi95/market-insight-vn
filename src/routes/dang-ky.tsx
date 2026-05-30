@@ -89,7 +89,7 @@ function SignupPage() {
       subtitle="Mở khóa cảnh báo giá vàng, crypto, tỷ giá qua email — và bản tin sáng cá nhân hóa."
       footer={<>Đã có tài khoản?{" "}<Link to="/dang-nhap" className="font-medium text-foreground underline-offset-4 hover:underline">Đăng nhập</Link></>}
     >
-      <GoogleButton onClick={onGoogle} disabled={loading} label="Đăng ký với Google" />
+      <GoogleButton onClick={onGoogle} disabled={loading} loading={loading} label="Đăng ký với Google" />
       <Divider />
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-1.5">
