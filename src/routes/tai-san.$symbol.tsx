@@ -16,6 +16,8 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/format";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
+import { Star } from "lucide-react";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {

@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, User as UserIcon, X } from "lucide-react";
+import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, Star, User as UserIcon, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
