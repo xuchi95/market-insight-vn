@@ -108,6 +108,21 @@ function AssetDetail() {
     refetchInterval: 60_000,
   });
 
+  const { data: chart7d } = useQuery({
+    queryKey: ["chart", coin?.id, "7"],
+    queryFn: () => loadChart(coin!.id, "7"),
+    enabled: !!coin,
+    refetchInterval: 120_000,
+  });
+
+  const change7d = useMemo(() => {
+    if (!chart7d || chart7d.length < 2) return null;
+    const first = chart7d[0].v;
+    const last = chart7d[chart7d.length - 1].v;
+    if (!first) return null;
+    return ((last - first) / first) * 100;
+  }, [chart7d]);
+
   const stats = useMemo(() => {
     if (!chart || chart.length === 0) return null;
     const vals = chart.map((p) => p.v);
@@ -276,6 +291,11 @@ function AssetDetail() {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-3">
+              <ChangeCard label="Biến động 24h" value={coin.change24h} />
+              <ChangeCard label="Biến động 7 ngày" value={change7d} />
+            </div>
+
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ giá</h2>
@@ -351,6 +371,25 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="rounded-lg border border-border bg-muted/30 p-3">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="font-semibold tabular mt-1">{value}</div>
+    </div>
+  );
+}
+
+function ChangeCard({ label, value }: { label: string; value: number | null | undefined }) {
+  const has = typeof value === "number" && isFinite(value);
+  const pos = (value ?? 0) >= 0;
+  const tone = !has ? "text-muted-foreground" : pos ? "text-[var(--up)]" : "text-[var(--down)]";
+  const bg = !has
+    ? "bg-muted/30 border-border"
+    : pos
+      ? "bg-[color-mix(in_oklab,var(--up)_10%,transparent)] border-[color-mix(in_oklab,var(--up)_30%,var(--border))]"
+      : "bg-[color-mix(in_oklab,var(--down)_10%,transparent)] border-[color-mix(in_oklab,var(--down)_30%,var(--border))]";
+  return (
+    <div className={`rounded-xl border p-4 ${bg}`}>
+      <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+      <div className={`mt-1 text-2xl font-bold tabular ${tone}`}>
+        {has ? `${pos ? "+" : ""}${value!.toFixed(2)}%` : "—"}
+      </div>
     </div>
   );
 }
