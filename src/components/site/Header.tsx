@@ -82,17 +82,17 @@ type SearchSuggestion = {
 };
 
 const SEARCH_SUGGESTIONS: SearchSuggestion[] = [
-  { symbol: "BTC", label: "Bitcoin", category: "Tiền điện tử", to: "/tien-dien-tu", keywords: ["btc", "bitcoin", "crypto"] },
-  { symbol: "ETH", label: "Ethereum", category: "Tiền điện tử", to: "/tien-dien-tu", keywords: ["eth", "ethereum", "crypto"] },
-  { symbol: "SOL", label: "Solana", category: "Tiền điện tử", to: "/tien-dien-tu", keywords: ["sol", "solana", "crypto"] },
-  { symbol: "SJC", label: "Vàng miếng SJC", category: "Vàng", to: "/gia-vang", keywords: ["sjc", "vang", "vàng", "gold"] },
-  { symbol: "XAU", label: "Vàng thế giới (XAU)", category: "Vàng", to: "/gia-vang", keywords: ["xau", "gold", "vàng thế giới"] },
-  { symbol: "PNJ", label: "Vàng PNJ", category: "Vàng", to: "/gia-vang", keywords: ["pnj", "vang", "vàng"] },
-  { symbol: "USD", label: "Đô la Mỹ", category: "Ngoại tệ", to: "/ty-gia-ngoai-te", keywords: ["usd", "dollar", "đô"] },
-  { symbol: "EUR", label: "Euro", category: "Ngoại tệ", to: "/ty-gia-ngoai-te", keywords: ["eur", "euro"] },
-  { symbol: "JPY", label: "Yên Nhật", category: "Ngoại tệ", to: "/ty-gia-ngoai-te", keywords: ["jpy", "yen", "yên"] },
-  { symbol: "VCB", label: "Tỷ giá Vietcombank", category: "Ngân hàng", to: "/ty-gia-ngan-hang", keywords: ["vcb", "vietcombank", "ngân hàng"] },
-  { symbol: "VN-Index", label: "Chỉ số VN-Index", category: "Chứng khoán", to: "/chung-khoan", keywords: ["vnindex", "vn-index", "hose", "chứng khoán"] },
+  { symbol: "BTC", label: "Bitcoin", category: "Tiền điện tử", to: "/tai-san/btc", keywords: ["btc", "bitcoin", "crypto"] },
+  { symbol: "ETH", label: "Ethereum", category: "Tiền điện tử", to: "/tai-san/eth", keywords: ["eth", "ethereum", "crypto"] },
+  { symbol: "SOL", label: "Solana", category: "Tiền điện tử", to: "/tai-san/sol", keywords: ["sol", "solana", "crypto"] },
+  { symbol: "SJC", label: "Vàng miếng SJC 1L", category: "Vàng", to: "/tai-san/gold-sjc-1l", keywords: ["sjc", "vang", "vàng", "gold"] },
+  { symbol: "XAU", label: "Vàng thế giới (XAU/USD)", category: "Vàng", to: "/tai-san/gold-xauusd", keywords: ["xau", "gold", "vàng thế giới"] },
+  { symbol: "PNJ", label: "Vàng PNJ", category: "Vàng", to: "/tai-san/gold-pnj", keywords: ["pnj", "vang", "vàng"] },
+  { symbol: "USD", label: "Đô la Mỹ (USD/VND)", category: "Ngoại tệ", to: "/tai-san/usd", keywords: ["usd", "dollar", "đô"] },
+  { symbol: "EUR", label: "Euro (EUR/VND)", category: "Ngoại tệ", to: "/tai-san/eur", keywords: ["eur", "euro"] },
+  { symbol: "JPY", label: "Yên Nhật (JPY/VND)", category: "Ngoại tệ", to: "/tai-san/jpy", keywords: ["jpy", "yen", "yên"] },
+  { symbol: "VCB·USD", label: "Vietcombank · USD/VND", category: "Ngân hàng", to: "/tai-san/bank-usd", keywords: ["vcb", "vietcombank", "ngân hàng", "usd"] },
+  { symbol: "VN-Index", label: "Chỉ số VN-Index", category: "Chứng khoán", to: "/tai-san/vnindex", keywords: ["vnindex", "vn-index", "hose", "chứng khoán"] },
   { symbol: "DCA", label: "Công cụ DCA & ROI", category: "Công cụ", to: "/cong-cu/dca-roi", keywords: ["dca", "roi", "đầu tư"] },
 ];
 
@@ -137,13 +137,16 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
   const goToSuggestion = (s: SearchSuggestion) => {
     onSearch?.(s.symbol.toLowerCase());
-    navigate({ to: s.to });
+    navigate({ to: s.to as never });
     setSearchOpen(false);
     setSuggestOpen(false);
     setQ("");
   };
 
   const fallbackRoute = (term: string): string | null => {
+    const sym = term.replace(/[^a-z0-9-]/g, "");
+    if (/^(btc|eth|sol|bnb|xrp|ada|doge|ton|trx|dot|matic|avax|link|ltc|atom)$/.test(sym)) return `/tai-san/${sym}`;
+    if (/^(usd|eur|jpy|gbp|aud|cad|chf|cny|krw|sgd|thb|hkd)$/.test(sym)) return `/tai-san/${sym}`;
     if (/btc|eth|sol|crypto|bitcoin/.test(term)) return "/tien-dien-tu";
     if (/sjc|xau|pnj|vàng|vang|gold/.test(term)) return "/gia-vang";
     if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) return "/ty-gia-ngoai-te";
@@ -238,7 +241,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   if (!term) return;
                   onSearch?.(term);
                   const dest = fallbackRoute(term);
-                  if (dest) navigate({ to: dest });
+                  if (dest) navigate({ to: dest as never });
                   setSearchOpen(false);
                   setSuggestOpen(false);
                 }}
