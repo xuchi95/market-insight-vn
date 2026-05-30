@@ -116,7 +116,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { list, remove } = useWatchlist();
+  const { list, remove, synced } = useWatchlist();
 
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
@@ -320,8 +320,28 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel>Theo dõi</DropdownMenuLabel>
+                <DropdownMenuLabel className="flex items-center justify-between gap-2">
+                  <span>Theo dõi</span>
+                  <span
+                    className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${
+                      synced
+                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-500"
+                        : "border-border bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {synced ? "Đã đồng bộ" : "Cục bộ"}
+                  </span>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {!synced && (
+                  <button
+                    type="button"
+                    onClick={() => navigate({ to: "/dang-nhap" as never })}
+                    className="block w-full text-left px-3 py-2 text-xs text-[var(--gold)] hover:bg-accent"
+                  >
+                    Đăng nhập để đồng bộ giữa thiết bị →
+                  </button>
+                )}
                 {list.length === 0 ? (
                   <div className="px-3 py-4 text-sm text-muted-foreground text-center">Chưa có tài sản nào</div>
                 ) : (
