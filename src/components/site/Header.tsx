@@ -265,29 +265,29 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
       {/* Mobile nav */}
       {open && (
-        <nav className="md:hidden border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-5 py-4 space-y-5">
+        <nav className="md:hidden border-t border-[var(--gold)]/20 bg-gradient-to-b from-card via-card to-background/95 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_15%,transparent),0_12px_30px_-12px_rgba(0,0,0,0.6)]">
+          <div className="mx-auto max-w-6xl px-4 py-3 space-y-3">
             <Link
               to="/"
               activeOptions={{ exact: true }}
               onClick={() => setOpen(false)}
-              className="block py-2 text-sm font-semibold text-foreground data-[status=active]:text-[var(--gold)]"
+              className="block rounded-lg px-3 py-2 text-sm font-semibold text-foreground bg-accent/40 border border-border data-[status=active]:text-[var(--gold)] data-[status=active]:border-[var(--gold)]/40"
             >
               Tổng quan
             </Link>
             {NAV_GROUPS.map((group) => (
-              <div key={group.label} className="space-y-2">
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+              <div key={group.label} className="space-y-1.5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 px-1">
                   {group.label}
                 </div>
-                <div className="grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background/40 p-1">
                   {group.columns.flatMap((col) => col.items).map((n) => (
                     <Link
                       key={n.to}
                       to={n.to}
                       activeOptions={{ exact: true }}
                       onClick={() => setOpen(false)}
-                      className="block rounded-md px-2 py-2 text-base text-foreground/90 hover:bg-accent data-[status=active]:text-[var(--gold)]"
+                      className="block rounded-md px-2.5 py-1.5 text-sm text-foreground/90 hover:bg-accent data-[status=active]:bg-accent/70 data-[status=active]:text-[var(--gold)]"
                     >
                       {n.label}
                     </Link>
@@ -295,38 +295,40 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 </div>
               </div>
             ))}
-            <div className="pt-2 border-t border-border">
+            <div className="pt-3 mt-1 border-t border-border">
               {user ? (
                 <div className="space-y-2">
-                  <div className="rounded-2xl border border-border bg-card/60 p-3 flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-sm font-bold uppercase">
+                  <div className="rounded-xl border border-border bg-card/80 p-2.5 flex items-center gap-2.5">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-xs font-bold uppercase">
                       {(user.email ?? "?").slice(0, 1)}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Đã đăng nhập</div>
-                      <div className="text-sm text-foreground truncate">{user.email}</div>
+                      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Đã đăng nhập</div>
+                      <div className="text-xs text-foreground truncate">{user.email}</div>
                     </div>
                     <button
                       onClick={() => { setOpen(false); signOut().then(() => navigate({ to: "/" })); }}
-                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-rose-500 hover:bg-rose-500/10 transition-colors"
+                      className="inline-flex items-center gap-1 rounded-full border border-rose-500/30 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-rose-500 hover:bg-rose-500/10 transition-colors"
                     >
                       <LogOut className="h-3 w-3" /> Thoát
                     </button>
                   </div>
-                  <Link
-                    to="/cai-dat"
-                    onClick={() => setOpen(false)}
-                    className="inline-flex items-center gap-2 px-1 text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
-                  >
-                    <Settings className="h-3 w-3" /> Cài đặt tài khoản
-                  </Link>
-                  <Link
-                    to="/cai-dat/ban-tin"
-                    onClick={() => setOpen(false)}
-                    className="inline-flex items-center gap-2 px-1 text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
-                  >
-                    <Mail className="h-3 w-3" /> Quản lý bản tin
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to="/cai-dat"
+                      onClick={() => setOpen(false)}
+                      className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+                    >
+                      <Settings className="h-3 w-3" /> Cài đặt
+                    </Link>
+                    <Link
+                      to="/cai-dat/ban-tin"
+                      onClick={() => setOpen(false)}
+                      className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+                    >
+                      <Mail className="h-3 w-3" /> Bản tin
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <div className="relative rounded-2xl overflow-hidden border border-[var(--gold)]/30 bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_10%,transparent)] p-4">
