@@ -151,6 +151,8 @@ function AssetDetail() {
     return null;
   }, [gold, bankRow, fx]);
 
+  const { isWatched, toggle } = useWatchlist();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />

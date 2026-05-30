@@ -116,6 +116,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { list, remove } = useWatchlist();
 
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
@@ -301,6 +302,49 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </button>
             )}
           </div>
+          {/* Desktop watchlist */}
+          <div className="hidden md:flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Theo dõi"
+                  className="relative inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  <Star className="h-4 w-4" />
+                  {list.length > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[var(--gold)] text-[10px] font-bold text-background flex items-center justify-center">
+                      {list.length}
+                    </span>
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>Theo dõi</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {list.length === 0 ? (
+                  <div className="px-3 py-4 text-sm text-muted-foreground text-center">Chưa có tài sản nào</div>
+                ) : (
+                  list.map((item) => (
+                    <DropdownMenuItem key={item.symbol} onClick={() => navigate({ to: item.to as never })} className="flex items-center gap-2 pr-2">
+                      <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
+                        {item.symbol}
+                      </span>
+                      <span className="flex-1 truncate text-sm">{item.label}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); remove(item.symbol); }}
+                        className="ml-1 text-muted-foreground hover:text-destructive"
+                        aria-label="Xóa"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <span className="hidden xl:inline eyebrow opacity-50">{time}</span>
           <ThemeToggle />
           {user ? (
@@ -371,6 +415,28 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             >
               Tổng quan
             </Link>
+            {/* Mobile watchlist */}
+            {list.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 px-1">
+                  Theo dõi
+                </div>
+                <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background/40 p-1">
+                  {list.map((item) => (
+                    <Link
+                      key={item.symbol}
+                      to={item.to}
+                      activeOptions={{ exact: true }}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-foreground/90 hover:bg-accent data-[status=active]:bg-accent/70 data-[status=active]:text-[var(--gold)]"
+                    >
+                      <Star className="h-3 w-3 text-[var(--gold)] shrink-0" />
+                      <span className="truncate">{item.symbol}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
             {NAV_GROUPS.map((group) => (
               <div key={group.label} className="space-y-1.5">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 px-1">
