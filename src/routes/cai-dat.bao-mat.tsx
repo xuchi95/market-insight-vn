@@ -250,7 +250,9 @@ function MethodCard({
               </Badge>
             )}
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">{catalog.desc}</p>
+          {catalog.desc && (
+            <p className="mt-1 text-xs text-muted-foreground">{catalog.desc}</p>
+          )}
           {enrolled?.enrolledAt && (
             <p className="mt-1 text-[11px] text-muted-foreground">
               Đã bật từ {new Date(enrolled.enrolledAt).toLocaleString("vi-VN")}
