@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowUpDown, Wrench, ChevronDown, Search, Check } from "lucide-react";
+import { ArrowUpDown, Wrench, ChevronDown, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SectionCard } from "./SectionCard";
 import { Input } from "@/components/ui/input";
@@ -296,13 +296,7 @@ function WiseRow({
           </PopoverTrigger>
           <PopoverContent align="end" className="w-[300px] p-0">
             <Command>
-              <div className="flex items-center border-b border-border px-3">
-                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <CommandInput
-                  placeholder="Tìm USD, EUR, BTC, vàng..."
-                  className="border-0 focus:ring-0"
-                />
-              </div>
+              <CommandInput placeholder="Tìm USD, EUR, BTC, vàng..." />
               <CommandList className="max-h-72">
                 <CommandEmpty>Không tìm thấy.</CommandEmpty>
                 {(["forex", "crypto", "gold"] as AssetKind[]).map((kind) =>
