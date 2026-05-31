@@ -215,62 +215,6 @@ export function ConverterTool() {
                 detail={`Mua ${fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)} ${codeLabel(result.b)} → trả ${fmtVND(result.vndFromSelling)}`}
               />
             </div>
-
-            {/* Tổng kết — editorial result strip */}
-            <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-gold/[0.06] via-card to-card">
-              <div className="absolute inset-0 bg-grid opacity-[0.12] [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_60%)]" aria-hidden />
-              <div className="relative p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="min-w-0">
-                    <div className="eyebrow flex items-center gap-1.5"><Sparkles className="h-3 w-3" /> Thực nhận</div>
-                    <div className="mt-1.5 flex items-baseline gap-2 flex-wrap">
-                      <span className="font-serif text-2xl sm:text-3xl tabular text-gold leading-none">
-                        {fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)}
-                      </span>
-                      <span className="text-xs font-semibold tracking-[0.18em] uppercase text-muted-foreground">
-                        {codeLabel(result.b)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-right ml-auto">
-                    <div className="eyebrow">So với mid</div>
-                    <div className={cn(
-                      "mt-1.5 tabular text-base sm:text-lg font-semibold flex items-center justify-end gap-1",
-                      result.loss >= 0 ? "text-[color:var(--up)]" : "text-[color:var(--down)]",
-                    )}>
-                      {result.loss >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                      {result.loss >= 0 ? "+" : ""}{fmtAmount(result.loss, result.b.kind, result.b.key)}
-                      <span className="text-sm font-medium opacity-80">
-                        ({result.lossPct >= 0 ? "+" : ""}{result.lossPct.toFixed(2)}%)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Thanh spread */}
-                <div className="mt-5">
-                  <div className="flex justify-between text-xs uppercase tracking-[0.14em] text-muted-foreground mb-2">
-                    <span>Mid · {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)} {codeLabel(result.b)}</span>
-                    <span>Spread · {Math.abs(result.lossPct).toFixed(2)}%</span>
-                  </div>
-                  <div className="relative h-1.5 w-full rounded-full bg-muted overflow-visible">
-                    <div
-                      className="absolute inset-0 rounded-full opacity-90"
-                      style={{ background: "linear-gradient(90deg, color-mix(in oklab, var(--down) 80%, transparent), color-mix(in oklab, var(--gold) 70%, transparent), color-mix(in oklab, var(--up) 80%, transparent))" }}
-                    />
-                    <div
-                      className="absolute top-1/2 h-3.5 w-[2px] bg-foreground -translate-y-1/2"
-                      style={{ left: `${Math.min(100, Math.max(0, 50 - (result.lossPct / 2)))}%` }}
-                      aria-hidden
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground/80 mt-1.5">
-                    <span>Bán rẻ hơn</span>
-                    <span>Mua đắt hơn</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </>
       )}
