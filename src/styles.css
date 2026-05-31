@@ -157,8 +157,8 @@
     -webkit-font-smoothing: antialiased;
     font-weight: 300;
   }
-  .tabular { font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
-  .font-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .tabular, .font-mono { font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
+  .code-mono, code, pre, kbd, samp { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   h1, h2, h3, .font-display {
     font-family: var(--font-serif);
     font-weight: 400;
