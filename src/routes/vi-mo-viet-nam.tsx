@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Loader2, TrendingDown, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { AlertTriangle, Loader2, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
@@ -30,10 +31,16 @@ interface MacroPayload {
   source: string;
 }
 
-async function fetchMacro(): Promise<MacroPayload> {
-  const res = await fetch("/api/public/macro-vn", { headers: { accept: "application/json" } });
+async function fetchMacro(force = false): Promise<MacroPayload> {
+  const url = force ? "/api/public/macro-vn?refresh=1" : "/api/public/macro-vn";
+  const res = await fetch(url, { headers: { accept: "application/json" } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+
+function formatFetchedAt(ts: number): string {
+  const d = new Date(ts);
+  return d.toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 function fmtCompactUsd(n: number): string {
@@ -140,9 +147,12 @@ export const Route = createFileRoute("/vi-mo-viet-nam")({
 });
 
 function MacroPage() {
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["macro-vn"],
-    queryFn: fetchMacro,
+  const [refreshKey, setRefreshKey] = useState(0);
+  const force = refreshKey > 0;
+
+  const { data, isLoading, isError, isFetching } = useQuery<MacroPayload, Error>({
+    queryKey: ["macro-vn", refreshKey],
+    queryFn: () => fetchMacro(force),
     staleTime: 6 * 60 * 60 * 1000,
     refetchInterval: false,
     retry: 1,
@@ -164,9 +174,30 @@ function MacroPage() {
           <SectionCard
             title="Tổng quan chỉ số vĩ mô"
             description="Số liệu mới nhất + xu hướng 10 năm gần đây"
-            meta={data && <span>Nguồn: {data.source}</span>}
+            meta={
+              data ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-muted-foreground">Nguồn: {data.source}</span>
+                  <span className="text-muted-foreground/60 hidden sm:inline">·</span>
+                  <span className="text-muted-foreground/60 text-xs tabular-nums hidden sm:inline">
+                    Cập nhật: {formatFetchedAt(data.fetchedAt)}
+                  </span>
+                </div>
+              ) : null
+            }
           >
-            <div className="p-4 lg:p-5">
+            <div className="p-4 lg:p-5 space-y-4">
+              <div className="flex items-center justify-end">
+                <button
+                  onClick={() => setRefreshKey((k) => k + 1)}
+                  disabled={isFetching}
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={cn("h-3.5 w-3.5", isFetching && "animate-spin")} />
+                  {isFetching ? "Đang làm mới…" : "Làm mới dữ liệu ngay"}
+                </button>
+              </div>
+
               {isLoading ? (
                 <div className="flex items-center justify-center py-10 text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin mr-2" /> Đang tải số liệu vĩ mô…
@@ -175,7 +206,7 @@ function MacroPage() {
                 <div className="flex flex-col items-center gap-2 py-10 text-center">
                   <AlertTriangle className="h-5 w-5 text-amber-500" />
                   <p className="text-sm text-muted-foreground">Không tải được số liệu vĩ mô.</p>
-                  <button onClick={() => refetch()} className="text-xs text-primary hover:underline">Thử lại</button>
+                  <button onClick={() => setRefreshKey((k) => k + 1)} className="text-xs text-primary hover:underline">Thử lại</button>
                 </div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
