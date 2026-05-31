@@ -116,8 +116,8 @@ export function ConverterTool() {
       description="Chọn cặp tiền, nhập số lượng — tính lãi/lỗ theo giá mua/bán thực tế"
     >
       {/* Wise-style converter */}
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto max-w-xl">
+      <div className="p-6 sm:p-8 lg:p-10">
+        <div className="mx-auto max-w-2xl">
           {/* Quick-pick pairs */}
           {quickPairs.length > 0 && (
             <div className="mb-5">
