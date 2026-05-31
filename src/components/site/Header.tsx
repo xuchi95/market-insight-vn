@@ -229,8 +229,10 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </NavigationMenu>
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
-          <div className="hidden md:flex items-center">
+        <div className="ml-auto flex items-center gap-1.5">
+          {/* Cụm 1: Search + Watchlist */}
+          <div className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/40 px-1 py-0.5">
+          <div className="flex items-center">
             {searchOpen ? (
               <form
                 className="relative animate-in fade-in slide-in-from-right-2 duration-200"
@@ -304,7 +306,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             )}
           </div>
           {/* Desktop watchlist */}
-          <div className="hidden md:flex items-center">
+          <div className="flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -366,9 +368,18 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <span className="hidden xl:inline eyebrow opacity-50">{time}</span>
-          <NumberFormatToggle />
-          <ThemeToggle />
+          </div>
+
+          {/* Cụm 2: Đồng hồ + tiện ích hiển thị */}
+          <div className="hidden md:flex items-center gap-1.5 rounded-full border border-border/60 bg-card/40 pl-2.5 pr-1 py-0.5">
+            <span className="hidden 2xl:inline text-[11px] font-medium tabular text-muted-foreground/80">{time}</span>
+            <NumberFormatToggle />
+            <ThemeToggle />
+          </div>
+
+          {/* Divider trước cụm auth */}
+          <span className="hidden md:inline-block h-6 w-px bg-border/70 mx-1" aria-hidden />
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
