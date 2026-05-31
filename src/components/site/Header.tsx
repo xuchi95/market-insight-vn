@@ -6,7 +6,6 @@ import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
-import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { NumberFormatToggle } from "@/components/site/NumberFormatToggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -119,8 +118,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { list, remove, synced } = useWatchlist();
-
-  // NumberFormatToggle inlined as a small button.
 
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
