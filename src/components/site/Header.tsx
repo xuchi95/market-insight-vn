@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
+import { NumberFormatToggle } from "@/components/site/NumberFormatToggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
