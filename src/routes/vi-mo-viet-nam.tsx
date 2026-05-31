@@ -31,10 +31,16 @@ interface MacroPayload {
   source: string;
 }
 
-async function fetchMacro(): Promise<MacroPayload> {
-  const res = await fetch("/api/public/macro-vn", { headers: { accept: "application/json" } });
+async function fetchMacro(force = false): Promise<MacroPayload> {
+  const url = force ? "/api/public/macro-vn?refresh=1" : "/api/public/macro-vn";
+  const res = await fetch(url, { headers: { accept: "application/json" } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+
+function formatFetchedAt(ts: number): string {
+  const d = new Date(ts);
+  return d.toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 function fmtCompactUsd(n: number): string {
