@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowUpDown, ArrowLeftRight, Wrench, Pencil, Lock } from "lucide-react";
+import { ArrowUpDown, Wrench, ChevronDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SectionCard } from "./SectionCard";
 import { Input } from "@/components/ui/input";
@@ -98,6 +98,13 @@ export function ConverterTool() {
     ? { key: toAsset.key, kind: toAsset.kind, rateVnd: toAsset.rateVnd, code: codeLabel(toAsset) }
     : null;
 
+  const midRate = useMemo(() => {
+    if (!fromAsset || !toAsset) return null;
+    return fromAsset.rateVnd / toAsset.rateVnd;
+  }, [fromAsset, toAsset]);
+
+  const rateDigits = (v: number) => (v >= 1000 ? 0 : v >= 1 ? 4 : 8);
+
   return (
     <SectionCard
       id="converter"
@@ -105,85 +112,84 @@ export function ConverterTool() {
       title="Công cụ chuyển đổi"
       description="Chọn cặp tiền, nhập số lượng — tính lãi/lỗ theo giá mua/bán thực tế"
     >
-      {/* Editorial pair selector */}
-      <div className="relative p-4 sm:p-6 lg:p-8">
-        <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch lg:gap-4">
-          {/* FROM */}
-          <PairPanel
-            eyebrow="Bạn đổi"
-            role="input"
-            code={fromAsset ? codeLabel(fromAsset) : "—"}
-            name={fromAsset ? nameLabel(fromAsset) : ""}
-            assets={assets}
-            value={from}
-            onChange={setFrom}
-          >
-            <label className="block group/input">
-              <span className="sr-only">Số tiền cần đổi</span>
-              <div className="relative">
-                <Input
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="0"
-                  aria-label="Số lượng"
-                  className="h-16 w-full rounded-xl border border-gold/30 bg-background/80 px-4 pr-14 text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground caret-gold shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_8%,transparent)] placeholder:text-muted-foreground/40 hover:border-gold/50 focus-visible:ring-2 focus-visible:ring-gold/40 focus-visible:border-gold transition-colors"
-                />
-                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gold/70">
-                  <Pencil className="h-3 w-3" />
-                </span>
-              </div>
-              <span className="mt-1.5 block text-[11px] text-muted-foreground">
-                Nhập số tiền bạn muốn quy đổi
-              </span>
-            </label>
-          </PairPanel>
-
-          {/* SWAP */}
-          <div className="flex items-center justify-center lg:px-1">
-            <div className="relative w-full lg:w-auto">
-              <div className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent lg:hidden" aria-hidden />
-              <div className="absolute inset-y-0 left-1/2 w-px bg-gradient-to-b from-transparent via-gold/30 to-transparent hidden lg:block" aria-hidden />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={swap}
-                className={cn(
-                  "relative mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-card border-gold/30 text-gold shadow-[0_0_0_4px_var(--card)] hover:bg-gold/10 hover:text-gold hover:border-gold/50 transition-transform duration-300",
-                  swapped && "rotate-180",
-                )}
-                aria-label="Đảo chiều Từ ↔ Sang"
-              >
-                <ArrowUpDown className="h-4 w-4 lg:hidden" />
-                <ArrowLeftRight className="hidden h-4 w-4 lg:block" />
-              </Button>
+      {/* Wise-style converter */}
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-xl">
+          {/* Mid-market rate header */}
+          <div className="text-center pb-5 mb-5 border-b border-border/60">
+            <div className="text-xs font-medium text-muted-foreground mb-1.5">
+              Tỷ giá quy đổi giữa (mid)
+            </div>
+            <div className="text-base sm:text-lg font-semibold tabular text-foreground">
+              {fromAsset && toAsset && midRate
+                ? `1 ${codeLabel(fromAsset)} = ${fmtNum(midRate, rateDigits(midRate))} ${codeLabel(toAsset)}`
+                : "—"}
             </div>
           </div>
 
-          {/* TO */}
-          <PairPanel
-            eyebrow="Bạn nhận"
-            role="output"
-            code={toAsset ? codeLabel(toAsset) : "—"}
-            name={toAsset ? nameLabel(toAsset) : ""}
+          {/* FROM row */}
+          <WiseRow
+            label="Số tiền"
+            assets={assets}
+            value={from}
+            onChange={setFrom}
+            asset={fromAsset}
+            codeLabel={codeLabel}
+          >
+            <Input
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              type="text"
+              inputMode="decimal"
+              placeholder="0"
+              aria-label="Số tiền cần đổi"
+              className="h-14 border-0 bg-transparent px-0 text-2xl sm:text-3xl tabular font-semibold tracking-tight text-foreground caret-gold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/40"
+            />
+          </WiseRow>
+
+          {/* Swap button overlapping */}
+          <div className="relative h-3 my-1">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={swap}
+              className={cn(
+                "absolute left-6 -top-5 z-10 h-11 w-11 rounded-full bg-gold text-gold-foreground border-2 border-card hover:bg-gold/90 hover:text-gold-foreground shadow-md transition-transform duration-300",
+                swapped && "rotate-180",
+              )}
+              aria-label="Đảo chiều"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* TO row */}
+          <WiseRow
+            label="Chuyển đổi thành"
             assets={assets}
             value={to}
             onChange={setTo}
-            tone="gold"
+            asset={toAsset}
+            codeLabel={codeLabel}
           >
-            <div className="relative h-16 w-full rounded-xl border border-dashed border-gold/25 bg-gold/[0.04] px-4 flex items-center">
-              <span className="font-serif text-3xl sm:text-4xl tabular font-normal tracking-tight text-gold leading-none truncate">
-                {result ? fmtAmount(result.amountB_realistic, result.b.kind, result.b.key) : "—"}
+            <div className="h-14 flex items-center text-2xl sm:text-3xl tabular font-semibold tracking-tight text-foreground truncate">
+              {result ? fmtAmount(result.amountB_realistic, result.b.kind, result.b.key) : "—"}
+            </div>
+          </WiseRow>
+
+          {/* Realistic vs mid note */}
+          {result && result.lossPct !== 0 && (
+            <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
+              <span className="text-foreground/80">Lý tưởng theo giá mid: </span>
+              <span className="tabular font-semibold text-foreground">
+                {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)}
               </span>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-full bg-card/80 border border-border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                <Lock className="h-2.5 w-2.5" /> Tự động
+              <span className="mx-2 text-border">·</span>
+              <span className={cn("tabular font-semibold", result.loss < 0 ? "text-down" : "text-up")}>
+                {result.loss < 0 ? "−" : "+"}{Math.abs(result.lossPct).toFixed(2)}% do spread mua/bán
               </span>
             </div>
-            <span className="mt-1.5 block text-[11px] text-muted-foreground">
-              Kết quả được tính tự động
-            </span>
-          </PairPanel>
+          )}
         </div>
       </div>
       <div className="px-4 sm:px-6 lg:px-8 pb-6 pt-2">
@@ -195,65 +201,43 @@ export function ConverterTool() {
 
 /* ───────── Helper components ───────── */
 
-function PairPanel({
-  eyebrow,
-  role,
-  code,
-  name,
+function WiseRow({
+  label,
   assets,
   value,
   onChange,
+  asset,
+  codeLabel,
   children,
-  tone,
 }: {
-  eyebrow: string;
-  role?: "input" | "output";
-  code: string;
-  name: string;
+  label: string;
   assets: AssetOpt[];
   value: string;
   onChange: (v: string) => void;
+  asset: AssetOpt | null;
+  codeLabel: (a: AssetOpt) => string;
   children: React.ReactNode;
-  tone?: "gold";
 }) {
   return (
-    <div className={cn(
-      "group relative rounded-2xl border bg-card/60 backdrop-blur-sm p-4 sm:p-5 transition-colors",
-      tone === "gold"
-        ? "border-gold/25 bg-gradient-to-br from-gold/[0.05] to-transparent"
-        : "border-border hover:border-gold/25",
-    )}>
-      {role && (
-        <span className={cn(
-          "absolute -top-2.5 left-4 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em]",
-          role === "input"
-            ? "border-gold/50 bg-background text-gold"
-            : "border-border bg-background text-muted-foreground",
-        )}>
-          {role === "input" ? <><Pencil className="h-2.5 w-2.5" /> Nhập</> : <><Lock className="h-2.5 w-2.5" /> Kết quả</>}
-        </span>
-      )}
-      <div className="flex items-center justify-between gap-3">
-        <span className="eyebrow">{eyebrow}</span>
+    <div className="rounded-2xl border border-border bg-card/60 hover:border-gold/40 focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20 transition-colors px-4 sm:px-5 py-3">
+      <div className="text-[11px] font-medium text-muted-foreground mb-0.5">{label}</div>
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0">{children}</div>
         <Select value={value} onValueChange={onChange}>
           <SelectTrigger
-            aria-label={eyebrow}
-            className="h-9 w-auto max-w-[60%] gap-2 rounded-full border-border/80 bg-background/60 px-3 text-xs font-semibold tracking-wide hover:border-gold/40 focus:ring-0 focus:ring-offset-0"
+            aria-label={label}
+            className="h-11 w-auto shrink-0 gap-1.5 rounded-full border-border bg-background/80 px-3 text-sm font-semibold tracking-wide hover:border-gold/40 focus:ring-0 focus:ring-offset-0 [&>svg]:hidden"
           >
-            <SelectValue />
+            <span className="tabular font-bold text-foreground">
+              {asset ? codeLabel(asset) : "—"}
+            </span>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </SelectTrigger>
           <SelectContent className="max-h-72">
             {assets.length <= 1 && <SelectItem value="loading" disabled>Đang tải...</SelectItem>}
             {assets.map((a) => <SelectItem key={a.key} value={a.key}>{a.label}</SelectItem>)}
           </SelectContent>
         </Select>
-      </div>
-      <div className="mt-3">
-        {children}
-      </div>
-      <div className="mt-2 flex items-baseline gap-2 text-xs text-muted-foreground">
-        <span className="font-mono font-semibold tracking-[0.12em] text-foreground/70">{code}</span>
-        <span className="truncate">· {name}</span>
       </div>
     </div>
   );
