@@ -205,3 +205,7 @@
   display: inline-flex;
   animation: marquee 40s linear infinite;
 }
+.ticker-marquee:hover .animate-marquee,
+.ticker-marquee:focus-within .animate-marquee {
+  animation-play-state: paused;
+}
