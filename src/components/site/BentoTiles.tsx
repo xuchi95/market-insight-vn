@@ -30,8 +30,9 @@ function Spark({ data, color }: { data: number[]; color: string }) {
 function ChangePill({ value }: { value: number }) {
   const up = value >= 0;
   return (
-    <span className={`font-mono text-xs font-medium ${up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
-      {up ? "▲" : "▼"} {Math.abs(value).toFixed(2)}%
+    <span className={`tabular text-xs font-medium inline-flex items-center gap-1 ${up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+      <span aria-hidden className="text-[0.7em] leading-none">{up ? "▲" : "▼"}</span>
+      {Math.abs(value).toFixed(2)}%
     </span>
   );
 }
@@ -141,7 +142,7 @@ export function BentoTiles() {
           </div>
           <div className="mt-2 flex justify-between text-xs uppercase tracking-widest text-muted-foreground/60">
             <span>Vol</span>
-            <span className="font-mono">${btc ? fmt(btc.volume24h / 1_000_000_000, 1) : "—"}B</span>
+            <span className="tabular normal-case tracking-normal text-foreground/80">${btc ? fmt(btc.volume24h / 1_000_000_000, 1) : "—"}B</span>
           </div>
         </Link>
       </TileFrame>
@@ -159,7 +160,7 @@ export function BentoTiles() {
           </div>
           <div className="mt-2 flex justify-between text-xs uppercase tracking-widest text-muted-foreground/60">
             <span>Vol</span>
-            <span className="font-mono">${eth ? fmt(eth.volume24h / 1_000_000_000, 1) : "—"}B</span>
+            <span className="tabular normal-case tracking-normal text-foreground/80">${eth ? fmt(eth.volume24h / 1_000_000_000, 1) : "—"}B</span>
           </div>
         </Link>
       </TileFrame>
@@ -187,7 +188,7 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
   return (
     <div className="bg-card p-2.5">
       <div className="text-xs uppercase tracking-widest text-muted-foreground/70">{label}</div>
-      <div className={`font-mono text-sm mt-0.5 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>{value}</div>
+      <div className={`tabular text-sm mt-0.5 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>{value}</div>
     </div>
   );
 }
@@ -197,8 +198,8 @@ function FxCell({ rate, digits = 0 }: { rate?: ForexRate; digits?: number }) {
   return (
     <div className="bg-card p-3">
       <div className="text-xs uppercase tracking-widest text-muted-foreground/70">{rate.code}/VND</div>
-      <div className="font-mono text-base text-foreground mt-1">{fmt(rate.mid, digits)}</div>
-      <div className={`text-xs font-mono mt-0.5 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+      <div className="tabular text-base text-foreground mt-1">{fmt(rate.mid, digits)}</div>
+      <div className={`text-xs tabular mt-0.5 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
         {rate.changePct >= 0 ? "+" : ""}{rate.changePct.toFixed(2)}%
       </div>
     </div>
