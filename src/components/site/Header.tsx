@@ -46,7 +46,6 @@ const NAV_GROUPS: NavGroup[] = [
         items: [
           { label: "Ngoại tệ", to: "/ty-gia-ngoai-te", hint: "USD, EUR, JPY…" },
           { label: "Tỷ giá ngân hàng", to: "/ty-gia-ngan-hang", hint: "VCB, BIDV, TCB" },
-          { label: "Quy đổi tiền tệ", to: "/quy-doi-tien-te", hint: "Đổi tiền nhanh" },
         ],
       },
     ],
@@ -60,6 +59,7 @@ const NAV_GROUPS: NavGroup[] = [
           { label: "DCA & ROI", to: "/cong-cu/dca-roi", hint: "Tính lợi nhuận" },
           { label: "Danh mục", to: "/portfolio", hint: "Theo dõi tài sản" },
           { label: "Lãi suất tiết kiệm", to: "/lai-suat-tiet-kiem", hint: "So sánh ngân hàng" },
+          { label: "Quy đổi tiền tệ", to: "/quy-doi-tien-te", hint: "Đổi tiền nhanh" },
         ],
       },
       {
