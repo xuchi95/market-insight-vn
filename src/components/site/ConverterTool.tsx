@@ -11,7 +11,6 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ConverterPairChart, type PairChartAsset } from "./ConverterPairChart";
 
 type AssetKind = "crypto" | "forex" | "gold";
 interface AssetOpt {
@@ -66,16 +65,9 @@ export function ConverterTool() {
     const b = assets.find((x) => x.key === to);
     const n = parseFloat(amount.replace(/,/g, "")) || 0;
     if (!a || !b || n <= 0) return null;
-    // Bán A (giá thị trường mua vào) → ra VND, rồi mua B (giá thị trường bán ra)
     const vndFromSelling = a.buyVnd * n;
     const amountB_realistic = vndFromSelling / b.sellVnd;
-    // So sánh lý tưởng (mid/mid)
-    const amountB_mid = (a.rateVnd * n) / b.rateVnd;
-    const loss = amountB_realistic - amountB_mid; // âm = lỗ do spread
-    const lossPct = amountB_mid > 0 ? (loss / amountB_mid) * 100 : 0;
-    // VND tương đương theo mid (để hiển thị nếu đích là VND)
-    const vndMid = a.rateVnd * n;
-    return { a, b, n, amountB_realistic, amountB_mid, loss, lossPct, vndFromSelling, vndMid };
+    return { a, b, n, amountB_realistic, vndFromSelling };
   }, [assets, from, to, amount]);
 
   const fmtAmount = (v: number, kind: AssetKind, code: string) => {
@@ -92,12 +84,6 @@ export function ConverterTool() {
 
   const fromAsset = assets.find((x) => x.key === from) ?? null;
   const toAsset = assets.find((x) => x.key === to) ?? null;
-  const chartFrom: PairChartAsset | null = fromAsset
-    ? { key: fromAsset.key, kind: fromAsset.kind, rateVnd: fromAsset.rateVnd, code: codeLabel(fromAsset) }
-    : null;
-  const chartTo: PairChartAsset | null = toAsset
-    ? { key: toAsset.key, kind: toAsset.kind, rateVnd: toAsset.rateVnd, code: codeLabel(toAsset) }
-    : null;
 
   const midRate = useMemo(() => {
     if (!fromAsset || !toAsset) return null;
@@ -223,23 +209,7 @@ export function ConverterTool() {
             </div>
           </WiseRow>
 
-          {/* Realistic vs mid note */}
-          {result && result.lossPct !== 0 && (
-            <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-              <span className="text-foreground/80">Lý tưởng theo giá mid: </span>
-              <span className="tabular font-semibold text-foreground">
-                {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)}
-              </span>
-              <span className="mx-2 text-border">·</span>
-              <span className={cn("tabular font-semibold", result.loss < 0 ? "text-down" : "text-up")}>
-                {result.loss < 0 ? "−" : "+"}{Math.abs(result.lossPct).toFixed(2)}% do spread mua/bán
-              </span>
-            </div>
-          )}
         </div>
-      </div>
-      <div className="px-4 sm:px-6 lg:px-8 pb-6 pt-2">
-        <ConverterPairChart from={chartFrom} to={chartTo} />
       </div>
     </SectionCard>
   );
