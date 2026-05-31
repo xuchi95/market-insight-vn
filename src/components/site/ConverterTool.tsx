@@ -163,10 +163,10 @@ export function ConverterTool() {
 
           {/* Mid-market rate header */}
           <div className="text-center pb-5 mb-5 border-b border-border/60">
-            <div className="text-xs font-medium text-muted-foreground mb-1.5">
+            <div className="text-sm font-medium text-muted-foreground mb-2">
               Tỷ giá quy đổi giữa (mid)
             </div>
-            <div className="text-base sm:text-lg font-semibold tabular text-foreground">
+            <div className="text-xl sm:text-2xl font-semibold tabular text-foreground">
               {fromAsset && toAsset && midRate
                 ? `1 ${codeLabel(fromAsset)} = ${fmtNum(midRate, rateDigits(midRate))} ${codeLabel(toAsset)}`
                 : "—"}
@@ -189,7 +189,7 @@ export function ConverterTool() {
               inputMode="decimal"
               placeholder="0"
               aria-label="Số tiền cần đổi"
-              className="h-14 border-0 bg-transparent px-0 text-2xl sm:text-3xl tabular font-semibold tracking-tight text-foreground caret-gold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/40"
+              className="h-16 border-0 bg-transparent px-0 text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground caret-gold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/40"
             />
           </WiseRow>
 
@@ -218,14 +218,14 @@ export function ConverterTool() {
             asset={toAsset}
             codeLabel={codeLabel}
           >
-            <div className="h-14 flex items-center text-2xl sm:text-3xl tabular font-semibold tracking-tight text-foreground truncate">
+            <div className="h-16 flex items-center text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground truncate">
               {result ? fmtAmount(result.amountB_realistic, result.b.kind, result.b.key) : "—"}
             </div>
           </WiseRow>
 
           {/* Realistic vs mid note */}
           {result && result.lossPct !== 0 && (
-            <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
+            <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
               <span className="text-foreground/80">Lý tưởng theo giá mid: </span>
               <span className="tabular font-semibold text-foreground">
                 {fmtAmount(result.amountB_mid, result.b.kind, result.b.key)}
@@ -277,8 +277,8 @@ function WiseRow({
   }, [assets]);
 
   return (
-    <div className="rounded-2xl border border-border bg-card/60 hover:border-gold/40 focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20 transition-colors px-4 sm:px-5 py-3">
-      <div className="text-[11px] font-medium text-muted-foreground mb-0.5">{label}</div>
+    <div className="rounded-2xl border border-border bg-card/60 hover:border-gold/40 focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20 transition-colors px-4 sm:px-5 py-4">
+      <div className="text-sm font-medium text-muted-foreground mb-1">{label}</div>
       <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0">{children}</div>
         <Popover open={open} onOpenChange={setOpen}>
@@ -286,9 +286,9 @@ function WiseRow({
             <button
               type="button"
               aria-label={label}
-              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 text-sm font-semibold tracking-wide hover:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+              className="inline-flex h-12 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background/80 px-4 text-base font-semibold tracking-wide hover:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
             >
-              <span className="tabular font-bold text-foreground">
+              <span className="tabular font-bold text-foreground text-base">
                 {asset ? codeLabel(asset) : "—"}
               </span>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
