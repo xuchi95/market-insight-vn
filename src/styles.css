@@ -86,7 +86,7 @@
   /* Noir & Gold — editorial financial palette */
   --radius: 0.5rem;
   --background: oklch(0.14 0.005 80);          /* #0d0d0d */
-  --foreground: oklch(0.92 0.04 85);           /* gold-light text */
+  --foreground: oklch(0.96 0.03 85);           /* near-white, warm */
   --card: oklch(0.18 0.006 80);                /* #1a1a1a */
   --card-foreground: oklch(0.96 0.02 85);
   --popover: oklch(0.18 0.006 80);
@@ -94,14 +94,14 @@
   --primary: oklch(0.76 0.12 85);              /* #c9a84c gold */
   --primary-foreground: oklch(0.14 0.005 80);
   --secondary: oklch(0.22 0.006 80);
-  --secondary-foreground: oklch(0.92 0.04 85);
+  --secondary-foreground: oklch(0.96 0.03 85);
   --muted: oklch(0.20 0.006 80);
-  --muted-foreground: oklch(0.62 0.04 85);
+  --muted-foreground: oklch(0.78 0.03 85);     /* boosted from 0.62 for legibility */
   --accent: oklch(0.26 0.04 85);
   --accent-foreground: oklch(0.96 0.02 85);
   --destructive: oklch(0.62 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.24 0.006 80);              /* hairline */
+  --border: oklch(0.30 0.008 80);              /* slightly stronger hairline */
   --input: oklch(0.22 0.006 80);
   --ring: oklch(0.76 0.12 85);
   --gold: oklch(0.76 0.12 85);                 /* #c9a84c */
@@ -122,25 +122,25 @@
 /* Light theme — paper & ink with gold accent */
 .light {
   --background: oklch(0.985 0.003 85);
-  --foreground: oklch(0.18 0.01 80);
+  --foreground: oklch(0.14 0.01 80);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 80);
+  --card-foreground: oklch(0.14 0.01 80);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 80);
+  --popover-foreground: oklch(0.14 0.01 80);
   --primary: oklch(0.62 0.13 80);
   --primary-foreground: oklch(0.99 0.003 85);
   --secondary: oklch(0.95 0.005 85);
-  --secondary-foreground: oklch(0.22 0.01 80);
+  --secondary-foreground: oklch(0.18 0.01 80);
   --muted: oklch(0.95 0.005 85);
-  --muted-foreground: oklch(0.48 0.02 80);
+  --muted-foreground: oklch(0.38 0.02 80);     /* darker for legibility on light bg */
   --accent: oklch(0.93 0.03 85);
-  --accent-foreground: oklch(0.22 0.01 80);
+  --accent-foreground: oklch(0.18 0.01 80);
   --destructive: oklch(0.58 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.88 0.008 80);
+  --border: oklch(0.82 0.01 80);               /* stronger hairline */
   --input: oklch(0.92 0.008 80);
   --ring: oklch(0.62 0.13 80);
-  --gold: oklch(0.58 0.13 80);
+  --gold: oklch(0.52 0.14 75);                 /* darker gold for contrast on white */
   --gold-light: oklch(0.72 0.14 85);
   --gold-foreground: oklch(0.99 0.003 85);
   --up: oklch(0.55 0.18 145);
@@ -155,7 +155,7 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    font-weight: 300;
+    font-weight: 400;
   }
   .tabular, .font-mono { font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
   .code-mono, code, pre, kbd, samp { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
