@@ -58,29 +58,24 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
     enabled: !!assetKey,
   });
 
-  // Always fetch 30d to compute multi-window stats; lightweight enough.
-  const { data: long } = useQuery({
-    queryKey: ["pair-history-stats", assetKey, useUsd],
-    queryFn: () => loadSeries(assetKey, 30, useUsd),
-    refetchInterval: 10 * 60_000,
-    enabled: !!assetKey,
-  });
-
   const stats = useMemo(() => {
-    const src = (long && long.length ? long : chart) ?? [];
+    const src = chart ?? [];
     if (!src.length) return null;
     const vals = src.map((p) => p.v);
+    const last = src[src.length - 1].v;
+    const first = src[0].v;
+    const chRange = first ? ((last - first) / first) * 100 : null;
     return {
-      last: src[src.length - 1].v,
+      last,
       min: Math.min(...vals),
       max: Math.max(...vals),
+      chRange,
       ch24: computeChange(src, 24 * 3600_000),
-      ch7: computeChange(src, 7 * 86400_000),
-      ch30: computeChange(src, 30 * 86400_000),
     };
-  }, [long, chart]);
+  }, [chart]);
 
-  const positive = (stats?.ch24 ?? 0) >= 0;
+  const rangeLabel = range === "1" ? "24 giờ" : range === "7" ? "7 ngày" : "30 ngày";
+  const positive = (stats?.ch24 ?? stats?.chRange ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
 
   const fmt = (v: number) => (useUsd ? "$" + fmtNum(v, decimals) : fmtNum(v, decimals));
@@ -100,11 +95,11 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
 
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 border-b border-border text-sm">
-          <StatPill label="Hiện tại" value={fmt(stats.last)} />
-          <StatPill label="24h" pct={stats.ch24} />
-          <StatPill label="7 ngày" pct={stats.ch7} />
-          <StatPill label="30 ngày" pct={stats.ch30} />
-          <StatPill label="Khoảng 30N" value={`${fmt(stats.min)} – ${fmt(stats.max)}`} />
+          <StatPill label="Giá hiện tại" value={fmt(stats.last)} />
+          <StatPill label="Thay đổi 24h" pct={stats.ch24} />
+          <StatPill label={`Cao nhất (${rangeLabel})`} value={fmt(stats.max)} />
+          <StatPill label={`Thấp nhất (${rangeLabel})`} value={fmt(stats.min)} />
+          <StatPill label="Khung thời gian" value={rangeLabel} />
         </div>
       )}
 
