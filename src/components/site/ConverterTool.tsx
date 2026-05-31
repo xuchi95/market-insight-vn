@@ -26,9 +26,17 @@ interface AssetOpt {
 }
 
 export function ConverterTool() {
-  const crypto = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), refetchInterval: 60_000 });
-  const forex = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, refetchInterval: 10 * 60 * 1000 });
-  const gold = useQuery({ queryKey: ["gold"], queryFn: fetchGoldPrices, refetchInterval: 60_000 });
+  const liveOpts = {
+    refetchInterval: 5_000,
+    refetchIntervalInBackground: false,
+    refetchOnMount: "always" as const,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    staleTime: 0,
+  };
+  const crypto = useQuery({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices(), ...liveOpts });
+  const forex = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, ...liveOpts });
+  const gold = useQuery({ queryKey: ["gold"], queryFn: fetchGoldPrices, ...liveOpts });
 
   const assets: AssetOpt[] = useMemo(() => {
     const out: AssetOpt[] = [];
