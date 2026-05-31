@@ -162,10 +162,12 @@ export const Route = createFileRoute("/api/public/macro-vn")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: async ({ request }) => {
         try {
+          const url = new URL(request.url);
+          const forceRefresh = url.searchParams.get("refresh") === "1";
           let payload: MacroPayload;
-          if (cache && Date.now() - cache.at < CACHE_MS) {
+          if (!forceRefresh && cache && Date.now() - cache.at < CACHE_MS) {
             payload = cache.payload;
           } else {
             try {
