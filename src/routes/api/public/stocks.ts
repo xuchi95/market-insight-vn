@@ -11,21 +11,22 @@ interface IndexItem {
   low: number;
   volume: number;
   updatedAt: number;
-  source: "vci" | "vndirect";
+  source: "kbsec" | "vci" | "vndirect";
 }
 
-// Mã chỉ số: vnstock/VCI dùng HNXINDEX/UPCOMINDEX, còn VNDirect dùng HNX/UPCOM.
+// Mã chỉ số: KBSec & VCI dùng HNXINDEX/UPCOMINDEX, còn VNDirect dùng HNX/UPCOM.
 const INDICES: {
   name: string;
   exchange: string;
-  vciCode: string;        // mã trên VCI (vnstock primary source)
-  vndirectCode: string;   // mã trên VNDirect (fallback)
+  kbCode: string;         // mã trên KBSec (primary)
+  vciCode: string;        // mã trên VCI (fallback 1)
+  vndirectCode: string;   // mã trên VNDirect (fallback 2)
 }[] = [
-  { name: "VN-Index",    exchange: "HOSE",  vciCode: "VNINDEX",    vndirectCode: "VNINDEX" },
-  { name: "VN30",        exchange: "HOSE",  vciCode: "VN30",       vndirectCode: "VN30"    },
-  { name: "HNX-Index",   exchange: "HNX",   vciCode: "HNXINDEX",   vndirectCode: "HNX"     },
-  { name: "HNX30",       exchange: "HNX",   vciCode: "HNX30",      vndirectCode: "HNX30"   },
-  { name: "UPCOM-Index", exchange: "UPCOM", vciCode: "UPCOMINDEX", vndirectCode: "UPCOM"   },
+  { name: "VN-Index",    exchange: "HOSE",  kbCode: "VNINDEX",    vciCode: "VNINDEX",    vndirectCode: "VNINDEX" },
+  { name: "VN30",        exchange: "HOSE",  kbCode: "VN30",       vciCode: "VN30",       vndirectCode: "VN30"    },
+  { name: "HNX-Index",   exchange: "HNX",   kbCode: "HNXINDEX",   vciCode: "HNXINDEX",   vndirectCode: "HNX"     },
+  { name: "HNX30",       exchange: "HNX",   kbCode: "HNX30",      vciCode: "HNX30",      vndirectCode: "HNX30"   },
+  { name: "UPCOM-Index", exchange: "UPCOM", kbCode: "UPCOMINDEX", vciCode: "UPCOMINDEX", vndirectCode: "UPCOM"   },
 ];
 
 const CACHE_MS = 5 * 60 * 1000;
@@ -33,7 +34,43 @@ const UPSTREAM_TIMEOUT_MS = 5000;
 let cache: { at: number; items: IndexItem[] } | null = null;
 let inflight: Promise<IndexItem[]> | null = null;
 
-// ---- Primary: VCI (Vietcap) — đây là nguồn chính vnstock dùng ----
+// ---- Primary: KBSec (KB Securities) — public, không cần auth, dữ liệu sạch ----
+interface KbBar { t: string; o: number | string; h: number | string; l: number | string; c: number | string; v: number | string }
+interface KbResponse { symbol: string; data_day: KbBar[] }
+
+function fmtDate(d: Date): string {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  return `${dd}-${mm}-${d.getFullYear()}`;
+}
+
+async function fetchKbOne(symbol: string): Promise<KbBar[] | null> {
+  const now = new Date();
+  const start = new Date(now.getTime() - 14 * 86400 * 1000);
+  const url = `https://kbbuddywts.kbsec.com.vn/iis-server/investment/index/${symbol}/data_day?sdate=${fmtDate(start)}&edate=${fmtDate(now)}`;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+        "Referer": "https://kbbuddywts.kbsec.com.vn/",
+      },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as KbResponse;
+    if (!data?.data_day?.length) return null;
+    return data.data_day;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+// ---- Fallback 1: VCI (Vietcap) ----
 interface VciBar { o: number; h: number; l: number; c: number; v: number; t: number; symbol?: string }
 
 async function fetchVciBatch(symbols: string[]): Promise<Map<string, VciBar[]>> {
@@ -92,7 +129,7 @@ async function fetchVciBatch(symbols: string[]): Promise<Map<string, VciBar[]>> 
   }
 }
 
-// ---- Fallback: VNDirect dchart ----
+// ---- Fallback 2: VNDirect dchart ----
 interface DchartResponse {
   s: string;
   t?: number[]; c?: number[]; o?: number[]; h?: number[]; l?: number[]; v?: number[];
@@ -127,11 +164,49 @@ async function fetchVndirectOne(code: string): Promise<DchartResponse | null> {
 
 async function buildItems(): Promise<IndexItem[]> {
   const out: IndexItem[] = [];
-  const need = new Set(INDICES.map((i) => i.vciCode));
+  const need = new Set(INDICES.map((i) => i.kbCode));
 
-  // 1) Thử VCI (vnstock primary) trước — 1 request batch cho tất cả chỉ số
-  const vci = await fetchVciBatch(INDICES.map((i) => i.vciCode));
-  for (const meta of INDICES) {
+  // 1) Primary: KBSec — gọi song song cho 5 chỉ số (không có batch endpoint)
+  const kbResults = await Promise.all(INDICES.map((i) => fetchKbOne(i.kbCode)));
+  kbResults.forEach((bars, idx) => {
+    const meta = INDICES[idx];
+    if (!bars || bars.length < 2) return;
+    // KBSec trả về mới nhất ở đầu mảng → đảo lại để giống VCI (mới nhất cuối)
+    const sorted = [...bars].reverse();
+    const last = sorted[sorted.length - 1];
+    const prev = sorted[sorted.length - 2];
+    const lastC = Number(last.c);
+    const prevC = Number(prev.c);
+    const change = lastC - prevC;
+    const changePct = prevC > 0 ? (change / prevC) * 100 : 0;
+    // Parse timestamp "YYYY-MM-DD HH:mm" (giờ VN, UTC+7)
+    const [datePart, timePart] = last.t.split(" ");
+    const [Y, M, D] = datePart.split("-").map(Number);
+    const [h, m] = (timePart ?? "00:00").split(":").map(Number);
+    // Tạo timestamp UTC từ giờ VN (trừ 7 tiếng)
+    const ts = Date.UTC(Y, M - 1, D, h - 7, m);
+    out.push({
+      code: meta.kbCode,
+      name: meta.name,
+      exchange: meta.exchange,
+      value: Math.round(lastC * 100) / 100,
+      change: Math.round(change * 100) / 100,
+      changePct: Math.round(changePct * 1000) / 1000,
+      high: Number(last.h) || lastC,
+      low: Number(last.l) || lastC,
+      volume: Number(last.v) || 0,
+      updatedAt: ts,
+      source: "kbsec",
+    });
+    need.delete(meta.kbCode);
+  });
+
+  // 2) Fallback 1: VCI cho mã thiếu
+  const stillMissing = INDICES.filter((i) => need.has(i.kbCode));
+  if (stillMissing.length === 0) return out;
+
+  const vci = await fetchVciBatch(stillMissing.map((i) => i.vciCode));
+  for (const meta of stillMissing) {
     const bars = vci.get(meta.vciCode);
     if (!bars || bars.length < 2) continue;
     const last = bars[bars.length - 1];
@@ -139,7 +214,7 @@ async function buildItems(): Promise<IndexItem[]> {
     const change = last.c - prev.c;
     const changePct = prev.c > 0 ? (change / prev.c) * 100 : 0;
     out.push({
-      code: meta.vciCode,
+      code: meta.kbCode,
       name: meta.name,
       exchange: meta.exchange,
       value: Math.round(last.c * 100) / 100,
@@ -151,11 +226,11 @@ async function buildItems(): Promise<IndexItem[]> {
       updatedAt: (last.t || Math.floor(Date.now() / 1000)) * 1000,
       source: "vci",
     });
-    need.delete(meta.vciCode);
+    need.delete(meta.kbCode);
   }
 
-  // 2) Fallback VNDirect cho các mã thiếu
-  const missing = INDICES.filter((i) => need.has(i.vciCode));
+  // 3) Fallback 2: VNDirect cho mã vẫn thiếu
+  const missing = INDICES.filter((i) => need.has(i.kbCode));
   if (missing.length) {
     const fb = await Promise.all(missing.map((i) => fetchVndirectOne(i.vndirectCode)));
     fb.forEach((r, idx) => {
@@ -167,7 +242,7 @@ async function buildItems(): Promise<IndexItem[]> {
     const change = value - prev;
     const changePct = prev > 0 ? (change / prev) * 100 : 0;
     out.push({
-        code: meta.vciCode,
+        code: meta.kbCode,
       name: meta.name,
       exchange: meta.exchange,
       value: Math.round(value * 100) / 100,
