@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { ArrowUpDown, Wrench, ChevronDown } from "lucide-react";
+import { ArrowUpDown, Wrench, ChevronDown, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SectionCard } from "./SectionCard";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
@@ -105,6 +106,22 @@ export function ConverterTool() {
 
   const rateDigits = (v: number) => (v >= 1000 ? 0 : v >= 1 ? 4 : 8);
 
+  // Popular quick-pick pairs (from → to)
+  const quickPairs: { from: string; to: string; label: string }[] = [
+    { from: "f:USD", to: "vnd", label: "USD → VND" },
+    { from: "f:EUR", to: "vnd", label: "EUR → VND" },
+    { from: "f:JPY", to: "vnd", label: "JPY → VND" },
+    { from: "f:CNY", to: "vnd", label: "CNY → VND" },
+    { from: "f:KRW", to: "vnd", label: "KRW → VND" },
+    { from: "c:bitcoin", to: "vnd", label: "BTC → VND" },
+    { from: "c:ethereum", to: "vnd", label: "ETH → VND" },
+  ].filter((p) => assets.some((a) => a.key === p.from) && assets.some((a) => a.key === p.to));
+
+  const applyPair = (f: string, t: string) => {
+    setFrom(f);
+    setTo(t);
+  };
+
   return (
     <SectionCard
       id="converter"
@@ -115,6 +132,35 @@ export function ConverterTool() {
       {/* Wise-style converter */}
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-xl">
+          {/* Quick-pick pairs */}
+          {quickPairs.length > 0 && (
+            <div className="mb-5">
+              <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground mb-2">
+                Cặp phổ biến
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {quickPairs.map((p) => {
+                  const active = from === p.from && to === p.to;
+                  return (
+                    <button
+                      key={p.label}
+                      type="button"
+                      onClick={() => applyPair(p.from, p.to)}
+                      className={cn(
+                        "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold tabular transition-colors",
+                        active
+                          ? "border-gold bg-gold text-gold-foreground"
+                          : "border-border bg-background/60 text-foreground/80 hover:border-gold/40 hover:text-foreground",
+                      )}
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Mid-market rate header */}
           <div className="text-center pb-5 mb-5 border-b border-border/60">
             <div className="text-xs font-medium text-muted-foreground mb-1.5">
@@ -218,26 +264,70 @@ function WiseRow({
   codeLabel: (a: AssetOpt) => string;
   children: React.ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
+  const kindLabel: Record<AssetKind, string> = {
+    forex: "Ngoại tệ",
+    crypto: "Tiền điện tử",
+    gold: "Vàng",
+  };
+  const grouped = useMemo(() => {
+    const g: Record<AssetKind, AssetOpt[]> = { forex: [], crypto: [], gold: [] };
+    assets.forEach((a) => g[a.kind].push(a));
+    return g;
+  }, [assets]);
+
   return (
     <div className="rounded-2xl border border-border bg-card/60 hover:border-gold/40 focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20 transition-colors px-4 sm:px-5 py-3">
       <div className="text-[11px] font-medium text-muted-foreground mb-0.5">{label}</div>
       <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0">{children}</div>
-        <Select value={value} onValueChange={onChange}>
-          <SelectTrigger
-            aria-label={label}
-            className="h-11 w-auto shrink-0 gap-1.5 rounded-full border-border bg-background/80 px-3 text-sm font-semibold tracking-wide hover:border-gold/40 focus:ring-0 focus:ring-offset-0 [&>svg]:hidden"
-          >
-            <span className="tabular font-bold text-foreground">
-              {asset ? codeLabel(asset) : "—"}
-            </span>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          </SelectTrigger>
-          <SelectContent className="max-h-72">
-            {assets.length <= 1 && <SelectItem value="loading" disabled>Đang tải...</SelectItem>}
-            {assets.map((a) => <SelectItem key={a.key} value={a.key}>{a.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label={label}
+              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 text-sm font-semibold tracking-wide hover:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+            >
+              <span className="tabular font-bold text-foreground">
+                {asset ? codeLabel(asset) : "—"}
+              </span>
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-[300px] p-0">
+            <Command>
+              <CommandInput placeholder="Tìm USD, EUR, BTC, vàng..." />
+              <CommandList className="max-h-72">
+                <CommandEmpty>Không tìm thấy.</CommandEmpty>
+                {(["forex", "crypto", "gold"] as AssetKind[]).map((kind) =>
+                  grouped[kind].length > 0 ? (
+                    <CommandGroup key={kind} heading={kindLabel[kind]}>
+                      {grouped[kind].map((a) => {
+                        const code = codeLabel(a);
+                        const name = a.label.split(" — ")[1] ?? "";
+                        return (
+                          <CommandItem
+                            key={a.key}
+                            value={`${code} ${name} ${a.label}`}
+                            onSelect={() => {
+                              onChange(a.key);
+                              setOpen(false);
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <span className="tabular font-bold text-foreground w-14 shrink-0">{code}</span>
+                            <span className="truncate text-muted-foreground">{name}</span>
+                            {value === a.key && <Check className="ml-auto h-4 w-4 text-gold" />}
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  ) : null,
+                )}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );
