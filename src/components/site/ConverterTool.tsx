@@ -154,13 +154,13 @@ export function ConverterTool() {
                 size="icon"
                 onClick={swap}
                 className={cn(
-                  "relative h-12 w-12 rounded-full mx-auto block bg-card border-gold/30 text-gold shadow-[0_0_0_4px_var(--card)] hover:bg-gold/10 hover:text-gold hover:border-gold/50 transition-transform duration-300",
+                  "relative mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-card border-gold/30 text-gold shadow-[0_0_0_4px_var(--card)] hover:bg-gold/10 hover:text-gold hover:border-gold/50 transition-transform duration-300",
                   swapped && "rotate-180",
                 )}
                 aria-label="Đảo chiều Từ ↔ Sang"
               >
                 <ArrowUpDown className="h-4 w-4 lg:hidden" />
-                <ArrowUpDown className="h-4 w-4 hidden lg:block rotate-90" />
+                <ArrowLeftRight className="hidden h-4 w-4 lg:block" />
               </Button>
             </div>
           </div>
