@@ -117,7 +117,7 @@ export function ConverterTool() {
     >
       {/* Wise-style converter */}
       <div className="p-6 sm:p-8 lg:p-10">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-2xl pb-6">
           {/* Quick-pick pairs */}
           {quickPairs.length > 0 && (
             <div className="mb-6">
