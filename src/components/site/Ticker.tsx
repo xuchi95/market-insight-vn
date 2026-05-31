@@ -219,8 +219,8 @@ export function Ticker() {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="group relative overflow-hidden border-y border-border bg-card/60 py-2.5">
-        <div className="animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
+      <div className="ticker-marquee group relative overflow-hidden border-y border-border bg-card/60 py-2.5">
+        <div className="animate-marquee whitespace-nowrap">
           <Row />
           <Row />
         </div>
