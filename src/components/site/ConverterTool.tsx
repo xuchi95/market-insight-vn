@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowUpDown, ArrowLeftRight, Wrench, TrendingDown, TrendingUp, Pencil, Lock } from "lucide-react";
+import { ArrowUpDown, ArrowLeftRight, Wrench, Pencil, Lock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SectionCard } from "./SectionCard";
 import { Input } from "@/components/ui/input";
@@ -190,39 +190,7 @@ export function ConverterTool() {
           </PairPanel>
         </div>
       </div>
-      {result && result.a.key !== result.b.key && (
-        <>
-          {/* Hairline divider */}
-          <div className="mx-4 sm:mx-6 lg:mx-8 h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent" aria-hidden />
-
-          <div className="px-4 sm:px-6 lg:px-8 py-5 lg:py-6 space-y-5">
-            {/* Giá mua / giá bán — editorial split */}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <RateTile
-                tone="down"
-                icon={<TrendingDown className="h-3.5 w-3.5" />}
-                eyebrow="Giá mua vào"
-                sub={`Bạn bán ${codeLabel(result.a)}`}
-                price={`1 ${codeLabel(result.a)} = ${fmtRateVND(result.a.buyVnd)}`}
-                detail={`Bán ${fmtAmount(result.n, result.a.kind, result.a.key)} ${codeLabel(result.a)} → nhận ${fmtVND(result.vndFromSelling)}`}
-              />
-              <RateTile
-                tone="up"
-                icon={<TrendingUp className="h-3.5 w-3.5" />}
-                eyebrow="Giá bán ra"
-                sub={`Bạn mua ${codeLabel(result.b)}`}
-                price={`1 ${codeLabel(result.b)} = ${fmtRateVND(result.b.sellVnd)}`}
-                detail={`Mua ${fmtAmount(result.amountB_realistic, result.b.kind, result.b.key)} ${codeLabel(result.b)} → trả ${fmtVND(result.vndFromSelling)}`}
-              />
-            </div>
-          </div>
-        </>
-      )}
-      <p className="px-4 sm:px-6 lg:px-8 pb-5 text-sm leading-relaxed text-muted-foreground">
-        Kết quả tính theo giá <span className="text-foreground/80">bán của bạn</span> (thị trường mua vào) và <span className="text-foreground/80">mua của bạn</span> (thị trường bán ra),
-        phản ánh lãi/lỗ do chênh lệch mua–bán. Chỉ mang tính tham khảo, chưa gồm phí giao dịch.
-      </p>
-      <div className="px-4 sm:px-6 lg:px-8 pb-6">
+      <div className="px-4 sm:px-6 lg:px-8 pb-6 pt-2">
         <ConverterPairChart from={chartFrom} to={chartTo} />
       </div>
     </SectionCard>
