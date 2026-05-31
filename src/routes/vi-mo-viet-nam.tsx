@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/vi-mo-viet-nam`;
 const TITLE = "Kinh tế vĩ mô Việt Nam — GDP, lạm phát, thất nghiệp, dự trữ ngoại hối";
-const DESC = "Số liệu vĩ mô Việt Nam cập nhật từ World Bank: tăng trưởng GDP, lạm phát CPI, thất nghiệp, lãi suất, xuất nhập khẩu, dự trữ ngoại hối qua các năm.";
+const DESC = "Số liệu vĩ mô Việt Nam cập nhật từ IMF WEO và World Bank: tăng trưởng GDP, lạm phát CPI, thất nghiệp, lãi suất, xuất nhập khẩu, dự trữ ngoại hối qua các năm.";
 
 interface MacroPoint { year: number; value: number }
 interface MacroIndicator {
@@ -157,7 +157,7 @@ function MacroPage() {
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Kinh tế vĩ mô Việt Nam</h1>
             <p className="text-muted-foreground max-w-2xl">
-              Các chỉ số kinh tế quan trọng của Việt Nam: <strong>tăng trưởng GDP</strong>, lạm phát CPI, thất nghiệp, lãi suất cho vay, dự trữ ngoại hối, xuất nhập khẩu — dữ liệu cập nhật từ <strong>World Bank Open Data</strong>.
+              Các chỉ số kinh tế quan trọng của Việt Nam: <strong>tăng trưởng GDP</strong>, lạm phát CPI, thất nghiệp, lãi suất cho vay, dự trữ ngoại hối, xuất nhập khẩu — số liệu cập nhật từ <strong>IMF WEO</strong> và <strong>World Bank Open Data</strong>.
             </p>
           </header>
 
@@ -169,12 +169,12 @@ function MacroPage() {
             <div className="p-4 lg:p-5">
               {isLoading ? (
                 <div className="flex items-center justify-center py-10 text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> Đang tải dữ liệu World Bank…
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> Đang tải số liệu vĩ mô…
                 </div>
               ) : isError || !data ? (
                 <div className="flex flex-col items-center gap-2 py-10 text-center">
                   <AlertTriangle className="h-5 w-5 text-amber-500" />
-                  <p className="text-sm text-muted-foreground">Không tải được dữ liệu World Bank.</p>
+                  <p className="text-sm text-muted-foreground">Không tải được số liệu vĩ mô.</p>
                   <button onClick={() => refetch()} className="text-xs text-primary hover:underline">Thử lại</button>
                 </div>
               ) : (
