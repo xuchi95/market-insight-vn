@@ -247,7 +247,7 @@ function WiseRow({
   }, [assets]);
 
   return (
-    <div className="rounded-2xl border border-border bg-card/60 hover:border-gold/40 focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20 transition-colors px-4 sm:px-5 py-4">
+    <div className="rounded-2xl border border-border bg-card/60 hover:border-gold/40 focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20 transition-colors px-5 sm:px-6 py-5 sm:py-6">
       <div className="text-sm font-medium text-muted-foreground mb-1">{label}</div>
       <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0">{children}</div>
