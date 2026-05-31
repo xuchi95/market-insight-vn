@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtNum, fmtTime, fmtTrieu } from "@/lib/format";
+import { useNumberFormat } from "@/hooks/useNumberFormat";
+import { AnimatedNumber } from "./AnimatedNumber";
 import { midOf } from "@/lib/gold-units";
 import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
@@ -17,6 +19,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
     refetchInterval: 60 * 1000,
     refetchOnWindowFocus: true,
   });
+  const { compact } = useNumberFormat();
   const [brand, setBrand] = useState("all");
 
   const brands = useMemo(() => {
@@ -70,9 +73,12 @@ export function GoldPriceTable({ search }: { search?: string }) {
             ))}
             {rows.map((g) => {
               const isUsd = g.unit.includes("USD");
+              const decimals = isUsd ? 2 : compact ? 2 : 0;
               const fmt = isUsd
                 ? (n: number) => `$${fmtNum(n, 2)}`
-                : (n: number) => `${fmtTrieu(n)} tr`;
+                : compact
+                  ? (n: number) => `${fmtTrieu(n, 2)} tr`
+                  : (n: number) => fmtNum(n, 0);
               const mid = g.mid ?? midOf(g.buy, g.sell);
               return (
                 <tr key={g.id} className="hover:bg-muted/30 transition-colors">
@@ -86,10 +92,10 @@ export function GoldPriceTable({ search }: { search?: string }) {
                       {g.type}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums">{fmt(g.buy)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums font-semibold">{fmt(g.sell)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums hidden md:table-cell">{fmt(mid)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden md:table-cell">{fmt(g.sell - g.buy)}</td>
+                  <td className="px-4 py-3 text-right"><AnimatedNumber value={g.buy} format={fmt} minChars={isUsd ? 8 : 7} /></td>
+                  <td className="px-4 py-3 text-right font-semibold"><AnimatedNumber value={g.sell} format={fmt} minChars={isUsd ? 8 : 7} /></td>
+                  <td className="px-4 py-3 text-right hidden md:table-cell"><AnimatedNumber value={mid} format={fmt} noFlash minChars={isUsd ? 8 : 7} /></td>
+                  <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={g.sell - g.buy} format={fmt} noFlash minChars={isUsd ? 6 : 5} /></td>
                   <td className="px-4 py-3 text-right"><ChangeBadge value={g.changePct} /></td>
                   <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(g.updatedAt)}</td>
                 </tr>

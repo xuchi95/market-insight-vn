@@ -6,6 +6,7 @@ import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { NumberFormatToggle } from "@/components/site/NumberFormatToggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -366,6 +367,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             </DropdownMenu>
           </div>
           <span className="hidden xl:inline eyebrow opacity-50">{time}</span>
+          <NumberFormatToggle />
           <ThemeToggle />
           {user ? (
             <DropdownMenu>

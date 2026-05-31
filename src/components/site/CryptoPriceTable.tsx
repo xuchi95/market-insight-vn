@@ -3,7 +3,9 @@ import { Bitcoin, RefreshCw, ArrowUpDown, Trophy, BarChart3 } from "lucide-react
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
-import { fmtCompactUSD, fmtTime, fmtUSD, fmtVND } from "@/lib/format";
+import { fmtCompactUSD, fmtTime, fmtUSD, fmtVND, fmtSmartUSD, fmtSmartVND } from "@/lib/format";
+import { useNumberFormat } from "@/hooks/useNumberFormat";
+import { AnimatedNumber } from "./AnimatedNumber";
 import { ChangeBadge } from "./ChangeBadge";
 import { Sparkline } from "./Sparkline";
 import { SectionCard, LiveDot } from "./SectionCard";
@@ -33,6 +35,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
     queryFn: () => fetchCryptoPrices(),
     refetchInterval: 60_000,
   });
+  const { compact } = useNumberFormat();
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
@@ -148,11 +151,38 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       </div>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums font-semibold">{fmtUSD(c.priceUsd, c.priceUsd < 1 ? 4 : 2)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden md:table-cell">{fmtVND(c.priceVnd)}</td>
+                  <td className="px-4 py-3 text-right font-semibold">
+                    <AnimatedNumber
+                      value={c.priceUsd}
+                      minChars={10}
+                      format={(v) => fmtSmartUSD(v, compact, c.priceUsd < 1 ? 4 : 2)}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell">
+                    <AnimatedNumber
+                      value={c.priceVnd}
+                      minChars={14}
+                      noFlash
+                      format={(v) => fmtSmartVND(v, compact)}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-right"><ChangeBadge value={c.change24h} /></td>
-                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden lg:table-cell">{fmtCompactUSD(c.marketCap)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden lg:table-cell">{fmtCompactUSD(c.volume24h)}</td>
+                  <td className="px-4 py-3 text-right text-muted-foreground hidden lg:table-cell">
+                    <AnimatedNumber
+                      value={c.marketCap}
+                      minChars={9}
+                      noFlash
+                      format={(v) => (compact ? fmtCompactUSD(v) : fmtUSD(v, 0))}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-right text-muted-foreground hidden lg:table-cell">
+                    <AnimatedNumber
+                      value={c.volume24h}
+                      minChars={9}
+                      noFlash
+                      format={(v) => (compact ? fmtCompactUSD(v) : fmtUSD(v, 0))}
+                    />
+                  </td>
                   <td className="px-4 py-3 text-right hidden md:table-cell"><div className="inline-block"><Sparkline data={c.sparkline} /></div></td>
                 </tr>
               ))}

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fmtNum, fmtTime } from "@/lib/format";
+import { AnimatedNumber } from "./AnimatedNumber";
 import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
@@ -62,9 +63,9 @@ export function ForexRateTable({ search }: { search?: string }) {
                     {r.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-right tabular-nums">{fmtNum(r.buy, 2)}</td>
-                <td className="px-4 py-3 text-right tabular-nums font-semibold">{fmtNum(r.sell, 2)}</td>
-                <td className="px-4 py-3 text-right tabular-nums text-muted-foreground hidden md:table-cell">{fmtNum(r.mid, 2)}</td>
+                <td className="px-4 py-3 text-right"><AnimatedNumber value={r.buy} format={(v) => fmtNum(v, 2)} minChars={9} /></td>
+                <td className="px-4 py-3 text-right font-semibold"><AnimatedNumber value={r.sell} format={(v) => fmtNum(v, 2)} minChars={9} /></td>
+                <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={r.mid} format={(v) => fmtNum(v, 2)} noFlash minChars={9} /></td>
                 <td className="px-4 py-3 text-right"><ChangeBadge value={r.changePct} /></td>
                 <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(r.updatedAt)}</td>
               </tr>
