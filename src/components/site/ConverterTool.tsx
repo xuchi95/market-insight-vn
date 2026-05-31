@@ -77,10 +77,6 @@ export function ConverterTool() {
     return { a, b, n, amountB_realistic, amountB_mid, loss, lossPct, vndFromSelling, vndMid };
   }, [assets, from, to, amount]);
 
-  // Hiển thị giá VND cho 1 đơn vị tài sản với 2 chữ số thập phân,
-  // khớp định dạng cột Mua/Bán trên trang Tỷ giá ngoại tệ.
-  const fmtRateVND = (v: number) => `${fmtNum(v, 2)} ₫`;
-
   const fmtAmount = (v: number, kind: AssetKind, code: string) => {
     if (code === "vnd") return fmtVND(v);
     const dp = kind === "crypto" ? (v < 1 ? 8 : 6) : kind === "gold" ? 4 : 4;
@@ -259,39 +255,6 @@ function PairPanel({
         <span className="font-mono font-semibold tracking-[0.12em] text-foreground/70">{code}</span>
         <span className="truncate">· {name}</span>
       </div>
-    </div>
-  );
-}
-
-function RateTile({
-  tone,
-  icon,
-  eyebrow,
-  sub,
-  price,
-  detail,
-}: {
-  tone: "up" | "down";
-  icon: React.ReactNode;
-  eyebrow: string;
-  sub: string;
-  price: string;
-  detail: string;
-}) {
-  return (
-    <div className="group relative rounded-xl border border-border/80 bg-muted/20 p-3.5 transition-colors hover:border-gold/25 hover:bg-muted/30">
-      <div className="flex items-center gap-2">
-        <span className={cn(
-          "grid h-6 w-6 place-items-center rounded-md",
-          tone === "down" ? "bg-[color:var(--down)]/12 text-[color:var(--down)]" : "bg-[color:var(--up)]/12 text-[color:var(--up)]",
-        )}>{icon}</span>
-        <div className="min-w-0">
-          <div className="text-xs uppercase tracking-[0.14em] font-semibold text-foreground/80">{eyebrow}</div>
-          <div className="text-xs text-muted-foreground truncate">{sub}</div>
-        </div>
-      </div>
-      <div className="mt-2.5 tabular font-semibold text-[15px] leading-tight">{price}</div>
-      <div className="mt-1 text-sm text-muted-foreground leading-relaxed">{detail}</div>
     </div>
   );
 }
