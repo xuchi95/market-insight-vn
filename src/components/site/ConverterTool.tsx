@@ -8,8 +8,9 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
-import { fmtVND, fmtNum } from "@/lib/format";
+import { fmtVND, fmtNum, fmtVNDCompact } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type AssetKind = "crypto" | "forex" | "gold";
@@ -82,6 +83,20 @@ export function ConverterTool() {
     if (code === "vnd") return fmtVND(v);
     const dp = kind === "crypto" ? (v < 1 ? 8 : 6) : kind === "gold" ? 4 : 4;
     return fmtNum(v, dp);
+  };
+
+  // Compact/full label for large outputs. Returns secondary readable text
+  // (e.g. "≈ 193,96 tỷ ₫") when number is huge, plus a full-precision string
+  // for tooltip.
+  const formatOutput = (v: number, kind: AssetKind, code: string) => {
+    const full = fmtAmount(v, kind, code);
+    let secondary: string | null = null;
+    if (code === "vnd" && Math.abs(v) >= 1_000_000) {
+      secondary = `≈ ${fmtVNDCompact(v)}`;
+    } else if (kind !== "crypto" && Math.abs(v) >= 1_000_000_000) {
+      secondary = `≈ ${fmtNum(v / 1_000_000_000, 2)} tỷ`;
+    }
+    return { full, secondary };
   };
 
   const codeLabel = (a: AssetOpt) => a.label.split(" — ")[0];
@@ -212,9 +227,50 @@ export function ConverterTool() {
             asset={toAsset}
             codeLabel={codeLabel}
           >
-            <div className="h-16 flex items-center text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground truncate">
-              {result ? fmtAmount(result.amountB_realistic, result.b.kind, result.b.key) : "—"}
-            </div>
+            {(() => {
+              if (!result) {
+                return (
+                  <div className="h-16 flex items-center text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground">
+                    —
+                  </div>
+                );
+              }
+              const { full, secondary } = formatOutput(
+                result.amountB_realistic,
+                result.b.kind,
+                result.b.key,
+              );
+              const long = full.length > 14;
+              return (
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="min-h-16 flex flex-col justify-center cursor-help select-text">
+                        <div
+                          className={cn(
+                            "tabular font-semibold tracking-tight text-foreground break-all leading-tight",
+                            long
+                              ? "text-xl sm:text-2xl"
+                              : "text-3xl sm:text-4xl",
+                          )}
+                          title={full}
+                        >
+                          {full}
+                        </div>
+                        {secondary && (
+                          <div className="mt-1 text-sm sm:text-base text-muted-foreground tabular">
+                            {secondary}
+                          </div>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[280px] break-all">
+                      <div className="tabular text-xs font-semibold">{full}</div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })()}
           </WiseRow>
 
         </div>
