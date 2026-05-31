@@ -293,10 +293,14 @@ function AssetDetail() {
                 <WatchButton item={{ symbol: coin.symbol, label: coin.name, category: "Tiền điện tử", to: `/tai-san/${coin.symbol.toLowerCase()}` }} />
               </div>
               <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <Stat label="Cao nhất 24h" value={stats ? fmtUSD(stats.max, 2) : "—"} />
-                <Stat label="Thấp nhất 24h" value={stats ? fmtUSD(stats.min, 2) : "—"} />
+                <Stat label={`Cao nhất (${rangeLabel})`} value={stats ? fmtUSD(stats.max, 2) : "—"} />
+                <Stat label={`Thấp nhất (${rangeLabel})`} value={stats ? fmtUSD(stats.min, 2) : "—"} />
                 <Stat label="Vốn hoá" value={fmtCompactUSD(coin.marketCap)} />
                 <Stat label="Volume 24h" value={fmtCompactUSD(coin.volume24h)} />
+              </div>
+              <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <Stat label="Thay đổi 24h" value={`${coin.change24h >= 0 ? "+" : ""}${coin.change24h.toFixed(2)}%`} />
+                <Stat label="Khung thời gian" value={rangeLabel} />
               </div>
             </div>
 
