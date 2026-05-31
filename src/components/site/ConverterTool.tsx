@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowUpDown, Wrench, TrendingDown, TrendingUp, Sparkles } from "lucide-react";
+import { ArrowUpDown, Wrench, TrendingDown, TrendingUp, Sparkles, Pencil, Lock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SectionCard } from "./SectionCard";
 import { Input } from "@/components/ui/input";
@@ -115,20 +115,33 @@ export function ConverterTool() {
           {/* FROM */}
           <PairPanel
             eyebrow="Bạn đổi"
+            role="input"
             code={fromAsset ? codeLabel(fromAsset) : "—"}
             name={fromAsset ? nameLabel(fromAsset) : ""}
             assets={assets}
             value={from}
             onChange={setFrom}
           >
-            <Input
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              type="text"
-              inputMode="decimal"
-              aria-label="Số lượng"
-              className="h-14 border-0 bg-transparent px-0 text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground shadow-none focus-visible:ring-0 focus-visible:border-0"
-            />
+            <label className="block group/input">
+              <span className="sr-only">Số tiền cần đổi</span>
+              <div className="relative">
+                <Input
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  aria-label="Số lượng"
+                  className="h-16 w-full rounded-xl border border-gold/30 bg-background/80 px-4 pr-14 text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground caret-gold shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_8%,transparent)] placeholder:text-muted-foreground/40 hover:border-gold/50 focus-visible:ring-2 focus-visible:ring-gold/40 focus-visible:border-gold transition-colors"
+                />
+                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gold/70">
+                  <Pencil className="h-3 w-3" />
+                </span>
+              </div>
+              <span className="mt-1.5 block text-[11px] text-muted-foreground">
+                Nhập số tiền bạn muốn quy đổi
+              </span>
+            </label>
           </PairPanel>
 
           {/* SWAP */}
@@ -155,6 +168,7 @@ export function ConverterTool() {
           {/* TO */}
           <PairPanel
             eyebrow="Bạn nhận"
+            role="output"
             code={toAsset ? codeLabel(toAsset) : "—"}
             name={toAsset ? nameLabel(toAsset) : ""}
             assets={assets}
@@ -162,11 +176,17 @@ export function ConverterTool() {
             onChange={setTo}
             tone="gold"
           >
-            <div className="h-14 flex items-baseline gap-2 overflow-hidden">
+            <div className="relative h-16 w-full rounded-xl border border-dashed border-gold/25 bg-gold/[0.04] px-4 flex items-center">
               <span className="font-serif text-3xl sm:text-4xl tabular font-normal tracking-tight text-gold leading-none truncate">
                 {result ? fmtAmount(result.amountB_realistic, result.b.kind, result.b.key) : "—"}
               </span>
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-full bg-card/80 border border-border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                <Lock className="h-2.5 w-2.5" /> Tự động
+              </span>
             </div>
+            <span className="mt-1.5 block text-[11px] text-muted-foreground">
+              Kết quả được tính tự động
+            </span>
           </PairPanel>
         </div>
       </div>
@@ -269,6 +289,7 @@ export function ConverterTool() {
 
 function PairPanel({
   eyebrow,
+  role,
   code,
   name,
   assets,
@@ -278,6 +299,7 @@ function PairPanel({
   tone,
 }: {
   eyebrow: string;
+  role?: "input" | "output";
   code: string;
   name: string;
   assets: AssetOpt[];
@@ -293,6 +315,16 @@ function PairPanel({
         ? "border-gold/25 bg-gradient-to-br from-gold/[0.05] to-transparent"
         : "border-border hover:border-gold/25",
     )}>
+      {role && (
+        <span className={cn(
+          "absolute -top-2.5 left-4 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em]",
+          role === "input"
+            ? "border-gold/50 bg-background text-gold"
+            : "border-border bg-background text-muted-foreground",
+        )}>
+          {role === "input" ? <><Pencil className="h-2.5 w-2.5" /> Nhập</> : <><Lock className="h-2.5 w-2.5" /> Kết quả</>}
+        </span>
+      )}
       <div className="flex items-center justify-between gap-3">
         <span className="eyebrow">{eyebrow}</span>
         <Select value={value} onValueChange={onChange}>
