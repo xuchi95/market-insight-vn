@@ -148,7 +148,7 @@ export function ConverterTool() {
           )}
 
           {/* Mid-market rate header */}
-          <div className="text-center pb-5 mb-5 border-b border-border/60">
+          <div className="text-center pb-6 mb-6 border-b border-border/60">
             <div className="text-sm font-medium text-muted-foreground mb-2">
               Tỷ giá quy đổi giữa (mid)
             </div>
