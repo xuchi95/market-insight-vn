@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -100,18 +100,19 @@ function SecuritySettingsPage() {
     type: MfaMethodType | "recovery_codes" | "push" | "in_app" | "qr_code";
     title: string;
     desc: string;
+    a11yDesc: string;
     icon: any;
     available: boolean;
     soon?: string;
   }> = [
-    { type: "totp", title: "Authenticator app", desc: "", icon: Smartphone, available: true },
-    { type: "email_otp", title: "Email OTP", desc: "", icon: Mail, available: true },
-    { type: "magic_link", title: "Magic Link", desc: "", icon: Link2, available: true },
-    { type: "passkey", title: "Passkey", desc: "", icon: Fingerprint, available: true },
-    { type: "recovery_codes", title: "Mã dự phòng", desc: "", icon: KeyRoundIcon, available: true },
-    { type: "push", title: "Push notification", desc: "", icon: Bell, available: false, soon: "Cần app Authsignal" },
-    { type: "in_app", title: "In-app verification", desc: "", icon: MonitorSmartphone, available: false, soon: "Cần app Authsignal" },
-    { type: "qr_code", title: "QR code verification", desc: "", icon: ScanLine, available: false, soon: "Cần app Authsignal" },
+    { type: "totp", title: "Authenticator app", desc: "", a11yDesc: "Xác minh bằng mã 6 chữ số từ ứng dụng như Google Authenticator, Authy hoặc 1Password.", icon: Smartphone, available: true },
+    { type: "email_otp", title: "Email OTP", desc: "", a11yDesc: "Nhận mã 6 chữ số gửi qua email mỗi lần xác minh.", icon: Mail, available: true },
+    { type: "magic_link", title: "Magic Link", desc: "", a11yDesc: "Bấm link xác minh gửi tới email để hoàn tất đăng nhập.", icon: Link2, available: true },
+    { type: "passkey", title: "Passkey", desc: "", a11yDesc: "Xác minh bằng Face ID, Touch ID hoặc Windows Hello trên thiết bị.", icon: Fingerprint, available: true },
+    { type: "recovery_codes", title: "Mã dự phòng", desc: "", a11yDesc: "Tạo bộ mã sử dụng một lần để đăng nhập khi mất thiết bị xác minh.", icon: KeyRoundIcon, available: true },
+    { type: "push", title: "Push notification", desc: "", a11yDesc: "Xác nhận bằng thông báo đẩy trên app Authsignal. Tính năng sắp ra mắt.", icon: Bell, available: false, soon: "Cần app Authsignal" },
+    { type: "in_app", title: "In-app verification", desc: "", a11yDesc: "Xác nhận trong app Authsignal đã đăng nhập. Tính năng sắp ra mắt.", icon: MonitorSmartphone, available: false, soon: "Cần app Authsignal" },
+    { type: "qr_code", title: "QR code verification", desc: "", a11yDesc: "Quét QR bằng app Authsignal để xác nhận. Tính năng sắp ra mắt.", icon: ScanLine, available: false, soon: "Cần app Authsignal" },
   ];
 
   return (
@@ -173,7 +174,7 @@ function SecuritySettingsPage() {
             </section>
 
             {/* Method cards */}
-            <div className="space-y-3">
+            <div className="space-y-3" role="list" aria-label="Danh sách phương thức xác thực 2 lớp">
               {methodCatalog.map((m) => {
                 const enrolled = enrolledMethods.find((x) => x.type === m.type);
                 return (
@@ -213,6 +214,7 @@ function MethodCard({
     type: MfaMethodType | "recovery_codes" | "push" | "in_app" | "qr_code";
     title: string;
     desc: string;
+    a11yDesc: string;
     icon: any;
     available: boolean;
     soon?: string;
@@ -225,23 +227,37 @@ function MethodCard({
   onBackupCodes: (codes: string[]) => void;
 }) {
   const Icon = catalog.icon;
+  const reactId = useId();
+  const titleId = `mfa-card-${reactId}-title`;
+  const descId = `mfa-card-${reactId}-desc`;
+  const panelId = `mfa-card-${reactId}-panel`;
+  const statusBits = [
+    enrolled ? "đã bật" : "chưa bật",
+    enrolled?.isDefault ? "phương thức mặc định" : null,
+    !catalog.available ? "sắp ra mắt" : null,
+  ].filter(Boolean).join(", ");
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card">
+    <section
+      role="listitem"
+      aria-labelledby={titleId}
+      aria-describedby={descId}
+      className="overflow-hidden rounded-2xl border border-border bg-card focus-within:ring-2 focus-within:ring-[var(--gold)]/50"
+    >
       <div className="flex items-start gap-4 p-5">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-muted text-foreground">
+        <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-muted text-foreground">
           <Icon className="h-5 w-5" />
         </span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="font-medium">{catalog.title}</div>
+            <div id={titleId} className="font-medium">{catalog.title}</div>
             {enrolled?.isDefault && (
               <Badge variant="secondary" className="h-5 gap-1 text-[10px]">
-                <Star className="h-3 w-3" /> Mặc định
+                <Star aria-hidden="true" className="h-3 w-3" /> Mặc định
               </Badge>
             )}
             {enrolled && (
               <Badge className="h-5 gap-1 bg-[color-mix(in_oklab,var(--up)_15%,transparent)] text-[var(--up)] text-[10px] hover:bg-[color-mix(in_oklab,var(--up)_15%,transparent)]">
-                <Check className="h-3 w-3" /> Đã bật
+                <Check aria-hidden="true" className="h-3 w-3" /> Đã bật
               </Badge>
             )}
             {!catalog.available && (
@@ -250,6 +266,9 @@ function MethodCard({
               </Badge>
             )}
           </div>
+          <span id={descId} className="sr-only">
+            {catalog.a11yDesc} Trạng thái: {statusBits}.
+          </span>
           {catalog.desc && (
             <p className="mt-1 text-xs text-muted-foreground">{catalog.desc}</p>
           )}
@@ -261,8 +280,14 @@ function MethodCard({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {enrolled && !enrolled.isDefault && (
-            <Button variant="ghost" size="sm" onClick={() => onSetDefault(enrolled.id)} title="Đặt làm mặc định">
-              <Star className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSetDefault(enrolled.id)}
+              title="Đặt làm mặc định"
+              aria-label={`Đặt ${catalog.title} làm phương thức mặc định`}
+            >
+              <Star aria-hidden="true" className="h-4 w-4" />
             </Button>
           )}
           {catalog.available ? (
@@ -270,16 +295,23 @@ function MethodCard({
               variant={enrolled ? "outline" : "default"}
               size="sm"
               onClick={onToggle}
+              aria-expanded={isExpanded}
+              aria-controls={panelId}
+              aria-label={
+                enrolled
+                  ? (isExpanded ? `Đóng bảng quản lý ${catalog.title}` : `Quản lý ${catalog.title}`)
+                  : (isExpanded ? `Đóng bảng thêm ${catalog.title}` : `Thêm ${catalog.title}`)
+              }
               className={enrolled ? "" : "bg-gold-gradient text-[var(--gold-foreground)]"}
             >
               {enrolled ? (
-                <>{isExpanded ? "Đóng" : <><Trash2 className="mr-1 h-3.5 w-3.5" /> Quản lý</>}</>
+                <>{isExpanded ? "Đóng" : <><Trash2 aria-hidden="true" className="mr-1 h-3.5 w-3.5" /> Quản lý</>}</>
               ) : (
-                <>{isExpanded ? "Đóng" : <><Plus className="mr-1 h-3.5 w-3.5" /> Thêm</>}</>
+                <>{isExpanded ? "Đóng" : <><Plus aria-hidden="true" className="mr-1 h-3.5 w-3.5" /> Thêm</>}</>
               )}
             </Button>
           ) : (
-            <Button size="sm" variant="outline" disabled>
+            <Button size="sm" variant="outline" disabled aria-label={`${catalog.title} — sắp ra mắt`}>
               Sắp ra mắt
             </Button>
           )}
@@ -287,7 +319,12 @@ function MethodCard({
       </div>
 
       {isExpanded && catalog.available && (
-        <div className="border-t border-border bg-background/30 p-5">
+        <div
+          id={panelId}
+          role="region"
+          aria-labelledby={titleId}
+          className="border-t border-border bg-background/30 p-5"
+        >
           {catalog.type === "totp" && (
             <TotpPanel
               enrolled={!!enrolled}
