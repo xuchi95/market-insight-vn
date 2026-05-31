@@ -75,7 +75,7 @@ export function Ticker() {
           label: "SJC",
           value: `${fmtTrieu(sjc.sell)} tr`,
           changePct: sjc.changePct,
-          href: "/gia-vang",
+          href: "/tai-san/gold-sjc-1l",
           details: [
             { label: "Giá mua", value: `${fmtTrieu(sjc.buy)} tr` },
             { label: "Giá bán", value: `${fmtTrieu(sjc.sell)} tr` },
@@ -89,7 +89,7 @@ export function Ticker() {
           label: "XAU/USD",
           value: `$${fmt(xau.price, 0)}`,
           changePct: xau.changePct,
-          href: "/gia-vang",
+          href: "/tai-san/gold-xauusd",
           details: [
             { label: "Giá", value: `$${fmt(xau.price, 0)}` },
             { label: "Thay đổi 24h", value: `${xau.changePct >= 0 ? "+" : ""}${xau.changePct.toFixed(2)}%` },
@@ -132,7 +132,7 @@ export function Ticker() {
           label: "USD/VND",
           value: fmt(usd.mid),
           changePct: usd.changePct,
-          href: "/ty-gia-ngoai-te",
+          href: "/tai-san/usd",
           details: [
             { label: "Tên", value: usd.name },
             { label: "Mua", value: fmt(usd.buy) },
@@ -147,7 +147,7 @@ export function Ticker() {
           label: "EUR/VND",
           value: fmt(eur.mid),
           changePct: eur.changePct,
-          href: "/ty-gia-ngoai-te",
+          href: "/tai-san/eur",
           details: [
             { label: "Tên", value: eur.name },
             { label: "Mua", value: fmt(eur.buy) },
@@ -162,7 +162,7 @@ export function Ticker() {
           label: "JPY/VND",
           value: fmt(jpy.mid, 2),
           changePct: jpy.changePct,
-          href: "/ty-gia-ngoai-te",
+          href: "/tai-san/jpy",
           details: [
             { label: "Tên", value: jpy.name },
             { label: "Mua", value: fmt(jpy.buy, 2) },
@@ -177,7 +177,7 @@ export function Ticker() {
           label: "CNY/VND",
           value: fmt(cny.mid),
           changePct: cny.changePct,
-          href: "/ty-gia-ngoai-te",
+          href: "/tai-san/cny",
           details: [
             { label: "Tên", value: cny.name },
             { label: "Mua", value: fmt(cny.buy) },
