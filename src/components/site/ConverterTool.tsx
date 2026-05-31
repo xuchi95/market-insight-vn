@@ -180,7 +180,7 @@ export function ConverterTool() {
           </WiseRow>
 
           {/* Swap button overlapping */}
-          <div className="relative h-3 my-1">
+          <div className="relative h-5 my-2">
             <Button
               variant="outline"
               size="icon"
