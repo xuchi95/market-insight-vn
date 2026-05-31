@@ -120,7 +120,7 @@ export function ConverterTool() {
         <div className="mx-auto max-w-2xl">
           {/* Quick-pick pairs */}
           {quickPairs.length > 0 && (
-            <div className="mb-5">
+            <div className="mb-6">
               <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground mb-2">
                 Cặp phổ biến
               </div>
