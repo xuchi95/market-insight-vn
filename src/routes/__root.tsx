@@ -11,6 +11,7 @@ import {
 import appCss from "../styles.css?url";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AuthProvider } from "@/hooks/useAuth";
+import { NumberFormatProvider } from "@/hooks/useNumberFormat";
 import { Toaster } from "@/components/ui/sonner";
 import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 
@@ -157,9 +158,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <Outlet />
-          <Toaster position="top-right" richColors />
-          <NewsletterPopup />
+          <NumberFormatProvider>
+            <Outlet />
+            <Toaster position="top-right" richColors />
+            <NewsletterPopup />
+          </NumberFormatProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
