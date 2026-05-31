@@ -116,11 +116,11 @@ export function ConverterTool() {
       description="Chọn cặp tiền, nhập số lượng — tính lãi/lỗ theo giá mua/bán thực tế"
     >
       {/* Wise-style converter */}
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto max-w-xl">
+      <div className="p-6 sm:p-8 lg:p-10">
+        <div className="mx-auto max-w-2xl pb-6">
           {/* Quick-pick pairs */}
           {quickPairs.length > 0 && (
-            <div className="mb-5">
+            <div className="mb-6">
               <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground mb-2">
                 Cặp phổ biến
               </div>
@@ -148,7 +148,7 @@ export function ConverterTool() {
           )}
 
           {/* Mid-market rate header */}
-          <div className="text-center pb-5 mb-5 border-b border-border/60">
+          <div className="text-center pb-6 mb-6 border-b border-border/60">
             <div className="text-sm font-medium text-muted-foreground mb-2">
               Tỷ giá quy đổi giữa (mid)
             </div>
@@ -180,7 +180,7 @@ export function ConverterTool() {
           </WiseRow>
 
           {/* Swap button overlapping */}
-          <div className="relative h-3 my-1">
+          <div className="relative h-5 my-2">
             <Button
               variant="outline"
               size="icon"
@@ -247,7 +247,7 @@ function WiseRow({
   }, [assets]);
 
   return (
-    <div className="rounded-2xl border border-border bg-card/60 hover:border-gold/40 focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20 transition-colors px-4 sm:px-5 py-4">
+    <div className="rounded-2xl border border-border bg-card/60 hover:border-gold/40 focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20 transition-colors px-5 sm:px-6 py-5 sm:py-6">
       <div className="text-sm font-medium text-muted-foreground mb-1">{label}</div>
       <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0">{children}</div>
