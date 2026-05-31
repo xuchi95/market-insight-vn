@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowUpDown, ArrowLeftRight, Wrench, TrendingDown, TrendingUp, Sparkles, Pencil, Lock } from "lucide-react";
+import { ArrowUpDown, ArrowLeftRight, Wrench, TrendingDown, TrendingUp, Pencil, Lock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SectionCard } from "./SectionCard";
 import { Input } from "@/components/ui/input";
