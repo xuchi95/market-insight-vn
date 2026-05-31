@@ -119,6 +119,8 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const { user, signOut } = useAuth();
   const { list, remove, synced } = useWatchlist();
 
+  // NumberFormatToggle inlined as a small button.
+
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
