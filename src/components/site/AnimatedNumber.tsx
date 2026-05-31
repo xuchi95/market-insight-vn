@@ -43,11 +43,10 @@ export function AnimatedNumber({
     const to = value;
     if (from === to) return;
 
+    let flashTimer: number | null = null;
     if (!noFlash) {
       setFlash(to > from ? "up" : "down");
-      const id = window.setTimeout(() => setFlash(null), 900);
-      // Cleanup handled together with raf below
-      var flashTimer = id;
+      flashTimer = window.setTimeout(() => setFlash(null), 900);
     }
 
     if (duration <= 0 || !Number.isFinite(from) || !Number.isFinite(to)) {
@@ -72,7 +71,7 @@ export function AnimatedNumber({
 
     return () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-      if (typeof flashTimer !== "undefined") clearTimeout(flashTimer);
+      if (flashTimer != null) clearTimeout(flashTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, duration]);
