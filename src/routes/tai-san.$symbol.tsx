@@ -133,6 +133,7 @@ function AssetDetail() {
 
   const positive = (coin?.change24h ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
+  const rangeLabel = range === "1" ? "24 giờ" : range === "7" ? "7 ngày" : range === "30" ? "30 ngày" : "90 ngày";
 
   const assetCrumb = useMemo(() => {
     if (gold) return [{ label: "Giá vàng", to: "/gia-vang" }, { label: `${gold.brand} · ${gold.type}` }];
