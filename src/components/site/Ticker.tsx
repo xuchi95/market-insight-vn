@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
@@ -32,6 +33,7 @@ interface Tick {
   value: string;
   changePct: number;
   details: DetailLine[];
+  href: string;
 }
 
 function fmt(n: number, digits = 0) {
@@ -73,6 +75,7 @@ export function Ticker() {
           label: "SJC",
           value: `${fmtTrieu(sjc.sell)} tr`,
           changePct: sjc.changePct,
+          href: "/gia-vang",
           details: [
             { label: "Giá mua", value: `${fmtTrieu(sjc.buy)} tr` },
             { label: "Giá bán", value: `${fmtTrieu(sjc.sell)} tr` },
@@ -86,6 +89,7 @@ export function Ticker() {
           label: "XAU/USD",
           value: `$${fmt(xau.price, 0)}`,
           changePct: xau.changePct,
+          href: "/gia-vang",
           details: [
             { label: "Giá", value: `$${fmt(xau.price, 0)}` },
             { label: "Thay đổi 24h", value: `${xau.changePct >= 0 ? "+" : ""}${xau.changePct.toFixed(2)}%` },
@@ -98,6 +102,7 @@ export function Ticker() {
           label: "BTC",
           value: `$${fmt(btc.priceUsd, 0)}`,
           changePct: btc.change24h,
+          href: "/tai-san/BTC",
           details: [
             { label: "Giá USD", value: `$${fmt(btc.priceUsd, 0)}` },
             { label: "Giá VND", value: `${fmtTrieu(btc.priceVnd)} tr` },
@@ -112,6 +117,7 @@ export function Ticker() {
           label: "ETH",
           value: `$${fmt(eth.priceUsd, 0)}`,
           changePct: eth.change24h,
+          href: "/tai-san/ETH",
           details: [
             { label: "Giá USD", value: `$${fmt(eth.priceUsd, 0)}` },
             { label: "Giá VND", value: `${fmtTrieu(eth.priceVnd)} tr` },
@@ -126,6 +132,7 @@ export function Ticker() {
           label: "USD/VND",
           value: fmt(usd.mid),
           changePct: usd.changePct,
+          href: "/ty-gia-ngoai-te",
           details: [
             { label: "Tên", value: usd.name },
             { label: "Mua", value: fmt(usd.buy) },
@@ -140,6 +147,7 @@ export function Ticker() {
           label: "EUR/VND",
           value: fmt(eur.mid),
           changePct: eur.changePct,
+          href: "/ty-gia-ngoai-te",
           details: [
             { label: "Tên", value: eur.name },
             { label: "Mua", value: fmt(eur.buy) },
@@ -154,6 +162,7 @@ export function Ticker() {
           label: "JPY/VND",
           value: fmt(jpy.mid, 2),
           changePct: jpy.changePct,
+          href: "/ty-gia-ngoai-te",
           details: [
             { label: "Tên", value: jpy.name },
             { label: "Mua", value: fmt(jpy.buy, 2) },
@@ -168,6 +177,7 @@ export function Ticker() {
           label: "CNY/VND",
           value: fmt(cny.mid),
           changePct: cny.changePct,
+          href: "/ty-gia-ngoai-te",
           details: [
             { label: "Tên", value: cny.name },
             { label: "Mua", value: fmt(cny.buy) },
@@ -191,13 +201,16 @@ export function Ticker() {
       {ticks.map((t, i) => (
         <Tooltip key={i}>
           <TooltipTrigger asChild>
-            <span className="flex cursor-default items-center gap-2 select-none">
+            <Link
+              to={t.href}
+              className="flex cursor-pointer items-center gap-2 select-none rounded-sm transition-colors hover:text-foreground"
+            >
               <span className="text-foreground/90">{t.label}</span>
               <span className="font-mono text-[var(--gold-light)]">{t.value}</span>
               <span className={t.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}>
                 {t.changePct >= 0 ? "+" : ""}{t.changePct.toFixed(2)}%
               </span>
-            </span>
+            </Link>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="w-56 border border-border bg-popover p-0 shadow-lg">
             <div className="px-3 py-2 border-b border-border bg-muted/50">
