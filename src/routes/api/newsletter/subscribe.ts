@@ -26,12 +26,12 @@ export const Route = createFileRoute("/api/newsletter/subscribe")({
           return Response.json({ error: "invalid_input", details: parsed.error.flatten() }, { status: 400 });
         }
         const { email, source, topics, metadata } = parsed.data;
-        const row: Record<string, unknown> = {
+        const row = {
           email,
           source: source ?? "footer",
           unsubscribed_at: null,
+          ...(topics && topics.length > 0 ? { topics } : {}),
         };
-        if (topics && topics.length > 0) row.topics = topics;
         const { error } = await supabaseAdmin
           .from("newsletter_subscribers")
           .upsert(row, { onConflict: "email" });
