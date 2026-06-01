@@ -9,8 +9,9 @@ import { lovable } from "@/integrations/lovable";
 import { AuthShell, GoogleButton, Divider } from "@/components/site/AuthShell";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { listEnrolledMfaMethods } from "@/lib/mfa.functions";
-import { clearMfaVerified } from "@/routes/xac-thuc-2fa";
+import { clearMfaVerified, markMfaVerified } from "@/routes/xac-thuc-2fa";
 import { signalAuthWelcome } from "@/components/site/AuthWelcomeBanner";
+import { isDeviceTrusted } from "@/lib/mfa-trust";
 
 const TITLE = "Đăng nhập — MarketWatch";
 const DESC = "Đăng nhập MarketWatch để đặt cảnh báo giá và nhận email khi vàng, crypto chạm ngưỡng.";
@@ -42,7 +43,7 @@ function LoginPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (error) {
       setLoading(false);
       toast.error("Đăng nhập không thành công", { description: error.message });
@@ -53,8 +54,14 @@ function LoginPage() {
       const s = await listEnrolledMfaMethods();
       setLoading(false);
       if (s.methods && s.methods.length > 0) {
-        navigate({ to: "/xac-thuc-2fa", replace: true });
-        return;
+        const uid = signInData?.user?.id;
+        if (uid && isDeviceTrusted(uid)) {
+          // Device was previously trusted — skip 2FA challenge.
+          markMfaVerified();
+        } else {
+          navigate({ to: "/xac-thuc-2fa", replace: true });
+          return;
+        }
       }
     } catch {
       setLoading(false);
