@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Coins } from "lucide-react";
+import { AlertTriangle, Coins } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
@@ -11,14 +11,16 @@ import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
 
 export function GoldPriceTable({ search }: { search?: string }) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["gold"],
     queryFn: fetchGoldPrices,
     refetchInterval: 60 * 1000,
     refetchOnWindowFocus: true,
   });
+  useQueryErrorToast(isError, error, "giá vàng");
   const { compact } = useNumberFormat();
   const [brand, setBrand] = useState("all");
 
@@ -53,6 +55,15 @@ export function GoldPriceTable({ search }: { search?: string }) {
         </Select>
       }
     >
+      {isError && (data?.length ?? 0) > 0 && (
+        <div className="flex items-start gap-2 px-4 py-2.5 text-xs bg-[var(--down)]/10 text-[var(--down)] border-b border-border">
+          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>
+            Không thể cập nhật giá vàng mới ({error instanceof Error ? error.message : "lỗi"}). Đang hiển thị dữ liệu phiên gần nhất.{" "}
+            <button onClick={() => refetch()} className="underline font-medium hover:opacity-80">Thử lại</button>
+          </span>
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full text-base">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
@@ -102,7 +113,22 @@ export function GoldPriceTable({ search }: { search?: string }) {
               );
             })}
             {!isLoading && rows.length === 0 && (
-              <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Không tìm thấy kết quả phù hợp.</td></tr>
+              <tr>
+                <td colSpan={8} className="px-4 py-10 text-center">
+                  {isError ? (
+                    <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
+                      <AlertTriangle className="h-6 w-6 text-[var(--down)]" />
+                      <p className="text-sm">Không thể tải dữ liệu giá vàng.</p>
+                      <p className="text-xs opacity-70">{error instanceof Error ? error.message : ""}</p>
+                      <button onClick={() => refetch()} className="mt-2 px-3 py-1.5 text-xs rounded-md bg-gold/15 text-gold font-medium hover:bg-gold/25 transition-colors">
+                        Thử lại
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Không tìm thấy kết quả phù hợp.</span>
+                  )}
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

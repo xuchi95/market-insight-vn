@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DollarSign, RefreshCw } from "lucide-react";
+import { AlertTriangle, DollarSign, RefreshCw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchForexRates } from "@/lib/services/forexRateService";
@@ -9,13 +9,15 @@ import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
 
 export function ForexRateTable({ search }: { search?: string }) {
-  const { data, isLoading, refetch, isFetching, dataUpdatedAt } = useQuery({
+  const { data, isLoading, refetch, isFetching, dataUpdatedAt, isError, error } = useQuery({
     queryKey: ["forex"],
     queryFn: fetchForexRates,
     refetchInterval: 10 * 60 * 1000,
   });
+  useQueryErrorToast(isError, error, "tỷ giá ngoại tệ");
   const rows = useMemo(() => {
     let r = data ?? [];
     if (search) {
@@ -34,6 +36,15 @@ export function ForexRateTable({ search }: { search?: string }) {
       meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
+      {isError && (data?.length ?? 0) > 0 && (
+        <div className="flex items-start gap-2 px-4 py-2.5 text-xs bg-[var(--down)]/10 text-[var(--down)] border-b border-border">
+          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>
+            Không thể cập nhật tỷ giá mới ({error instanceof Error ? error.message : "lỗi"}). Đang hiển thị dữ liệu phiên gần nhất.{" "}
+            <button onClick={() => refetch()} className="underline font-medium hover:opacity-80">Thử lại</button>
+          </span>
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full text-base">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
@@ -71,7 +82,22 @@ export function ForexRateTable({ search }: { search?: string }) {
               </tr>
             ))}
             {!isLoading && rows.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">Không tìm thấy tiền tệ phù hợp.</td></tr>
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center">
+                  {isError ? (
+                    <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
+                      <AlertTriangle className="h-6 w-6 text-[var(--down)]" />
+                      <p className="text-sm">Không thể tải dữ liệu tỷ giá ngoại tệ.</p>
+                      <p className="text-xs opacity-70">{error instanceof Error ? error.message : ""}</p>
+                      <button onClick={() => refetch()} className="mt-2 px-3 py-1.5 text-xs rounded-md bg-gold/15 text-gold font-medium hover:bg-gold/25 transition-colors">
+                        Thử lại
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Không tìm thấy tiền tệ phù hợp.</span>
+                  )}
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

@@ -4,6 +4,7 @@ import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
 
 interface UsStock {
   symbol: string;
@@ -51,6 +52,7 @@ export function UsStockTable() {
     placeholderData: keepPreviousData,
     retry: 1,
   });
+  useQueryErrorToast(isError, error, "cổ phiếu Mỹ");
   const rows = data ?? [];
   const updatedAt = rows.length ? Math.max(...rows.map((r) => r.updatedAt)) : 0;
   const showStaleBanner = isError && rows.length > 0;

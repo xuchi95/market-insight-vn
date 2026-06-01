@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bitcoin, RefreshCw, ArrowUpDown, Trophy, BarChart3 } from "lucide-react";
+import { AlertTriangle, Bitcoin, RefreshCw, ArrowUpDown, Trophy, BarChart3 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -11,6 +11,7 @@ import { Sparkline } from "./Sparkline";
 import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
 
 type SortKey = "marketCap" | "priceUsd" | "priceVnd" | "change24h" | "volume24h";
 type Category = "all" | "top-mcap" | "top-volume";
@@ -30,11 +31,12 @@ const SORT_LABELS: Record<SortKey, string> = {
 };
 
 export function CryptoPriceTable({ search }: { search?: string }) {
-  const { data, isLoading, refetch, isFetching, dataUpdatedAt } = useQuery({
+  const { data, isLoading, refetch, isFetching, dataUpdatedAt, isError, error } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
     refetchInterval: 60_000,
   });
+  useQueryErrorToast(isError, error, "giá crypto");
   const { compact } = useNumberFormat();
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");
@@ -122,6 +124,15 @@ export function CryptoPriceTable({ search }: { search?: string }) {
         )}
 
         <div className="overflow-x-auto rounded-lg border border-border">
+          {isError && (data?.length ?? 0) > 0 && (
+            <div className="flex items-start gap-2 px-4 py-2.5 text-xs bg-[var(--down)]/10 text-[var(--down)] border-b border-border">
+              <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <span>
+                Không thể cập nhật giá crypto mới ({error instanceof Error ? error.message : "lỗi"}). Đang hiển thị dữ liệu gần nhất.{" "}
+                <button onClick={() => refetch()} className="underline font-medium hover:opacity-80">Thử lại</button>
+              </span>
+            </div>
+          )}
           <table className="w-full text-base">
             <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
               <tr>
@@ -187,7 +198,22 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                 </tr>
               ))}
               {!isLoading && rows.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Không tìm thấy coin nào.</td></tr>
+                <tr>
+                  <td colSpan={8} className="px-4 py-10 text-center">
+                    {isError ? (
+                      <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
+                        <AlertTriangle className="h-6 w-6 text-[var(--down)]" />
+                        <p className="text-sm">Không thể tải dữ liệu giá crypto.</p>
+                        <p className="text-xs opacity-70">{error instanceof Error ? error.message : ""}</p>
+                        <button onClick={() => refetch()} className="mt-2 px-3 py-1.5 text-xs rounded-md bg-gold/15 text-gold font-medium hover:bg-gold/25 transition-colors">
+                          Thử lại
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">Không tìm thấy coin nào.</span>
+                    )}
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
