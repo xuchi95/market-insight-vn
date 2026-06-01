@@ -18,6 +18,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
 import { Star, BellRing, BellOff, Loader2, Mail } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Link as RouterLink } from "@tanstack/react-router";
@@ -111,11 +112,20 @@ function AssetDetail() {
 
   const others = useMemo(() => coins?.filter((c) => c.id !== coin?.id).slice(0, 5) ?? [], [coins, coin]);
 
-  const { data: chart } = useQuery({
+  const {
+    data: chart,
+    isLoading: chartLoading,
+    isFetching: chartFetching,
+    isError: chartError,
+    error: chartErrorObj,
+    refetch: refetchChart,
+    dataUpdatedAt: chartUpdatedAt,
+  } = useQuery({
     queryKey: ["chart", coin?.id, range],
     queryFn: () => loadChart(coin!.id, range),
     enabled: !!coin,
     refetchInterval: 60_000,
+    retry: 1,
   });
 
   const { data: chart7d } = useQuery({
@@ -321,6 +331,14 @@ function AssetDetail() {
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ giá</h2>
+                {chartFetching && !chartLoading && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" aria-label="Đang cập nhật" />
+                )}
+                {chartUpdatedAt > 0 && !chartError && (
+                  <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                    Cập nhật {new Date(chartUpdatedAt).toLocaleTimeString("vi-VN")}
+                  </span>
+                )}
                 <Tabs value={range} onValueChange={setRange} className="ml-auto">
                   <TabsList className="h-9">
                     <TabsTrigger value="1">24h</TabsTrigger>
@@ -331,6 +349,31 @@ function AssetDetail() {
                 </Tabs>
               </div>
               <div className="h-80 w-full p-4">
+                {chartLoading ? (
+                  <div className="h-full w-full space-y-3">
+                    <Skeleton className="h-[calc(100%-2rem)] w-full" />
+                    <Skeleton className="h-6 w-1/3" />
+                  </div>
+                ) : chartError ? (
+                  <div className="h-full w-full flex flex-col items-center justify-center gap-3 text-center">
+                    <AlertTriangle className="h-8 w-8 text-[var(--down)]" />
+                    <div className="text-sm font-semibold">Không tải được biểu đồ</div>
+                    <div className="text-xs text-muted-foreground max-w-xs">
+                      {chartErrorObj instanceof Error ? chartErrorObj.message : "Lỗi không xác định"}. Vui lòng thử lại.
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => refetchChart()}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
+                    >
+                      <RefreshCw className="h-3 w-3" /> Thử lại
+                    </button>
+                  </div>
+                ) : !chart || chart.length === 0 ? (
+                  <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
+                    Chưa có dữ liệu lịch sử cho khung thời gian này.
+                  </div>
+                ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chart}>
                     <defs>
@@ -346,6 +389,7 @@ function AssetDetail() {
                     <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill="url(#ag)" />
                   </AreaChart>
                 </ResponsiveContainer>
+                )}
               </div>
             </div>
 
