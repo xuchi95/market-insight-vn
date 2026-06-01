@@ -88,27 +88,27 @@ export function BentoTiles() {
       {/* Gold — large hero tile */}
       <TileFrame className="col-span-2 md:col-span-4 md:row-span-2 flex flex-col">
         <Link to="/gia-vang" className="block group">
-          <div className="flex justify-between items-start mb-3 md:mb-4">
+          <div className="flex justify-between items-start mb-4 md:mb-5">
             <div>
-              <div className="eyebrow mb-1.5">Vàng miếng SJC</div>
-              <div className="font-display text-3xl md:text-5xl text-foreground leading-none">
+              <div className="eyebrow mb-2">Vàng miếng SJC</div>
+              <div className="font-display text-3xl md:text-5xl leading-tight text-foreground">
                 {sjc ? fmtTrieu(sjc.sell) : "—"}
                 <span className="ml-1.5 text-sm md:text-base text-muted-foreground">tr/chỉ</span>
               </div>
             </div>
             <div className="text-right">
               {sjc && <ChangePill value={sjc.changePct} />}
-              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground/60">24 giờ</div>
+              <div className="mt-1.5 eyebrow opacity-60">24 giờ</div>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-px bg-border mb-3 md:mb-4">
+          <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
             <Stat label="Mua" value={sjc ? `${fmtTrieu(sjc.buy)} tr` : "—"} />
             <Stat label="Cao" value={`${fmtTrieu(goldHigh)} tr`} accent />
             <Stat label="Thấp" value={`${fmtTrieu(goldLow)} tr`} />
           </div>
 
-          <div className="flex items-end gap-1 h-10 md:h-16">
+          <div className="flex items-end gap-1 h-12 md:h-16">
             {Array.from({ length: 24 }).map((_, i) => {
               const h = 30 + Math.abs(Math.sin((i + (sjc?.changePct ?? 0)) * 0.7)) * 60;
               const cur = i === 23;
@@ -122,7 +122,7 @@ export function BentoTiles() {
             })}
           </div>
 
-          <div className="mt-3 md:mt-4 flex items-center justify-between eyebrow opacity-70 group-hover:opacity-100">
+          <div className="mt-4 md:mt-5 flex items-center justify-between eyebrow opacity-70 group-hover:opacity-100">
             <span>Xem bảng giá vàng đầy đủ</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </div>
@@ -132,15 +132,15 @@ export function BentoTiles() {
       {/* BTC */}
       <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
-          <div className="eyebrow mb-1">Bitcoin</div>
-          <div className="font-display text-2xl text-foreground leading-none">
+          <div className="eyebrow mb-2">Bitcoin</div>
+          <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
             ${btc ? fmt(btc.priceUsd, 0) : "—"}
           </div>
-          <div className="mt-1">{btc && <ChangePill value={btc.change24h} />}</div>
-          <div className="mt-3">
+          <div className="mt-1.5">{btc && <ChangePill value={btc.change24h} />}</div>
+          <div className="mt-4">
             {btc && <Spark data={btc.sparkline} color={btc.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
           </div>
-          <div className="mt-2 flex justify-between text-xs uppercase tracking-widest text-muted-foreground/60">
+          <div className="mt-3 flex justify-between eyebrow opacity-60">
             <span>Vol</span>
             <span className="tabular normal-case tracking-normal text-foreground/80">${btc ? fmt(btc.volume24h / 1_000_000_000, 1) : "—"}B</span>
           </div>
@@ -150,15 +150,15 @@ export function BentoTiles() {
       {/* ETH */}
       <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
-          <div className="eyebrow mb-1">Ethereum</div>
-          <div className="font-display text-2xl text-foreground leading-none">
+          <div className="eyebrow mb-2">Ethereum</div>
+          <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
             ${eth ? fmt(eth.priceUsd, 0) : "—"}
           </div>
-          <div className="mt-1">{eth && <ChangePill value={eth.change24h} />}</div>
-          <div className="mt-3">
+          <div className="mt-1.5">{eth && <ChangePill value={eth.change24h} />}</div>
+          <div className="mt-4">
             {eth && <Spark data={eth.sparkline} color={eth.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
           </div>
-          <div className="mt-2 flex justify-between text-xs uppercase tracking-widest text-muted-foreground/60">
+          <div className="mt-3 flex justify-between eyebrow opacity-60">
             <span>Vol</span>
             <span className="tabular normal-case tracking-normal text-foreground/80">${eth ? fmt(eth.volume24h / 1_000_000_000, 1) : "—"}B</span>
           </div>
@@ -168,7 +168,7 @@ export function BentoTiles() {
       {/* Forex — full-width compact list */}
       <TileFrame className="col-span-2 md:col-span-6">
         <Link to="/ty-gia-ngoai-te" className="block">
-          <div className="flex items-baseline justify-between mb-3">
+          <div className="flex items-baseline justify-between mb-4">
             <div className="eyebrow">Ngoại tệ · Quy đổi VND</div>
             <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />
           </div>
@@ -186,20 +186,20 @@ export function BentoTiles() {
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="bg-card p-2.5">
-      <div className="text-xs uppercase tracking-widest text-muted-foreground/70">{label}</div>
-      <div className={`tabular text-sm mt-0.5 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>{value}</div>
+    <div className="bg-card p-3">
+      <div className="eyebrow opacity-70">{label}</div>
+      <div className={`tabular text-sm md:text-base leading-tight mt-1 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>{value}</div>
     </div>
   );
 }
 
 function FxCell({ rate, digits = 0 }: { rate?: ForexRate; digits?: number }) {
-  if (!rate) return <div className="bg-card p-3 h-[60px]" />;
+  if (!rate) return <div className="bg-card p-3 h-[68px]" />;
   return (
     <div className="bg-card p-3">
-      <div className="text-xs uppercase tracking-widest text-muted-foreground/70">{rate.code}/VND</div>
-      <div className="tabular text-base text-foreground mt-1">{fmt(rate.mid, digits)}</div>
-      <div className={`text-xs tabular mt-0.5 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+      <div className="eyebrow opacity-70">{rate.code}/VND</div>
+      <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1">{fmt(rate.mid, digits)}</div>
+      <div className={`text-xs tabular mt-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
         {rate.changePct >= 0 ? "+" : ""}{rate.changePct.toFixed(2)}%
       </div>
     </div>
