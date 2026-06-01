@@ -18,20 +18,93 @@ import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-5 py-16">
+      {/* Ambient gold glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "radial-gradient(60% 50% at 50% 35%, color-mix(in oklab, var(--gold) 18%, transparent) 0%, transparent 70%)",
+        }}
+      />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid opacity-[0.06]" />
+
+      <div className="relative mx-auto w-full max-w-3xl">
+        {/* Status tape */}
+        <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-[color-mix(in_oklab,var(--gold)_30%,transparent)] bg-[color-mix(in_oklab,var(--gold)_10%,var(--background))] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--gold)]">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--gold)] opacity-60" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+          </span>
+          MarketWatch · Trạng thái phiên
+        </div>
+
+        {/* 404 ticker */}
+        <div className="mt-8 text-center">
+          <div className="font-display leading-none tracking-tight">
+            <span className="block bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[color-mix(in_oklab,var(--gold)_40%,var(--background))] bg-clip-text text-[clamp(7rem,22vw,15rem)] text-transparent drop-shadow-[0_2px_30px_color-mix(in_oklab,var(--gold)_25%,transparent)]">
+              404
+            </span>
+          </div>
+
+          <div className="mx-auto mt-4 flex items-center justify-center gap-3">
+            <span className="h-px w-10 bg-[color-mix(in_oklab,var(--gold)_50%,transparent)]" />
+            <span className="eyebrow !text-[var(--gold)]">Mã phiên không tồn tại</span>
+            <span className="h-px w-10 bg-[color-mix(in_oklab,var(--gold)_50%,transparent)]" />
+          </div>
+
+          <h1 className="mt-6 font-display text-3xl md:text-4xl text-foreground">
+            Trang bạn tìm đã ngừng niêm yết
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
+            Có vẻ như đường dẫn này đã bị huỷ niêm yết, đổi mã hoặc chưa từng được phát hành. Hãy quay về trang chủ để tiếp tục theo dõi thị trường.
+          </p>
+        </div>
+
+        {/* Mini quote card */}
+        <div className="mx-auto mt-8 grid max-w-xl grid-cols-3 overflow-hidden rounded-lg border border-border bg-card/60 backdrop-blur-sm shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_15%,transparent)]">
+          <div className="border-r border-border px-4 py-3 text-center">
+            <div className="eyebrow opacity-70">Mã</div>
+            <div className="mt-1 font-mono text-sm text-foreground">MWT/404</div>
+          </div>
+          <div className="border-r border-border px-4 py-3 text-center">
+            <div className="eyebrow opacity-70">Giá</div>
+            <div className="mt-1 font-mono text-sm text-[var(--down)]">— —</div>
+          </div>
+          <div className="px-4 py-3 text-center">
+            <div className="eyebrow opacity-70">Biến động</div>
+            <div className="mt-1 font-mono text-sm text-[var(--down)]">−100,00%</div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-[var(--gold-light)] to-[var(--gold)] px-5 py-2.5 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_8px_30px_-10px_color-mix(in_oklab,var(--gold)_60%,transparent)] transition-transform hover:-translate-y-0.5"
           >
-            Go home
+            ← Về trang chủ
           </Link>
+          <Link
+            to="/gia-vang"
+            className="inline-flex items-center justify-center rounded-md border border-border bg-card/50 px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-[color-mix(in_oklab,var(--gold)_45%,transparent)] hover:text-[var(--gold)]"
+          >
+            Xem giá vàng
+          </Link>
+          <Link
+            to="/tien-dien-tu"
+            className="inline-flex items-center justify-center rounded-md border border-border bg-card/50 px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-[color-mix(in_oklab,var(--gold)_45%,transparent)] hover:text-[var(--gold)]"
+          >
+            Crypto
+          </Link>
+        </div>
+
+        {/* Footer note */}
+        <div className="mt-10 text-center">
+          <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground/60">
+            Error 404 · Resource not listed · MarketWatch
+          </div>
         </div>
       </div>
     </div>
