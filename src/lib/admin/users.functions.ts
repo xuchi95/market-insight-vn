@@ -87,7 +87,7 @@ export const updateUser = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
     if (data.fullName !== undefined || data.locale !== undefined) {
-      const profileUpdate: Record<string, unknown> = {};
+      const profileUpdate: { full_name?: string | null; locale?: string | null } = {};
       if (data.fullName !== undefined) profileUpdate.full_name = data.fullName;
       if (data.locale !== undefined) profileUpdate.locale = data.locale;
       const { error } = await supabaseAdmin
