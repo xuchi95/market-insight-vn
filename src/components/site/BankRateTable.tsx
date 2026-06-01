@@ -7,6 +7,7 @@ import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { SectionCard } from "./SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
 
 export function BankRateTable() {
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
@@ -17,6 +18,7 @@ export function BankRateTable() {
     placeholderData: keepPreviousData,
     retry: 2,
   });
+  useQueryErrorToast(isError, error, "tỷ giá Vietcombank");
   const [q, setQ] = useState("");
 
   const rows = useMemo(() => {

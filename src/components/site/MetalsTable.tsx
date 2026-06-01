@@ -4,6 +4,7 @@ import { SectionCard } from "./SectionCard";
 import { ChangeBadge } from "./ChangeBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtNum, fmtTime } from "@/lib/format";
+import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
 
 interface MetalItem {
   symbol: string;
@@ -24,7 +25,7 @@ async function fetchMetals(): Promise<{ items: MetalItem[]; updatedAt: number }>
 const GRAM_PER_OZ = 31.1035;
 
 export function MetalsTable() {
-  const { data, isLoading, isError, refetch, isFetching } = useQuery({
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["metals"],
     queryFn: fetchMetals,
     refetchInterval: 30 * 60 * 1000, // khớp cache server 30'
@@ -32,6 +33,7 @@ export function MetalsTable() {
     refetchOnWindowFocus: false,
     retry: 1,
   });
+  useQueryErrorToast(isError, error, "giá kim loại quý");
 
   const items = data?.items ?? [];
 

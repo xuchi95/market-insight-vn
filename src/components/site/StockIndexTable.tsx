@@ -7,6 +7,7 @@ import { fmtNum, fmtDate, fmtTime } from "@/lib/format";
 import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
 
 function fmtVol(n: number) {
   if (!n) return "—";
@@ -25,6 +26,7 @@ export function StockIndexTable() {
     placeholderData: keepPreviousData,
     retry: 2,
   });
+  useQueryErrorToast(isError, error, "chỉ số chứng khoán");
   const rows = data ?? [];
   const updatedAt = rows.length ? Math.max(...rows.map((r) => r.updatedAt)) : 0;
   const showStaleBanner = isError && rows.length > 0;
