@@ -10,6 +10,7 @@ import { AuthShell, GoogleButton, Divider } from "@/components/site/AuthShell";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { listEnrolledMfaMethods } from "@/lib/mfa.functions";
 import { clearMfaVerified } from "@/routes/xac-thuc-2fa";
+import { signalAuthWelcome } from "@/components/site/AuthWelcomeBanner";
 
 const TITLE = "Đăng nhập — MarketWatch";
 const DESC = "Đăng nhập MarketWatch để đặt cảnh báo giá và nhận email khi vàng, crypto chạm ngưỡng.";
@@ -58,7 +59,7 @@ function LoginPage() {
     } catch {
       setLoading(false);
     }
-    toast.success("Đăng nhập thành công");
+    signalAuthWelcome({ kind: "login", email: email.trim() });
     navigate({ to: "/" });
   }
 
