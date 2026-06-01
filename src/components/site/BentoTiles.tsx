@@ -84,14 +84,14 @@ export function BentoTiles() {
   const goldLow = sjc ? Math.round(sjc.sell * 0.997) : 0;
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
       {/* Gold — large hero tile */}
-      <TileFrame className="col-span-2 md:col-span-2">
+      <TileFrame className="col-span-2 md:col-span-4 md:row-span-2 flex flex-col">
         <Link to="/gia-vang" className="block group">
           <div className="flex justify-between items-start mb-4">
             <div>
               <div className="eyebrow mb-1.5">Vàng miếng SJC</div>
-              <div className="font-display text-4xl md:text-5xl text-foreground leading-none">
+              <div className="font-display text-4xl md:text-6xl text-foreground leading-none">
                 {sjc ? fmtTrieu(sjc.sell) : "—"}
                 <span className="ml-1.5 text-base text-muted-foreground">tr/chỉ</span>
               </div>
@@ -108,7 +108,7 @@ export function BentoTiles() {
             <Stat label="Thấp" value={`${fmtTrieu(goldLow)} tr`} />
           </div>
 
-          <div className="flex items-end gap-1 h-10">
+          <div className="flex items-end gap-1 h-12 md:h-20">
             {Array.from({ length: 24 }).map((_, i) => {
               const h = 30 + Math.abs(Math.sin((i + (sjc?.changePct ?? 0)) * 0.7)) * 60;
               const cur = i === 23;
@@ -130,7 +130,7 @@ export function BentoTiles() {
       </TileFrame>
 
       {/* BTC */}
-      <TileFrame>
+      <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
           <div className="eyebrow mb-1">Bitcoin</div>
           <div className="font-display text-2xl text-foreground leading-none">
@@ -148,7 +148,7 @@ export function BentoTiles() {
       </TileFrame>
 
       {/* ETH */}
-      <TileFrame>
+      <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
           <div className="eyebrow mb-1">Ethereum</div>
           <div className="font-display text-2xl text-foreground leading-none">
@@ -166,13 +166,13 @@ export function BentoTiles() {
       </TileFrame>
 
       {/* Forex — full-width compact list */}
-      <TileFrame className="col-span-2">
+      <TileFrame className="col-span-2 md:col-span-6">
         <Link to="/ty-gia-ngoai-te" className="block">
           <div className="flex items-baseline justify-between mb-3">
             <div className="eyebrow">Ngoại tệ · Quy đổi VND</div>
             <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
             <FxCell rate={usd} />
             <FxCell rate={eur} />
             <FxCell rate={jpy} digits={2} />

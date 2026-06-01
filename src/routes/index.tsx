@@ -52,15 +52,15 @@ function Index() {
         <div className="mx-auto max-w-6xl px-5">
           {/* Hero — editorial masthead */}
           <section className="py-10 md:py-14 border-b border-border">
-            <div className="grid md:grid-cols-12 gap-8 md:gap-10 items-center">
-              <div className="md:col-span-8">
-                <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[1.02] text-foreground text-balance">
+            <div className="grid md:grid-cols-12 gap-8 md:gap-10 items-end">
+              <div className="md:col-span-7">
+                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl leading-[1.05] text-foreground text-balance">
                   Theo dõi giá <em className="text-[var(--gold)] not-italic font-display italic">vàng</em>,{" "}
                   <span className="text-[var(--gold)]">crypto</span> &amp; tỷ giá ngoại tệ.
                 </h1>
               </div>
-              <div className="md:col-span-4 md:pl-8 md:border-l md:border-border">
-                <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-pretty">
+              <div className="md:col-span-5 md:pl-8 md:border-l md:border-border">
+                <p className="text-base md:text-[17px] text-muted-foreground leading-relaxed text-pretty">
                   Một bản tin số liệu súc tích cho nhà đầu tư Việt — SJC, DOJI, BTC, ETH, USD/VND và hơn thế, cập nhật tức thì từ các sàn lớn.
                 </p>
                 <div className="mt-5 eyebrow opacity-60">Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường</div>
