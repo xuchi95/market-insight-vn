@@ -367,9 +367,9 @@ function PopupEditor({ value, onClose, onSave }: { value: PopupForm; onClose: ()
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Number label="Delay (giây)" v={f.targeting.delaySeconds} min={0} max={600} onChange={(n) => set("targeting", { ...f.targeting, delaySeconds: n })} />
-                  <Number label="Frequency (ngày)" v={f.targeting.frequencyDays} min={0} max={365} onChange={(n) => set("targeting", { ...f.targeting, frequencyDays: n })} />
-                  <Number label="Scroll trigger (%)" v={f.targeting.scrollPercent} min={0} max={100} onChange={(n) => set("targeting", { ...f.targeting, scrollPercent: n })} />
+                  <NumberField label="Delay (giây)" v={f.targeting.delaySeconds} min={0} max={600} onChange={(n) => set("targeting", { ...f.targeting, delaySeconds: n })} />
+                  <NumberField label="Frequency (ngày)" v={f.targeting.frequencyDays} min={0} max={365} onChange={(n) => set("targeting", { ...f.targeting, frequencyDays: n })} />
+                  <NumberField label="Scroll trigger (%)" v={f.targeting.scrollPercent} min={0} max={100} onChange={(n) => set("targeting", { ...f.targeting, scrollPercent: n })} />
                   <div className="flex items-end gap-2">
                     <Switch checked={f.targeting.hideForSubscribers} onCheckedChange={(v) => set("targeting", { ...f.targeting, hideForSubscribers: v })} />
                     <Label>Ẩn với subscriber</Label>
@@ -444,7 +444,7 @@ function Counter({ v, max }: { v: string; max: number }) {
   );
 }
 
-function Number({ label, v, min, max, onChange }: { label: string; v: number; min: number; max: number; onChange: (n: number) => void }) {
+function NumberField({ label, v, min, max, onChange }: { label: string; v: number; min: number; max: number; onChange: (n: number) => void }) {
   return (
     <div>
       <Label>{label}</Label>
@@ -720,12 +720,12 @@ function animClass(anim: Theme["animation"], layout: Theme["layout"]): string {
 function toLocal(iso?: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
+  if (globalThis.Number.isNaN(d.getTime())) return "";
   const off = d.getTimezoneOffset() * 60_000;
   return new Date(d.getTime() - off).toISOString().slice(0, 16);
 }
 function fromLocal(local: string): string | null {
   if (!local) return null;
   const d = new Date(local);
-  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  return globalThis.Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
