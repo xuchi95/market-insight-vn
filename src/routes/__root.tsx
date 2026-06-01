@@ -17,6 +17,8 @@ import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 
 function NotFoundComponent() {
+  const ctaBase =
+    "group inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 ease-out will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_oklab,var(--gold)_60%,transparent)] focus-visible:ring-offset-2 focus-visible:ring-offset-background";
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-5 py-16">
       {/* Ambient gold glow */}
@@ -82,20 +84,26 @@ function NotFoundComponent() {
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-[var(--gold-light)] to-[var(--gold)] px-5 py-2.5 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_8px_30px_-10px_color-mix(in_oklab,var(--gold)_60%,transparent)] transition-transform hover:-translate-y-0.5"
+            preload="intent"
+            className={`${ctaBase} bg-gradient-to-r from-[var(--gold-light)] to-[var(--gold)] font-semibold text-[var(--gold-foreground)] shadow-[0_8px_30px_-10px_color-mix(in_oklab,var(--gold)_60%,transparent)] hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-12px_color-mix(in_oklab,var(--gold)_75%,transparent)] active:translate-y-0 active:shadow-[0_4px_14px_-6px_color-mix(in_oklab,var(--gold)_60%,transparent)]`}
           >
-            ← Về trang chủ
+            <span aria-hidden className="transition-transform duration-200 group-hover:-translate-x-0.5">←</span>
+            Về trang chủ
           </Link>
           <Link
             to="/gia-vang"
-            className="inline-flex items-center justify-center rounded-md border border-border bg-card/50 px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-[color-mix(in_oklab,var(--gold)_45%,transparent)] hover:text-[var(--gold)]"
+            preload="intent"
+            className={`${ctaBase} border border-border bg-card/50 text-foreground hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--gold)_55%,transparent)] hover:bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] hover:text-[var(--gold)] hover:shadow-[0_10px_28px_-14px_color-mix(in_oklab,var(--gold)_60%,transparent)] active:translate-y-0`}
           >
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] transition-transform duration-200 group-hover:scale-125" />
             Xem giá vàng
           </Link>
           <Link
             to="/tien-dien-tu"
-            className="inline-flex items-center justify-center rounded-md border border-border bg-card/50 px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-[color-mix(in_oklab,var(--gold)_45%,transparent)] hover:text-[var(--gold)]"
+            preload="intent"
+            className={`${ctaBase} border border-border bg-card/50 text-foreground hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--gold)_55%,transparent)] hover:bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] hover:text-[var(--gold)] hover:shadow-[0_10px_28px_-14px_color-mix(in_oklab,var(--gold)_60%,transparent)] active:translate-y-0`}
           >
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] transition-transform duration-200 group-hover:scale-125" />
             Crypto
           </Link>
         </div>
