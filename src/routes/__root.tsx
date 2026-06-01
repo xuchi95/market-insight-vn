@@ -19,23 +19,56 @@ import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 function NotFoundComponent() {
   const ctaBase =
     "group inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 ease-out will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_oklab,var(--gold)_60%,transparent)] focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  const fallbackFont = '"Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  const fallbackDisplayFont = '"DM Serif Display", Georgia, "Times New Roman", serif';
+
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-5 py-16">
+    <div
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-5 py-16"
+      style={{
+        position: "relative",
+        display: "flex",
+        minHeight: "100vh",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        background: "var(--background, #0d0d0d)",
+        color: "var(--foreground, #f5f0df)",
+        padding: "4rem 1.25rem",
+        fontFamily: fallbackFont,
+      }}
+    >
       {/* Ambient gold glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-60"
         style={{
+          pointerEvents: "none",
+          position: "absolute",
+          inset: 0,
+          opacity: 0.6,
           background:
-            "radial-gradient(60% 50% at 50% 35%, color-mix(in oklab, var(--gold) 18%, transparent) 0%, transparent 70%)",
+            "radial-gradient(60% 50% at 50% 35%, color-mix(in oklab, var(--gold, #c9a84c) 18%, transparent) 0%, transparent 70%)",
         }}
       />
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid opacity-[0.06]" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-grid opacity-[0.06]"
+        style={{
+          pointerEvents: "none",
+          position: "absolute",
+          inset: 0,
+          opacity: 0.06,
+          backgroundImage:
+            "linear-gradient(to right, color-mix(in oklab, var(--border, #4c463a) 60%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--border, #4c463a) 60%, transparent) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
 
-      <div className="relative mx-auto w-full max-w-3xl">
+      <div className="relative mx-auto w-full max-w-3xl" style={{ position: "relative", width: "100%", maxWidth: "48rem", margin: "0 auto" }}>
         {/* 404 ticker */}
-        <div className="text-center">
-          <div className="font-display leading-none tracking-tight">
+        <div className="text-center" style={{ textAlign: "center" }}>
+          <div className="font-display leading-none tracking-tight" style={{ fontFamily: fallbackDisplayFont, lineHeight: 1 }}>
             <span className="block bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[color-mix(in_oklab,var(--gold)_40%,var(--background))] bg-clip-text text-[clamp(7rem,22vw,15rem)] text-transparent drop-shadow-[0_2px_30px_color-mix(in_oklab,var(--gold)_25%,transparent)]">
               404
             </span>
