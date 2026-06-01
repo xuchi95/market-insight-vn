@@ -54,10 +54,14 @@ function SignupPage() {
     }
     if (data.session) {
       sendWelcomeEmail().catch((err) => console.error("welcome email failed", err));
-      toast.success("Tạo tài khoản thành công");
+      signalAuthWelcome({ kind: "signup", email: email.trim(), name: fullName.trim() || undefined });
       navigate({ to: "/" });
     } else {
-      toast.success("Kiểm tra email để xác thực tài khoản");
+      signalAuthWelcome({
+        kind: "signup",
+        email: email.trim(),
+        description: "Kiểm tra email để xác thực tài khoản trước khi đăng nhập.",
+      });
     }
   }
 
