@@ -378,14 +378,14 @@ function PopupEditor({ value, onClose, onSave }: { value: PopupForm; onClose: ()
                 <div className="rounded-md border border-dashed border-border p-3">
                   <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Override cho user đã đăng nhập</div>
                   <div className="grid grid-cols-2 gap-3">
-                    <Number
+                    <NumberField
                       label="Delay (giây)"
                       v={f.targeting.authDelaySeconds ?? 0}
                       min={0}
                       max={3600}
                       onChange={(n) => set("targeting", { ...f.targeting, authDelaySeconds: n || undefined })}
                     />
-                    <Number
+                    <NumberField
                       label="Frequency (ngày)"
                       v={f.targeting.authFrequencyDays ?? 0}
                       min={0}
