@@ -4,12 +4,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fmtTrieu } from "@/lib/format";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 async function fetchXau(): Promise<{ price: number; changePct: number } | null> {
   try {
@@ -37,7 +32,10 @@ interface Tick {
 }
 
 function fmt(n: number, digits = 0) {
-  return n.toLocaleString("vi-VN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
+  return n.toLocaleString("vi-VN", {
+    maximumFractionDigits: digits,
+    minimumFractionDigits: digits,
+  });
 }
 
 function fmtCompact(n: number): string {
@@ -92,7 +90,10 @@ export function Ticker() {
           href: "/tai-san/gold-xauusd",
           details: [
             { label: "Giá", value: `$${fmt(xau.price, 0)}` },
-            { label: "Thay đổi 24h", value: `${xau.changePct >= 0 ? "+" : ""}${xau.changePct.toFixed(2)}%` },
+            {
+              label: "Thay đổi 24h",
+              value: `${xau.changePct >= 0 ? "+" : ""}${xau.changePct.toFixed(2)}%`,
+            },
           ],
         });
       }
@@ -191,7 +192,10 @@ export function Ticker() {
     }
     load();
     const t = setInterval(load, 30_000);
-    return () => { alive = false; clearInterval(t); };
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
   }, []);
 
   if (ticks.length === 0) return <div className="h-9 border-y border-border bg-card/40" />;
