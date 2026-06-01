@@ -99,7 +99,7 @@ function LoginPage() {
       return;
     }
     setMagicSent(true);
-    toast.success("Đã gửi magic link", { description: `Kiểm tra hộp thư ${target} và bấm vào liên kết để đăng nhập.` });
+    signalAuthWelcome({ kind: "magic_sent", email: target });
   }
 
   return (
