@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -47,18 +47,36 @@ function fmtCompact(n: number): string {
 }
 
 export function Ticker() {
-  const [ticks, setTicks] = useState<Tick[]>([]);
+  // Mỗi nguồn dữ liệu được lưu riêng để render tăng dần — không phải chờ
+  // nguồn chậm nhất (giá vàng cold-start có thể mất 5–7s) thì mới hiện ticker.
+  type GoldArr = Awaited<ReturnType<typeof fetchGoldPrices>>;
+  type CryptoArr = Awaited<ReturnType<typeof fetchCryptoPrices>>;
+  type FxArr = Awaited<ReturnType<typeof fetchForexRates>>;
+  const [gold, setGold] = useState<GoldArr>([]);
+  const [crypto, setCrypto] = useState<CryptoArr>([]);
+  const [fx, setFx] = useState<FxArr>([]);
+  const [xau, setXau] = useState<{ price: number; changePct: number } | null>(null);
+
+  const loadAll = useCallback((alive: () => boolean) => {
+    // Fire & forget từng nguồn — cái nào về trước cập nhật trước.
+    fetchGoldPrices().then((v) => alive() && setGold(v)).catch(() => {});
+    fetchCryptoPrices().then((v) => alive() && setCrypto(v)).catch(() => {});
+    fetchForexRates().then((v) => alive() && setFx(v)).catch(() => {});
+    fetchXau().then((v) => alive() && setXau(v)).catch(() => {});
+  }, []);
 
   useEffect(() => {
-    let alive = true;
-    async function load() {
-      const [gold, crypto, fx, xau] = await Promise.all([
-        fetchGoldPrices().catch(() => []),
-        fetchCryptoPrices().catch(() => []),
-        fetchForexRates().catch(() => []),
-        fetchXau(),
-      ]);
-      if (!alive) return;
+    let mounted = true;
+    const isAlive = () => mounted;
+    loadAll(isAlive);
+    const t = setInterval(() => loadAll(isAlive), 30_000);
+    return () => {
+      mounted = false;
+      clearInterval(t);
+    };
+  }, [loadAll]);
+
+  const ticks: Tick[] = (() => {
       const sjc = gold.find((g) => g.id === "sjc-1l") ?? gold[0];
       const btc = crypto.find((c) => c.symbol === "BTC");
       const eth = crypto.find((c) => c.symbol === "ETH");
@@ -188,15 +206,8 @@ export function Ticker() {
         });
       }
 
-      setTicks(list);
-    }
-    load();
-    const t = setInterval(load, 30_000);
-    return () => {
-      alive = false;
-      clearInterval(t);
-    };
-  }, []);
+      return list;
+  })();
 
   if (ticks.length === 0) return <div className="h-9 border-y border-border bg-card/40" />;
 
