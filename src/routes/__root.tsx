@@ -263,6 +263,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" className="dark">
       <head>
+        <style>{`:root{--background:#0d0d0d;--foreground:#f5f0df;--card:#1a1a1a;--border:#4c463a;--gold:#c9a84c;--gold-light:#f0d78c;--gold-foreground:#0d0d0d;--muted-foreground:#c8b98f;--down:#e85d3a;color-scheme:dark}html{background:#0d0d0d}body{margin:0;background:#0d0d0d;color:#f5f0df;font-family:"Be Vietnam Pro",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}`}</style>
         <HeadContent />
       </head>
       <body>
