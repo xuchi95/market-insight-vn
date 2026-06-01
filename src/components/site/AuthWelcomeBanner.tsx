@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, Sparkles, X } from "lucide-react";
 
 const STORAGE_KEY = "mw_auth_welcome";
+const EVENT_NAME = "mw:auth-welcome";
 
 type WelcomeKind = "login" | "signup" | "verified" | "magic_sent";
 
@@ -16,6 +17,11 @@ export interface WelcomePayload {
 export function signalAuthWelcome(payload: WelcomePayload) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    /* noop */
+  }
+  try {
+    window.dispatchEvent(new CustomEvent(EVENT_NAME));
   } catch {
     /* noop */
   }
@@ -53,28 +59,39 @@ export function AuthWelcomeBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let raw: string | null = null;
-    try {
-      raw = sessionStorage.getItem(STORAGE_KEY);
-    } catch {
-      return;
-    }
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw) as WelcomePayload;
-      sessionStorage.removeItem(STORAGE_KEY);
-      setPayload(data);
-      // Mount, then animate in next frame.
-      requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
-      const hideAt = setTimeout(() => setVisible(false), 5200);
-      const unmountAt = setTimeout(() => setPayload(null), 5800);
-      return () => {
-        clearTimeout(hideAt);
-        clearTimeout(unmountAt);
-      };
-    } catch {
-      sessionStorage.removeItem(STORAGE_KEY);
-    }
+    let hideAt: ReturnType<typeof setTimeout> | undefined;
+    let unmountAt: ReturnType<typeof setTimeout> | undefined;
+
+    const consume = () => {
+      let raw: string | null = null;
+      try {
+        raw = sessionStorage.getItem(STORAGE_KEY);
+      } catch {
+        return;
+      }
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw) as WelcomePayload;
+        sessionStorage.removeItem(STORAGE_KEY);
+        if (hideAt) clearTimeout(hideAt);
+        if (unmountAt) clearTimeout(unmountAt);
+        setVisible(false);
+        setPayload(data);
+        requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+        hideAt = setTimeout(() => setVisible(false), 5200);
+        unmountAt = setTimeout(() => setPayload(null), 5800);
+      } catch {
+        try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+      }
+    };
+
+    consume();
+    window.addEventListener(EVENT_NAME, consume);
+    return () => {
+      window.removeEventListener(EVENT_NAME, consume);
+      if (hideAt) clearTimeout(hideAt);
+      if (unmountAt) clearTimeout(unmountAt);
+    };
   }, []);
 
   if (!payload) return null;
