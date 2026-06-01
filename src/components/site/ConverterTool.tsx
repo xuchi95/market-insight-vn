@@ -108,9 +108,11 @@ export function ConverterTool() {
   const fromAsset = assets.find((x) => x.key === from) ?? null;
   const toAsset = assets.find((x) => x.key === to) ?? null;
 
-  const midRate = useMemo(() => {
+  // "Giá chuẩn" — tỷ giá thực tế sẽ áp dụng khi quy đổi (bán FROM, mua TO)
+  const appliedRate = useMemo(() => {
     if (!fromAsset || !toAsset) return null;
-    return fromAsset.rateVnd / toAsset.rateVnd;
+    if (toAsset.sellVnd <= 0) return null;
+    return fromAsset.buyVnd / toAsset.sellVnd;
   }, [fromAsset, toAsset]);
 
   const rateDigits = (v: number) => (v >= 1000 ? 0 : v >= 1 ? 4 : 8);
@@ -170,14 +172,14 @@ export function ConverterTool() {
             </div>
           )}
 
-          {/* Mid-market rate header */}
+          {/* Applied rate header — tỷ giá chuẩn áp dụng cho giao dịch */}
           <div className="text-center pb-6 mb-6 border-b border-border/60">
             <div className="text-sm font-medium text-muted-foreground mb-2">
-              Tỷ giá quy đổi giữa (mid)
+              Tỷ giá quy đổi
             </div>
             <div className="text-xl sm:text-2xl font-semibold tabular text-foreground">
-              {fromAsset && toAsset && midRate
-                ? `1 ${codeLabel(fromAsset)} = ${fmtNum(midRate, rateDigits(midRate))} ${codeLabel(toAsset)}`
+              {fromAsset && toAsset && appliedRate
+                ? `1 ${codeLabel(fromAsset)} = ${fmtNum(appliedRate, rateDigits(appliedRate))} ${codeLabel(toAsset)}`
                 : "—"}
             </div>
           </div>
