@@ -88,12 +88,12 @@ export function BentoTiles() {
       {/* Gold — large hero tile */}
       <TileFrame className="col-span-2 md:col-span-4 md:row-span-2 flex flex-col">
         <Link to="/gia-vang" className="block group">
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex justify-between items-start mb-3 md:mb-4">
             <div>
               <div className="eyebrow mb-1.5">Vàng miếng SJC</div>
-              <div className="font-display text-4xl md:text-6xl text-foreground leading-none">
+              <div className="font-display text-3xl md:text-5xl text-foreground leading-none">
                 {sjc ? fmtTrieu(sjc.sell) : "—"}
-                <span className="ml-1.5 text-base text-muted-foreground">tr/chỉ</span>
+                <span className="ml-1.5 text-sm md:text-base text-muted-foreground">tr/chỉ</span>
               </div>
             </div>
             <div className="text-right">
@@ -102,13 +102,13 @@ export function BentoTiles() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-px bg-border mb-4">
+          <div className="grid grid-cols-3 gap-px bg-border mb-3 md:mb-4">
             <Stat label="Mua" value={sjc ? `${fmtTrieu(sjc.buy)} tr` : "—"} />
             <Stat label="Cao" value={`${fmtTrieu(goldHigh)} tr`} accent />
             <Stat label="Thấp" value={`${fmtTrieu(goldLow)} tr`} />
           </div>
 
-          <div className="flex items-end gap-1 h-12 md:h-20">
+          <div className="flex items-end gap-1 h-10 md:h-16">
             {Array.from({ length: 24 }).map((_, i) => {
               const h = 30 + Math.abs(Math.sin((i + (sjc?.changePct ?? 0)) * 0.7)) * 60;
               const cur = i === 23;
@@ -122,7 +122,7 @@ export function BentoTiles() {
             })}
           </div>
 
-          <div className="mt-4 flex items-center justify-between eyebrow opacity-70 group-hover:opacity-100">
+          <div className="mt-3 md:mt-4 flex items-center justify-between eyebrow opacity-70 group-hover:opacity-100">
             <span>Xem bảng giá vàng đầy đủ</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </div>
