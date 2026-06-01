@@ -53,6 +53,7 @@ import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-preview'
 import { Route as AdminMwAdminIndexRouteImport } from './routes/_admin/mw-admin.index'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
+import { Route as ApiPublicWatchlistAlertsCronRouteImport } from './routes/api/public/watchlist-alerts-cron'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
@@ -299,6 +300,12 @@ const ApiPublicXauRoute = ApiPublicXauRouteImport.update({
   path: '/api/public/xau',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWatchlistAlertsCronRoute =
+  ApiPublicWatchlistAlertsCronRouteImport.update({
+    id: '/api/public/watchlist-alerts-cron',
+    path: '/api/public/watchlist-alerts-cron',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicUsStocksRoute = ApiPublicUsStocksRouteImport.update({
   id: '/api/public/us-stocks',
   path: '/api/public/us-stocks',
@@ -502,6 +509,7 @@ export interface FileRoutesByFullPath {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
@@ -573,6 +581,7 @@ export interface FileRoutesByTo {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
@@ -646,6 +655,7 @@ export interface FileRoutesById {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
@@ -719,6 +729,7 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
+    | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin/'
     | '/api/public/hooks/refresh-savings-rates'
@@ -790,6 +801,7 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
+    | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin'
     | '/api/public/hooks/refresh-savings-rates'
@@ -862,6 +874,7 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
+    | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/_admin/mw-admin/'
     | '/api/public/hooks/refresh-savings-rates'
@@ -935,6 +948,7 @@ export interface RootRouteChildren {
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
+  ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -1252,6 +1266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicXauRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/watchlist-alerts-cron': {
+      id: '/api/public/watchlist-alerts-cron'
+      path: '/api/public/watchlist-alerts-cron'
+      fullPath: '/api/public/watchlist-alerts-cron'
+      preLoaderRoute: typeof ApiPublicWatchlistAlertsCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/us-stocks': {
       id: '/api/public/us-stocks'
       path: '/api/public/us-stocks'
@@ -1512,6 +1533,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
+  ApiPublicWatchlistAlertsCronRoute: ApiPublicWatchlistAlertsCronRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
