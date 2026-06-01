@@ -92,3 +92,42 @@ export function priceAlertEmail(opts: { symbol: string; assetType: "crypto" | "g
   `);
   return { subject: `[Cảnh báo] ${opts.symbol} ${dirLabel} ${fmt(opts.threshold)}`, html };
 }
+
+export function watchlistAlertEmail(opts: {
+  label: string;
+  symbol: string;
+  changePct: number;
+  previousPrice: number;
+  currentPrice: number;
+  assetPath: string;
+  unsubItemUrl: string;
+  unsubAllUrl: string;
+}) {
+  const up = opts.changePct >= 0;
+  const arrow = up ? "▲" : "▼";
+  const color = up ? "#0a8f4a" : "#c8312f";
+  const sign = up ? "+" : "";
+  const fmt = (n: number) =>
+    Math.abs(n) >= 1
+      ? new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(n)
+      : new Intl.NumberFormat("en-US", { maximumFractionDigits: 6 }).format(n);
+  const pct = `${sign}${opts.changePct.toFixed(2)}%`;
+  const title = `${opts.label} ${arrow} ${pct}`;
+  const html = shell(title, `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Biến động tài sản đang theo dõi</div>
+    <h1 style="font-size:22px;margin:0 0 12px;color:#111;">${escape(opts.label)} <span style="color:${color};">${arrow} ${pct}</span></h1>
+    <table role="presentation" style="margin:4px 0 16px;font-size:14px;color:#333;line-height:1.7;">
+      <tr><td style="color:#888;padding-right:18px;">Giá trước</td><td style="font-weight:600;">${fmt(opts.previousPrice)}</td></tr>
+      <tr><td style="color:#888;padding-right:18px;">Giá hiện tại</td><td style="font-weight:700;color:${color};">${fmt(opts.currentPrice)}</td></tr>
+    </table>
+    <p style="margin:0 0 8px;line-height:1.6;color:#444;">Đây là cảnh báo tự động vì bạn đang theo dõi <strong>${escape(opts.symbol.toUpperCase())}</strong> và mức biến động đã vượt ngưỡng bạn cài đặt.</p>
+    ${button(SITE + opts.assetPath, "Xem chi tiết")}
+    <p style="margin:24px 0 0;line-height:1.6;color:#888;font-size:12px;">
+      Không muốn nhận nữa?
+      <a href="${opts.unsubItemUrl}" style="color:#555;">Tắt cảnh báo cho ${escape(opts.symbol.toUpperCase())}</a>
+      &nbsp;·&nbsp;
+      <a href="${opts.unsubAllUrl}" style="color:#555;">Tắt toàn bộ cảnh báo theo dõi</a>
+    </p>
+  `);
+  return { subject: `${arrow} ${opts.label} ${pct} — MarketWatch`, html };
+}

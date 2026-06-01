@@ -406,6 +406,7 @@ export type Database = {
           id: string
           locale: string | null
           updated_at: string
+          watchlist_alerts_global_enabled: boolean
           welcome_email_sent_at: string | null
         }
         Insert: {
@@ -415,6 +416,7 @@ export type Database = {
           id: string
           locale?: string | null
           updated_at?: string
+          watchlist_alerts_global_enabled?: boolean
           welcome_email_sent_at?: string | null
         }
         Update: {
@@ -424,6 +426,7 @@ export type Database = {
           id?: string
           locale?: string | null
           updated_at?: string
+          watchlist_alerts_global_enabled?: boolean
           welcome_email_sent_at?: string | null
         }
         Relationships: []
@@ -629,33 +632,90 @@ export type Database = {
         }
         Relationships: []
       }
+      watchlist_alert_unsubscribe_tokens: {
+        Row: {
+          created_at: string
+          symbol: string | null
+          token: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          symbol?: string | null
+          token: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          symbol?: string | null
+          token?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       watchlist_items: {
         Row: {
+          alert_threshold_pct: number
           category: string
           created_at: string
+          email_alerts_enabled: boolean
           id: string
           label: string
+          last_alert_price_usd: number | null
+          last_alert_sent_at: string | null
           symbol: string
           to_path: string
           user_id: string
         }
         Insert: {
+          alert_threshold_pct?: number
           category: string
           created_at?: string
+          email_alerts_enabled?: boolean
           id?: string
           label: string
+          last_alert_price_usd?: number | null
+          last_alert_sent_at?: string | null
           symbol: string
           to_path: string
           user_id: string
         }
         Update: {
+          alert_threshold_pct?: number
           category?: string
           created_at?: string
+          email_alerts_enabled?: boolean
           id?: string
           label?: string
+          last_alert_price_usd?: number | null
+          last_alert_sent_at?: string | null
           symbol?: string
           to_path?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      watchlist_price_snapshots: {
+        Row: {
+          asset_type: string
+          captured_at: string
+          price_usd: number
+          symbol: string
+        }
+        Insert: {
+          asset_type: string
+          captured_at?: string
+          price_usd: number
+          symbol: string
+        }
+        Update: {
+          asset_type?: string
+          captured_at?: string
+          price_usd?: number
+          symbol?: string
         }
         Relationships: []
       }

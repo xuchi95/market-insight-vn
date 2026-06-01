@@ -25,6 +25,7 @@ import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-n
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
 import { Route as LaiSuatTietKiemRouteImport } from './routes/lai-suat-tiet-kiem'
+import { Route as HuyCanhBaoTheoDoiRouteImport } from './routes/huy-canh-bao-theo-doi'
 import { Route as HuyBanTinRouteImport } from './routes/huy-ban-tin'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
@@ -47,12 +48,14 @@ import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CaiDatMatKhauRouteImport } from './routes/cai-dat.mat-khau'
 import { Route as CaiDatEmailRouteImport } from './routes/cai-dat.email'
+import { Route as CaiDatCanhBaoRouteImport } from './routes/cai-dat.canh-bao'
 import { Route as CaiDatBaoMatRouteImport } from './routes/cai-dat.bao-mat'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-preview'
 import { Route as AdminMwAdminIndexRouteImport } from './routes/_admin/mw-admin.index'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
+import { Route as ApiPublicWatchlistAlertsCronRouteImport } from './routes/api/public/watchlist-alerts-cron'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
@@ -158,6 +161,11 @@ const LichKinhTeRoute = LichKinhTeRouteImport.update({
 const LaiSuatTietKiemRoute = LaiSuatTietKiemRouteImport.update({
   id: '/lai-suat-tiet-kiem',
   path: '/lai-suat-tiet-kiem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HuyCanhBaoTheoDoiRoute = HuyCanhBaoTheoDoiRouteImport.update({
+  id: '/huy-canh-bao-theo-doi',
+  path: '/huy-canh-bao-theo-doi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HuyBanTinRoute = HuyBanTinRouteImport.update({
@@ -269,6 +277,11 @@ const CaiDatEmailRoute = CaiDatEmailRouteImport.update({
   path: '/cai-dat/email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaiDatCanhBaoRoute = CaiDatCanhBaoRouteImport.update({
+  id: '/cai-dat/canh-bao',
+  path: '/cai-dat/canh-bao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaiDatBaoMatRoute = CaiDatBaoMatRouteImport.update({
   id: '/cai-dat/bao-mat',
   path: '/cai-dat/bao-mat',
@@ -299,6 +312,12 @@ const ApiPublicXauRoute = ApiPublicXauRouteImport.update({
   path: '/api/public/xau',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWatchlistAlertsCronRoute =
+  ApiPublicWatchlistAlertsCronRouteImport.update({
+    id: '/api/public/watchlist-alerts-cron',
+    path: '/api/public/watchlist-alerts-cron',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicUsStocksRoute = ApiPublicUsStocksRouteImport.update({
   id: '/api/public/us-stocks',
   path: '/api/public/us-stocks',
@@ -455,6 +474,7 @@ export interface FileRoutesByFullPath {
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
+  '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -475,6 +495,7 @@ export interface FileRoutesByFullPath {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/canh-bao': typeof CaiDatCanhBaoRoute
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -502,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
@@ -526,6 +548,7 @@ export interface FileRoutesByTo {
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
+  '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -546,6 +569,7 @@ export interface FileRoutesByTo {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/canh-bao': typeof CaiDatCanhBaoRoute
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -573,6 +597,7 @@ export interface FileRoutesByTo {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
@@ -599,6 +624,7 @@ export interface FileRoutesById {
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
+  '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -619,6 +645,7 @@ export interface FileRoutesById {
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
+  '/cai-dat/canh-bao': typeof CaiDatCanhBaoRoute
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -646,6 +673,7 @@ export interface FileRoutesById {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
@@ -672,6 +700,7 @@ export interface FileRouteTypes {
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
+    | '/huy-canh-bao-theo-doi'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -692,6 +721,7 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/canh-bao'
     | '/cai-dat/email'
     | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
@@ -719,6 +749,7 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
+    | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin/'
     | '/api/public/hooks/refresh-savings-rates'
@@ -743,6 +774,7 @@ export interface FileRouteTypes {
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
+    | '/huy-canh-bao-theo-doi'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -763,6 +795,7 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/canh-bao'
     | '/cai-dat/email'
     | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
@@ -790,6 +823,7 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
+    | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin'
     | '/api/public/hooks/refresh-savings-rates'
@@ -815,6 +849,7 @@ export interface FileRouteTypes {
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
+    | '/huy-canh-bao-theo-doi'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -835,6 +870,7 @@ export interface FileRouteTypes {
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
+    | '/cai-dat/canh-bao'
     | '/cai-dat/email'
     | '/cai-dat/mat-khau'
     | '/cong-cu/dca-roi'
@@ -862,6 +898,7 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/stocks'
     | '/api/public/us-stocks'
+    | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/_admin/mw-admin/'
     | '/api/public/hooks/refresh-savings-rates'
@@ -888,6 +925,7 @@ export interface RootRouteChildren {
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
   HuyBanTinRoute: typeof HuyBanTinRoute
+  HuyCanhBaoTheoDoiRoute: typeof HuyCanhBaoTheoDoiRoute
   LaiSuatTietKiemRoute: typeof LaiSuatTietKiemRoute
   LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
@@ -908,6 +946,7 @@ export interface RootRouteChildren {
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
   CaiDatBaoMatRoute: typeof CaiDatBaoMatRoute
+  CaiDatCanhBaoRoute: typeof CaiDatCanhBaoRoute
   CaiDatEmailRoute: typeof CaiDatEmailRoute
   CaiDatMatKhauRoute: typeof CaiDatMatKhauRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
@@ -935,6 +974,7 @@ export interface RootRouteChildren {
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
+  ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -1054,6 +1094,13 @@ declare module '@tanstack/react-router' {
       path: '/lai-suat-tiet-kiem'
       fullPath: '/lai-suat-tiet-kiem'
       preLoaderRoute: typeof LaiSuatTietKiemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/huy-canh-bao-theo-doi': {
+      id: '/huy-canh-bao-theo-doi'
+      path: '/huy-canh-bao-theo-doi'
+      fullPath: '/huy-canh-bao-theo-doi'
+      preLoaderRoute: typeof HuyCanhBaoTheoDoiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/huy-ban-tin': {
@@ -1210,6 +1257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaiDatEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cai-dat/canh-bao': {
+      id: '/cai-dat/canh-bao'
+      path: '/cai-dat/canh-bao'
+      fullPath: '/cai-dat/canh-bao'
+      preLoaderRoute: typeof CaiDatCanhBaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cai-dat/bao-mat': {
       id: '/cai-dat/bao-mat'
       path: '/cai-dat/bao-mat'
@@ -1250,6 +1304,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/xau'
       fullPath: '/api/public/xau'
       preLoaderRoute: typeof ApiPublicXauRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/watchlist-alerts-cron': {
+      id: '/api/public/watchlist-alerts-cron'
+      path: '/api/public/watchlist-alerts-cron'
+      fullPath: '/api/public/watchlist-alerts-cron'
+      preLoaderRoute: typeof ApiPublicWatchlistAlertsCronRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/us-stocks': {
@@ -1465,6 +1526,7 @@ const rootRouteChildren: RootRouteChildren = {
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
   HuyBanTinRoute: HuyBanTinRoute,
+  HuyCanhBaoTheoDoiRoute: HuyCanhBaoTheoDoiRoute,
   LaiSuatTietKiemRoute: LaiSuatTietKiemRoute,
   LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
@@ -1485,6 +1547,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
   CaiDatBaoMatRoute: CaiDatBaoMatRoute,
+  CaiDatCanhBaoRoute: CaiDatCanhBaoRoute,
   CaiDatEmailRoute: CaiDatEmailRoute,
   CaiDatMatKhauRoute: CaiDatMatKhauRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
@@ -1512,6 +1575,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
+  ApiPublicWatchlistAlertsCronRoute: ApiPublicWatchlistAlertsCronRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,

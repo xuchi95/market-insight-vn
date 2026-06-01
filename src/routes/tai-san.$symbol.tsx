@@ -17,7 +17,15 @@ import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
-import { Star } from "lucide-react";
+import { Star, BellRing, BellOff, Loader2, Mail } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
+import { Link as RouterLink } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/useAuth";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { updateWatchAlertPrefs, getMyWatchAlertPrefs } from "@/lib/watchlist/alerts.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
@@ -410,18 +418,156 @@ function ChangeCard({ label, value }: { label: string; value: number | null | un
 
 function WatchButton({ item }: { item: WatchItem }) {
   const { isWatched, toggle } = useWatchlist();
+  const { user } = useAuth();
   const watched = isWatched(item.symbol);
+  const qc = useQueryClient();
+  const fetchPrefs = useServerFn(getMyWatchAlertPrefs);
+  const savePrefs = useServerFn(updateWatchAlertPrefs);
+
+  const { data } = useQuery({
+    queryKey: ["watch-alert-prefs"],
+    queryFn: () => fetchPrefs(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const current = data?.items.find((i) => i.symbol.toLowerCase() === item.symbol.toLowerCase());
+  const emailOn = current?.email_alerts_enabled ?? true;
+  const threshold = Number(current?.alert_threshold_pct ?? 5);
+  const globalOn = data?.globalEnabled ?? true;
+  const [busy, setBusy] = useState(false);
+
+  async function handleSavePrefs(next: { emailEnabled?: boolean; thresholdPct?: number }) {
+    if (!user || !watched) return;
+    setBusy(true);
+    try {
+      await savePrefs({
+        data: {
+          symbol: item.symbol,
+          emailEnabled: next.emailEnabled ?? emailOn,
+          thresholdPct: next.thresholdPct ?? threshold,
+        },
+      });
+      toast.success("Đã cập nhật cảnh báo");
+      qc.invalidateQueries({ queryKey: ["watch-alert-prefs"] });
+    } catch (e: any) {
+      toast.error("Không thể lưu", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleToggleWatch() {
+    toggle(item);
+    // Refresh prefs after a moment so popover reflects new state
+    setTimeout(() => qc.invalidateQueries({ queryKey: ["watch-alert-prefs"] }), 400);
+  }
+
   return (
-    <button
-      onClick={() => toggle(item)}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
-        watched
-          ? "border-[var(--gold)]/60 bg-[var(--gold)]/10 text-[var(--gold)]"
-          : "border-border bg-card/60 text-muted-foreground hover:text-foreground hover:border-[var(--gold)]/40"
-      }`}
-    >
-      <Star className={`h-3.5 w-3.5 ${watched ? "fill-[var(--gold)]" : ""}`} />
-      {watched ? "Đang theo dõi" : "Theo dõi"}
-    </button>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
+            watched
+              ? "border-[var(--gold)]/60 bg-[var(--gold)]/10 text-[var(--gold)]"
+              : "border-border bg-card/60 text-muted-foreground hover:text-foreground hover:border-[var(--gold)]/40"
+          }`}
+        >
+          <Star className={`h-3.5 w-3.5 ${watched ? "fill-[var(--gold)]" : ""}`} />
+          {watched ? "Đang theo dõi" : "Theo dõi"}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-0 overflow-hidden">
+        <div className="border-b border-border px-4 py-3 flex items-center justify-between gap-3 bg-card/60">
+          <div className="min-w-0">
+            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Tài sản</div>
+            <div className="text-sm font-semibold truncate">{item.label}</div>
+          </div>
+          <button
+            type="button"
+            onClick={handleToggleWatch}
+            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors ${
+              watched
+                ? "border-[var(--gold)]/60 bg-[var(--gold)]/10 text-[var(--gold)]"
+                : "border-border bg-background/60 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Star className={`h-3 w-3 ${watched ? "fill-[var(--gold)]" : ""}`} />
+            {watched ? "Đang theo dõi" : "Theo dõi"}
+          </button>
+        </div>
+
+        <div className="p-4 space-y-4">
+          {!user ? (
+            <div className="text-xs text-muted-foreground space-y-2">
+              <p>Mục theo dõi được lưu trên thiết bị này.</p>
+              <p>
+                <RouterLink to="/dang-nhap" className="text-[var(--gold)] hover:underline">Đăng nhập</RouterLink>{" "}
+                để nhận email cảnh báo khi giá biến động mạnh.
+              </p>
+            </div>
+          ) : !watched ? (
+            <p className="text-xs text-muted-foreground">
+              Thêm vào danh sách theo dõi để bật cảnh báo email khi giá biến động.
+            </p>
+          ) : (
+            <>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5 text-[var(--gold)]" /> Cảnh báo qua email
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Gửi khi biến động vượt ngưỡng dưới đây.
+                  </p>
+                </div>
+                <Switch
+                  checked={emailOn && globalOn}
+                  disabled={busy || !globalOn}
+                  onCheckedChange={(v) => handleSavePrefs({ emailEnabled: v })}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                  <span>Ngưỡng biến động</span>
+                  <span className="font-semibold text-foreground">≥ {threshold}%</span>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {[3, 5, 10, 15].map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      disabled={busy || !emailOn || !globalOn}
+                      onClick={() => handleSavePrefs({ thresholdPct: v })}
+                      className={`rounded-md border px-2 py-1.5 text-xs font-semibold transition-colors ${
+                        threshold === v
+                          ? "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]"
+                          : "border-border bg-background/40 text-muted-foreground hover:text-foreground"
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {v}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {!globalOn && (
+                <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-400 flex items-center gap-1.5">
+                  <BellOff className="h-3 w-3" /> Bạn đã tạm dừng toàn bộ cảnh báo trong{" "}
+                  <RouterLink to="/cai-dat/canh-bao" className="underline">Cài đặt</RouterLink>.
+                </div>
+              )}
+
+              <div className="flex items-center justify-between border-t border-border pt-3">
+                <RouterLink to="/cai-dat/canh-bao" className="text-xs text-[var(--gold)] hover:underline inline-flex items-center gap-1">
+                  <BellRing className="h-3 w-3" /> Quản lý tất cả cảnh báo
+                </RouterLink>
+                {busy && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+              </div>
+            </>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
