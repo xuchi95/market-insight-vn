@@ -14,6 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
+      admin_broadcasts: {
+        Row: {
+          audience: string
+          body_md: string
+          created_at: string
+          created_by: string | null
+          custom_emails: string[]
+          failed_count: number
+          id: string
+          scheduled_at: string | null
+          sent_at: string | null
+          sent_count: number
+          status: string
+          subject: string
+          topics_filter: string[]
+          total_recipients: number
+          updated_at: string
+        }
+        Insert: {
+          audience: string
+          body_md: string
+          created_at?: string
+          created_by?: string | null
+          custom_emails?: string[]
+          failed_count?: number
+          id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number
+          status?: string
+          subject: string
+          topics_filter?: string[]
+          total_recipients?: number
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          body_md?: string
+          created_at?: string
+          created_by?: string | null
+          custom_emails?: string[]
+          failed_count?: number
+          id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number
+          status?: string
+          subject?: string
+          topics_filter?: string[]
+          total_recipients?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_popups: {
+        Row: {
+          body_md: string | null
+          created_at: string
+          created_by: string | null
+          cta_label: string
+          enabled: boolean
+          ends_at: string | null
+          fields: Json
+          id: string
+          slug: string
+          starts_at: string | null
+          subtitle: string | null
+          success_message: string
+          targeting: Json
+          theme: Json
+          title: string
+          topics: string[]
+          updated_at: string
+        }
+        Insert: {
+          body_md?: string | null
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string
+          enabled?: boolean
+          ends_at?: string | null
+          fields?: Json
+          id?: string
+          slug: string
+          starts_at?: string | null
+          subtitle?: string | null
+          success_message?: string
+          targeting?: Json
+          theme?: Json
+          title: string
+          topics?: string[]
+          updated_at?: string
+        }
+        Update: {
+          body_md?: string | null
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string
+          enabled?: boolean
+          ends_at?: string | null
+          fields?: Json
+          id?: string
+          slug?: string
+          starts_at?: string | null
+          subtitle?: string | null
+          success_message?: string
+          targeting?: Json
+          theme?: Json
+          title?: string
+          topics?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
@@ -21,6 +165,7 @@ export type Database = {
           id: string
           message: string
           name: string
+          read_at: string | null
           subject: string | null
         }
         Insert: {
@@ -29,6 +174,7 @@ export type Database = {
           id?: string
           message: string
           name: string
+          read_at?: string | null
           subject?: string | null
         }
         Update: {
@@ -37,6 +183,7 @@ export type Database = {
           id?: string
           message?: string
           name?: string
+          read_at?: string | null
           subject?: string | null
         }
         Relationships: []

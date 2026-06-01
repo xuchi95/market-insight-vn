@@ -1,112 +1,131 @@
-## Phạm vi method được tích hợp
+## Trang Admin `/mw-admin` — Kế hoạch xây dựng
 
-Trong 9 method bạn enable trên AuthSignal, có 3 cái **không dùng được trên web thuần** (cần native mobile app marketwatch.vn — hiện chưa có):
-- ❌ **Push verification** — cần app native nhận push (FCM/APNs)
-- ❌ **In-app verification** — cần app native render UI verify
-- ❌ **QR code verification** — cần thiết bị thứ 2 đã login bằng app native quét QR
+Xây dựng một khu vực admin hoàn chỉnh tại `/mw-admin`, bảo vệ bằng role `admin` (đã có sẵn enum `app_role` + bảng `user_roles` + function `has_role`).
 
-→ Sẽ **bỏ qua** 3 cái này. Khi nào có mobile app sẽ thêm sau.
+---
 
-**5 method sẽ tích hợp:**
-| Method | Trạng thái |
-|---|---|
-| Authenticator app (TOTP) | ✅ Đã có, giữ nguyên |
-| Recovery codes | ✅ Đã có (đi kèm TOTP) |
-| 📱 SMS OTP | Mới — dùng SpeedSMS (đã có secret) |
-| 📧 Email OTP | Mới — dùng Resend (đã có webhook) |
-| 🔗 Email magic link | Mới — dùng Resend (đã có webhook) |
-| 🔑 Passkey (WebAuthn) | Mới — dùng AuthSignal Server SDK |
+### 1. Bảo mật & truy cập
 
-## Use case
+- Tạo layout route `src/routes/_admin.tsx` (pathless):
+  - `beforeLoad` async: gọi server fn `requireAdmin` → nếu không phải admin thì `redirect('/')`.
+  - Render shell admin (sidebar + outlet) với phong cách paper & ink + gold accent đồng bộ site.
+- Tạo `src/routes/_admin/mw-admin.*` cho từng trang con:
+  - `mw-admin.index.tsx` — Dashboard tổng quan
+  - `mw-admin.users.tsx` — Quản lý user
+  - `mw-admin.popups.tsx` — Quản lý popup
+  - `mw-admin.broadcasts.tsx` — Gửi email thông báo
+  - `mw-admin.newsletter.tsx` — Người đăng ký newsletter
+  - `mw-admin.contact.tsx` — Inbox liên hệ
+  - `mw-admin.settings.tsx` — Cấu hình hệ thống (rate limit, TTL email queue…)
+- Server fn `requireAdmin` middleware: dùng `requireSupabaseAuth` + check `has_role(user.id, 'admin')` qua `supabaseAdmin`.
 
-### 1. Quản lý phương thức (`/cai-dat/bao-mat`)
-Rework trang hiện tại thành dashboard tổng:
-- List 5 method với trạng thái On/Off, ngày enroll, nút Enroll/Remove
-- Mỗi method có flow enroll riêng (modal hoặc inline panel tiếng Việt):
-  - **TOTP**: như hiện tại (QR + 6 số)
-  - **SMS OTP**: nhập số điện thoại → gửi OTP qua SpeedSMS → nhập 6 số xác minh
-  - **Email OTP**: nhập email (mặc định email tài khoản) → gửi OTP → nhập 6 số
-  - **Magic Link**: nhập email → gửi link → user click link để verify
-  - **Passkey**: bấm "Tạo passkey" → trình duyệt prompt Face ID/Touch ID/Windows Hello
-- Recovery codes: nút "Tạo lại 8 mã" (yêu cầu verify 1 method khác trước)
-- Cho phép đặt **method mặc định** dùng cho step-up
+### 2. Quản lý user (`/mw-admin/users`)
 
-### 2. Step-up khi đăng nhập (rework `/xac-thuc-2fa`)
-Sau khi nhập mật khẩu đúng:
-- Nếu user có ≥1 method → hiện màn "Chọn phương thức xác thực"
-- Mỗi tile = 1 method đã enroll (TOTP, SMS, Email OTP, Magic Link, Passkey, Recovery code)
-- User chọn → render form verify tương ứng → server fn `verifyMfaChallenge` accept mọi loại code
+Dùng `supabaseAdmin.auth.admin.*` API để có quyền đầy đủ.
 
-### 3. Step-up cho hành động nhạy cảm
-Tạo hook `useStepUpVerification()` + component `<StepUpDialog />`:
-- Trả Promise — caller `await stepUp({ action: "change-password" })`
-- Modal mở ra, user chọn method + nhập code → resolve hoặc reject
-- Áp dụng cho 3 chỗ:
-  - `/cai-dat/mat-khau` (đổi mật khẩu)
-  - `/cai-dat/index` khi đổi email
-  - Xóa method MFA trong trang Bảo mật
+Tính năng:
+- Bảng list user: email, full_name, created_at, last_sign_in, banned status, role.
+- Tìm kiếm theo email/tên, phân trang.
+- Hành động mỗi user:
+  - Sửa email (`auth.admin.updateUserById({ email })`)
+  - Đặt mật khẩu trực tiếp (`updateUserById({ password })`)
+  - Gửi email reset password (`resetPasswordForEmail`)
+  - Ban / Unban (`updateUserById({ ban_duration: '876000h' | 'none' })`)
+  - Sửa `full_name`, `locale` trong `profiles`
+  - Cấp / thu hồi role admin (`user_roles` insert/delete)
+  - Xóa user (`auth.admin.deleteUser`)
+- Modal xác nhận cho hành động phá huỷ.
 
-## Technical
+### 3. Quản lý popup newsletter (`/mw-admin/popups`)
 
-### Database
-Đổi `user_mfa` (hiện chỉ lưu 1 authenticator) thành `user_mfa_methods` 1-n:
-```
-user_mfa_methods(
-  id, user_id, type ('totp'|'sms'|'email_otp'|'magic_link'|'passkey'),
-  authsignal_user_id, authenticator_id, label (số đt mask / email),
-  is_default, enrolled, enrolled_at, created_at
-)
-user_mfa_backup_codes(user_id, codes[])  -- giữ riêng
-```
-Migration sẽ chuyển dữ liệu TOTP cũ sang.
+Bảng mới `admin_popups`:
+- `id`, `slug` (unique), `enabled`, `title`, `subtitle`, `body_md`, `cta_label`, `success_message`
+- `theme` jsonb: `{ accent, background, textTone, layout: 'center'|'bottom'|'side', animation: 'fade'|'slide'|'pop' }`
+- `fields` jsonb: mảng `[{name, label, type:'email'|'text'|'select', required, options?}]` — mặc định email
+- `targeting` jsonb: `{ pages: string[], delaySeconds, scrollPercent, frequencyDays, hideForSubscribers }`
+- `topics` text[]: chủ đề gán cho subscriber khi submit
+- `starts_at`, `ends_at` nullable
+- timestamps + `created_by`
 
-### Server functions (`src/lib/mfa.functions.ts` mở rộng)
-- `listMfaMethods()` — list tất cả method đã enroll
-- `startSmsEnrollment({phone})` / `confirmSmsEnrollment({code})`
-- `startEmailOtpEnrollment({email})` / `confirmEmailOtpEnrollment({code})`
-- `startMagicLinkEnrollment({email})` (AuthSignal tự gửi qua webhook `/api/public/authsignal-magic-link` đã có)
-- `startPasskeyEnrollment()` → trả challenge → client gọi `navigator.credentials.create()` → `confirmPasskeyEnrollment({attestation})`
-- `removeMfaMethod({methodId})` (yêu cầu verify trước)
-- `setDefaultMfaMethod({methodId})`
-- `challengeMfa({methodId})` — start verify (gửi SMS/Email)
-- `verifyMfaChallenge({methodId, code|assertion})` — accept mọi loại
-- `regenerateBackupCodes()`
+RLS: chỉ admin (qua `has_role`) read/write; anon read các popup `enabled = true` (cho front-end).
 
-Mọi flow đi qua AuthSignal Server API (`api.authsignal.com/v1/users/{id}/authenticators`) bằng `AUTHSIGNAL_API_SECRET` — không gọi gì từ client trừ WebAuthn ceremony.
+Trang admin:
+- CRUD đầy đủ: list, tạo, sửa, xoá, bật/tắt.
+- Live preview popup ở bên phải khi chỉnh sửa.
+- Có nút "Duplicate" để clone.
 
-### SMS sending
-SMS OTP của AuthSignal cần provider. Hai lựa chọn:
-- **A**: Cấu hình AuthSignal Portal → SMS provider = Webhook → URL `/api/public/authsignal-sms` (mình tạo mới, dùng SpeedSMS đã có secret)
-- **B**: Mình tự sinh OTP, gửi SpeedSMS, verify nội bộ (không dùng AuthSignal cho SMS)
+Front-end:
+- Cập nhật `NewsletterPopup` để fetch popup `enabled` đầu tiên khớp targeting (page, delay, scroll, frequency), render dynamic fields, theme, animation.
+- Submit qua server fn (giữ chống spam) → ghi vào `newsletter_subscribers` với `topics` & `source = 'popup:<slug>'`.
 
-Khuyến nghị A để thống nhất với Email OTP đã làm.
+### 4. Gửi email broadcast (`/mw-admin/broadcasts`)
 
-### Passkey
-Dùng AuthSignal Passkey API:
-- Server: `POST /users/{id}/authenticators` với `verificationMethod: "PASSKEY"` → trả `options` (PublicKeyCredentialCreationOptions)
-- Client: `navigator.credentials.create({publicKey: options})` → gửi attestation lên server
-- Server: `POST /users/{id}/authenticators/verify` với attestation
-- Verify ngược: `POST /users/{id}/authenticators/challenge` → assertion → `verify`
+Bảng mới `admin_broadcasts`:
+- `id`, `subject`, `body_md`, `audience` ('all_users' | 'newsletter' | 'admins' | 'custom_emails'),
+- `custom_emails` text[], `topics_filter` text[]
+- `status` ('draft'|'queued'|'sending'|'sent'|'failed'), `scheduled_at`, `sent_at`, `created_by`
+- counters: `total`, `sent_count`, `failed_count`
 
-### Routes mới / sửa
-- ✏️ `src/routes/cai-dat.bao-mat.tsx` — rework thành dashboard
-- ➕ `src/components/security/MethodCard.tsx` + 5 panel enroll
-- ➕ `src/components/security/StepUpDialog.tsx` + hook
-- ✏️ `src/routes/xac-thuc-2fa.tsx` — multi-method selector
-- ➕ `src/routes/api/public/authsignal-sms.ts` — webhook SMS provider
-- ➕ `src/routes/cai-dat.bao-mat.magic-link-callback.tsx` — handle magic link click khi enroll
+Trang admin:
+- Editor markdown (textarea) với preview render qua `react-markdown` (đã có UI tương tự ở template).
+- Chọn audience, xem trước số người nhận.
+- "Gửi thử tới email của tôi" trước khi gửi thật.
+- Nút "Gửi ngay" → server fn `enqueueBroadcast`:
+  - Resolve danh sách email theo audience.
+  - Loại bỏ email trong `suppressed_emails`.
+  - Render template (tái dùng infra email queue có sẵn) và enqueue mỗi recipient vào `transactional_emails`.
+  - Cập nhật status broadcast.
 
-## Khối lượng & đề xuất chia nhỏ
+### 5. Inbox newsletter & contact
 
-Đây là ~15-20 file mới/sửa, ~1500-2000 dòng code. Để dễ review & test, mình đề xuất chia làm **4 PR tuần tự**:
+- `/mw-admin/newsletter`: list `newsletter_subscribers` (email, topics, confirmed_at, source, unsubscribed_at), search, export CSV, gỡ subscriber.
+- `/mw-admin/contact`: list `contact_submissions` (đã có RLS chặn read — sẽ thêm policy admin đọc), đánh dấu đã đọc (thêm cột `read_at`), xoá spam.
 
-1. **PR1 (foundation)**: Migration DB, refactor `mfa.functions.ts` thành multi-method, rework UI trang Bảo mật dạng list — giữ TOTP hoạt động như cũ. *(~1 ngày code)*
-2. **PR2 (SMS + Email OTP)**: Thêm 2 method này + webhook SMS provider. *(~1 ngày)*
-3. **PR3 (Magic Link + Passkey)**: Thêm 2 method này. *(~1 ngày)*
-4. **PR4 (Step-up framework)**: `StepUpDialog`, áp vào login + đổi password + đổi email. Rework `/xac-thuc-2fa`. *(~1 ngày)*
+### 6. Dashboard (`/mw-admin`)
 
-## Câu cần bạn quyết
+Hiển thị nhanh:
+- Tổng số user, mới trong 7 ngày.
+- Subscribers newsletter (active / unsub).
+- Email gửi 24h / 7 ngày (từ `email_send_log`): sent / failed / dlq.
+- Contact submissions chưa đọc.
+- Popup hoạt động.
 
-1. **Có OK bỏ Push / In-app / QR** (cần mobile app native) không?
-2. **SMS provider** — đi hướng A (AuthSignal webhook → SpeedSMS) hay B (tự xử lý)?
-3. **Bắt đầu từ PR1** ngay, hay làm liền 1 lượt cả 4 (lâu hơn nhưng 1 lần xong)?
+### 7. Cấu hình hệ thống (`/mw-admin/settings`)
+
+- Form chỉnh `email_send_state` (batch_size, send_delay_ms, TTL).
+- Toggle leaked-password check (qua `supabase--configure_auth`) — chỉ hiển thị note, vẫn cần admin chạy lệnh.
+- (Sau này) toggle các flag site khác.
+
+### 8. UI / UX
+
+- Sidebar trái cố định với icon (lucide), header có breadcrumb + tên admin + nút logout.
+- Bảng dùng `@/components/ui/table` với hover, zebra, sticky header.
+- Dialog/drawer cho form chỉnh sửa.
+- Toast (`sonner`) cho thành công/lỗi.
+- Tông màu paper & ink + gold accent đã có trong `src/styles.css` — không thêm màu mới.
+
+---
+
+### Chi tiết kỹ thuật
+
+- **Server fns**: tạo `src/lib/admin/*.functions.ts` cho users, popups, broadcasts, settings. Tất cả dùng middleware `requireAdmin` (compose `requireSupabaseAuth` + role check).
+- **Admin client**: dùng `supabaseAdmin` từ `client.server` cho user management + bypass RLS khi cần (broadcasts, settings).
+- **Migrations**: 1 migration tạo `admin_popups`, `admin_broadcasts`, thêm `read_at` vào `contact_submissions`, policy admin SELECT cho `contact_submissions` + `newsletter_subscribers`. Mọi bảng public mới có GRANT + RLS + policy.
+- **Cấp admin đầu tiên**: do bạn chưa có admin nào, sau khi migration chạy mình sẽ insert role admin cho user_id mà bạn chỉ định (cần bạn cho email).
+
+---
+
+### Phạm vi loại trừ (sẽ hỏi nếu cần)
+
+- Không xây dựng analytics nâng cao (chart funnel, retention). Dashboard chỉ là số đơn giản.
+- Chưa làm logging audit hành động admin (có thể bổ sung sau).
+- Chưa làm i18n cho UI admin — toàn bộ tiếng Việt.
+
+---
+
+### Câu hỏi cần xác nhận trước khi build
+
+1. **Email admin đầu tiên** cần được cấp quyền `admin` là email nào?
+2. Broadcast email có cần **lên lịch gửi sau** (scheduled_at) hay chỉ "gửi ngay"?
+3. Popup có cần hỗ trợ **A/B testing** (nhiều biến thể) hay chỉ 1 popup active mỗi page?
+4. Có muốn ghi **audit log** mọi hành động admin (đổi email, ban user…) ngay từ đầu không?

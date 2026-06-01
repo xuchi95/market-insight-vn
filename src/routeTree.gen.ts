@@ -40,6 +40,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ChungKhoanRouteImport } from './routes/chung-khoan'
 import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat'
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
+import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
@@ -50,6 +51,7 @@ import { Route as CaiDatBaoMatRouteImport } from './routes/cai-dat.bao-mat'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-preview'
+import { Route as AdminMwAdminIndexRouteImport } from './routes/_admin/mw-admin.index'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
@@ -233,6 +235,10 @@ const BankRatesRoute = BankRatesRouteImport.update({
   path: '/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -282,6 +288,11 @@ const AdminEmailPreviewRoute = AdminEmailPreviewRouteImport.update({
   id: '/admin/email-preview',
   path: '/admin/email-preview',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMwAdminIndexRoute = AdminMwAdminIndexRouteImport.update({
+  id: '/mw-admin/',
+  path: '/mw-admin/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ApiPublicXauRoute = ApiPublicXauRouteImport.update({
   id: '/api/public/xau',
@@ -492,6 +503,7 @@ export interface FileRoutesByFullPath {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
+  '/mw-admin/': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -562,6 +574,7 @@ export interface FileRoutesByTo {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
+  '/mw-admin': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -570,6 +583,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_admin': typeof AdminRouteWithChildren
   '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/chung-khoan': typeof ChungKhoanRoute
@@ -633,6 +647,7 @@ export interface FileRoutesById {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/xau': typeof ApiPublicXauRoute
+  '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -705,6 +720,7 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
+    | '/mw-admin/'
     | '/api/public/hooks/refresh-savings-rates'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -775,6 +791,7 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
+    | '/mw-admin'
     | '/api/public/hooks/refresh-savings-rates'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -782,6 +799,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_admin'
     | '/bank-rates'
     | '/chinh-sach-bao-mat'
     | '/chung-khoan'
@@ -845,6 +863,7 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/us-stocks'
     | '/api/public/xau'
+    | '/_admin/mw-admin/'
     | '/api/public/hooks/refresh-savings-rates'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -853,6 +872,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BankRatesRoute: typeof BankRatesRoute
   ChinhSachBaoMatRoute: typeof ChinhSachBaoMatRoute
   ChungKhoanRoute: typeof ChungKhoanRoute
@@ -1141,6 +1161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_admin': {
+      id: '/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -1210,6 +1237,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/email-preview'
       preLoaderRoute: typeof AdminEmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_admin/mw-admin/': {
+      id: '/_admin/mw-admin/'
+      path: '/mw-admin'
+      fullPath: '/mw-admin/'
+      preLoaderRoute: typeof AdminMwAdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/api/public/xau': {
       id: '/api/public/xau'
@@ -1403,8 +1437,19 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminMwAdminIndexRoute: typeof AdminMwAdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminMwAdminIndexRoute: AdminMwAdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   BankRatesRoute: BankRatesRoute,
   ChinhSachBaoMatRoute: ChinhSachBaoMatRoute,
   ChungKhoanRoute: ChungKhoanRoute,
