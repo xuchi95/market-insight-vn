@@ -39,7 +39,7 @@ function ChangePill({ value }: { value: number }) {
 
 function TileFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`relative bg-card border border-border p-5 ${className}`}>
+    <div className={`relative bg-card border border-border p-4 md:p-5 ${className}`}>
       {/* corner ticks */}
       <span className="absolute top-0 left-0 w-2 h-px bg-[var(--gold)]/40" />
       <span className="absolute top-0 left-0 h-2 w-px bg-[var(--gold)]/40" />
