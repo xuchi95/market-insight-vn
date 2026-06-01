@@ -121,7 +121,7 @@ export function RelatedLinks({
             >
               <div className="flex items-center justify-between">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-[var(--gold)]">
-                  <Icon className="h-4.5 w-4.5" />
+                  <Icon className="h-[18px] w-[18px]" />
                 </span>
                 <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-all group-hover:text-[var(--gold)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
