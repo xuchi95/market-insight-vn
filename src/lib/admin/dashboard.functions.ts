@@ -10,7 +10,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     const since7d = new Date(now - 7 * 24 * 3600 * 1000).toISOString();
 
     const usersList = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1 });
-    const totalUsers = usersList.data.total ?? 0;
+    const totalUsers = (usersList.data as { total?: number }).total ?? 0;
 
     const [
       { count: subsActive },
