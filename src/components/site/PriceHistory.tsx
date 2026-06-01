@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChangeBadge } from "./ChangeBadge";
 import { fmtNum } from "@/lib/format";
+import { AlertTriangle, RefreshCw, Loader2 } from "lucide-react";
 
 type Point = { t: number; v: number };
 
@@ -14,13 +15,11 @@ async function loadSeries(assetKey: string, days: number, useUsd: boolean): Prom
   // For VND charts to=vnd returns the asset value in VND directly.
   const to = useUsd ? "f:usd" : "vnd";
   const url = `/api/public/pair-history?from=${encodeURIComponent(assetKey)}&to=${encodeURIComponent(to)}&days=${days}`;
-  try {
-    const r = await fetch(url);
-    if (!r.ok) return [];
-    const j = await r.json();
-    if (Array.isArray(j?.points)) return j.points as Point[];
-  } catch {}
-  return [];
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`Máy chủ trả về HTTP ${r.status}`);
+  const j = await r.json();
+  if (!Array.isArray(j?.points)) throw new Error("Dữ liệu không hợp lệ");
+  return j.points as Point[];
 }
 
 function computeChange(points: Point[], windowMs: number): number | null {
@@ -51,11 +50,20 @@ export interface PriceHistoryProps {
 export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = false, decimals = 0 }: PriceHistoryProps) {
   const [range, setRange] = useState<"1" | "7" | "30">("7");
 
-  const { data: chart, isLoading } = useQuery({
+  const {
+    data: chart,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+    dataUpdatedAt,
+  } = useQuery({
     queryKey: ["pair-history", assetKey, range, useUsd],
     queryFn: () => loadSeries(assetKey, Number(range), useUsd),
     refetchInterval: 5 * 60_000,
     enabled: !!assetKey,
+    retry: 1,
   });
 
   const stats = useMemo(() => {
@@ -84,6 +92,14 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
     <div className="rounded-2xl border border-border bg-card overflow-hidden">
       <div className="flex flex-wrap items-center gap-3 p-4 border-b border-border">
         <h2 className="font-bold">{title}</h2>
+        {isFetching && !isLoading && (
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" aria-label="Đang cập nhật" />
+        )}
+        {dataUpdatedAt > 0 && !isError && (
+          <span className="text-[11px] text-muted-foreground">
+            Cập nhật {new Date(dataUpdatedAt).toLocaleTimeString("vi-VN")}
+          </span>
+        )}
         <Tabs value={range} onValueChange={(v) => setRange(v as "1" | "7" | "30")} className="ml-auto">
           <TabsList className="h-9">
             <TabsTrigger value="1">24h</TabsTrigger>
@@ -93,7 +109,7 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
         </Tabs>
       </div>
 
-      {stats && (
+      {stats && !isError && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 border-b border-border text-sm">
           <StatPill label="Giá hiện tại" value={fmt(stats.last)} />
           <StatPill label="Thay đổi 24h" pct={stats.ch24} />
@@ -104,7 +120,27 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
       )}
 
       <div className="h-80 w-full p-4">
-        {isLoading ? <Skeleton className="h-full w-full" /> : (
+        {isLoading ? (
+          <div className="h-full w-full space-y-3">
+            <Skeleton className="h-[calc(100%-2rem)] w-full" />
+            <Skeleton className="h-6 w-1/3" />
+          </div>
+        ) : isError ? (
+          <div className="h-full w-full flex flex-col items-center justify-center gap-3 text-center">
+            <AlertTriangle className="h-8 w-8 text-[var(--down)]" />
+            <div className="text-sm font-semibold">Không tải được biểu đồ</div>
+            <div className="text-xs text-muted-foreground max-w-xs">
+              {error instanceof Error ? error.message : "Lỗi không xác định"}. Vui lòng thử lại.
+            </div>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
+            >
+              <RefreshCw className="h-3 w-3" /> Thử lại
+            </button>
+          </div>
+        ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chart ?? []}>
               <defs>
@@ -146,7 +182,7 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
             </AreaChart>
           </ResponsiveContainer>
         )}
-        {!isLoading && (!chart || chart.length === 0) && (
+        {!isLoading && !isError && (!chart || chart.length === 0) && (
           <div className="h-full flex items-center justify-center text-sm text-muted-foreground -mt-80">
             Chưa có dữ liệu lịch sử cho khung thời gian này.
           </div>
