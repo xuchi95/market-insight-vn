@@ -33,17 +33,8 @@ function NotFoundComponent() {
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid opacity-[0.06]" />
 
       <div className="relative mx-auto w-full max-w-3xl">
-        {/* Status tape */}
-        <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-[color-mix(in_oklab,var(--gold)_30%,transparent)] bg-[color-mix(in_oklab,var(--gold)_10%,var(--background))] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--gold)]">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--gold)] opacity-60" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
-          </span>
-          MarketWatch · Trạng thái phiên
-        </div>
-
         {/* 404 ticker */}
-        <div className="mt-8 text-center">
+        <div className="text-center">
           <div className="font-display leading-none tracking-tight">
             <span className="block bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[color-mix(in_oklab,var(--gold)_40%,var(--background))] bg-clip-text text-[clamp(7rem,22vw,15rem)] text-transparent drop-shadow-[0_2px_30px_color-mix(in_oklab,var(--gold)_25%,transparent)]">
               404
