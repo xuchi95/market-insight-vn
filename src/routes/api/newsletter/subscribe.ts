@@ -7,6 +7,8 @@ import { newsletterConfirmEmail } from "@/lib/email/templates.server";
 const Schema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
   source: z.string().max(60).optional(),
+  topics: z.array(z.string().min(1).max(40).regex(/^[a-zA-Z0-9_-]+$/)).max(20).optional(),
+  metadata: z.record(z.string().max(60), z.string().max(500)).optional(),
 });
 
 export const Route = createFileRoute("/api/newsletter/subscribe")({
@@ -23,10 +25,19 @@ export const Route = createFileRoute("/api/newsletter/subscribe")({
         if (!parsed.success) {
           return Response.json({ error: "invalid_input", details: parsed.error.flatten() }, { status: 400 });
         }
-        const { email, source } = parsed.data;
+        const { email, source, topics, metadata } = parsed.data;
+        const row = {
+          email,
+          source: source ?? "footer",
+          unsubscribed_at: null,
+          ...(topics && topics.length > 0 ? { topics } : {}),
+        };
         const { error } = await supabaseAdmin
           .from("newsletter_subscribers")
-          .upsert({ email, source: source ?? "footer", unsubscribed_at: null }, { onConflict: "email" });
+          .upsert(row, { onConflict: "email" });
+        if (metadata && Object.keys(metadata).length > 0) {
+          console.log("newsletter signup metadata", { email, source, metadata });
+        }
         if (error) {
           console.error("newsletter upsert failed", error);
           return Response.json({ error: "db_error" }, { status: 500 });
