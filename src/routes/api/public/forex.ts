@@ -18,7 +18,40 @@ const CURRENCIES: { code: string; name: string; spread: number }[] = [
 
 const CACHE_MS = 10 * 60 * 1000; // 10 minutes
 let cache: { at: number; payload: Awaited<ReturnType<typeof buildPayload>> } | null = null;
-const prevMid = new Map<string, number>();
+
+// Cache hôm-qua close riêng (24h), vì Yahoo cập nhật theo ngày.
+const PREV_TTL_MS = 60 * 60 * 1000;
+let prevCloseCache: { at: number; map: Map<string, number> } | null = null;
+
+async function yahooPrevClose(code: string): Promise<number | null> {
+  // VND/VND không có gì để so
+  if (code === "VND") return null;
+  const sym = `${code}VND=X`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=5d&interval=1d`;
+  try {
+    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0", accept: "application/json" } });
+    if (!r.ok) return null;
+    const j: any = await r.json();
+    const closes: (number | null)[] = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close ?? [];
+    // Lấy giá đóng cửa gần nhất TRƯỚC giá mới nhất (≈ hôm qua)
+    const valid = closes.filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+    if (valid.length < 2) return null;
+    return valid[valid.length - 2];
+  } catch {
+    return null;
+  }
+}
+
+async function getPrevCloses(codes: string[]): Promise<Map<string, number>> {
+  if (prevCloseCache && Date.now() - prevCloseCache.at < PREV_TTL_MS) {
+    return prevCloseCache.map;
+  }
+  const results = await Promise.all(codes.map(async (c) => [c, await yahooPrevClose(c)] as const));
+  const map = new Map<string, number>();
+  for (const [c, v] of results) if (v && v > 0) map.set(c, v);
+  prevCloseCache = { at: Date.now(), map };
+  return map;
+}
 
 async function buildPayload() {
   const res = await fetch("https://open.er-api.com/v6/latest/USD", {
@@ -31,14 +64,14 @@ async function buildPayload() {
   if (!usdVnd) throw new Error("forex upstream missing VND");
 
   const now = Date.now();
+  const prevMap = await getPrevCloses(CURRENCIES.map((c) => c.code));
   const data = CURRENCIES.map((c) => {
     // mid = VND per 1 unit of `code`
     const mid = c.code === "USD" ? usdVnd : usdVnd / (rates[c.code] || NaN);
     const buy = mid * (1 - c.spread / 2);
     const sell = mid * (1 + c.spread / 2);
-    const prev = prevMid.get(c.code);
+    const prev = prevMap.get(c.code);
     const changePct = prev && prev > 0 ? ((mid - prev) / prev) * 100 : 0;
-    prevMid.set(c.code, mid);
     return {
       code: c.code,
       name: c.name,
