@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Area, AreaChart, CartesianGrid, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { LineChart as LCIcon, TrendingDown, TrendingUp, Minus, ArrowUp, ArrowDown } from "lucide-react";
+import { Area, AreaChart, Brush, CartesianGrid, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { LineChart as LCIcon, TrendingDown, TrendingUp, Minus, ArrowUp, ArrowDown, RefreshCw, ZoomOut } from "lucide-react";
 import { SectionCard, LiveDot } from "./SectionCard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 type Asset = "btc" | "eth" | "gold-sjc" | "usd-vnd" | "eur-vnd" | "gbp-vnd" | "jpy-vnd" | "cny-vnd" | "krw-vnd" | "sgd-vnd" | "aud-vnd" | "cad-vnd" | "chf-vnd" | "hkd-vnd" | "thb-vnd";
 type Range = "1" | "7" | "30";
@@ -192,19 +193,30 @@ export function PriceChart({
   }
   const [range, setRange] = useState<Range>("7");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching, dataUpdatedAt, refetch } = useQuery({
     queryKey: ["chart", asset, range],
     queryFn: () => loadSeries(asset, range),
-    refetchInterval: 60_000,
+    refetchInterval: 5_000,
+    refetchIntervalInBackground: false,
   });
 
   const points = data?.points ?? [];
   const source = data?.source;
 
+  // Zoom state (indices into points array). null = full range.
+  const [zoom, setZoom] = useState<{ start: number; end: number } | null>(null);
+  const visiblePoints = useMemo(() => {
+    if (!zoom || !points.length) return points;
+    const s = Math.max(0, Math.min(zoom.start, points.length - 1));
+    const e = Math.max(s, Math.min(zoom.end, points.length - 1));
+    return points.slice(s, e + 1);
+  }, [points, zoom]);
+
   const stats = useMemo(() => {
-    if (!points.length) return null;
-    const first = points[0].v, last = points[points.length - 1].v;
-    const vals = points.map((d) => d.v);
+    const arr = visiblePoints;
+    if (!arr.length) return null;
+    const first = arr[0].v, last = arr[arr.length - 1].v;
+    const vals = arr.map((d) => d.v);
     const min = Math.min(...vals);
     const max = Math.max(...vals);
     const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
@@ -216,13 +228,13 @@ export function PriceChart({
       min,
       max,
       avg,
-      minPoint: points[minIdx],
-      maxPoint: points[maxIdx],
+      minPoint: arr[minIdx],
+      maxPoint: arr[maxIdx],
       change: ((last - first) / first) * 100,
       changeAbs: last - first,
       position: max === min ? 50 : ((last - min) / (max - min)) * 100,
     };
-  }, [points]);
+  }, [visiblePoints]);
 
   const positive = (stats?.change ?? 0) >= 0;
   const color = positive ? "var(--up)" : "var(--down)";
@@ -246,7 +258,14 @@ export function PriceChart({
       icon={<LCIcon className="h-4 w-4" />}
       title="Biểu đồ biến động"
       description="So sánh giá tài sản theo khung thời gian"
-      meta={<><LiveDot /> Cập nhật mỗi phút</>}
+      meta={
+        <span className="flex items-center gap-1.5">
+          <LiveDot /> Tự cập nhật mỗi 5 giây
+          {isFetching && !isLoading && (
+            <RefreshCw className="h-3 w-3 animate-spin text-primary ml-1" aria-label="Đang làm mới" />
+          )}
+        </span>
+      }
       action={
         <>
           <Select value={asset} onValueChange={(v) => setAsset(v as Asset)} disabled={available.length <= 1}>
@@ -255,13 +274,18 @@ export function PriceChart({
               {available.map((a) => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
+          <Tabs value={range} onValueChange={(v) => { setRange(v as Range); setZoom(null); }}>
             <TabsList className="h-9">
               <TabsTrigger value="1">24h</TabsTrigger>
               <TabsTrigger value="7">7N</TabsTrigger>
               <TabsTrigger value="30">30N</TabsTrigger>
             </TabsList>
           </Tabs>
+          {zoom && (
+            <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={() => setZoom(null)}>
+              <ZoomOut className="h-3.5 w-3.5" /> Bỏ zoom
+            </Button>
+          )}
         </>
       }
     >
@@ -270,15 +294,37 @@ export function PriceChart({
           <>
             <div className="flex flex-wrap items-end gap-x-10 gap-y-4 mb-4">
               <div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">Giá hiện tại</div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                  {zoom ? "Giá cuối khoảng zoom" : "Giá hiện tại"}
+                </div>
                 <div className="font-display text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">{fmtVal(stats.last)}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">Thay đổi {rangeLabel}</div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Thay đổi {zoom ? "khoảng đã chọn" : rangeLabel}
+                </div>
                 <div className="flex items-center gap-2 font-display text-2xl md:text-3xl font-semibold tabular tracking-tight leading-none mt-1" style={{ color }}>
                   <TrendIcon className="h-5 w-5 md:h-6 md:w-6" />
                   {positive ? "+" : ""}{stats.change.toFixed(2)}%
                   <span className="font-sans text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
+                </div>
+              </div>
+              <div className="ml-auto text-right">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Lần cập nhật cuối</div>
+                <div className="font-mono text-sm mt-1 tabular text-foreground/80 flex items-center gap-1.5 justify-end">
+                  {dataUpdatedAt
+                    ? new Date(dataUpdatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+                    : "—"}
+                  <button
+                    type="button"
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                    className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-md border border-border/60 hover:bg-muted disabled:opacity-50"
+                    aria-label="Làm mới ngay"
+                    title="Làm mới ngay"
+                  >
+                    <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} />
+                  </button>
                 </div>
               </div>
             </div>
@@ -301,9 +347,14 @@ export function PriceChart({
           </>
         )}
         <div className="h-72 w-full">
-          {isLoading ? <Skeleton className="h-full w-full" /> : (
+          {isLoading || !points.length ? (
+            <div className="h-full w-full space-y-2">
+              <Skeleton className="h-[calc(100%-2rem)] w-full" />
+              <Skeleton className="h-6 w-1/3" />
+            </div>
+          ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={points} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
+              <AreaChart data={visiblePoints} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -322,8 +373,27 @@ export function PriceChart({
                   <>
                     <ReferenceDot x={stats.maxPoint.t} y={stats.max} r={4} fill="var(--up)" stroke="var(--background)" strokeWidth={2} label={{ value: `Cao nhất ${fmtVal(stats.max)}`, position: "top", fill: "var(--up)", fontSize: 10, fontWeight: 600 }} />
                     <ReferenceDot x={stats.minPoint.t} y={stats.min} r={4} fill="var(--down)" stroke="var(--background)" strokeWidth={2} label={{ value: `Thấp nhất ${fmtVal(stats.min)}`, position: "bottom", fill: "var(--down)", fontSize: 10, fontWeight: 600 }} />
-                    <ReferenceDot x={points[points.length - 1].t} y={stats.last} r={5} fill={color} stroke="var(--background)" strokeWidth={2} />
+                    <ReferenceDot x={visiblePoints[visiblePoints.length - 1].t} y={stats.last} r={5} fill={color} stroke="var(--background)" strokeWidth={2} />
                   </>
+                )}
+                {points.length > 10 && (
+                  <Brush
+                    dataKey="t"
+                    height={24}
+                    stroke="var(--primary)"
+                    fill="var(--muted)"
+                    travellerWidth={8}
+                    tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
+                    onChange={(e: { startIndex?: number; endIndex?: number }) => {
+                      if (typeof e.startIndex === "number" && typeof e.endIndex === "number") {
+                        if (e.startIndex === 0 && e.endIndex === points.length - 1) {
+                          setZoom(null);
+                        } else {
+                          setZoom({ start: e.startIndex, end: e.endIndex });
+                        }
+                      }
+                    }}
+                  />
                 )}
               </AreaChart>
             </ResponsiveContainer>
@@ -334,7 +404,7 @@ export function PriceChart({
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-muted-foreground/70" /> Giá đầu kỳ (đường đứt)</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--up)" }} /> Đỉnh</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--down)" }} /> Đáy</span>
-          <span className="ml-auto">Di chuột vào biểu đồ để xem chi tiết từng thời điểm</span>
+          <span className="ml-auto">Di chuột để xem chi tiết · Kéo thanh dưới biểu đồ để zoom</span>
         </div>
         {source && (
           <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground border-t border-border/40 pt-2">
