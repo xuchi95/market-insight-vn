@@ -118,11 +118,12 @@ function NotFoundComponent() {
         </div>
 
         {/* Actions */}
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: "0.75rem", marginTop: "2rem" }}>
           <Link
             to="/"
             preload="intent"
             className={`${ctaBase} bg-gradient-to-r from-[var(--gold-light)] to-[var(--gold)] font-semibold text-[var(--gold-foreground)] shadow-[0_8px_30px_-10px_color-mix(in_oklab,var(--gold)_60%,transparent)] hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-12px_color-mix(in_oklab,var(--gold)_75%,transparent)] active:translate-y-0 active:shadow-[0_4px_14px_-6px_color-mix(in_oklab,var(--gold)_60%,transparent)]`}
+            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", minHeight: "2.5rem", padding: "0.625rem 1.25rem", borderRadius: "0.375rem", background: "linear-gradient(to right, var(--gold-light, #f0d78c), var(--gold, #c9a84c))", color: "var(--gold-foreground, #0d0d0d)", fontSize: "0.875rem", fontWeight: 700, textDecoration: "none", boxShadow: "0 8px 30px -10px color-mix(in oklab, var(--gold, #c9a84c) 60%, transparent)" }}
           >
             <span aria-hidden className="transition-transform duration-200 group-hover:-translate-x-0.5">←</span>
             Về trang chủ
@@ -131,23 +132,25 @@ function NotFoundComponent() {
             to="/gia-vang"
             preload="intent"
             className={`${ctaBase} border border-border bg-card/50 text-foreground hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--gold)_55%,transparent)] hover:bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] hover:text-[var(--gold)] hover:shadow-[0_10px_28px_-14px_color-mix(in_oklab,var(--gold)_60%,transparent)] active:translate-y-0`}
+            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", minHeight: "2.5rem", padding: "0.625rem 1.25rem", borderRadius: "0.375rem", border: "1px solid var(--border, #4c463a)", background: "color-mix(in oklab, var(--card, #1a1a1a) 50%, transparent)", color: "var(--foreground, #f5f0df)", fontSize: "0.875rem", fontWeight: 600, textDecoration: "none" }}
           >
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] transition-transform duration-200 group-hover:scale-125" />
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] transition-transform duration-200 group-hover:scale-125" style={{ display: "inline-block", width: "0.375rem", height: "0.375rem", borderRadius: 999, background: "var(--gold, #c9a84c)" }} />
             Xem giá vàng
           </Link>
           <Link
             to="/tien-dien-tu"
             preload="intent"
             className={`${ctaBase} border border-border bg-card/50 text-foreground hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--gold)_55%,transparent)] hover:bg-[color-mix(in_oklab,var(--gold)_8%,var(--card))] hover:text-[var(--gold)] hover:shadow-[0_10px_28px_-14px_color-mix(in_oklab,var(--gold)_60%,transparent)] active:translate-y-0`}
+            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", minHeight: "2.5rem", padding: "0.625rem 1.25rem", borderRadius: "0.375rem", border: "1px solid var(--border, #4c463a)", background: "color-mix(in oklab, var(--card, #1a1a1a) 50%, transparent)", color: "var(--foreground, #f5f0df)", fontSize: "0.875rem", fontWeight: 600, textDecoration: "none" }}
           >
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] transition-transform duration-200 group-hover:scale-125" />
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--gold)] transition-transform duration-200 group-hover:scale-125" style={{ display: "inline-block", width: "0.375rem", height: "0.375rem", borderRadius: 999, background: "var(--gold, #c9a84c)" }} />
             Crypto
           </Link>
         </div>
 
         {/* Footer note */}
-        <div className="mt-10 text-center">
-          <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground/60">
+        <div className="mt-10 text-center" style={{ marginTop: "2.5rem", textAlign: "center" }}>
+          <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground/60" style={{ color: "color-mix(in oklab, var(--muted-foreground, #c8b98f) 60%, transparent)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase" }}>
             Error 404 · Resource not listed · MarketWatch
           </div>
         </div>
