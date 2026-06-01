@@ -25,6 +25,7 @@ import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-n
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
 import { Route as LaiSuatTietKiemRouteImport } from './routes/lai-suat-tiet-kiem'
+import { Route as HuyCanhBaoTheoDoiRouteImport } from './routes/huy-canh-bao-theo-doi'
 import { Route as HuyBanTinRouteImport } from './routes/huy-ban-tin'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
@@ -159,6 +160,11 @@ const LichKinhTeRoute = LichKinhTeRouteImport.update({
 const LaiSuatTietKiemRoute = LaiSuatTietKiemRouteImport.update({
   id: '/lai-suat-tiet-kiem',
   path: '/lai-suat-tiet-kiem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HuyCanhBaoTheoDoiRoute = HuyCanhBaoTheoDoiRouteImport.update({
+  id: '/huy-canh-bao-theo-doi',
+  path: '/huy-canh-bao-theo-doi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HuyBanTinRoute = HuyBanTinRouteImport.update({
@@ -462,6 +468,7 @@ export interface FileRoutesByFullPath {
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
+  '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -534,6 +541,7 @@ export interface FileRoutesByTo {
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
+  '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -608,6 +616,7 @@ export interface FileRoutesById {
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
+  '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
   '/lai-suat-tiet-kiem': typeof LaiSuatTietKiemRoute
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
@@ -682,6 +691,7 @@ export interface FileRouteTypes {
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
+    | '/huy-canh-bao-theo-doi'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -754,6 +764,7 @@ export interface FileRouteTypes {
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
+    | '/huy-canh-bao-theo-doi'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -827,6 +838,7 @@ export interface FileRouteTypes {
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
+    | '/huy-canh-bao-theo-doi'
     | '/lai-suat-tiet-kiem'
     | '/lich-kinh-te'
     | '/lien-he'
@@ -901,6 +913,7 @@ export interface RootRouteChildren {
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
   HuyBanTinRoute: typeof HuyBanTinRoute
+  HuyCanhBaoTheoDoiRoute: typeof HuyCanhBaoTheoDoiRoute
   LaiSuatTietKiemRoute: typeof LaiSuatTietKiemRoute
   LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
@@ -1068,6 +1081,13 @@ declare module '@tanstack/react-router' {
       path: '/lai-suat-tiet-kiem'
       fullPath: '/lai-suat-tiet-kiem'
       preLoaderRoute: typeof LaiSuatTietKiemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/huy-canh-bao-theo-doi': {
+      id: '/huy-canh-bao-theo-doi'
+      path: '/huy-canh-bao-theo-doi'
+      fullPath: '/huy-canh-bao-theo-doi'
+      preLoaderRoute: typeof HuyCanhBaoTheoDoiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/huy-ban-tin': {
@@ -1486,6 +1506,7 @@ const rootRouteChildren: RootRouteChildren = {
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
   HuyBanTinRoute: HuyBanTinRoute,
+  HuyCanhBaoTheoDoiRoute: HuyCanhBaoTheoDoiRoute,
   LaiSuatTietKiemRoute: LaiSuatTietKiemRoute,
   LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
@@ -1544,3 +1565,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
