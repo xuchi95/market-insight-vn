@@ -9,7 +9,7 @@ import { lovable } from "@/integrations/lovable";
 import { AuthShell, GoogleButton, Divider } from "@/components/site/AuthShell";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { listEnrolledMfaMethods } from "@/lib/mfa.functions";
-import { clearMfaVerified } from "@/routes/xac-thuc-2fa";
+import { clearMfaVerified, markMfaVerified } from "@/routes/xac-thuc-2fa";
 import { signalAuthWelcome } from "@/components/site/AuthWelcomeBanner";
 import { isDeviceTrusted } from "@/lib/mfa-trust";
 
@@ -57,6 +57,7 @@ function LoginPage() {
         const uid = signInData?.user?.id;
         if (uid && isDeviceTrusted(uid)) {
           // Device was previously trusted — skip 2FA challenge.
+          markMfaVerified();
         } else {
           navigate({ to: "/xac-thuc-2fa", replace: true });
           return;
