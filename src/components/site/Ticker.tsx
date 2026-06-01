@@ -212,11 +212,15 @@ export function Ticker() {
               <span className="text-foreground/90">{t.label}</span>
               <span className="font-mono text-[var(--gold-light)]">{t.value}</span>
               <span className={t.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}>
-                {t.changePct >= 0 ? "+" : ""}{t.changePct.toFixed(2)}%
+                {t.changePct >= 0 ? "+" : ""}
+                {t.changePct.toFixed(2)}%
               </span>
             </Link>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="z-[80] w-56 border border-border bg-[var(--background)] p-0 text-foreground shadow-lg shadow-background/40">
+          <TooltipContent
+            side="bottom"
+            className="z-[80] w-56 border border-border bg-[var(--background)] p-0 text-foreground shadow-lg shadow-background/40"
+          >
             <div className="px-3 py-2 border-b border-border bg-card/80">
               <span className="text-xs font-semibold text-foreground">{t.label}</span>
             </div>
