@@ -79,7 +79,11 @@ import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsl
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
 import { Route as AdminMwAdminUsersRouteImport } from './routes/_admin/mw-admin.users'
+import { Route as AdminMwAdminSettingsRouteImport } from './routes/_admin/mw-admin.settings'
 import { Route as AdminMwAdminPopupsRouteImport } from './routes/_admin/mw-admin.popups'
+import { Route as AdminMwAdminNewsletterRouteImport } from './routes/_admin/mw-admin.newsletter'
+import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admin.contact'
+import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -441,9 +445,29 @@ const AdminMwAdminUsersRoute = AdminMwAdminUsersRouteImport.update({
   path: '/mw-admin/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminSettingsRoute = AdminMwAdminSettingsRouteImport.update({
+  id: '/mw-admin/settings',
+  path: '/mw-admin/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMwAdminPopupsRoute = AdminMwAdminPopupsRouteImport.update({
   id: '/mw-admin/popups',
   path: '/mw-admin/popups',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMwAdminNewsletterRoute = AdminMwAdminNewsletterRouteImport.update({
+  id: '/mw-admin/newsletter',
+  path: '/mw-admin/newsletter',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMwAdminContactRoute = AdminMwAdminContactRouteImport.update({
+  id: '/mw-admin/contact',
+  path: '/mw-admin/contact',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMwAdminBroadcastsRoute = AdminMwAdminBroadcastsRouteImport.update({
+  id: '/mw-admin/broadcasts',
+  path: '/mw-admin/broadcasts',
   getParentRoute: () => AdminRoute,
 } as any)
 const LovableEmailQueueProcessRoute =
@@ -513,7 +537,11 @@ export interface FileRoutesByFullPath {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
+  '/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
+  '/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/mw-admin/users': typeof AdminMwAdminUsersRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -589,7 +617,11 @@ export interface FileRoutesByTo {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat': typeof CaiDatIndexRoute
+  '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
+  '/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
+  '/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/mw-admin/users': typeof AdminMwAdminUsersRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -667,7 +699,11 @@ export interface FileRoutesById {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
+  '/_admin/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/_admin/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/_admin/mw-admin/popups': typeof AdminMwAdminPopupsRoute
+  '/_admin/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/_admin/mw-admin/users': typeof AdminMwAdminUsersRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
@@ -745,7 +781,11 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
+    | '/mw-admin/broadcasts'
+    | '/mw-admin/contact'
+    | '/mw-admin/newsletter'
     | '/mw-admin/popups'
+    | '/mw-admin/settings'
     | '/mw-admin/users'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -821,7 +861,11 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat'
+    | '/mw-admin/broadcasts'
+    | '/mw-admin/contact'
+    | '/mw-admin/newsletter'
     | '/mw-admin/popups'
+    | '/mw-admin/settings'
     | '/mw-admin/users'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -898,7 +942,11 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
+    | '/_admin/mw-admin/broadcasts'
+    | '/_admin/mw-admin/contact'
+    | '/_admin/mw-admin/newsletter'
     | '/_admin/mw-admin/popups'
+    | '/_admin/mw-admin/settings'
     | '/_admin/mw-admin/users'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
@@ -1498,11 +1546,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/settings': {
+      id: '/_admin/mw-admin/settings'
+      path: '/mw-admin/settings'
+      fullPath: '/mw-admin/settings'
+      preLoaderRoute: typeof AdminMwAdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/popups': {
       id: '/_admin/mw-admin/popups'
       path: '/mw-admin/popups'
       fullPath: '/mw-admin/popups'
       preLoaderRoute: typeof AdminMwAdminPopupsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/mw-admin/newsletter': {
+      id: '/_admin/mw-admin/newsletter'
+      path: '/mw-admin/newsletter'
+      fullPath: '/mw-admin/newsletter'
+      preLoaderRoute: typeof AdminMwAdminNewsletterRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/mw-admin/contact': {
+      id: '/_admin/mw-admin/contact'
+      path: '/mw-admin/contact'
+      fullPath: '/mw-admin/contact'
+      preLoaderRoute: typeof AdminMwAdminContactRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/mw-admin/broadcasts': {
+      id: '/_admin/mw-admin/broadcasts'
+      path: '/mw-admin/broadcasts'
+      fullPath: '/mw-admin/broadcasts'
+      preLoaderRoute: typeof AdminMwAdminBroadcastsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/lovable/email/queue/process': {
@@ -1537,13 +1613,21 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
+  AdminMwAdminContactRoute: typeof AdminMwAdminContactRoute
+  AdminMwAdminNewsletterRoute: typeof AdminMwAdminNewsletterRoute
   AdminMwAdminPopupsRoute: typeof AdminMwAdminPopupsRoute
+  AdminMwAdminSettingsRoute: typeof AdminMwAdminSettingsRoute
   AdminMwAdminUsersRoute: typeof AdminMwAdminUsersRoute
   AdminMwAdminIndexRoute: typeof AdminMwAdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
+  AdminMwAdminContactRoute: AdminMwAdminContactRoute,
+  AdminMwAdminNewsletterRoute: AdminMwAdminNewsletterRoute,
   AdminMwAdminPopupsRoute: AdminMwAdminPopupsRoute,
+  AdminMwAdminSettingsRoute: AdminMwAdminSettingsRoute,
   AdminMwAdminUsersRoute: AdminMwAdminUsersRoute,
   AdminMwAdminIndexRoute: AdminMwAdminIndexRoute,
 }

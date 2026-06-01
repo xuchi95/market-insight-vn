@@ -3,43 +3,84 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Mail } from "lucide-react";
 import { NewsletterForm } from "./NewsletterForm";
 import { useAuth } from "@/hooks/useAuth";
+import { useServerFn } from "@tanstack/react-start";
+import { getActivePopups } from "@/lib/admin/popups.functions";
+import { useLocation } from "@tanstack/react-router";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const KEY_SUBSCRIBED = "mw_nl_subscribed";
-const KEY_LAST_SHOWN = "mw_nl_last_shown";
-const KEY_DISMISS_COUNT = "mw_nl_dismiss_count";
+const KEY_LAST_SHOWN_PREFIX = "mw_nl_last_shown:";
 
-// Cooldown in ms before showing again after a dismiss
-const COOLDOWN_GUEST = 1000 * 60 * 60 * 24 * 1; // 1 day
-const COOLDOWN_AUTH = 1000 * 60 * 60 * 24 * 7; // 7 days
-const FIRST_DELAY_GUEST = 25_000; // 25s on first visit
-const FIRST_DELAY_AUTH = 90_000; // 90s if logged in
+type PopupField = { name: string; label: string; type: "email" | "text" | "select"; required: boolean; placeholder?: string };
+type PopupTheme = { accent: "gold" | "primary" | "down" | "up"; layout: "center" | "bottom" | "side"; animation: "fade" | "slide" | "pop" };
+type PopupTargeting = { pages: string[]; delaySeconds: number; scrollPercent: number; frequencyDays: number; hideForSubscribers: boolean };
+type ActivePopup = {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  body_md: string | null;
+  cta_label: string;
+  success_message: string;
+  theme: PopupTheme;
+  fields: PopupField[];
+  targeting: PopupTargeting;
+  topics: string[];
+};
+
+function pathMatches(pattern: string, path: string) {
+  if (pattern === "*" || pattern === "/*") return true;
+  if (pattern.endsWith("/*")) return path.startsWith(pattern.slice(0, -2));
+  return pattern === path;
+}
 
 export function NewsletterPopup() {
   const { user, loading } = useAuth();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [popup, setPopup] = useState<ActivePopup | null>(null);
+  const fetchPopups = useServerFn(getActivePopups);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchPopups()
+      .then((res) => {
+        if (cancelled) return;
+        const path = location.pathname;
+        const match = (res.popups as ActivePopup[]).find((p) =>
+          (p.targeting?.pages ?? ["*"]).some((pat) => pathMatches(pat, path)),
+        );
+        setPopup(match ?? null);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [fetchPopups, location.pathname]);
 
   useEffect(() => {
     if (loading) return;
     if (typeof window === "undefined") return;
+    if (!popup) return;
     try {
-      if (localStorage.getItem(KEY_SUBSCRIBED) === "1") return;
-      const lastShown = Number(localStorage.getItem(KEY_LAST_SHOWN) || 0);
-      const cooldown = user ? COOLDOWN_AUTH : COOLDOWN_GUEST;
+      const t = popup.targeting;
+      if (t.hideForSubscribers && localStorage.getItem(KEY_SUBSCRIBED) === "1") return;
+      const key = KEY_LAST_SHOWN_PREFIX + popup.slug;
+      const lastShown = Number(localStorage.getItem(key) || 0);
+      const cooldown = (t.frequencyDays ?? 1) * 24 * 3600 * 1000;
       const now = Date.now();
       if (lastShown && now - lastShown < cooldown) return;
-      const delay = user ? FIRST_DELAY_AUTH : FIRST_DELAY_GUEST;
-      const t = setTimeout(() => setOpen(true), delay);
-      return () => clearTimeout(t);
+      const delay = (t.delaySeconds ?? 25) * 1000;
+      const timer = setTimeout(() => setOpen(true), delay);
+      return () => clearTimeout(timer);
     } catch {}
-  }, [loading, user]);
+  }, [loading, user, popup]);
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (!next) {
+    if (!next && popup) {
       try {
-        localStorage.setItem(KEY_LAST_SHOWN, String(Date.now()));
-        const c = Number(localStorage.getItem(KEY_DISMISS_COUNT) || 0) + 1;
-        localStorage.setItem(KEY_DISMISS_COUNT, String(c));
+        localStorage.setItem(KEY_LAST_SHOWN_PREFIX + popup.slug, String(Date.now()));
       } catch {}
     }
   }
@@ -56,6 +97,16 @@ export function NewsletterPopup() {
     return () => window.removeEventListener("newsletter:subscribed", onSubscribed);
   }, []);
 
+  // Render with DB-driven content when a popup matched; otherwise nothing.
+  if (!popup) return null;
+
+  const accentVar =
+    popup.theme.accent === "primary" ? "var(--primary)" :
+    popup.theme.accent === "up" ? "var(--up)" :
+    popup.theme.accent === "down" ? "var(--down)" :
+    "var(--gold)";
+  const onlyEmail = popup.fields.length === 1 && popup.fields[0].type === "email";
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="border-[var(--gold)]/25 bg-card/95 backdrop-blur-xl sm:max-w-sm overflow-hidden p-0 gap-0 shadow-2xl shadow-[var(--gold)]/10">
@@ -63,31 +114,36 @@ export function NewsletterPopup() {
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent"
+          style={{ background: `linear-gradient(to right, transparent, ${accentVar}, transparent)` }}
         />
         <div
           aria-hidden
           className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-[var(--gold)]/10 blur-3xl"
+          style={{ background: `color-mix(in oklab, ${accentVar} 18%, transparent)` }}
         />
 
         <div className="relative p-6 sm:p-7">
           <div className="flex items-center gap-2 mb-5 animate-fade-in">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/5 text-[var(--gold)]">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border bg-card" style={{ borderColor: `color-mix(in oklab, ${accentVar} 30%, transparent)`, color: accentVar }}>
               <Mail className="h-4 w-4" />
             </span>
-            <span className="text-[10px] uppercase tracking-[0.22em] text-[var(--gold)]">
-              Bản tin MarketWatch
+            <span className="text-[10px] uppercase tracking-[0.22em]" style={{ color: accentVar }}>
+              MarketWatch
             </span>
           </div>
 
           <DialogTitle className="font-display text-2xl leading-tight animate-fade-in">
-            Thị trường <span className="italic text-[var(--gold)]">mỗi sáng</span>.
+            {popup.title}
           </DialogTitle>
-          <DialogDescription className="mt-1.5 text-sm text-muted-foreground animate-fade-in">
-            Vàng · Crypto · Ngoại tệ — gói gọn trong 1 email.
-          </DialogDescription>
+          {popup.subtitle && (
+            <DialogDescription className="mt-1.5 text-sm text-muted-foreground animate-fade-in">
+              {popup.subtitle}
+            </DialogDescription>
+          )}
+          {popup.body_md && <div className="mt-3 whitespace-pre-wrap text-sm">{popup.body_md}</div>}
 
           <div className="mt-5 animate-scale-in">
-            <NewsletterForm />
+            {onlyEmail ? <NewsletterForm /> : <CustomPopupForm popup={popup} />}
           </div>
 
           <p className="mt-3 text-xs text-muted-foreground/80">
@@ -96,5 +152,50 @@ export function NewsletterPopup() {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CustomPopupForm({ popup }: { popup: ActivePopup }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const email = values.email?.trim();
+    if (!email) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: `popup:${popup.slug}`, topics: popup.topics, metadata: values }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.error || `HTTP ${res.status}`);
+      }
+      toast.success(popup.success_message);
+      try { window.dispatchEvent(new CustomEvent("newsletter:subscribed")); } catch {}
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-2">
+      {popup.fields.map((f) => (
+        <Input
+          key={f.name}
+          type={f.type === "email" ? "email" : "text"}
+          required={f.required}
+          placeholder={f.placeholder ?? f.label}
+          value={values[f.name] ?? ""}
+          onChange={(e) => setValues((p) => ({ ...p, [f.name]: e.target.value }))}
+        />
+      ))}
+      <Button type="submit" className="w-full" disabled={loading}>{loading ? "…" : popup.cta_label}</Button>
+    </form>
   );
 }
