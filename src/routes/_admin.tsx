@@ -1,21 +1,42 @@
-import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, Navigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { LayoutDashboard, Users, Megaphone, Mail, MessageSquare, Layers, Settings } from "lucide-react";
 
 export const Route = createFileRoute("/_admin")({
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/dang-nhap" });
-    const { data: role } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!role) throw redirect({ to: "/" });
-  },
-  component: AdminShell,
+  component: AdminGate,
 });
+
+function AdminGate() {
+  const { user, loading } = useAuth();
+
+  const { data: isAdmin, isLoading: roleLoading } = useQuery({
+    enabled: !!user,
+    queryKey: ["is-admin", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (error) throw error;
+      return !!data;
+    },
+  });
+
+  if (loading || (user && roleLoading)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
+        Đang kiểm tra quyền…
+      </div>
+    );
+  }
+  if (!user) return <Navigate to="/dang-nhap" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
+  return <AdminShell />;
+}
 
 const NAV = [
   { to: "/mw-admin", label: "Dashboard", icon: LayoutDashboard },
