@@ -210,7 +210,7 @@ export function Ticker() {
               className="flex cursor-pointer items-center gap-2 select-none rounded-sm transition-colors hover:text-foreground"
             >
               <span className="text-foreground/90">{t.label}</span>
-              <span className="font-mono text-[var(--gold-light)]">{t.value}</span>
+              <span className="tabular text-[var(--gold-light)]">{t.value}</span>
               <span className={t.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}>
                 {t.changePct >= 0 ? "+" : ""}
                 {t.changePct.toFixed(2)}%
@@ -228,7 +228,7 @@ export function Ticker() {
               {t.details.map((d, idx) => (
                 <div key={idx} className="flex justify-between text-xs">
                   <span className="text-foreground/75">{d.label}</span>
-                  <span className="font-mono text-foreground">{d.value}</span>
+                  <span className="tabular text-foreground">{d.value}</span>
                 </div>
               ))}
             </div>
