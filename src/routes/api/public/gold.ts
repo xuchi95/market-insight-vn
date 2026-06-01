@@ -364,13 +364,13 @@ export const Route = createFileRoute("/api/public/gold")({
             }
           }
 
-          // Baseline (giá đóng cửa hôm qua) chỉ ảnh hưởng cột "% thay đổi".
-          // KHÔNG chặn response — nếu chưa có thì kick off background và
-          // trả 0% lần đầu; các request sau (trong cùng isolate) sẽ có giá trị.
-          if (baseline && baseline.date === ymdVN(new Date())) {
-            // already ready
-          } else {
-            ensureBaseline().catch(() => {});
+          // Baseline (giá đóng cửa hôm qua) cần cho cột "% thay đổi 24h".
+          // Worker isolate có thể bị recycle giữa các request → fire-and-forget
+          // dẫn tới % luôn = 0. Await ngắn (tối đa ~4s — đã chạy 7 ngày song
+          // song với timeout per-day) cho lần đầu trong ngày, sau đó cache nguyên
+          // ngày nên các call sau không chịu chi phí này.
+          if (!baseline || baseline.date !== ymdVN(new Date())) {
+            await ensureBaseline().catch(() => {});
           }
 
           const mids = baseline?.mids ?? {};
