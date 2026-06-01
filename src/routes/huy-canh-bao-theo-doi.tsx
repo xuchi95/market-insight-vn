@@ -70,11 +70,13 @@ function UnsubPage() {
                 Mở trang quản lý cảnh báo →
               </Link>
             </div>
-          ) : (
+          ) : state.kind === "done" ? (
             <div className="flex flex-col items-center gap-3">
               <CheckCircle2 className="h-10 w-10 text-emerald-500" />
               <h1 className="font-display text-2xl">
-                {state.scope === "all" ? "Đã tắt toàn bộ cảnh báo theo dõi" : `Đã tắt cảnh báo cho ${state.symbol?.toUpperCase()}`}
+                {state.scope === "all"
+                  ? "Đã tắt toàn bộ cảnh báo theo dõi"
+                  : `Đã tắt cảnh báo cho ${state.symbol?.toUpperCase()}`}
               </h1>
               <p className="text-sm text-muted-foreground max-w-md">
                 {state.alreadyUsed
@@ -90,7 +92,7 @@ function UnsubPage() {
                 <Link to="/" className="text-muted-foreground hover:text-foreground">Về trang chủ</Link>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </main>
       <Footer />
