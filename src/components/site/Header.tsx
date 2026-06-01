@@ -161,24 +161,24 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-3">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 lg:gap-4 px-4 md:px-5 lg:px-6 py-2.5 md:py-3">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src={logoUrl} alt="MarketWatch logo" className="h-8 w-8 object-contain" />
-          <span className="font-display text-xl leading-none">
+          <img src={logoUrl} alt="MarketWatch logo" className="h-7 w-7 md:h-8 md:w-8 object-contain" />
+          <span className="font-display text-lg md:text-xl leading-none">
             <span className="text-[var(--gold)]">Market</span><span className="text-foreground">Watch</span>
           </span>
         </Link>
 
         {/* Desktop NavigationMenu */}
-        <div className="hidden md:flex items-center ml-6">
+        <div className="hidden md:flex items-center ml-2 lg:ml-4">
           <NavigationMenu>
-            <NavigationMenuList className="gap-0.5">
+            <NavigationMenuList className="gap-0 lg:gap-0.5">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
                     to={HOME.to}
                     activeOptions={{ exact: true }}
-                    className="inline-flex items-center rounded-md px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
+                    className="inline-flex items-center rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
                   >
                     {HOME.label}
                   </Link>
@@ -187,7 +187,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
               {NAV_GROUPS.map((group) => (
                 <NavigationMenuItem key={group.label}>
-                  <NavigationMenuTrigger className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
+                  <NavigationMenuTrigger className="inline-flex items-center gap-1 rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
                     {group.label}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
