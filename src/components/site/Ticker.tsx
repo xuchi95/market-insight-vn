@@ -212,14 +212,14 @@ export function Ticker() {
               </span>
             </Link>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="w-56 border border-border bg-popover p-0 shadow-lg">
-            <div className="px-3 py-2 border-b border-border bg-muted/50">
+          <TooltipContent side="bottom" className="z-[80] w-56 border border-border bg-[var(--background)] p-0 text-foreground shadow-lg shadow-background/40">
+            <div className="px-3 py-2 border-b border-border bg-card/80">
               <span className="text-xs font-semibold text-foreground">{t.label}</span>
             </div>
             <div className="px-3 py-2 space-y-1">
               {t.details.map((d, idx) => (
                 <div key={idx} className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{d.label}</span>
+                  <span className="text-foreground/75">{d.label}</span>
                   <span className="font-mono text-foreground">{d.value}</span>
                 </div>
               ))}
