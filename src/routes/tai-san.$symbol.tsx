@@ -23,7 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Link as RouterLink } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { updateWatchAlertPrefs, getMyWatchAlertPrefs } from "@/lib/watchlist/alerts.functions";
 import { toast } from "sonner";
 
