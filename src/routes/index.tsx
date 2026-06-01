@@ -51,33 +51,33 @@ function Index() {
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-5">
           {/* Hero — editorial masthead */}
-          <section className="py-10 md:py-14 border-b border-border">
-            <div className="grid md:grid-cols-12 gap-8 md:gap-10 items-end">
+          <section className="py-8 md:py-12 border-b border-border">
+            <div className="grid md:grid-cols-12 gap-6 md:gap-10 items-end">
               <div className="md:col-span-7">
-                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl leading-[1.05] text-foreground text-balance">
+                <h1 className="font-display text-[2rem] sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.05] text-foreground text-balance">
                   Theo dõi giá <em className="text-[var(--gold)] not-italic font-display italic">vàng</em>,{" "}
                   <span className="text-[var(--gold)]">crypto</span> &amp; tỷ giá ngoại tệ.
                 </h1>
               </div>
               <div className="md:col-span-5 md:pl-8 md:border-l md:border-border">
-                <p className="text-base md:text-[17px] text-muted-foreground leading-relaxed text-pretty">
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed text-pretty">
                   Một bản tin số liệu súc tích cho nhà đầu tư Việt — SJC, DOJI, BTC, ETH, USD/VND và hơn thế, cập nhật tức thì từ các sàn lớn.
                 </p>
-                <div className="mt-5 eyebrow opacity-60">Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường</div>
+                <div className="mt-4 eyebrow opacity-60">Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường</div>
               </div>
             </div>
           </section>
 
           {/* Bento */}
-          <section className="py-8 md:py-10">
-            <div className="flex items-baseline justify-between mb-5">
-              <h2 className="font-display text-2xl md:text-3xl">Bảng giá thị trường</h2>
+          <section className="py-6 md:py-8">
+            <div className="flex items-baseline justify-between mb-4">
+              <h2 className="font-display text-xl md:text-2xl">Bảng giá thị trường</h2>
               <div className="eyebrow opacity-60 hidden sm:block">Cập nhật mỗi 30 giây</div>
             </div>
             <BentoTiles />
           </section>
 
-          <section className="py-8 md:py-10">
+          <section className="py-6 md:py-8">
             <RelatedLinks current="home" title="Khám phá theo chủ đề" />
           </section>
 

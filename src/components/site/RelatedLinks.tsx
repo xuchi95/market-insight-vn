@@ -105,32 +105,32 @@ export function RelatedLinks({
 }) {
   const items = RELATED[current].map((k) => ALL[k]);
   return (
-    <section aria-labelledby="related-links" className="space-y-6">
+    <section aria-labelledby="related-links" className="space-y-4 md:space-y-5">
       <div className="flex items-end justify-between gap-4 border-b border-border/60 pb-3">
-        <h2 id="related-links" className="font-display text-2xl md:text-3xl tracking-tight">
+        <h2 id="related-links" className="font-display text-xl md:text-2xl tracking-tight">
           {title}
         </h2>
         <span className="eyebrow opacity-70 hidden sm:inline">{items.length} chủ đề</span>
       </div>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map(({ to, keyword, desc, eyebrow, Icon }) => (
           <li key={to}>
             <Link
               to={to}
-              className="group relative flex h-full flex-col gap-3 rounded-xl border border-border/60 bg-card/60 p-5 transition-all hover:border-[var(--gold)]/70 hover:bg-accent/40 hover:-translate-y-0.5"
+              className="group relative flex h-full flex-col gap-2.5 rounded-xl border border-border/60 bg-card/60 p-4 md:p-5 transition-all hover:border-[var(--gold)]/70 hover:bg-accent/40 hover:-translate-y-0.5"
             >
               <div className="flex items-center justify-between">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-[var(--gold)]">
-                  <Icon className="h-5 w-5" />
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-[var(--gold)]">
+                  <Icon className="h-[18px] w-[18px]" />
                 </span>
                 <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-all group-hover:text-[var(--gold)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <span className="eyebrow opacity-80">{eyebrow}</span>
-                <span className="block font-display text-lg leading-snug text-foreground">
+                <span className="block font-display text-base md:text-lg leading-snug text-foreground">
                   {keyword}
                 </span>
-                <span className="block text-sm text-muted-foreground leading-relaxed">
+                <span className="block text-xs md:text-sm text-muted-foreground leading-relaxed">
                   {desc}
                 </span>
               </div>
