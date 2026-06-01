@@ -14,6 +14,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { NumberFormatProvider } from "@/hooks/useNumberFormat";
 import { Toaster } from "@/components/ui/sonner";
 import { NewsletterPopup } from "@/components/site/NewsletterPopup";
+import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 
 function NotFoundComponent() {
   return (
@@ -162,6 +163,7 @@ function RootComponent() {
             <Outlet />
             <Toaster position="top-right" richColors />
             <NewsletterPopup />
+            <AuthWelcomeBanner />
           </NumberFormatProvider>
         </AuthProvider>
       </ThemeProvider>
