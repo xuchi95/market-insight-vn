@@ -69,38 +69,51 @@ function NotFoundComponent() {
         {/* 404 ticker */}
         <div className="text-center" style={{ textAlign: "center" }}>
           <div className="font-display leading-none tracking-tight" style={{ fontFamily: fallbackDisplayFont, lineHeight: 1 }}>
-            <span className="block bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[color-mix(in_oklab,var(--gold)_40%,var(--background))] bg-clip-text text-[clamp(7rem,22vw,15rem)] text-transparent drop-shadow-[0_2px_30px_color-mix(in_oklab,var(--gold)_25%,transparent)]">
+            <span
+              className="block bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[color-mix(in_oklab,var(--gold)_40%,var(--background))] bg-clip-text text-[clamp(7rem,22vw,15rem)] text-transparent drop-shadow-[0_2px_30px_color-mix(in_oklab,var(--gold)_25%,transparent)]"
+              style={{
+                display: "block",
+                fontSize: "clamp(7rem, 22vw, 15rem)",
+                lineHeight: 0.9,
+                background: "linear-gradient(to bottom, var(--gold-light, #f0d78c), var(--gold, #c9a84c), color-mix(in oklab, var(--gold, #c9a84c) 40%, var(--background, #0d0d0d)))",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                WebkitTextFillColor: "transparent",
+                filter: "drop-shadow(0 2px 30px color-mix(in oklab, var(--gold, #c9a84c) 25%, transparent))",
+              }}
+            >
               404
             </span>
           </div>
 
-          <div className="mx-auto mt-4 flex items-center justify-center gap-3">
-            <span className="h-px w-10 bg-[color-mix(in_oklab,var(--gold)_50%,transparent)]" />
-            <span className="eyebrow !text-[var(--gold)]">Mã phiên không tồn tại</span>
-            <span className="h-px w-10 bg-[color-mix(in_oklab,var(--gold)_50%,transparent)]" />
+          <div className="mx-auto mt-4 flex items-center justify-center gap-3" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", margin: "1rem auto 0" }}>
+            <span className="h-px w-10 bg-[color-mix(in_oklab,var(--gold)_50%,transparent)]" style={{ display: "block", width: "2.5rem", height: 1, background: "color-mix(in oklab, var(--gold, #c9a84c) 50%, transparent)" }} />
+            <span className="eyebrow !text-[var(--gold)]" style={{ color: "var(--gold, #c9a84c)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.18em" }}>Mã phiên không tồn tại</span>
+            <span className="h-px w-10 bg-[color-mix(in_oklab,var(--gold)_50%,transparent)]" style={{ display: "block", width: "2.5rem", height: 1, background: "color-mix(in oklab, var(--gold, #c9a84c) 50%, transparent)" }} />
           </div>
 
-          <h1 className="mt-6 font-display text-3xl md:text-4xl text-foreground">
+          <h1 className="mt-6 font-display text-3xl md:text-4xl text-foreground" style={{ margin: "1.5rem 0 0", color: "var(--foreground, #f5f0df)", fontFamily: fallbackFont, fontSize: "clamp(1.875rem, 3vw, 2.25rem)", fontWeight: 600, lineHeight: 1.2 }}>
             Trang bạn tìm đã ngừng niêm yết
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-muted-foreground" style={{ maxWidth: "36rem", margin: "0.75rem auto 0", color: "var(--muted-foreground, #c8b98f)", fontSize: "1rem", lineHeight: 1.7 }}>
             Có vẻ như đường dẫn này đã bị huỷ niêm yết, đổi mã hoặc chưa từng được phát hành. Hãy quay về trang chủ để tiếp tục theo dõi thị trường.
           </p>
         </div>
 
         {/* Mini quote card */}
-        <div className="mx-auto mt-8 grid max-w-xl grid-cols-3 overflow-hidden rounded-lg border border-border bg-card/60 backdrop-blur-sm shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_15%,transparent)]">
-          <div className="border-r border-border px-4 py-3 text-center">
-            <div className="eyebrow opacity-70">Mã</div>
-            <div className="mt-1 font-mono text-sm text-foreground">MWT/404</div>
+        <div className="mx-auto mt-8 grid max-w-xl grid-cols-3 overflow-hidden rounded-lg border border-border bg-card/60 backdrop-blur-sm shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_15%,transparent)]" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", maxWidth: "36rem", margin: "2rem auto 0", overflow: "hidden", border: "1px solid var(--border, #4c463a)", borderRadius: "0.5rem", background: "color-mix(in oklab, var(--card, #1a1a1a) 60%, transparent)", boxShadow: "0 0 0 1px color-mix(in oklab, var(--gold, #c9a84c) 15%, transparent)" }}>
+          <div className="border-r border-border px-4 py-3 text-center" style={{ padding: "0.75rem 1rem", textAlign: "center", borderRight: "1px solid var(--border, #4c463a)" }}>
+            <div className="eyebrow opacity-70" style={{ color: "var(--gold, #c9a84c)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7 }}>Mã</div>
+            <div className="mt-1 font-mono text-sm text-foreground" style={{ marginTop: "0.25rem", color: "var(--foreground, #f5f0df)", fontFamily: fallbackFont, fontSize: "0.875rem", fontVariantNumeric: "tabular-nums" }}>MWT/404</div>
           </div>
-          <div className="border-r border-border px-4 py-3 text-center">
-            <div className="eyebrow opacity-70">Giá</div>
-            <div className="mt-1 font-mono text-sm text-[var(--down)]">— —</div>
+          <div className="border-r border-border px-4 py-3 text-center" style={{ padding: "0.75rem 1rem", textAlign: "center", borderRight: "1px solid var(--border, #4c463a)" }}>
+            <div className="eyebrow opacity-70" style={{ color: "var(--gold, #c9a84c)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7 }}>Giá</div>
+            <div className="mt-1 font-mono text-sm text-[var(--down)]" style={{ marginTop: "0.25rem", color: "var(--down, #e85d3a)", fontFamily: fallbackFont, fontSize: "0.875rem", fontVariantNumeric: "tabular-nums" }}>— —</div>
           </div>
-          <div className="px-4 py-3 text-center">
-            <div className="eyebrow opacity-70">Biến động</div>
-            <div className="mt-1 font-mono text-sm text-[var(--down)]">−100,00%</div>
+          <div className="px-4 py-3 text-center" style={{ padding: "0.75rem 1rem", textAlign: "center" }}>
+            <div className="eyebrow opacity-70" style={{ color: "var(--gold, #c9a84c)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7 }}>Biến động</div>
+            <div className="mt-1 font-mono text-sm text-[var(--down)]" style={{ marginTop: "0.25rem", color: "var(--down, #e85d3a)", fontFamily: fallbackFont, fontSize: "0.875rem", fontVariantNumeric: "tabular-nums" }}>−100,00%</div>
           </div>
         </div>
 
