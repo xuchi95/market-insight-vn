@@ -153,19 +153,19 @@ async function ensureBaseline(): Promise<void> {
   if (baseline && baseline.date === today) return;
   if (baselineInflight) return baselineInflight;
   baselineInflight = (async () => {
-    // Try yesterday first, walking back up to 7 days if a day has no data (weekend/holiday).
+    // Fetch the last 7 days in PARALLEL (mỗi ngày timeout 4s).
+    // Tuần tự worst-case ~28s và chặn cold-start request.
     const now = Date.now();
+    const days = Array.from({ length: 7 }, (_, i) =>
+      ymdVN(new Date(now - (i + 1) * 86400_000)),
+    );
+    const results = await Promise.allSettled(days.map((d) => fetchHistoryFor(d)));
     let found: Record<string, number> = {};
-    for (let i = 1; i <= 7; i++) {
-      const d = ymdVN(new Date(now - i * 86400_000));
-      try {
-        const mids = await fetchHistoryFor(d);
-        if (Object.keys(mids).length > 0) {
-          found = mids;
-          break;
-        }
-      } catch {
-        // try previous day
+    // Days are ordered from most-recent → oldest; pick the first non-empty.
+    for (const r of results) {
+      if (r.status === "fulfilled" && Object.keys(r.value).length > 0) {
+        found = r.value;
+        break;
       }
     }
     baseline = { date: today, mids: found };
@@ -364,14 +364,13 @@ export const Route = createFileRoute("/api/public/gold")({
             }
           }
 
-          // Make sure we have yesterday's baseline. We MUST await it on the
-          // first request — Cloudflare Workers do not reliably share
-          // in-memory state across isolates, so a fire-and-forget approach
-          // leaves changePct stuck at 0% across cold starts.
-          try {
-            await ensureBaseline();
-          } catch {
-            // baseline unavailable — fall through; changePct will be 0
+          // Baseline (giá đóng cửa hôm qua) chỉ ảnh hưởng cột "% thay đổi".
+          // KHÔNG chặn response — nếu chưa có thì kick off background và
+          // trả 0% lần đầu; các request sau (trong cùng isolate) sẽ có giá trị.
+          if (baseline && baseline.date === ymdVN(new Date())) {
+            // already ready
+          } else {
+            ensureBaseline().catch(() => {});
           }
 
           const mids = baseline?.mids ?? {};
