@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { signalAuthWelcome } from "@/components/site/AuthWelcomeBanner";
 import { Loader2 } from "lucide-react";
 import { AuthShell } from "@/components/site/AuthShell";
 import { useAuth } from "@/hooks/useAuth";
@@ -77,7 +78,7 @@ function Mfa2FAPage() {
           submitLabel="Xác minh"
           onVerified={() => {
             markMfaVerified();
-            toast.success("Đã xác minh");
+            signalAuthWelcome({ kind: "verified", email: user?.email ?? undefined });
             navigate({ to: "/", replace: true });
           }}
         />
