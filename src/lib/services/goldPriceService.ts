@@ -56,19 +56,23 @@ const FALLBACK_LIVE: GoldPrice[] = (
 
 export async function fetchGoldPrices(): Promise<GoldPrice[]> {
   const now = Date.now();
-  const [supplemental, xau] = [supplementalRows(now), await fetchXauRow().catch(() => null)];
-  try {
-    const res = await fetch("/api/public/gold", {
-      headers: { Accept: "application/json" },
-    });
-    if (!res.ok) throw new Error(`gold api ${res.status}`);
-    const json = (await res.json()) as { items?: GoldPrice[] };
-    const live = (json.items ?? []) as GoldPrice[];
-    if (live.length === 0) throw new Error("empty");
-    return [...live, ...supplemental, ...(xau ? [xau] : [])];
-  } catch {
-    return [...FALLBACK_LIVE, ...supplemental, ...(xau ? [xau] : [])];
-  }
+  const supplemental = supplementalRows(now);
+  // Fetch live gold + XAU world-price in parallel — đừng tuần tự,
+  // mỗi cái có thể mất 1–6s.
+  const [goldRes, xau] = await Promise.all([
+    fetch("/api/public/gold", { headers: { Accept: "application/json" } })
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`gold api ${r.status}`);
+        const j = (await r.json()) as { items?: GoldPrice[] };
+        const live = (j.items ?? []) as GoldPrice[];
+        if (live.length === 0) throw new Error("empty");
+        return live;
+      })
+      .catch(() => null),
+    fetchXauRow().catch(() => null),
+  ]);
+  const live = goldRes ?? FALLBACK_LIVE;
+  return [...live, ...supplemental, ...(xau ? [xau] : [])];
 }
 
 /**
