@@ -4,12 +4,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fmtTrieu } from "@/lib/format";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 async function fetchXau(): Promise<{ price: number; changePct: number } | null> {
   try {
@@ -37,7 +32,10 @@ interface Tick {
 }
 
 function fmt(n: number, digits = 0) {
-  return n.toLocaleString("vi-VN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
+  return n.toLocaleString("vi-VN", {
+    maximumFractionDigits: digits,
+    minimumFractionDigits: digits,
+  });
 }
 
 function fmtCompact(n: number): string {
@@ -92,7 +90,10 @@ export function Ticker() {
           href: "/tai-san/gold-xauusd",
           details: [
             { label: "Giá", value: `$${fmt(xau.price, 0)}` },
-            { label: "Thay đổi 24h", value: `${xau.changePct >= 0 ? "+" : ""}${xau.changePct.toFixed(2)}%` },
+            {
+              label: "Thay đổi 24h",
+              value: `${xau.changePct >= 0 ? "+" : ""}${xau.changePct.toFixed(2)}%`,
+            },
           ],
         });
       }
@@ -191,7 +192,10 @@ export function Ticker() {
     }
     load();
     const t = setInterval(load, 30_000);
-    return () => { alive = false; clearInterval(t); };
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
   }, []);
 
   if (ticks.length === 0) return <div className="h-9 border-y border-border bg-card/40" />;
@@ -208,18 +212,22 @@ export function Ticker() {
               <span className="text-foreground/90">{t.label}</span>
               <span className="font-mono text-[var(--gold-light)]">{t.value}</span>
               <span className={t.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}>
-                {t.changePct >= 0 ? "+" : ""}{t.changePct.toFixed(2)}%
+                {t.changePct >= 0 ? "+" : ""}
+                {t.changePct.toFixed(2)}%
               </span>
             </Link>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="w-56 border border-border bg-popover p-0 shadow-lg">
-            <div className="px-3 py-2 border-b border-border bg-muted/50">
+          <TooltipContent
+            side="bottom"
+            className="z-[80] w-56 border border-border bg-[var(--background)] p-0 text-foreground shadow-lg shadow-background/40"
+          >
+            <div className="px-3 py-2 border-b border-border bg-card/80">
               <span className="text-xs font-semibold text-foreground">{t.label}</span>
             </div>
             <div className="px-3 py-2 space-y-1">
               {t.details.map((d, idx) => (
                 <div key={idx} className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{d.label}</span>
+                  <span className="text-foreground/75">{d.label}</span>
                   <span className="font-mono text-foreground">{d.value}</span>
                 </div>
               ))}
