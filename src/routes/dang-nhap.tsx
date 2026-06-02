@@ -50,6 +50,10 @@ function LoginPage() {
       return;
     }
     clearMfaVerified();
+    // Fire-and-forget — sends a MarketWatch security alert if the IP changed.
+    import("@/lib/email/security-alert.functions")
+      .then((m) => m.recordLoginAndAlert())
+      .catch((err) => console.error("security alert failed", err));
     try {
       const s = await listEnrolledMfaMethods();
       setLoading(false);
