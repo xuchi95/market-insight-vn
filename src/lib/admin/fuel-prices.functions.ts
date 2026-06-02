@@ -46,6 +46,13 @@ export const saveFuelSnapshot = createServerFn({ method: "POST" })
       updated_by: userId,
     });
     if (error) throw new Error(error.message);
+    await supabaseAdmin.from("vn_fuel_prices_history").insert({
+      effective_from: data.effective_from,
+      source_url: data.source_url,
+      rows: data.rows as unknown as never,
+      source: "manual",
+      created_by: userId,
+    });
     await logAudit(userId, "fuel_prices.save", "vn_fuel_prices_snapshot", "latest", {
       rowCount: data.rows.length,
       effective_from: data.effective_from,
@@ -186,6 +193,13 @@ export const refreshFuelFromPetrolimex = createServerFn({ method: "POST" })
       updated_by: userId,
     });
     if (error) throw new Error(`DB upsert lỗi: ${error.message}`);
+    await supabaseAdmin.from("vn_fuel_prices_history").insert({
+      effective_from: extracted.effective_from,
+      source_url: PETROLIMEX_URL,
+      rows: extracted.rows as unknown as never,
+      source: "auto",
+      created_by: userId,
+    });
     await logAudit(userId, "fuel_prices.auto_refresh", "vn_fuel_prices_snapshot", "latest", {
       rowCount: extracted.rows.length,
       effective_from: extracted.effective_from,
@@ -196,4 +210,17 @@ export const refreshFuelFromPetrolimex = createServerFn({ method: "POST" })
       rows: extracted.rows,
       rowCount: extracted.rows.length,
     };
+  });
+
+/** Admin: liệt kê lịch sử cập nhật (mới nhất trước). */
+export const listFuelHistory = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(async () => {
+    const { data, error } = await supabaseAdmin
+      .from("vn_fuel_prices_history")
+      .select("id, effective_from, source_url, rows, source, created_at, created_by")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return { items: data ?? [] };
   });

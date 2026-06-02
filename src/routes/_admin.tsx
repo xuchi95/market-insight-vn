@@ -47,6 +47,7 @@ const NAV = [
   { to: "/mw-admin/contact", label: "Liên hệ", icon: MessageSquare },
   { to: "/mw-admin/seo", label: "SEO Audit", icon: Search },
   { to: "/mw-admin/fuel-prices", label: "Giá xăng VN", icon: Fuel },
+  { to: "/mw-admin/fuel-prices/history", label: "Lịch sử giá xăng", icon: Fuel },
   { to: "/mw-admin/settings", label: "Cấu hình", icon: Settings },
 ] as const;
 

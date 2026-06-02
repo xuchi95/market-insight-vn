@@ -93,6 +93,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicHooksSeoAuditRouteImport } from './routes/api/public/hooks/seo-audit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
+import { Route as AdminMwAdminFuelPricesHistoryRouteImport } from './routes/_admin/mw-admin.fuel-prices.history'
 
 const XacThuc2faRoute = XacThuc2faRouteImport.update({
   id: '/xac-thuc-2fa',
@@ -522,6 +523,12 @@ const ApiPublicHooksRefreshSavingsRatesRoute =
     path: '/api/public/hooks/refresh-savings-rates',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminMwAdminFuelPricesHistoryRoute =
+  AdminMwAdminFuelPricesHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => AdminMwAdminFuelPricesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -569,7 +576,7 @@ export interface FileRoutesByFullPath {
   '/cai-dat/': typeof CaiDatIndexRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
-  '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
+  '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
   '/mw-admin/seo': typeof AdminMwAdminSeoRoute
@@ -602,6 +609,7 @@ export interface FileRoutesByFullPath {
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
+  '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -654,7 +662,7 @@ export interface FileRoutesByTo {
   '/cai-dat': typeof CaiDatIndexRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
-  '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
+  '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
   '/mw-admin/seo': typeof AdminMwAdminSeoRoute
@@ -687,6 +695,7 @@ export interface FileRoutesByTo {
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
+  '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -741,7 +750,7 @@ export interface FileRoutesById {
   '/cai-dat/': typeof CaiDatIndexRoute
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/_admin/mw-admin/contact': typeof AdminMwAdminContactRoute
-  '/_admin/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
+  '/_admin/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/_admin/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/_admin/mw-admin/popups': typeof AdminMwAdminPopupsRoute
   '/_admin/mw-admin/seo': typeof AdminMwAdminSeoRoute
@@ -774,6 +783,7 @@ export interface FileRoutesById {
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
+  '/_admin/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -861,6 +871,7 @@ export interface FileRouteTypes {
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin/'
+    | '/mw-admin/fuel-prices/history'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
     | '/lovable/email/auth/preview'
@@ -946,6 +957,7 @@ export interface FileRouteTypes {
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin'
+    | '/mw-admin/fuel-prices/history'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
     | '/lovable/email/auth/preview'
@@ -1032,6 +1044,7 @@ export interface FileRouteTypes {
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/_admin/mw-admin/'
+    | '/_admin/mw-admin/fuel-prices/history'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
     | '/lovable/email/auth/preview'
@@ -1707,13 +1720,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRefreshSavingsRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_admin/mw-admin/fuel-prices/history': {
+      id: '/_admin/mw-admin/fuel-prices/history'
+      path: '/history'
+      fullPath: '/mw-admin/fuel-prices/history'
+      preLoaderRoute: typeof AdminMwAdminFuelPricesHistoryRouteImport
+      parentRoute: typeof AdminMwAdminFuelPricesRoute
+    }
   }
 }
+
+interface AdminMwAdminFuelPricesRouteChildren {
+  AdminMwAdminFuelPricesHistoryRoute: typeof AdminMwAdminFuelPricesHistoryRoute
+}
+
+const AdminMwAdminFuelPricesRouteChildren: AdminMwAdminFuelPricesRouteChildren =
+  {
+    AdminMwAdminFuelPricesHistoryRoute: AdminMwAdminFuelPricesHistoryRoute,
+  }
+
+const AdminMwAdminFuelPricesRouteWithChildren =
+  AdminMwAdminFuelPricesRoute._addFileChildren(
+    AdminMwAdminFuelPricesRouteChildren,
+  )
 
 interface AdminRouteChildren {
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
   AdminMwAdminContactRoute: typeof AdminMwAdminContactRoute
-  AdminMwAdminFuelPricesRoute: typeof AdminMwAdminFuelPricesRoute
+  AdminMwAdminFuelPricesRoute: typeof AdminMwAdminFuelPricesRouteWithChildren
   AdminMwAdminNewsletterRoute: typeof AdminMwAdminNewsletterRoute
   AdminMwAdminPopupsRoute: typeof AdminMwAdminPopupsRoute
   AdminMwAdminSeoRoute: typeof AdminMwAdminSeoRoute
@@ -1725,7 +1759,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
   AdminMwAdminContactRoute: AdminMwAdminContactRoute,
-  AdminMwAdminFuelPricesRoute: AdminMwAdminFuelPricesRoute,
+  AdminMwAdminFuelPricesRoute: AdminMwAdminFuelPricesRouteWithChildren,
   AdminMwAdminNewsletterRoute: AdminMwAdminNewsletterRoute,
   AdminMwAdminPopupsRoute: AdminMwAdminPopupsRoute,
   AdminMwAdminSeoRoute: AdminMwAdminSeoRoute,
