@@ -87,6 +87,7 @@ import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-a
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicHooksSeoAuditRouteImport } from './routes/api/public/hooks/seo-audit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 
 const XacThuc2faRoute = XacThuc2faRouteImport.update({
@@ -486,6 +487,11 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksSeoAuditRoute = ApiPublicHooksSeoAuditRouteImport.update({
+  id: '/api/public/hooks/seo-audit',
+  path: '/api/public/hooks/seo-audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksRefreshSavingsRatesRoute =
   ApiPublicHooksRefreshSavingsRatesRouteImport.update({
     id: '/api/public/hooks/refresh-savings-rates',
@@ -569,6 +575,7 @@ export interface FileRoutesByFullPath {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
+  '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -649,6 +656,7 @@ export interface FileRoutesByTo {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
+  '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -731,6 +739,7 @@ export interface FileRoutesById {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
+  '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -813,6 +822,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/mw-admin/'
     | '/api/public/hooks/refresh-savings-rates'
+    | '/api/public/hooks/seo-audit'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -893,6 +903,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/mw-admin'
     | '/api/public/hooks/refresh-savings-rates'
+    | '/api/public/hooks/seo-audit'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -974,6 +985,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/_admin/mw-admin/'
     | '/api/public/hooks/refresh-savings-rates'
+    | '/api/public/hooks/seo-audit'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1049,6 +1061,7 @@ export interface RootRouteChildren {
   ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
+  ApiPublicHooksSeoAuditRoute: typeof ApiPublicHooksSeoAuditRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -1602,6 +1615,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/seo-audit': {
+      id: '/api/public/hooks/seo-audit'
+      path: '/api/public/hooks/seo-audit'
+      fullPath: '/api/public/hooks/seo-audit'
+      preLoaderRoute: typeof ApiPublicHooksSeoAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/refresh-savings-rates': {
       id: '/api/public/hooks/refresh-savings-rates'
       path: '/api/public/hooks/refresh-savings-rates'
@@ -1705,6 +1725,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicXauRoute: ApiPublicXauRoute,
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
+  ApiPublicHooksSeoAuditRoute: ApiPublicHooksSeoAuditRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
