@@ -309,8 +309,8 @@ function AssetDetail() {
             <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-gold">{oil.nameVi}</h1>
-                  <div className="text-sm text-muted-foreground mt-1">{oil.name} · Sàn {oil.exchange} · USD/thùng</div>
+                  <h1 className="text-3xl font-bold tracking-tight text-gold">Giá {oil.nameVi} hôm nay</h1>
+                  <div className="text-sm text-muted-foreground mt-1">{oil.name} · Sàn {oil.exchange} · USD/thùng · Cập nhật realtime</div>
                 </div>
                 <div className="ml-auto text-right">
                   <div className="text-4xl font-bold tabular tracking-tight">${fmtNum(oil.priceUsd, 2)}</div>
