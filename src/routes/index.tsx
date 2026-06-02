@@ -78,7 +78,11 @@ function Index() {
             <BentoTiles />
           </section>
 
-          <section className="pb-10 md:pb-14">
+          <section className="py-10 md:py-14 border-t border-border">
+            <div className="flex items-baseline justify-between mb-5 md:mb-6">
+              <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Giá dầu thế giới</h2>
+              <div className="eyebrow opacity-60 hidden sm:block">Brent &amp; WTI · realtime</div>
+            </div>
             <OilPriceTable />
           </section>
 
