@@ -2,7 +2,27 @@ const SITE = "https://marketwatch.vn";
 const BRAND = "MarketWatch";
 const GOLD = "#C9A24A";
 
-function shell(title: string, inner: string): string {
+interface ShellFooter {
+  /** Token-based one-click unsubscribe link (newsletter / digest / alert) */
+  unsubUrl?: string | null;
+  /** Account-level email preferences page */
+  manageUrl?: string | null;
+  /** Short label describing what is being unsubscribed (e.g. "bản tin vàng") */
+  unsubLabel?: string | null;
+}
+
+function shell(title: string, inner: string, footer?: ShellFooter): string {
+  const unsubUrl = footer?.unsubUrl;
+  const manageUrl = footer?.manageUrl;
+  const unsubLabel = footer?.unsubLabel || "email này";
+  const prefBlock = (unsubUrl || manageUrl)
+    ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #ececec;color:#999;font-size:12px;line-height:1.6;">
+         Không muốn nhận ${escape(unsubLabel)}?
+         ${unsubUrl ? `<a href="${unsubUrl}" style="color:#555;text-decoration:underline;">Hủy đăng ký một lần</a>` : ""}
+         ${unsubUrl && manageUrl ? " &nbsp;·&nbsp; " : ""}
+         ${manageUrl ? `<a href="${manageUrl}" style="color:#555;text-decoration:underline;">Quản lý email</a>` : ""}
+       </div>`
+    : "";
   return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(title)}</title></head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;padding:32px 16px;">
@@ -19,6 +39,7 @@ function shell(title: string, inner: string): string {
         Bạn nhận được email này từ ${BRAND}. Mọi yêu cầu hỗ trợ vui lòng gửi tới
         <a href="mailto:contact@marketwatch.vn" style="color:#555;">contact@marketwatch.vn</a>.<br/>
         © ${new Date().getFullYear()} MarketWatch · <a href="${SITE}" style="color:#555;">marketwatch.vn</a>
+        ${prefBlock}
       </td></tr>
     </table>
   </td></tr>
