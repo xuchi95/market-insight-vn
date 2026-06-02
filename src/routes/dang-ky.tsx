@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { sendWelcomeEmail } from "@/lib/email/welcome.functions";
+import { signupAndSendConfirmation } from "@/lib/email/signup-confirm.functions";
 import { AuthShell, GoogleButton, Divider } from "@/components/site/AuthShell";
 import { Eye, EyeOff, Loader2, Check } from "lucide-react";
 
@@ -40,29 +41,25 @@ function SignupPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: {
-        data: { full_name: fullName.trim() || undefined },
-        emailRedirectTo: window.location.origin,
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Đăng ký không thành công", { description: error.message });
-      return;
-    }
-    if (data.session) {
-      sendWelcomeEmail().catch((err) => console.error("welcome email failed", err));
-      signalAuthWelcome({ kind: "signup", email: email.trim(), name: fullName.trim() || undefined });
-      navigate({ to: "/" });
-    } else {
+    try {
+      await signupAndSendConfirmation({
+        data: {
+          email: email.trim(),
+          password,
+          fullName: fullName.trim() || null,
+          redirectTo: window.location.origin,
+        },
+      });
+      setLoading(false);
       signalAuthWelcome({
         kind: "signup",
         email: email.trim(),
-        description: "Kiểm tra email để xác thực tài khoản trước khi đăng nhập.",
+        description: "Đã gửi email xác thực. Vui lòng kiểm tra hộp thư để hoàn tất đăng ký.",
       });
+    } catch (err) {
+      setLoading(false);
+      const msg = err instanceof Error ? err.message : "Đăng ký không thành công";
+      toast.error("Đăng ký không thành công", { description: msg });
     }
   }
 
