@@ -31,19 +31,57 @@ export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
     const SYM = params.symbol.toUpperCase();
     const SITE = "https://marketwatch.vn";
-    const URL = `${SITE}/asset/${params.symbol.toLowerCase()}`;
-    const TITLE = `Giá ${SYM} hôm nay — Biểu đồ ${SYM}/USD realtime | MarketWatch`;
-    const DESC = `Giá ${SYM} hôm nay cập nhật realtime: biến động 24h, vốn hoá thị trường, khối lượng giao dịch và biểu đồ giá ${SYM}/USD chi tiết.`;
+    const slug = params.symbol.toLowerCase();
+    const URL = `${SITE}/tai-san/${slug}`;
+
+    // Oil (Brent/WTI) — SEO chuyên biệt
+    const isOilBrent = slug === "oil-brent";
+    const isOilWti = slug === "oil-wti";
+    const isOil = isOilBrent || isOilWti;
+
+    let TITLE: string;
+    let DESC: string;
+    let KEYWORDS: string;
+    let BREADCRUMB_PARENT = { name: "Crypto", item: `${SITE}/tien-dien-tu` };
+    let BREADCRUMB_LEAF = SYM;
+    let OG_TYPE = "website";
+
+    if (isOilBrent) {
+      TITLE = "Giá dầu Brent hôm nay — Biểu đồ Brent (BZ=F) USD/thùng realtime | MarketWatch";
+      DESC =
+        "Giá dầu Brent hôm nay cập nhật realtime từ sàn ICE (BZ=F): biến động phiên, % thay đổi 24h/7 ngày/30 ngày/90 ngày, đỉnh đáy và biểu đồ giá dầu Brent USD/thùng chi tiết.";
+      KEYWORDS =
+        "giá dầu brent, giá dầu brent hôm nay, dầu brent, brent oil, BZ=F, biểu đồ dầu brent, giá dầu thế giới, USD/thùng";
+      BREADCRUMB_PARENT = { name: "Giá dầu thế giới", item: `${SITE}/#oil` };
+      BREADCRUMB_LEAF = "Dầu Brent";
+      OG_TYPE = "article";
+    } else if (isOilWti) {
+      TITLE = "Giá dầu WTI hôm nay — Biểu đồ WTI (CL=F) USD/thùng realtime | MarketWatch";
+      DESC =
+        "Giá dầu WTI hôm nay cập nhật realtime từ sàn NYMEX (CL=F): biến động phiên, % thay đổi 24h/7 ngày/30 ngày/90 ngày, đỉnh đáy và biểu đồ giá dầu thô WTI USD/thùng chi tiết.";
+      KEYWORDS =
+        "giá dầu wti, giá dầu wti hôm nay, dầu wti, wti crude, CL=F, biểu đồ dầu wti, giá dầu thô mỹ, USD/thùng";
+      BREADCRUMB_PARENT = { name: "Giá dầu thế giới", item: `${SITE}/#oil` };
+      BREADCRUMB_LEAF = "Dầu WTI";
+      OG_TYPE = "article";
+    } else {
+      TITLE = `Giá ${SYM} hôm nay — Biểu đồ ${SYM}/USD realtime | MarketWatch`;
+      DESC = `Giá ${SYM} hôm nay cập nhật realtime: biến động 24h, vốn hoá thị trường, khối lượng giao dịch và biểu đồ giá ${SYM}/USD chi tiết.`;
+      KEYWORDS = `giá ${SYM.toLowerCase()}, giá ${SYM.toLowerCase()} hôm nay, ${SYM.toLowerCase()}/usd, biểu đồ ${SYM.toLowerCase()}, vốn hoá ${SYM.toLowerCase()}`;
+    }
     return {
       meta: [
         { title: TITLE },
         { name: "description", content: DESC },
-        { name: "keywords", content: `giá ${SYM.toLowerCase()}, giá ${SYM.toLowerCase()} hôm nay, ${SYM.toLowerCase()}/usd, biểu đồ ${SYM.toLowerCase()}, vốn hoá ${SYM.toLowerCase()}` },
+        { name: "keywords", content: KEYWORDS },
+        { name: "robots", content: "index,follow,max-image-preview:large,max-snippet:-1" },
         { property: "og:title", content: TITLE },
         { property: "og:description", content: DESC },
         { property: "og:url", content: URL },
-        { property: "og:type", content: "website" },
+        { property: "og:type", content: OG_TYPE },
         { property: "og:locale", content: "vi_VN" },
+        { property: "og:site_name", content: "MarketWatch" },
+        { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: TITLE },
         { name: "twitter:description", content: DESC },
       ],
@@ -56,11 +94,44 @@ export const Route = createFileRoute("/tai-san/$symbol")({
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Trang chủ", item: `${SITE}/` },
-              { "@type": "ListItem", position: 2, name: "Crypto", item: `${SITE}/tien-dien-tu` },
-              { "@type": "ListItem", position: 3, name: SYM, item: URL },
+              { "@type": "ListItem", position: 2, name: BREADCRUMB_PARENT.name, item: BREADCRUMB_PARENT.item },
+              { "@type": "ListItem", position: 3, name: BREADCRUMB_LEAF, item: URL },
             ],
           }),
         },
+        ...(isOil
+          ? [
+              {
+                type: "application/ld+json",
+                children: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  mainEntity: [
+                    {
+                      "@type": "Question",
+                      name: isOilBrent
+                        ? "Giá dầu Brent hôm nay là bao nhiêu?"
+                        : "Giá dầu WTI hôm nay là bao nhiêu?",
+                      acceptedAnswer: {
+                        "@type": "Answer",
+                        text: isOilBrent
+                          ? "Giá dầu Brent (BZ=F) được cập nhật realtime từ sàn ICE, hiển thị theo USD/thùng cùng % thay đổi so với phiên trước trên MarketWatch."
+                          : "Giá dầu WTI (CL=F) được cập nhật realtime từ sàn NYMEX, hiển thị theo USD/thùng cùng % thay đổi so với phiên trước trên MarketWatch.",
+                      },
+                    },
+                    {
+                      "@type": "Question",
+                      name: "Dữ liệu giá dầu được lấy từ đâu?",
+                      acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "Dữ liệu giá dầu Brent và WTI được tổng hợp từ Yahoo Finance, cập nhật mỗi 60 giây và có lịch sử 24h, 7 ngày, 30 ngày, 90 ngày.",
+                      },
+                    },
+                  ],
+                }),
+              },
+            ]
+          : []),
       ],
     };
   },
@@ -238,8 +309,8 @@ function AssetDetail() {
             <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-gold">{oil.nameVi}</h1>
-                  <div className="text-sm text-muted-foreground mt-1">{oil.name} · Sàn {oil.exchange} · USD/thùng</div>
+                  <h1 className="text-3xl font-bold tracking-tight text-gold">Giá {oil.nameVi} hôm nay</h1>
+                  <div className="text-sm text-muted-foreground mt-1">{oil.name} · Sàn {oil.exchange} · USD/thùng · Cập nhật realtime</div>
                 </div>
                 <div className="ml-auto text-right">
                   <div className="text-4xl font-bold tabular tracking-tight">${fmtNum(oil.priceUsd, 2)}</div>
