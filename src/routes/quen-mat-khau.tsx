@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { requestPasswordRecovery } from "@/lib/email/password-recovery.functions";
 import { AuthShell } from "@/components/site/AuthShell";
 import { Loader2, MailCheck } from "lucide-react";
 
@@ -30,6 +31,7 @@ function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const requestRecovery = useServerFn(requestPasswordRecovery);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,13 +41,18 @@ function ForgotPasswordPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
-      redirectTo: `${window.location.origin}/dat-lai-mat-khau`,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Không gửi được email", { description: error.message });
-      return;
+    try {
+      await requestRecovery({
+        data: {
+          email: trimmed,
+          redirectTo: `${window.location.origin}/dat-lai-mat-khau`,
+        },
+      });
+    } catch (err) {
+      // Swallow — we don't want to leak existence either way.
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
     // Always show success to avoid leaking which emails exist
     setSent(true);
