@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { sendEmail } from "@/lib/email/resend.server";
+import { loginOtpEmail, magicLinkEmail } from "@/lib/email/templates.server";
 
 // Authsignal "Webhook" Email provider (Email OTP + Magic Link).
 // Authsignal POSTs JSON ở đây mỗi khi cần gửi email xác thực
@@ -11,8 +12,6 @@ import { sendEmail } from "@/lib/email/resend.server";
 //   Authenticators → Email OTP → Provider = Webhook
 //   Webhook URL  = https://marketwatch.vn/api/public/authsignal-email
 //   Tenant secret = AUTHSIGNAL_API_SECRET (đã có trong project)
-
-const SITE_NAME = "MarketWatch";
 
 function verifySignature(rawBody: string, header: string | null, secret: string): boolean {
   if (!header) return false;
@@ -41,50 +40,6 @@ function verifySignature(rawBody: string, header: string | null, secret: string)
     }
   }
   return false;
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  }[c]!));
-}
-
-function renderOtpEmail(code: string): { html: string; text: string; subject: string } {
-  const safeCode = escapeHtml(code);
-  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#ffffff;font-family:Arial,sans-serif;color:#0d0d0d;">
-  <div style="max-width:480px;margin:0 auto;padding:32px 24px;">
-    <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;">Mã xác thực ${SITE_NAME}</h1>
-    <p style="font-size:14px;line-height:1.5;color:#55575d;margin:0 0 24px;">
-      Nhập mã sau để hoàn tất xác thực. Mã có hiệu lực trong vài phút.
-    </p>
-    <div style="font-size:32px;font-weight:700;letter-spacing:8px;background:#f5f5f7;border-radius:8px;padding:16px 20px;text-align:center;color:#0d0d0d;">
-      ${safeCode}
-    </div>
-    <p style="font-size:12px;color:#999;margin:32px 0 0;">
-      Nếu bạn không yêu cầu mã này, có thể bỏ qua email.
-    </p>
-  </div></body></html>`;
-  const text = `Mã xác thực ${SITE_NAME}: ${code}\n\nNếu bạn không yêu cầu mã này, có thể bỏ qua email.`;
-  return { html, text, subject: `Mã xác thực ${SITE_NAME}: ${code}` };
-}
-
-function renderMagicLinkEmail(url: string): { html: string; text: string; subject: string } {
-  const safeUrl = escapeHtml(url);
-  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#ffffff;font-family:Arial,sans-serif;color:#0d0d0d;">
-  <div style="max-width:480px;margin:0 auto;padding:32px 24px;">
-    <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;">Đăng nhập ${SITE_NAME}</h1>
-    <p style="font-size:14px;line-height:1.5;color:#55575d;margin:0 0 24px;">
-      Bấm nút bên dưới để đăng nhập. Liên kết có hiệu lực trong vài phút.
-    </p>
-    <p style="margin:0 0 24px;">
-      <a href="${safeUrl}" style="display:inline-block;background:#0d0d0d;color:#ffffff;text-decoration:none;font-size:14px;border-radius:8px;padding:12px 20px;">Đăng nhập</a>
-    </p>
-    <p style="font-size:12px;color:#999;margin:32px 0 0;word-break:break-all;">
-      Hoặc dán liên kết này vào trình duyệt: ${safeUrl}
-    </p>
-  </div></body></html>`;
-  const text = `Đăng nhập ${SITE_NAME}\n\nMở liên kết: ${url}`;
-  return { html, text, subject: `Link đăng nhập ${SITE_NAME}` };
 }
 
 export const Route = createFileRoute("/api/public/authsignal-email")({
@@ -125,14 +80,15 @@ export const Route = createFileRoute("/api/public/authsignal-email")({
           return new Response("Missing to/code|url", { status: 400 });
         }
 
-        const rendered = code ? renderOtpEmail(code) : renderMagicLinkEmail(url!);
+        const rendered = code
+          ? loginOtpEmail({ code })
+          : magicLinkEmail({ actionLink: url! });
 
         try {
           await sendEmail({
             to,
             subject: rendered.subject,
             html: rendered.html,
-            text: rendered.text,
             tags: ["authsignal", code ? "email-otp" : "magic-link"],
           });
         } catch (e: any) {
