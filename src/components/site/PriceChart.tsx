@@ -231,6 +231,7 @@ export function PriceChart({
     setAsset(initial);
   }
   const [range, setRange] = useState<Range>("7");
+  const [changeUnit, setChangeUnit] = useState<ChangeUnit>("pct");
 
   const { data, isLoading, isFetching, dataUpdatedAt, refetch } = useQuery({
     queryKey: ["chart", asset, range],
@@ -285,7 +286,13 @@ export function PriceChart({
     return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(v);
   };
 
-  const rangeLabel = range === "1" ? "24 giờ qua" : range === "7" ? "7 ngày qua" : "30 ngày qua";
+  const rangeLabel =
+    range === "1" ? "24 giờ qua" :
+    range === "7" ? "7 ngày qua" :
+    range === "30" ? "30 ngày qua" :
+    "12 tháng qua";
+  const rangeShort =
+    range === "1" ? "1D" : range === "7" ? "1W" : range === "30" ? "1M" : "1Y";
   const trendStrength = Math.abs(stats?.change ?? 0);
   const trendWord = trendStrength < 0.3 ? "gần như đi ngang" : trendStrength < 1.5 ? (positive ? "tăng nhẹ" : "giảm nhẹ") : trendStrength < 4 ? (positive ? "tăng" : "giảm") : (positive ? "tăng mạnh" : "giảm mạnh");
   const summary = stats ? `Trong ${rangeLabel}, giá ${trendWord} ${Math.abs(stats.change).toFixed(2)}% so với đầu kỳ.` : "";
@@ -315,9 +322,10 @@ export function PriceChart({
           </Select>
           <Tabs value={range} onValueChange={(v) => { setRange(v as Range); setZoom(null); }}>
             <TabsList className="h-9">
-              <TabsTrigger value="1">24h</TabsTrigger>
-              <TabsTrigger value="7">7N</TabsTrigger>
-              <TabsTrigger value="30">30N</TabsTrigger>
+              <TabsTrigger value="1" title="1 ngày">1D</TabsTrigger>
+              <TabsTrigger value="7" title="1 tuần">1W</TabsTrigger>
+              <TabsTrigger value="30" title="1 tháng">1M</TabsTrigger>
+              <TabsTrigger value="365" title="1 năm">1Y</TabsTrigger>
             </TabsList>
           </Tabs>
           {zoom && (
