@@ -1,0 +1,14 @@
+# MarketWatch Việt Nam
+
+> Cập nhật giá vàng SJC/PNJ, tỷ giá USD/VND, giá xăng dầu, chứng khoán Việt Nam và giá Bitcoin/crypto realtime — dữ liệu chuẩn cho nhà đầu tư cá nhân.
+
+## Pages
+
+- [Trang chủ](/): Tổng hợp thị trường vàng, ngoại tệ, chứng khoán, crypto realtime.
+- [Giá xăng dầu hôm nay](/gia-xang-dau): Bảng giá Petrolimex (RON 95, E5, Diesel) và giá dầu Brent, WTI thế giới.
+- [Giá vàng](/gia-vang): Giá vàng SJC, PNJ, DOJI, vàng nhẫn 9999 cập nhật theo phiên.
+- [Tỷ giá ngoại tệ](/ty-gia-ngoai-te): Tỷ giá USD, EUR, JPY, GBP… so với VND.
+- [Tỷ giá ngân hàng](/ty-gia-ngan-hang): So sánh tỷ giá mua/bán tại các ngân hàng thương mại.
+- [Quy đổi tiền tệ](/quy-doi-tien-te): Công cụ chuyển đổi giữa các đồng tiền.
+- [Chứng khoán](/chung-khoan): Chỉ số VN-Index, HNX-Index và top cổ phiếu.
+- [Tiền điện tử](/tien-dien-tu): Giá Bitcoin (BTC), Ethereum (ETH), USDT, BNB, SOL realtime.
