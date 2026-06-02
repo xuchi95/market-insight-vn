@@ -28,6 +28,7 @@ import { Route as LaiSuatTietKiemRouteImport } from './routes/lai-suat-tiet-kiem
 import { Route as HuyCanhBaoTheoDoiRouteImport } from './routes/huy-canh-bao-theo-doi'
 import { Route as HuyBanTinRouteImport } from './routes/huy-ban-tin'
 import { Route as GoldRouteImport } from './routes/gold'
+import { Route as GiaXangDauRouteImport } from './routes/gia-xang-dau'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
@@ -188,6 +189,11 @@ const HuyBanTinRoute = HuyBanTinRouteImport.update({
 const GoldRoute = GoldRouteImport.update({
   id: '/gold',
   path: '/gold',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiaXangDauRoute = GiaXangDauRouteImport.update({
+  id: '/gia-xang-dau',
+  path: '/gia-xang-dau',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GiaVangRoute = GiaVangRouteImport.update({
@@ -545,6 +551,7 @@ export interface FileRoutesByFullPath {
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gia-xang-dau': typeof GiaXangDauRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
   '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
@@ -631,6 +638,7 @@ export interface FileRoutesByTo {
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gia-xang-dau': typeof GiaXangDauRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
   '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
@@ -719,6 +727,7 @@ export interface FileRoutesById {
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gia-xang-dau': typeof GiaXangDauRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
   '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
@@ -807,6 +816,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/forex'
     | '/gia-vang'
+    | '/gia-xang-dau'
     | '/gold'
     | '/huy-ban-tin'
     | '/huy-canh-bao-theo-doi'
@@ -893,6 +903,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/forex'
     | '/gia-vang'
+    | '/gia-xang-dau'
     | '/gold'
     | '/huy-ban-tin'
     | '/huy-canh-bao-theo-doi'
@@ -980,6 +991,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/forex'
     | '/gia-vang'
+    | '/gia-xang-dau'
     | '/gold'
     | '/huy-ban-tin'
     | '/huy-canh-bao-theo-doi'
@@ -1068,6 +1080,7 @@ export interface RootRouteChildren {
   DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
+  GiaXangDauRoute: typeof GiaXangDauRoute
   GoldRoute: typeof GoldRoute
   HuyBanTinRoute: typeof HuyBanTinRoute
   HuyCanhBaoTheoDoiRoute: typeof HuyCanhBaoTheoDoiRoute
@@ -1263,6 +1276,13 @@ declare module '@tanstack/react-router' {
       path: '/gold'
       fullPath: '/gold'
       preLoaderRoute: typeof GoldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gia-xang-dau': {
+      id: '/gia-xang-dau'
+      path: '/gia-xang-dau'
+      fullPath: '/gia-xang-dau'
+      preLoaderRoute: typeof GiaXangDauRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gia-vang': {
@@ -1786,6 +1806,7 @@ const rootRouteChildren: RootRouteChildren = {
   DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
+  GiaXangDauRoute: GiaXangDauRoute,
   GoldRoute: GoldRoute,
   HuyBanTinRoute: HuyBanTinRoute,
   HuyCanhBaoTheoDoiRoute: HuyCanhBaoTheoDoiRoute,
@@ -1851,13 +1872,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
