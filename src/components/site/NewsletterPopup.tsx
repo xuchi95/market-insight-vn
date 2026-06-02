@@ -193,6 +193,7 @@ function CustomPopupForm({ popup }: { popup: ActivePopup }) {
           placeholder={f.placeholder ?? f.label}
           value={values[f.name] ?? ""}
           onChange={(e) => setValues((p) => ({ ...p, [f.name]: e.target.value }))}
+          className="h-11 border-2 border-border bg-background focus-visible:border-[var(--gold)] focus-visible:ring-2 focus-visible:ring-[var(--gold)]/30"
         />
       ))}
       <Button type="submit" className="w-full" disabled={loading}>{loading ? "…" : popup.cta_label}</Button>
