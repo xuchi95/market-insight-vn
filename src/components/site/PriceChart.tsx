@@ -9,7 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 type Asset = "btc" | "eth" | "gold-sjc" | "usd-vnd" | "eur-vnd" | "gbp-vnd" | "jpy-vnd" | "cny-vnd" | "krw-vnd" | "sgd-vnd" | "aud-vnd" | "cad-vnd" | "chf-vnd" | "hkd-vnd" | "thb-vnd";
-type Range = "1" | "7" | "30";
+type Range = "1" | "7" | "30" | "365";
+type ChangeUnit = "pct" | "abs";
 type AssetGroup = "crypto" | "gold" | "forex";
 
 const ASSET_GROUPS: Record<AssetGroup, Asset[]> = {
@@ -91,10 +92,11 @@ async function loadSeries(asset: Asset, days: Range): Promise<SeriesData> {
     } catch {}
   }
   // Synthesize plausible series for gold/forex or as fallback
-  const n = Number(days) * 24;
+  const totalMs = Number(days) * 24 * 3600 * 1000;
+  const n = Math.min(Number(days) * 24, 480);
   const base = (BASE_VALUES as Record<string, number>)[asset] ?? 25_400;
   const now = Date.now();
-  const step = (Number(days) * 24 * 3600 * 1000) / n;
+  const step = totalMs / n;
   const out: Point[] = [];
   let v = base * (1 - 0.03);
   for (let i = 0; i < n; i++) {
@@ -229,6 +231,7 @@ export function PriceChart({
     setAsset(initial);
   }
   const [range, setRange] = useState<Range>("7");
+  const [changeUnit, setChangeUnit] = useState<ChangeUnit>("pct");
 
   const { data, isLoading, isFetching, dataUpdatedAt, refetch } = useQuery({
     queryKey: ["chart", asset, range],
@@ -283,7 +286,13 @@ export function PriceChart({
     return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(v);
   };
 
-  const rangeLabel = range === "1" ? "24 giờ qua" : range === "7" ? "7 ngày qua" : "30 ngày qua";
+  const rangeLabel =
+    range === "1" ? "24 giờ qua" :
+    range === "7" ? "7 ngày qua" :
+    range === "30" ? "30 ngày qua" :
+    "12 tháng qua";
+  const rangeShort =
+    range === "1" ? "1D" : range === "7" ? "1W" : range === "30" ? "1M" : "1Y";
   const trendStrength = Math.abs(stats?.change ?? 0);
   const trendWord = trendStrength < 0.3 ? "gần như đi ngang" : trendStrength < 1.5 ? (positive ? "tăng nhẹ" : "giảm nhẹ") : trendStrength < 4 ? (positive ? "tăng" : "giảm") : (positive ? "tăng mạnh" : "giảm mạnh");
   const summary = stats ? `Trong ${rangeLabel}, giá ${trendWord} ${Math.abs(stats.change).toFixed(2)}% so với đầu kỳ.` : "";
@@ -313,9 +322,10 @@ export function PriceChart({
           </Select>
           <Tabs value={range} onValueChange={(v) => { setRange(v as Range); setZoom(null); }}>
             <TabsList className="h-9">
-              <TabsTrigger value="1">24h</TabsTrigger>
-              <TabsTrigger value="7">7N</TabsTrigger>
-              <TabsTrigger value="30">30N</TabsTrigger>
+              <TabsTrigger value="1" title="1 ngày">1D</TabsTrigger>
+              <TabsTrigger value="7" title="1 tuần">1W</TabsTrigger>
+              <TabsTrigger value="30" title="1 tháng">1M</TabsTrigger>
+              <TabsTrigger value="365" title="1 năm">1Y</TabsTrigger>
             </TabsList>
           </Tabs>
           {zoom && (
@@ -337,13 +347,31 @@ export function PriceChart({
                 <div className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">{fmtVal(stats.last)}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                  Thay đổi {zoom ? "khoảng đã chọn" : rangeLabel}
+                <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <span>Thay đổi {zoom ? "khoảng đã chọn" : rangeShort}</span>
+                  <button
+                    type="button"
+                    onClick={() => setChangeUnit((u) => (u === "pct" ? "abs" : "pct"))}
+                    className="inline-flex items-center rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] font-medium hover:bg-muted normal-case tracking-normal"
+                    title="Đổi đơn vị hiển thị"
+                    aria-label="Đổi đơn vị hiển thị giữa phần trăm và tuyệt đối"
+                  >
+                    {changeUnit === "pct" ? "%" : "Δ"}
+                  </button>
                 </div>
                 <div className="flex items-center gap-2 font-display text-xl sm:text-2xl md:text-3xl font-semibold tabular tracking-tight leading-none mt-1" style={{ color }}>
                   <TrendIcon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
-                  {positive ? "+" : ""}{stats.change.toFixed(2)}%
-                  <span className="font-sans text-xs sm:text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
+                  {changeUnit === "pct" ? (
+                    <>
+                      {positive ? "+" : ""}{stats.change.toFixed(2)}%
+                      <span className="font-sans text-xs sm:text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
+                    </>
+                  ) : (
+                    <>
+                      {positive ? "+" : ""}{fmtVal(stats.changeAbs)}
+                      <span className="font-sans text-xs sm:text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{stats.change.toFixed(2)}%)</span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="ml-auto text-right">
@@ -446,8 +474,12 @@ export function PriceChart({
             style={{ color, borderColor: `color-mix(in oklab, ${color} 40%, transparent)`, background: `color-mix(in oklab, ${color} 10%, transparent)` }}
           >
             <TrendIcon className="h-3 w-3" />
-            <span>{positive ? "Đang tăng" : trendStrength < 0.3 ? "Đi ngang" : "Đang giảm"}</span>
-            <span className="opacity-80">{positive ? "+" : ""}{(stats?.change ?? 0).toFixed(2)}%</span>
+            <span>{trendStrength < 0.3 ? "Đi ngang" : positive ? "Tăng" : "Giảm"} · {rangeShort}</span>
+            <span className="opacity-80">
+              {changeUnit === "pct"
+                ? `${positive ? "+" : ""}${(stats?.change ?? 0).toFixed(2)}%`
+                : `${positive ? "+" : ""}${fmtVal(stats?.changeAbs ?? 0)}`}
+            </span>
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-muted-foreground">
             <span className="inline-block h-0 w-3 border-t-2 border-dashed border-muted-foreground/70" /> Đầu kỳ
