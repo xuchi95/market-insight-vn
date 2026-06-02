@@ -95,6 +95,8 @@ const SEARCH_SUGGESTIONS: SearchSuggestion[] = [
   { symbol: "JPY", label: "Yên Nhật (JPY/VND)", category: "Ngoại tệ", to: "/tai-san/jpy", keywords: ["jpy", "yen", "yên"] },
   { symbol: "VCB·USD", label: "Vietcombank · USD/VND", category: "Ngân hàng", to: "/tai-san/bank-usd", keywords: ["vcb", "vietcombank", "ngân hàng", "usd"] },
   { symbol: "VN-Index", label: "Chỉ số VN-Index", category: "Chứng khoán", to: "/tai-san/vnindex", keywords: ["vnindex", "vn-index", "hose", "chứng khoán"] },
+  { symbol: "Brent", label: "Dầu Brent (BZ=F)", category: "Hàng hoá", to: "/tai-san/oil-brent", keywords: ["brent", "dau", "dầu", "oil", "bz=f", "bzf"] },
+  { symbol: "WTI", label: "Dầu WTI (CL=F)", category: "Hàng hoá", to: "/tai-san/oil-wti", keywords: ["wti", "dau", "dầu", "oil", "cl=f", "clf", "crude"] },
   { symbol: "DCA", label: "Công cụ DCA & ROI", category: "Công cụ", to: "/cong-cu/dca-roi", keywords: ["dca", "roi", "đầu tư"] },
 ];
 
@@ -148,8 +150,11 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
   const fallbackRoute = (term: string): string | null => {
     const sym = term.replace(/[^a-z0-9-]/g, "");
+    if (/^(brent|wti)$/.test(sym)) return `/tai-san/oil-${sym}`;
     if (/^(btc|eth|sol|bnb|xrp|ada|doge|ton|trx|dot|matic|avax|link|ltc|atom)$/.test(sym)) return `/tai-san/${sym}`;
     if (/^(usd|eur|jpy|gbp|aud|cad|chf|cny|krw|sgd|thb|hkd)$/.test(sym)) return `/tai-san/${sym}`;
+    if (/brent|dầu brent|dau brent/.test(term)) return "/tai-san/oil-brent";
+    if (/\bwti\b|dầu wti|dau wti|crude/.test(term)) return "/tai-san/oil-wti";
     if (/btc|eth|sol|crypto|bitcoin/.test(term)) return "/tien-dien-tu";
     if (/sjc|xau|pnj|vàng|vang|gold/.test(term)) return "/gia-vang";
     if (/usd|eur|jpy|forex|ngoại|ngoai/.test(term)) return "/ty-gia-ngoai-te";
