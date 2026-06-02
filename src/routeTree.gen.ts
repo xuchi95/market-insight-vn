@@ -61,6 +61,7 @@ import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
+import { Route as ApiPublicOilRouteImport } from './routes/api/public/oil'
 import { Route as ApiPublicNewsletterWeeklyDigestRouteImport } from './routes/api/public/newsletter-weekly-digest'
 import { Route as ApiPublicMetalsRouteImport } from './routes/api/public/metals'
 import { Route as ApiPublicMacroVnRouteImport } from './routes/api/public/macro-vn'
@@ -352,6 +353,11 @@ const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
   path: '/api/public/pair-history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicOilRoute = ApiPublicOilRouteImport.update({
+  id: '/api/public/oil',
+  path: '/api/public/oil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicNewsletterWeeklyDigestRoute =
   ApiPublicNewsletterWeeklyDigestRouteImport.update({
     id: '/api/public/newsletter-weekly-digest',
@@ -573,6 +579,7 @@ export interface FileRoutesByFullPath {
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
+  '/api/public/oil': typeof ApiPublicOilRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -655,6 +662,7 @@ export interface FileRoutesByTo {
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
+  '/api/public/oil': typeof ApiPublicOilRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -739,6 +747,7 @@ export interface FileRoutesById {
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
+  '/api/public/oil': typeof ApiPublicOilRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -823,6 +832,7 @@ export interface FileRouteTypes {
     | '/api/public/macro-vn'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
+    | '/api/public/oil'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -905,6 +915,7 @@ export interface FileRouteTypes {
     | '/api/public/macro-vn'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
+    | '/api/public/oil'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -988,6 +999,7 @@ export interface FileRouteTypes {
     | '/api/public/macro-vn'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
+    | '/api/public/oil'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -1065,6 +1077,7 @@ export interface RootRouteChildren {
   ApiPublicMacroVnRoute: typeof ApiPublicMacroVnRoute
   ApiPublicMetalsRoute: typeof ApiPublicMetalsRoute
   ApiPublicNewsletterWeeklyDigestRoute: typeof ApiPublicNewsletterWeeklyDigestRoute
+  ApiPublicOilRoute: typeof ApiPublicOilRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
@@ -1445,6 +1458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPairHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/oil': {
+      id: '/api/public/oil'
+      path: '/api/public/oil'
+      fullPath: '/api/public/oil'
+      preLoaderRoute: typeof ApiPublicOilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/newsletter-weekly-digest': {
       id: '/api/public/newsletter-weekly-digest'
       path: '/api/public/newsletter-weekly-digest'
@@ -1737,6 +1757,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMacroVnRoute: ApiPublicMacroVnRoute,
   ApiPublicMetalsRoute: ApiPublicMetalsRoute,
   ApiPublicNewsletterWeeklyDigestRoute: ApiPublicNewsletterWeeklyDigestRoute,
+  ApiPublicOilRoute: ApiPublicOilRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
@@ -1754,13 +1775,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
