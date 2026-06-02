@@ -1,10 +1,9 @@
 import { Fuel } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { SectionCard } from "./SectionCard";
+import { supabase } from "@/integrations/supabase/client";
 
-// Nguồn: Petrolimex — Công văn 3826/BCT-TTTN, áp dụng từ 15h00 ngày 28/05/2026
-// Cập nhật thủ công sau mỗi kỳ điều chỉnh (thường thứ Năm hàng tuần).
-const EFFECTIVE_FROM = "15:00 — 28/05/2026";
-const SOURCE_URL =
+const DEFAULT_SOURCE_URL =
   "https://www.petrolimex.com.vn/nd/gia-xang-dau/gia-xang-dau-vung-1.html";
 
 type FuelRow = {
@@ -15,22 +14,38 @@ type FuelRow = {
   highlight?: boolean;
 };
 
-const ROWS: FuelRow[] = [
-  { name: "Xăng RON 95-V", unit: "đồng/lít", zone1: 25050, zone2: 25550, highlight: true },
-  { name: "Xăng RON 95-III", unit: "đồng/lít", zone1: 24150, zone2: 24630, highlight: true },
-  { name: "Xăng E10 RON 95-V", unit: "đồng/lít", zone1: 24560, zone2: 25050 },
-  { name: "Xăng E10 RON 95-III", unit: "đồng/lít", zone1: 23660, zone2: 24130 },
-  { name: "Xăng E5 RON 92-II", unit: "đồng/lít", zone1: 23250, zone2: 23710, highlight: true },
-  { name: "Điêzen 0,001S-V", unit: "đồng/lít", zone1: 28910, zone2: 29480 },
-  { name: "Điêzen 0,05S-II", unit: "đồng/lít", zone1: 27650, zone2: 28200, highlight: true },
-  { name: "Dầu hỏa 2-K", unit: "đồng/lít", zone1: 25800, zone2: 26310 },
-  { name: "Mazút N°2B (3,5S)", unit: "đồng/kg", zone1: 20440, zone2: 20840 },
-  { name: "Mazút 180cst - 0,5S (RMG)", unit: "đồng/kg", zone1: 23540, zone2: 24010 },
-];
+type Snapshot = {
+  effective_from: string;
+  source_url: string;
+  rows: FuelRow[];
+};
 
 const fmtVnd = (n: number) => new Intl.NumberFormat("vi-VN").format(n);
 
 export function VnFuelPriceTable() {
+  const { data } = useQuery<Snapshot | null>({
+    queryKey: ["public", "vn-fuel-prices"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vn_fuel_prices_snapshot")
+        .select("effective_from, source_url, rows")
+        .eq("id", "latest")
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
+      return {
+        effective_from: data.effective_from,
+        source_url: data.source_url,
+        rows: (data.rows as unknown as FuelRow[]) ?? [],
+      };
+    },
+    staleTime: 60_000,
+  });
+
+  const rows = data?.rows ?? [];
+  const effectiveFrom = data?.effective_from ?? "—";
+  const sourceUrl = data?.source_url ?? DEFAULT_SOURCE_URL;
+
   return (
     <SectionCard
       id="vn-fuel"
@@ -39,12 +54,12 @@ export function VnFuelPriceTable() {
       description="Bảng giá bán lẻ Petrolimex — 34 tỉnh thành, đã bao gồm thuế GTGT"
       action={
         <a
-          href={SOURCE_URL}
+          href={sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-muted-foreground hover:text-foreground"
         >
-          Áp dụng từ {EFFECTIVE_FROM}
+          Áp dụng từ {effectiveFrom}
         </a>
       }
     >
@@ -61,7 +76,7 @@ export function VnFuelPriceTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {ROWS.map((r) => (
+            {rows.map((r) => (
               <tr key={r.name} className="hover:bg-muted/30 transition-colors">
                 <td className="px-4 py-4">
                   <div className="font-display text-lg tracking-tight">{r.name}</div>
@@ -82,6 +97,13 @@ export function VnFuelPriceTable() {
                 </td>
               </tr>
             ))}
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  Chưa có dữ liệu giá xăng. Vui lòng cập nhật từ trang quản trị.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -90,7 +112,7 @@ export function VnFuelPriceTable() {
         vận chuyển cao). Giá có thể thay đổi sau mỗi kỳ điều chỉnh (thường thứ Năm hàng tuần) —
         nguồn:{" "}
         <a
-          href={SOURCE_URL}
+          href={sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="underline hover:text-foreground"
