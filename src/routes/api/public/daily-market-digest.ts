@@ -92,13 +92,13 @@ async function fetchFxRows(): Promise<FxDigestRow[]> {
     { symbol: "GBPVND", pair: "GBP/VND" },
   ];
   const quotes = await Promise.all(pairs.map((p) => fetchFmpQuote(p.symbol)));
-  return pairs
-    .map((p, i) => {
-      const q = quotes[i];
-      if (!q) return null;
-      return { pair: p.pair, rate: q.price, changePct: q.changePct } satisfies FxDigestRow;
-    })
-    .filter((r): r is FxDigestRow => r !== null);
+  const rows: FxDigestRow[] = [];
+  pairs.forEach((p, i) => {
+    const q = quotes[i];
+    if (!q) return;
+    rows.push({ pair: p.pair, rate: q.price, changePct: q.changePct });
+  });
+  return rows;
 }
 
 // --- Route ---
