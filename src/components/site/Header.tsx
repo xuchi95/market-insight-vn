@@ -229,9 +229,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </NavigationMenu>
         </div>
 
-        <div className="ml-auto flex items-center gap-1.5">
-          {/* Cụm 1: Search + Watchlist */}
-          <div className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/40 px-1 py-0.5">
+        <div className="ml-auto flex items-center gap-2">
+          {/* Unified toolbar: Search · Watchlist | Format · Theme */}
+          <div className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm px-1 py-1 shadow-[inset_0_1px_0_color-mix(in_oklab,white_4%,transparent),0_1px_2px_-1px_rgba(0,0,0,0.4)]">
           <div className="flex items-center">
             {searchOpen ? (
               <form
@@ -368,11 +368,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          </div>
-
-          {/* Cụm 2: Đồng hồ + tiện ích hiển thị */}
-          <div className="hidden md:flex items-center gap-1.5 rounded-full border border-border/60 bg-card/40 pl-2.5 pr-1 py-0.5">
-            <span className="hidden 2xl:inline text-[11px] font-medium tabular text-muted-foreground/80">{time}</span>
+            {/* Inline divider between functional groups */}
+            <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
+            <span className="hidden 2xl:inline px-1.5 text-[11px] font-medium tabular text-muted-foreground/80">{time}</span>
             <NumberFormatToggle />
             <ThemeToggle />
           </div>
