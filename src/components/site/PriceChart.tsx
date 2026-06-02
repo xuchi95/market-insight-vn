@@ -125,13 +125,32 @@ const ASSETS: { value: Asset; label: string }[] = [
 function ChartTooltip({
   active,
   payload,
+  asset,
+  firstValue,
+  prevValue,
 }: {
   active?: boolean;
   payload?: Array<{ payload?: Point }>;
+  asset: Asset;
+  firstValue?: number;
+  prevValue?: number;
 }) {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
   if (!p) return null;
+
+  const isForex = asset.endsWith("-vnd");
+  const isCrypto = asset === "btc" || asset === "eth";
+  const isGold = asset === "gold-sjc";
+  const unit = isCrypto ? "USD" : isGold ? "VND/chỉ" : "VND";
+  const decimals = isCrypto ? 2 : asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0;
+
+  const fmt = (n: number) =>
+    (isCrypto ? "$" : "") +
+    new Intl.NumberFormat(isCrypto ? "en-US" : "vi-VN", {
+      maximumFractionDigits: decimals,
+      minimumFractionDigits: decimals === 2 ? 2 : 0,
+    }).format(n);
 
   const time = new Date(p.t).toLocaleString("vi-VN", {
     hour: "2-digit",
@@ -141,31 +160,49 @@ function ChartTooltip({
     year: "numeric",
   });
 
-  const fmt = (n: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(n);
   const hasBuySell = typeof p.buy === "number" && typeof p.sell === "number";
+  const baseline = firstValue ?? prevValue;
+  const diff = baseline != null ? p.v - baseline : 0;
+  const pct = baseline ? (diff / baseline) * 100 : 0;
+  const up = diff >= 0;
+  const diffColor = up ? "var(--up)" : "var(--down)";
+  const Arrow = up ? ArrowUp : ArrowDown;
 
   return (
-    <div className="rounded-xl border border-border bg-popover p-3 shadow-lg text-sm min-w-[220px]">
-      <div className="text-xs text-muted-foreground mb-2">{time}</div>
+    <div
+      className="rounded-xl border border-border bg-popover/95 backdrop-blur p-2.5 sm:p-3 shadow-lg text-xs sm:text-sm min-w-[200px] sm:min-w-[240px] max-w-[88vw]"
+      role="tooltip"
+    >
+      <div className="text-[11px] sm:text-xs text-muted-foreground mb-2 tabular">{time}</div>
       {hasBuySell ? (
-        <>
+        <div className="space-y-1">
           <div className="flex justify-between gap-4">
             <span className="text-muted-foreground">Mua</span>
-            <span className="font-semibold text-foreground">{fmt(p.buy!)} VND/chỉ</span>
+            <span className="font-semibold tabular text-foreground">{fmt(p.buy!)} <span className="text-[11px] font-normal text-muted-foreground">{unit}</span></span>
           </div>
           <div className="flex justify-between gap-4">
             <span className="text-muted-foreground">Bán</span>
-            <span className="font-semibold text-foreground">{fmt(p.sell!)} VND/chỉ</span>
+            <span className="font-semibold tabular text-foreground">{fmt(p.sell!)} <span className="text-[11px] font-normal text-muted-foreground">{unit}</span></span>
           </div>
-          <div className="flex justify-between gap-4 mt-1 pt-1 border-t border-border/50">
-            <span className="text-muted-foreground">Mid</span>
-            <span className="font-semibold text-primary">{fmt(p.v)} VND/chỉ</span>
+          <div className="flex justify-between gap-4 mt-1 pt-1.5 border-t border-border/50">
+            <span className="text-muted-foreground">Trung bình</span>
+            <span className="font-semibold tabular text-primary">{fmt(p.v)} <span className="text-[11px] font-normal text-muted-foreground">{unit}</span></span>
           </div>
-        </>
+        </div>
       ) : (
         <div className="flex justify-between gap-4">
           <span className="text-muted-foreground">Giá</span>
-          <span className="font-semibold text-foreground">{fmt(p.v)}</span>
+          <span className="font-semibold tabular text-foreground">{fmt(p.v)} <span className="text-[11px] font-normal text-muted-foreground">{unit}</span></span>
+        </div>
+      )}
+      {baseline != null && (
+        <div className="mt-2 pt-1.5 border-t border-border/50 flex items-center justify-between gap-4">
+          <span className="text-[11px] sm:text-xs text-muted-foreground">So với đầu kỳ</span>
+          <span className="inline-flex items-center gap-1 font-semibold tabular" style={{ color: diffColor }}>
+            <Arrow className="h-3 w-3" />
+            {up ? "+" : ""}{fmt(diff)}
+            <span className="text-[11px] font-normal opacity-80">({up ? "+" : ""}{pct.toFixed(2)}%)</span>
+          </span>
         </div>
       )}
     </div>
@@ -364,7 +401,11 @@ export function PriceChart({
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="t" tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis dataKey="v" tickFormatter={fmtVal} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} />
-                <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }} />
+                <Tooltip
+                  content={<ChartTooltip asset={asset} firstValue={stats?.first} />}
+                  cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }}
+                  wrapperStyle={{ outline: "none", zIndex: 50 }}
+                />
                 {stats && (
                   <ReferenceLine y={stats.first} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.7} label={{ value: `Đầu kỳ ${fmtVal(stats.first)}`, position: "insideTopLeft", fill: "var(--muted-foreground)", fontSize: 10 }} />
                 )}
