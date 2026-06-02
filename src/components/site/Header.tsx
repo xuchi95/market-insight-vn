@@ -191,26 +191,26 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     {group.label}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid grid-cols-2 gap-4 p-3 w-[440px] bg-popover">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2 p-5 w-[600px] bg-popover">
                       {group.columns.map((col) => (
-                        <div key={col.heading} className="space-y-1.5">
-                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 px-2">
+                        <div key={col.heading} className="space-y-2">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/80 px-3 pb-1 border-b border-border/40">
                             {col.heading}
                           </div>
-                          <ul className="space-y-0">
+                          <ul className="space-y-0.5">
                             {col.items.map((item) => (
                               <li key={item.to}>
                                 <NavigationMenuLink asChild>
                                   <Link
                                     to={item.to}
                                     activeOptions={{ exact: true }}
-                                    className="group block rounded-md px-2 py-1 hover:bg-accent transition-colors data-[status=active]:bg-accent/60"
+                                    className="group block rounded-lg px-3 py-2.5 hover:bg-accent transition-colors data-[status=active]:bg-accent/60"
                                   >
-                                    <div className="text-[13px] font-medium leading-tight text-foreground group-hover:text-[var(--gold)] data-[status=active]:text-[var(--gold)] transition-colors">
+                                    <div className="text-[15px] font-semibold leading-snug text-foreground group-hover:text-[var(--gold)] data-[status=active]:text-[var(--gold)] transition-colors">
                                       {item.label}
                                     </div>
                                     {item.hint && (
-                                      <div className="text-[11px] leading-tight text-muted-foreground/80 mt-0.5">
+                                      <div className="text-[12.5px] leading-snug text-muted-foreground/80 mt-1">
                                         {item.hint}
                                       </div>
                                     )}
