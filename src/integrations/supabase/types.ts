@@ -739,6 +739,33 @@ export type Database = {
         }
         Relationships: []
       }
+      vn_fuel_prices_snapshot: {
+        Row: {
+          effective_from: string
+          id: string
+          rows: Json
+          source_url: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          effective_from: string
+          id?: string
+          rows: Json
+          source_url?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          effective_from?: string
+          id?: string
+          rows?: Json
+          source_url?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       watchlist_alert_unsubscribe_tokens: {
         Row: {
           created_at: string
