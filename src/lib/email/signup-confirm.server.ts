@@ -5,12 +5,14 @@ import { signupConfirmEmail } from "./templates.server";
 export async function sendSignupConfirmationFor(
   email: string,
   name: string | null,
+  password: string,
   redirectTo: string,
 ): Promise<void> {
   const { data, error } = await supabaseAdmin.auth.admin.generateLink({
     type: "signup",
     email,
-    options: { redirectTo },
+    password,
+    options: { redirectTo, data: name ? { full_name: name } : undefined },
   });
   if (error) throw new Error(error.message);
   const actionLink = (data as { properties?: { action_link?: string } } | null)
