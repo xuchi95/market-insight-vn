@@ -347,13 +347,31 @@ export function PriceChart({
                 <div className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">{fmtVal(stats.last)}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                  Thay đổi {zoom ? "khoảng đã chọn" : rangeLabel}
+                <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <span>Thay đổi {zoom ? "khoảng đã chọn" : rangeShort}</span>
+                  <button
+                    type="button"
+                    onClick={() => setChangeUnit((u) => (u === "pct" ? "abs" : "pct"))}
+                    className="inline-flex items-center rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] font-medium hover:bg-muted normal-case tracking-normal"
+                    title="Đổi đơn vị hiển thị"
+                    aria-label="Đổi đơn vị hiển thị giữa phần trăm và tuyệt đối"
+                  >
+                    {changeUnit === "pct" ? "%" : "Δ"}
+                  </button>
                 </div>
                 <div className="flex items-center gap-2 font-display text-xl sm:text-2xl md:text-3xl font-semibold tabular tracking-tight leading-none mt-1" style={{ color }}>
                   <TrendIcon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
-                  {positive ? "+" : ""}{stats.change.toFixed(2)}%
-                  <span className="font-sans text-xs sm:text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
+                  {changeUnit === "pct" ? (
+                    <>
+                      {positive ? "+" : ""}{stats.change.toFixed(2)}%
+                      <span className="font-sans text-xs sm:text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
+                    </>
+                  ) : (
+                    <>
+                      {positive ? "+" : ""}{fmtVal(stats.changeAbs)}
+                      <span className="font-sans text-xs sm:text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{stats.change.toFixed(2)}%)</span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="ml-auto text-right">
