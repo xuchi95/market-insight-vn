@@ -216,7 +216,7 @@ export function passwordResetEmail(opts: { actionLink: string }) {
 
 // ---------- Bản tin giá vàng ----------
 export interface GoldDigestRow { label: string; buy?: number | null; sell: number; changePct?: number | null }
-export function goldDigestEmail(opts: { dateLabel: string; rows: GoldDigestRow[]; unsubUrl?: string }) {
+export function goldDigestEmail(opts: { dateLabel: string; rows: GoldDigestRow[]; unsubUrl?: string; manageUrl?: string }) {
   const fmtVnd = (n: number) => new Intl.NumberFormat("vi-VN").format(Math.round(n));
   const rows = opts.rows.map((r) => {
     const ch = typeof r.changePct === "number" ? r.changePct : null;
@@ -243,14 +243,13 @@ export function goldDigestEmail(opts: { dateLabel: string; rows: GoldDigestRow[]
       <tbody>${rows}</tbody>
     </table>
     ${button(SITE + "/gia-vang", "Xem biểu đồ chi tiết")}
-    ${opts.unsubUrl ? `<p style="margin:24px 0 0;font-size:12px;color:#888;">Không muốn nhận bản tin vàng? <a href="${opts.unsubUrl}" style="color:#555;">Hủy đăng ký</a>.</p>` : ""}
-  `);
+  `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/ban-tin`, unsubLabel: "bản tin vàng" });
   return { subject: `Giá vàng ${opts.dateLabel} — MarketWatch`, html };
 }
 
 // ---------- Bản tin tiền điện tử ----------
 export interface CoinDigestRow { symbol: string; name?: string; price: number; changePct: number }
-export function cryptoDigestEmail(opts: { dateLabel: string; rows: CoinDigestRow[]; unsubUrl?: string }) {
+export function cryptoDigestEmail(opts: { dateLabel: string; rows: CoinDigestRow[]; unsubUrl?: string; manageUrl?: string }) {
   const fmt = (n: number) => n >= 1
     ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(n)
     : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 6 }).format(n);
@@ -280,14 +279,13 @@ export function cryptoDigestEmail(opts: { dateLabel: string; rows: CoinDigestRow
       <tbody>${rows}</tbody>
     </table>
     ${button(SITE + "/crypto", "Mở bảng giá Crypto")}
-    ${opts.unsubUrl ? `<p style="margin:24px 0 0;font-size:12px;color:#888;">Không muốn nhận bản tin crypto? <a href="${opts.unsubUrl}" style="color:#555;">Hủy đăng ký</a>.</p>` : ""}
-  `);
+  `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/ban-tin`, unsubLabel: "bản tin crypto" });
   return { subject: `Crypto ${opts.dateLabel} — MarketWatch`, html };
 }
 
 // ---------- Bản tin tỷ giá ngoại tệ ----------
 export interface FxDigestRow { pair: string; rate: number; changePct?: number | null }
-export function fxDigestEmail(opts: { dateLabel: string; rows: FxDigestRow[]; unsubUrl?: string }) {
+export function fxDigestEmail(opts: { dateLabel: string; rows: FxDigestRow[]; unsubUrl?: string; manageUrl?: string }) {
   const fmt = (n: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: n >= 1000 ? 0 : 4 }).format(n);
   const rows = opts.rows.map((r) => {
     const ch = typeof r.changePct === "number" ? r.changePct : null;
@@ -311,8 +309,7 @@ export function fxDigestEmail(opts: { dateLabel: string; rows: FxDigestRow[]; un
       <tbody>${rows}</tbody>
     </table>
     ${button(SITE + "/ngoai-te", "Xem chi tiết tỷ giá")}
-    ${opts.unsubUrl ? `<p style="margin:24px 0 0;font-size:12px;color:#888;">Không muốn nhận bản tin tỷ giá? <a href="${opts.unsubUrl}" style="color:#555;">Hủy đăng ký</a>.</p>` : ""}
-  `);
+  `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/ban-tin`, unsubLabel: "bản tin tỷ giá" });
   return { subject: `Tỷ giá ${opts.dateLabel} — MarketWatch`, html };
 }
 
