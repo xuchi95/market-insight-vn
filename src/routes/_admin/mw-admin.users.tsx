@@ -85,7 +85,12 @@ function AdminUsersPage() {
   async function handleReset(u: UserRow) {
     if (!u.email) return;
     try {
-      await resetFn({ data: { email: u.email } });
+      await resetFn({
+        data: {
+          email: u.email,
+          redirectTo: `${window.location.origin}/dat-lai-mat-khau`,
+        },
+      });
       toast.success("Đã gửi email reset mật khẩu");
     } catch (e) {
       toast.error((e as Error).message);

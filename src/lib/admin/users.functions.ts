@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireAdmin, logAudit } from "./middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendRecoveryEmailFor } from "@/lib/email/password-recovery.server";
 
 export const listUsers = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
@@ -124,10 +125,16 @@ export const banUser = createServerFn({ method: "POST" })
 
 export const sendPasswordReset = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
-  .inputValidator((input) => z.object({ email: z.string().email() }).parse(input))
+  .inputValidator((input) =>
+    z
+      .object({
+        email: z.string().email(),
+        redirectTo: z.string().url(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
-    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(data.email);
-    if (error) throw new Error(error.message);
+    await sendRecoveryEmailFor(data.email, data.redirectTo);
     await logAudit(context.userId, "user.password_reset_sent", "email", data.email);
     return { ok: true };
   });
