@@ -58,6 +58,7 @@ import { Route as AdminMwAdminIndexRouteImport } from './routes/_admin/mw-admin.
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicWatchlistAlertsCronRouteImport } from './routes/api/public/watchlist-alerts-cron'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
+import { Route as ApiPublicTestPostmarkRouteImport } from './routes/api/public/test-postmark'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
@@ -341,6 +342,11 @@ const ApiPublicUsStocksRoute = ApiPublicUsStocksRouteImport.update({
   path: '/api/public/us-stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTestPostmarkRoute = ApiPublicTestPostmarkRouteImport.update({
+  id: '/api/public/test-postmark',
+  path: '/api/public/test-postmark',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   id: '/api/public/stocks',
   path: '/api/public/stocks',
@@ -612,6 +618,7 @@ export interface FileRoutesByFullPath {
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -699,6 +706,7 @@ export interface FileRoutesByTo {
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -788,6 +796,7 @@ export interface FileRoutesById {
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
+  '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
@@ -877,6 +886,7 @@ export interface FileRouteTypes {
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
     | '/api/public/stocks'
+    | '/api/public/test-postmark'
     | '/api/public/us-stocks'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
@@ -964,6 +974,7 @@ export interface FileRouteTypes {
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
     | '/api/public/stocks'
+    | '/api/public/test-postmark'
     | '/api/public/us-stocks'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
@@ -1052,6 +1063,7 @@ export interface FileRouteTypes {
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
     | '/api/public/stocks'
+    | '/api/public/test-postmark'
     | '/api/public/us-stocks'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
@@ -1133,6 +1145,7 @@ export interface RootRouteChildren {
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
+  ApiPublicTestPostmarkRoute: typeof ApiPublicTestPostmarkRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
   ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
@@ -1486,6 +1499,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/us-stocks'
       fullPath: '/api/public/us-stocks'
       preLoaderRoute: typeof ApiPublicUsStocksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/test-postmark': {
+      id: '/api/public/test-postmark'
+      path: '/api/public/test-postmark'
+      fullPath: '/api/public/test-postmark'
+      preLoaderRoute: typeof ApiPublicTestPostmarkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/stocks': {
@@ -1859,6 +1879,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
+  ApiPublicTestPostmarkRoute: ApiPublicTestPostmarkRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
   ApiPublicWatchlistAlertsCronRoute: ApiPublicWatchlistAlertsCronRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
@@ -1872,13 +1893,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
