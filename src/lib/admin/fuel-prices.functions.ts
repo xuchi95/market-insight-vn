@@ -62,54 +62,84 @@ export const saveFuelSnapshot = createServerFn({ method: "POST" })
 
 const PETROLIMEX_URL = "https://www.petrolimex.com.vn/";
 
-/** Tìm kiếm bài báo mới nhất về giá xăng dầu rồi ghép markdown lại. */
-async function firecrawlSearchFuel(): Promise<{ markdown: string; sourceUrl: string }> {
+/**
+ * Tìm thông cáo báo chí điều chỉnh giá mới nhất ngay trên petrolimex.com.vn,
+ * scrape ra URL ảnh bảng giá (file .jpg trên files.petrolimex.com.vn).
+ * Đây là nguồn gốc — chính xác và ổn định nhất.
+ */
+async function findLatestPetrolimexRelease(): Promise<{
+  pageUrl: string;
+  imageUrl: string;
+  markdown: string;
+}> {
   const apiKey = process.env.FIRECRAWL_API_KEY;
   if (!apiKey) throw new Error("FIRECRAWL_API_KEY chưa được cấu hình");
 
-  const res = await fetch("https://api.firecrawl.dev/v2/search", {
+  // Bước 1: Scrape homepage Petrolimex để tìm link thông cáo mới nhất
+  const homeRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      query:
-        "giá xăng dầu Petrolimex hôm nay RON 95-V E5 RON 92 Diesel Vùng 1 Vùng 2",
-      limit: 5,
-      lang: "vi",
-      country: "vn",
-      tbs: "qdr:w",
-      scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
+      url: "https://www.petrolimex.com.vn/",
+      formats: ["links"],
+      onlyMainContent: false,
     }),
   });
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`Firecrawl search ${res.status}: ${t.slice(0, 200)}`);
+  if (!homeRes.ok) {
+    throw new Error(`Không tải được homepage Petrolimex (${homeRes.status})`);
   }
-
-  type Result = { url?: string; title?: string; markdown?: string; description?: string };
-  const json = (await res.json()) as {
-    data?: Result[] | { web?: Result[] };
-    web?: Result[];
+  const homeJson = (await homeRes.json()) as {
+    data?: { links?: string[] };
+    links?: string[];
   };
-  const rawList = Array.isArray(json.data)
-    ? json.data
-    : (json.data?.web ?? json.web ?? []);
-  const items = (rawList ?? []).filter((r) => (r.markdown ?? "").length > 200);
-  if (items.length === 0) {
-    throw new Error("Firecrawl không tìm thấy bài báo nào có nội dung giá xăng.");
+  const links: string[] = homeJson.data?.links ?? homeJson.links ?? [];
+
+  const releaseLinks = links.filter((u) =>
+    /petrolimex-dieu-chinh-gia-xang-dau-tu-.*\.html$/i.test(u),
+  );
+  if (releaseLinks.length === 0) {
+    throw new Error(
+      "Không tìm thấy thông cáo điều chỉnh giá mới trên trang chủ Petrolimex.",
+    );
+  }
+  // Lấy URL mới nhất — pattern URL chứa ngày .DD-MM-YYYY, sort theo string giảm dần là OK
+  releaseLinks.sort().reverse();
+  const pageUrl = releaseLinks[0];
+
+  // Bước 2: Scrape page thông cáo để lấy URL ảnh bảng giá
+  const pageRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      url: pageUrl,
+      formats: ["markdown", "links"],
+      onlyMainContent: true,
+    }),
+  });
+  if (!pageRes.ok) {
+    throw new Error(`Không tải được thông cáo Petrolimex (${pageRes.status})`);
+  }
+  const pageJson = (await pageRes.json()) as {
+    data?: { markdown?: string; links?: string[] };
+    markdown?: string;
+    links?: string[];
+  };
+  const markdown = pageJson.data?.markdown ?? pageJson.markdown ?? "";
+  const pageLinks = pageJson.data?.links ?? pageJson.links ?? [];
+
+  // Ảnh bảng giá luôn nằm trên files.petrolimex.com.vn dạng .jpg
+  const imgFromMd = markdown.match(
+    /https:\/\/files\.petrolimex\.com\.vn\/[^\s)]+\.jpg/i,
+  )?.[0];
+  const imgFromLinks = pageLinks.find((u) =>
+    /https:\/\/files\.petrolimex\.com\.vn\/.+\.jpg$/i.test(u),
+  );
+  const imageUrl = imgFromMd ?? imgFromLinks;
+  if (!imageUrl) {
+    throw new Error("Thông cáo Petrolimex không có ảnh bảng giá đính kèm.");
   }
 
-  const combined = items
-    .slice(0, 3)
-    .map(
-      (r, i) =>
-        `### Bài #${i + 1}: ${r.title ?? "(không tiêu đề)"}\nURL: ${r.url ?? ""}\n\n${r.markdown ?? ""}`,
-    )
-    .join("\n\n---\n\n");
-
-  return { markdown: combined, sourceUrl: items[0].url ?? PETROLIMEX_URL };
+  return { pageUrl, imageUrl, markdown };
 }
 
 const AiExtractSchema = z.object({
@@ -117,29 +147,34 @@ const AiExtractSchema = z.object({
   rows: z.array(RowSchema).min(1),
 });
 
-async function aiExtract(markdown: string): Promise<z.infer<typeof AiExtractSchema>> {
+/**
+ * Gửi ảnh bảng giá + markdown phụ cho Gemini 2.5 Pro (vision) để OCR + bóc tách.
+ * Trang thông cáo Petrolimex render bảng giá bằng JPG, nên BẮT BUỘC phải dùng vision.
+ */
+async function aiExtract(
+  imageUrl: string,
+  contextMarkdown: string,
+): Promise<z.infer<typeof AiExtractSchema>> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("LOVABLE_API_KEY chưa được cấu hình");
 
   const system =
-    "Bạn là trợ lý trích xuất bảng giá bán lẻ xăng dầu Petrolimex. " +
-    "Chỉ trả về JSON đúng schema, KHÔNG kèm văn bản thừa. " +
-    "PHẢI luôn trả về ít nhất 4 rows nếu trong nội dung có bất kỳ giá xăng/dầu nào.";
+    "Bạn là trợ lý OCR + trích xuất bảng giá bán lẻ xăng dầu chính thức của Petrolimex. " +
+    "Chỉ trả về JSON đúng schema, không kèm văn bản thừa.";
 
-  const user = `Trích xuất bảng giá bán lẻ Petrolimex từ NHIỀU bài báo gộp dưới đây.
+  const userText = `Đây là ảnh bảng giá xăng dầu chính thức của Petrolimex (thông cáo báo chí). Hãy OCR và trích xuất bảng giá.
 
-Quy tắc:
-- "effective_from": ngày & giờ áp dụng kỳ điều hành mới nhất (vd "15:00 — 28/05/2026"). Lấy từ tiêu đề/công văn/đoạn đầu bài báo. Nếu chỉ có ngày, dùng "15:00 — DD/MM/YYYY".
-- Mỗi mặt hàng → 1 row với: name (vd "Xăng RON 95-V"), unit ("đồng/lít" hoặc "đồng/kg"),
-  zone1 (Vùng 1, số nguyên VND), zone2 (Vùng 2, số nguyên VND).
-- Nếu bài chỉ có 1 mức giá (không phân vùng), điền zone1 = zone2 = giá đó.
-- Bỏ dấu phẩy/dấu chấm khỏi số tiền trước khi parse (vd "25.050" → 25050).
-- Đánh dấu "highlight": true cho 3 mặt hàng phổ biến: RON 95-V, E5 RON 92, Điêzen 0,05S-II.
-- Bỏ giá bán buôn/sỉ, chỉ lấy giá bán lẻ.
-- Trả về 4–12 rows. KHÔNG được trả mảng rỗng — phải bóc tách bằng được ít nhất các mặt hàng phổ biến (RON 95, E5, Diesel, Dầu hỏa).
+Quy tắc bắt buộc:
+- "effective_from": ngày & giờ hiệu lực (vd "15:00 — 28/05/2026"). Lấy từ tiêu đề thông cáo trong phần ngữ cảnh bên dưới. Nếu chỉ có ngày, dùng "15:00 — DD/MM/YYYY".
+- Mỗi mặt hàng (RON 95-V, RON 95-III, E10 RON 95-III, E5 RON 92-II, DO 0,001S-V, DO 0,05S-II, Dầu hỏa 2-K, Mazút N02B…) là 1 row.
+- Mỗi row: name (giữ nguyên tên trong ảnh), unit ("đồng/lít" với xăng-DO-dầu hỏa, "đồng/kg" với Mazút), zone1 (Vùng 1, số nguyên VND), zone2 (Vùng 2, số nguyên VND).
+- Trong ảnh Petrolimex 2 cột giá thường là "Vùng 1" và "Vùng 2". Nếu chỉ có 1 cột, điền zone1 = zone2.
+- Bỏ dấu phẩy/dấu chấm trong số (vd "25.050" → 25050).
+- "highlight": true cho 3 mặt hàng phổ biến: RON 95-V, E5 RON 92-II, DO 0,05S-II.
+- Phải có tối thiểu 4 rows. Nếu ảnh mờ/không đọc được, tự nhận và trả lỗi qua field rows rỗng.
 
-MARKDOWN:
-${markdown.slice(0, 20000)}`;
+Ngữ cảnh từ trang thông cáo (để xác định effective_from):
+${contextMarkdown.slice(0, 4000)}`;
 
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
@@ -148,10 +183,16 @@ ${markdown.slice(0, 20000)}`;
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-2.5-pro",
       messages: [
         { role: "system", content: system },
-        { role: "user", content: user },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: userText },
+            { type: "image_url", image_url: { url: imageUrl } },
+          ],
+        },
       ],
       response_format: {
         type: "json_schema",
@@ -196,18 +237,17 @@ ${markdown.slice(0, 20000)}`;
     choices?: Array<{ message?: { content?: string } }>;
   };
   const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error("AI không trả về nội dung");
+  if (!content) throw new Error("AI không trả về nội dung. Hãy thử lại hoặc chỉnh tay.");
   let parsed: unknown;
   try {
     parsed = JSON.parse(content);
   } catch {
-    throw new Error("AI trả về JSON không hợp lệ");
+    throw new Error("AI trả về JSON không hợp lệ. Hãy thử lại hoặc chỉnh tay.");
   }
   const result = AiExtractSchema.safeParse(parsed);
   if (!result.success) {
-    const preview = JSON.stringify(parsed).slice(0, 300);
     throw new Error(
-      `AI bóc tách không ra dữ liệu giá xăng từ nguồn. Kết quả: ${preview}`,
+      "AI không đọc được bảng giá từ ảnh thông cáo Petrolimex. Hãy thử lại sau vài giây hoặc chỉnh tay.",
     );
   }
   return result.data;
@@ -218,13 +258,13 @@ export const refreshFuelFromPetrolimex = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
   .handler(async ({ context }) => {
     const { userId } = context as { userId: string };
-    const { markdown, sourceUrl } = await firecrawlSearchFuel();
-    const extracted = await aiExtract(markdown);
+    const { pageUrl, imageUrl, markdown } = await findLatestPetrolimexRelease();
+    const extracted = await aiExtract(imageUrl, markdown);
 
     const { error } = await supabaseAdmin.from("vn_fuel_prices_snapshot").upsert({
       id: "latest",
       effective_from: extracted.effective_from,
-      source_url: sourceUrl,
+      source_url: pageUrl,
       rows: extracted.rows as unknown as never,
       updated_at: new Date().toISOString(),
       updated_by: userId,
@@ -232,7 +272,7 @@ export const refreshFuelFromPetrolimex = createServerFn({ method: "POST" })
     if (error) throw new Error(`DB upsert lỗi: ${error.message}`);
     await supabaseAdmin.from("vn_fuel_prices_history").insert({
       effective_from: extracted.effective_from,
-      source_url: sourceUrl,
+      source_url: pageUrl,
       rows: extracted.rows as unknown as never,
       source: "auto",
       created_by: userId,
@@ -240,14 +280,14 @@ export const refreshFuelFromPetrolimex = createServerFn({ method: "POST" })
     await logAudit(userId, "fuel_prices.auto_refresh", "vn_fuel_prices_snapshot", "latest", {
       rowCount: extracted.rows.length,
       effective_from: extracted.effective_from,
-      source_url: sourceUrl,
+      source_url: pageUrl,
     });
     return {
       ok: true,
       effective_from: extracted.effective_from,
       rows: extracted.rows,
       rowCount: extracted.rows.length,
-      source_url: sourceUrl,
+      source_url: pageUrl,
     };
   });
 
