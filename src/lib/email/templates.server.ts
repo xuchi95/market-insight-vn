@@ -55,7 +55,7 @@ function button(href: string, label: string): string {
   return `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:20px 0;"><tr><td style="background:${GOLD};border-radius:8px;"><a href="${href}" style="display:inline-block;padding:12px 22px;color:#111;font-weight:600;text-decoration:none;font-size:14px;">${escape(label)}</a></td></tr></table>`;
 }
 
-export function welcomeEmail(opts: { name?: string | null }) {
+export function welcomeEmail(opts: { name?: string | null; manageUrl?: string; unsubUrl?: string }) {
   const greet = opts.name ? `Xin chào ${escape(opts.name)},` : "Xin chào,";
   const html = shell(`Chào mừng đến với ${BRAND}`, `
     <h1 style="font-size:22px;margin:0 0 12px;color:#111;">Chào mừng đến với MarketWatch</h1>
@@ -63,27 +63,27 @@ export function welcomeEmail(opts: { name?: string | null }) {
     <p style="margin:0 0 12px;line-height:1.6;color:#333;">Tài khoản của bạn đã sẵn sàng. Bạn có thể theo dõi giá vàng, tiền điện tử, ngoại tệ và đặt cảnh báo giá theo ngưỡng riêng — chúng tôi sẽ gửi email ngay khi thị trường chạm mức.</p>
     ${button(SITE, "Vào trang chủ")}
     <p style="margin:18px 0 0;line-height:1.6;color:#666;font-size:13px;">Dữ liệu trên MarketWatch chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.</p>
-  `);
+  `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/email`, unsubLabel: "email thông báo" });
   return { subject: "Chào mừng đến với MarketWatch", html };
 }
 
-export function newsletterConfirmEmail(opts: { email: string }) {
+export function newsletterConfirmEmail(opts: { email: string; unsubUrl?: string; manageUrl?: string }) {
   const html = shell("Đã đăng ký nhận tin MarketWatch", `
     <h1 style="font-size:22px;margin:0 0 12px;color:#111;">Đăng ký thành công</h1>
     <p style="margin:0 0 12px;line-height:1.6;color:#333;">Cảm ơn bạn đã đăng ký nhận bản tin MarketWatch. Chúng tôi sẽ gửi bản tin chọn lọc về biến động giá vàng, crypto và ngoại tệ tới <strong>${escape(opts.email)}</strong>.</p>
     ${button(SITE, "Khám phá MarketWatch")}
     <p style="margin:18px 0 0;line-height:1.6;color:#666;font-size:13px;">Nếu bạn không thực hiện đăng ký này, có thể bỏ qua email — chúng tôi sẽ không gửi thêm khi bạn không xác nhận sử dụng.</p>
-  `);
+  `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/ban-tin`, unsubLabel: "bản tin MarketWatch" });
   return { subject: "Bạn đã đăng ký nhận tin MarketWatch", html };
 }
 
-export function contactConfirmEmail(opts: { name: string; message: string }) {
+export function contactConfirmEmail(opts: { name: string; message: string; manageUrl?: string }) {
   const html = shell("Đã nhận liên hệ của bạn", `
     <h1 style="font-size:22px;margin:0 0 12px;color:#111;">Cảm ơn ${escape(opts.name)}!</h1>
     <p style="margin:0 0 12px;line-height:1.6;color:#333;">Chúng tôi đã nhận được phản ánh của bạn và sẽ phản hồi trong 24–72 giờ làm việc.</p>
     <div style="margin:16px 0;padding:14px 16px;border-left:3px solid ${GOLD};background:#fafafa;color:#444;font-size:13px;line-height:1.6;white-space:pre-wrap;">${escape(opts.message)}</div>
     <p style="margin:0;line-height:1.6;color:#666;font-size:13px;">Bạn có thể trả lời trực tiếp email này để bổ sung thông tin.</p>
-  `);
+  `, { manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/email`, unsubLabel: "email từ MarketWatch" });
   return { subject: "MarketWatch đã nhận liên hệ của bạn", html };
 }
 
@@ -100,7 +100,7 @@ export function contactForwardEmail(opts: { name: string; email: string; subject
   return { subject: `[Liên hệ] ${opts.subject || opts.name}`, html };
 }
 
-export function priceAlertEmail(opts: { symbol: string; assetType: "crypto" | "gold"; direction: "above" | "below"; threshold: number; currentPrice: number }) {
+export function priceAlertEmail(opts: { symbol: string; assetType: "crypto" | "gold"; direction: "above" | "below"; threshold: number; currentPrice: number; manageUrl?: string }) {
   const dirLabel = opts.direction === "above" ? "vượt mốc" : "giảm dưới";
   const assetLabel = opts.assetType === "gold" ? "vàng" : opts.symbol;
   const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n < 1 ? 4 : 2 }).format(n);
@@ -110,7 +110,7 @@ export function priceAlertEmail(opts: { symbol: string; assetType: "crypto" | "g
     <p style="margin:0 0 8px;line-height:1.6;color:#333;">Giá ${escape(assetLabel)} hiện tại: <strong>${fmt(opts.currentPrice)}</strong></p>
     <p style="margin:0 0 12px;line-height:1.6;color:#666;font-size:13px;">Cảnh báo đã được đánh dấu hoàn tất. Bạn có thể tạo cảnh báo mới trên trang chủ.</p>
     ${button(SITE, "Mở MarketWatch")}
-  `);
+  `, { manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/canh-bao`, unsubLabel: "cảnh báo giá" });
   return { subject: `[Cảnh báo] ${opts.symbol} ${dirLabel} ${fmt(opts.threshold)}`, html };
 }
 
