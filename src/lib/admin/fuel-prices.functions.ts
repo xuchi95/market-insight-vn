@@ -34,7 +34,19 @@ export const getFuelSnapshot = createServerFn({ method: "GET" }).handler(async (
 /** Admin save (manual edit). */
 export const saveFuelSnapshot = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
-  .inputValidator((data: unknown) => SnapshotSchema.parse(data))
+  .inputValidator((data: unknown) => {
+    const result = SnapshotSchema.safeParse(data);
+    if (!result.success) {
+      const first = result.error.issues[0];
+      const path = first.path.join(".") || "dữ liệu";
+      const reason =
+        first.code === "too_small" && first.path[0] === "rows"
+          ? "Bảng phải có ít nhất 1 mặt hàng."
+          : `${path}: ${first.message}`;
+      throw new Error(`Dữ liệu không hợp lệ — ${reason}`);
+    }
+    return result.data;
+  })
   .handler(async ({ data, context }) => {
     const { userId } = context as { userId: string };
     const { error } = await supabaseAdmin.from("vn_fuel_prices_snapshot").upsert({
