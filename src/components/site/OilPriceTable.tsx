@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Fuel, AlertTriangle, Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { SectionCard } from "./SectionCard";
 import { ChangeBadge } from "./ChangeBadge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -88,11 +89,14 @@ export function OilPriceTable() {
               ))}
             {items.map((o) => {
               const up = o.changePct >= 0;
+              const to = `/tai-san/oil-${o.id}`;
               return (
-                <tr key={o.id} className="hover:bg-muted/30 transition-colors">
+                <tr key={o.id} className="hover:bg-muted/30 transition-colors cursor-pointer">
                   <td className="px-4 py-4">
-                    <div className="font-display text-lg tracking-tight">{o.nameVi}</div>
-                    <div className="text-xs text-muted-foreground font-mono">{o.symbol}</div>
+                    <Link to="/tai-san/$symbol" params={{ symbol: `oil-${o.id}` }} className="block">
+                      <div className="font-display text-lg tracking-tight hover:text-gold">{o.nameVi}</div>
+                      <div className="text-xs text-muted-foreground font-mono">{o.symbol}</div>
+                    </Link>
                   </td>
                   <td className="px-4 py-4 text-sm text-muted-foreground hidden sm:table-cell">{o.exchange}</td>
                   <td className="px-4 py-4 text-right tabular font-display text-xl tracking-tight">
