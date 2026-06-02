@@ -289,24 +289,24 @@ export function PriceChart({
         </>
       }
     >
-      <div className="p-4 lg:p-6">
+      <div className="p-3 sm:p-4 lg:p-6">
         {stats && (
           <>
-            <div className="flex flex-wrap items-end gap-x-10 gap-y-4 mb-4">
+            <div className="flex flex-wrap items-end gap-x-6 sm:gap-x-8 lg:gap-x-10 gap-y-3 sm:gap-y-4 mb-3 sm:mb-4">
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">
                   {zoom ? "Giá cuối khoảng zoom" : "Giá hiện tại"}
                 </div>
-                <div className="font-display text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">{fmtVal(stats.last)}</div>
+                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">{fmtVal(stats.last)}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">
                   Thay đổi {zoom ? "khoảng đã chọn" : rangeLabel}
                 </div>
-                <div className="flex items-center gap-2 font-display text-2xl md:text-3xl font-semibold tabular tracking-tight leading-none mt-1" style={{ color }}>
-                  <TrendIcon className="h-5 w-5 md:h-6 md:w-6" />
+                <div className="flex items-center gap-2 font-display text-xl sm:text-2xl md:text-3xl font-semibold tabular tracking-tight leading-none mt-1" style={{ color }}>
+                  <TrendIcon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
                   {positive ? "+" : ""}{stats.change.toFixed(2)}%
-                  <span className="font-sans text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
+                  <span className="font-sans text-xs sm:text-sm font-normal text-muted-foreground">({positive ? "+" : ""}{fmtVal(stats.changeAbs)})</span>
                 </div>
               </div>
               <div className="ml-auto text-right">
@@ -328,16 +328,16 @@ export function PriceChart({
                 </div>
               </div>
             </div>
-            <div className="mb-4 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-sm flex items-start gap-2">
+            <div className="mb-3 sm:mb-4 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs sm:text-sm flex items-start gap-2">
               <TrendIcon className="h-4 w-4 mt-0.5 shrink-0" style={{ color }} />
               <span className="text-foreground/90">{summary} <span className="text-muted-foreground">Giá đầu kỳ {fmtVal(stats.first)}.</span></span>
             </div>
             {/* Range position bar */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-                <span className="flex items-center gap-1"><ArrowDown className="h-3 w-3" />Thấp nhất {fmtVal(stats.min)}</span>
-                <span className="text-foreground/70">Vị trí hiện tại trong khoảng {rangeLabel}</span>
-                <span className="flex items-center gap-1">Cao nhất {fmtVal(stats.max)}<ArrowUp className="h-3 w-3" /></span>
+            <div className="mb-3 sm:mb-4">
+              <div className="flex items-center justify-between text-[11px] sm:text-xs text-muted-foreground mb-1.5 gap-2">
+                <span className="flex items-center gap-1 whitespace-nowrap"><ArrowDown className="h-3 w-3" />Thấp {fmtVal(stats.min)}</span>
+                <span className="hidden md:inline text-foreground/70">Vị trí hiện tại trong khoảng {rangeLabel}</span>
+                <span className="flex items-center gap-1 whitespace-nowrap">Cao {fmtVal(stats.max)}<ArrowUp className="h-3 w-3" /></span>
               </div>
               <div className="relative h-2 rounded-full bg-muted overflow-visible">
                 <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${stats.position}%`, background: `linear-gradient(90deg, var(--muted) 0%, ${color} 100%)` }} />
@@ -346,7 +346,7 @@ export function PriceChart({
             </div>
           </>
         )}
-        <div className="h-72 w-full">
+        <div className="h-56 sm:h-64 md:h-72 lg:h-80 w-full">
           {isLoading || !points.length ? (
             <div className="h-full w-full space-y-2">
               <Skeleton className="h-[calc(100%-2rem)] w-full" />
@@ -399,25 +399,25 @@ export function PriceChart({
             </ResponsiveContainer>
           )}
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: color }} /> Đường giá</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-muted-foreground/70" /> Giá đầu kỳ (đường đứt)</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-muted-foreground/70" /> Giá đầu kỳ</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--up)" }} /> Đỉnh</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--down)" }} /> Đáy</span>
-          <span className="ml-auto">Di chuột để xem chi tiết · Kéo thanh dưới biểu đồ để zoom</span>
+          <span className="ml-auto hidden md:inline">Di chuột để xem chi tiết · Kéo thanh dưới biểu đồ để zoom</span>
         </div>
         {source && (
-          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground border-t border-border/40 pt-2">
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs text-muted-foreground border-t border-border/40 pt-2">
             <span>Nguồn dữ liệu:</span>
             <a href={source.url} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground/80 hover:text-primary hover:underline">{source.name}</a>
             {source.unit && <span className="text-muted-foreground/80">• Đơn vị {source.unit}</span>}
             {source.latest && (
-              <span className="text-muted-foreground/80">
+              <span className="text-muted-foreground/80 hidden sm:inline">
                 • Mua {fmtVal(source.latest.buy)} / Bán {fmtVal(source.latest.sell)}
               </span>
             )}
             {source.updatedAt && (
-              <span className="ml-auto">Cập nhật cuối: {new Date(source.updatedAt).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" })}</span>
+              <span className="sm:ml-auto">Cập nhật: {new Date(source.updatedAt).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })}</span>
             )}
           </div>
         )}
