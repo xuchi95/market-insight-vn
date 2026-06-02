@@ -404,7 +404,10 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          last_login_at: string | null
+          last_login_ip: string | null
           locale: string | null
+          security_alerts_enabled: boolean
           updated_at: string
           watchlist_alerts_global_enabled: boolean
           welcome_email_sent_at: string | null
@@ -414,7 +417,10 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          last_login_at?: string | null
+          last_login_ip?: string | null
           locale?: string | null
+          security_alerts_enabled?: boolean
           updated_at?: string
           watchlist_alerts_global_enabled?: boolean
           welcome_email_sent_at?: string | null
@@ -424,7 +430,10 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          last_login_at?: string | null
+          last_login_ip?: string | null
           locale?: string | null
+          security_alerts_enabled?: boolean
           updated_at?: string
           watchlist_alerts_global_enabled?: boolean
           welcome_email_sent_at?: string | null
