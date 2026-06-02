@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, RefreshCw, Save, Trash2, Fuel } from "lucide-react";
+import { Plus, RefreshCw, Save, Trash2, Fuel, History } from "lucide-react";
 import {
   getFuelSnapshot,
   saveFuelSnapshot,
@@ -140,6 +140,12 @@ function AdminFuelPricesPage() {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to="/mw-admin/fuel-prices/history"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mr-2"
+          >
+            <History className="h-4 w-4" /> Lịch sử
+          </Link>
           <Button
             type="button"
             variant="outline"
