@@ -474,8 +474,12 @@ export function PriceChart({
             style={{ color, borderColor: `color-mix(in oklab, ${color} 40%, transparent)`, background: `color-mix(in oklab, ${color} 10%, transparent)` }}
           >
             <TrendIcon className="h-3 w-3" />
-            <span>{positive ? "Đang tăng" : trendStrength < 0.3 ? "Đi ngang" : "Đang giảm"}</span>
-            <span className="opacity-80">{positive ? "+" : ""}{(stats?.change ?? 0).toFixed(2)}%</span>
+            <span>{trendStrength < 0.3 ? "Đi ngang" : positive ? "Tăng" : "Giảm"} · {rangeShort}</span>
+            <span className="opacity-80">
+              {changeUnit === "pct"
+                ? `${positive ? "+" : ""}${(stats?.change ?? 0).toFixed(2)}%`
+                : `${positive ? "+" : ""}${fmtVal(stats?.changeAbs ?? 0)}`}
+            </span>
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-muted-foreground">
             <span className="inline-block h-0 w-3 border-t-2 border-dashed border-muted-foreground/70" /> Đầu kỳ
