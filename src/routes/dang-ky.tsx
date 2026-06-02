@@ -94,16 +94,16 @@ function SignupPage() {
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="fullName" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Họ và tên</Label>
-          <Input id="fullName" type="text" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nguyễn Văn A" className="h-11" />
+          <Input id="fullName" type="text" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nguyễn Văn A" className="h-11 border-border/70 bg-card/40 focus-visible:border-gold focus-visible:ring-gold/30" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
-          <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ban@congty.vn" className="h-11" />
+          <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ban@congty.vn" className="h-11 border-border/70 bg-card/40 focus-visible:border-gold focus-visible:ring-gold/30" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Mật khẩu</Label>
           <div className="relative">
-            <Input id="password" type={showPw ? "text" : "password"} autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Tối thiểu 8 ký tự" className="h-11 pr-10" />
+            <Input id="password" type={showPw ? "text" : "password"} autoComplete="new-password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Tối thiểu 8 ký tự" className="h-11 pr-10 border-border/70 bg-card/40 focus-visible:border-gold focus-visible:ring-gold/30" />
             <button type="button" onClick={() => setShowPw((v) => !v)} className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground" aria-label="Hiện/ẩn mật khẩu">
               {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
