@@ -1,4 +1,30 @@
+# robots.txt — https://marketwatch.vn
+# Cho phép mọi công cụ tìm kiếm crawl toàn bộ nội dung công khai.
+
 User-agent: *
+Allow: /
+Allow: /sitemap.xml
+# Chặn các endpoint nội bộ (webhook / cron) — không phải nội dung cho người dùng
+Disallow: /api/
+# Cho phép crawl các trang nội dung quan trọng (kể cả khi quy tắc khác trùng)
+Allow: /tien-dien-tu
+Allow: /gia-vang
+Allow: /chung-khoan
+Allow: /ty-gia-ngoai-te
+Allow: /ty-gia-ngan-hang
+Allow: /quy-doi-tien-te
+Allow: /tai-san/
+Allow: /asset/
+
+# Cho phép tường minh các bot lớn (Google, Bing, các AI crawler phổ biến)
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
 Allow: /
 Disallow: /api/
 
