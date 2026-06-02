@@ -66,7 +66,15 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
       );
     if (error) throw new Error(error.message);
     try {
-      const { subject, html } = newsletterConfirmEmail({ email });
+      const { data: row } = await supabaseAdmin
+        .from("newsletter_subscribers")
+        .select("unsubscribe_token")
+        .eq("email", email)
+        .maybeSingle();
+      const unsubUrl = row?.unsubscribe_token
+        ? `https://marketwatch.vn/huy-ban-tin?token=${encodeURIComponent(row.unsubscribe_token)}`
+        : undefined;
+      const { subject, html } = newsletterConfirmEmail({ email, unsubUrl });
       await sendEmail({ to: email, subject, html, tags: ["newsletter-confirm"] });
     } catch (e) {
       console.error("newsletter email failed", e);
@@ -115,7 +123,15 @@ export const changeNewsletterEmail = createServerFn({ method: "POST" })
       );
     if (insErr) throw new Error(insErr.message);
     try {
-      const { subject, html } = newsletterConfirmEmail({ email: data.newEmail });
+      const { data: row } = await supabaseAdmin
+        .from("newsletter_subscribers")
+        .select("unsubscribe_token")
+        .eq("email", data.newEmail)
+        .maybeSingle();
+      const unsubUrl = row?.unsubscribe_token
+        ? `https://marketwatch.vn/huy-ban-tin?token=${encodeURIComponent(row.unsubscribe_token)}`
+        : undefined;
+      const { subject, html } = newsletterConfirmEmail({ email: data.newEmail, unsubUrl });
       await sendEmail({ to: data.newEmail, subject, html, tags: ["newsletter-confirm"] });
     } catch (e) {
       console.error("newsletter email failed", e);
