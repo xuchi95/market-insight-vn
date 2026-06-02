@@ -29,6 +29,7 @@ import { Route as HuyCanhBaoTheoDoiRouteImport } from './routes/huy-canh-bao-the
 import { Route as HuyBanTinRouteImport } from './routes/huy-ban-tin'
 import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
+import { Route as GiaDauTheGioiRouteImport } from './routes/gia-dau-the-gioi'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DieuKhoanSuDungRouteImport } from './routes/dieu-khoan-su-dung'
@@ -193,6 +194,11 @@ const GoldRoute = GoldRouteImport.update({
 const GiaVangRoute = GiaVangRouteImport.update({
   id: '/gia-vang',
   path: '/gia-vang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiaDauTheGioiRoute = GiaDauTheGioiRouteImport.update({
+  id: '/gia-dau-the-gioi',
+  path: '/gia-dau-the-gioi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForexRoute = ForexRouteImport.update({
@@ -544,6 +550,7 @@ export interface FileRoutesByFullPath {
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
+  '/gia-dau-the-gioi': typeof GiaDauTheGioiRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
@@ -630,6 +637,7 @@ export interface FileRoutesByTo {
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
+  '/gia-dau-the-gioi': typeof GiaDauTheGioiRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
@@ -718,6 +726,7 @@ export interface FileRoutesById {
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
+  '/gia-dau-the-gioi': typeof GiaDauTheGioiRoute
   '/gia-vang': typeof GiaVangRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
@@ -806,6 +815,7 @@ export interface FileRouteTypes {
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
+    | '/gia-dau-the-gioi'
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
@@ -892,6 +902,7 @@ export interface FileRouteTypes {
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
+    | '/gia-dau-the-gioi'
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
@@ -979,6 +990,7 @@ export interface FileRouteTypes {
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
+    | '/gia-dau-the-gioi'
     | '/gia-vang'
     | '/gold'
     | '/huy-ban-tin'
@@ -1067,6 +1079,7 @@ export interface RootRouteChildren {
   DieuKhoanSuDungRoute: typeof DieuKhoanSuDungRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
+  GiaDauTheGioiRoute: typeof GiaDauTheGioiRoute
   GiaVangRoute: typeof GiaVangRoute
   GoldRoute: typeof GoldRoute
   HuyBanTinRoute: typeof HuyBanTinRoute
@@ -1270,6 +1283,13 @@ declare module '@tanstack/react-router' {
       path: '/gia-vang'
       fullPath: '/gia-vang'
       preLoaderRoute: typeof GiaVangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gia-dau-the-gioi': {
+      id: '/gia-dau-the-gioi'
+      path: '/gia-dau-the-gioi'
+      fullPath: '/gia-dau-the-gioi'
+      preLoaderRoute: typeof GiaDauTheGioiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forex': {
@@ -1785,6 +1805,7 @@ const rootRouteChildren: RootRouteChildren = {
   DieuKhoanSuDungRoute: DieuKhoanSuDungRoute,
   DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
+  GiaDauTheGioiRoute: GiaDauTheGioiRoute,
   GiaVangRoute: GiaVangRoute,
   GoldRoute: GoldRoute,
   HuyBanTinRoute: HuyBanTinRoute,
