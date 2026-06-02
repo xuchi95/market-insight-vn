@@ -1,9 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { render } from "@react-email/components";
-import * as React from "react";
-import { MagicLinkEmail } from "@/lib/email-templates/magic-link";
 import { sendEmail } from "@/lib/email/resend.server";
+import { magicLinkEmail } from "@/lib/email/templates.server";
 
 // Authsignal "Webhook" Email Magic Link provider.
 // Authsignal POSTs JSON to this endpoint whenever it needs to deliver a
@@ -15,8 +13,6 @@ import { sendEmail } from "@/lib/email/resend.server";
 //   Authenticators → Email Magic Link → Provider = Webhook
 //   Webhook URL = https://marketwatch.vn/api/public/authsignal-magic-link
 //   Tenant secret = AUTHSIGNAL_API_SECRET (đã có sẵn trong project secrets)
-
-const SITE_NAME = "MarketWatch";
 
 function verifySignature(rawBody: string, header: string | null, secret: string): boolean {
   if (!header) return false;
@@ -103,18 +99,11 @@ export const Route = createFileRoute("/api/public/authsignal-magic-link")({
         }
 
         try {
-          const element = React.createElement(MagicLinkEmail, {
-            siteName: SITE_NAME,
-            confirmationUrl: url,
-          });
-          const html = await render(element);
-          const text = await render(element, { plainText: true });
-
+          const { subject, html } = magicLinkEmail({ actionLink: url });
           await sendEmail({
             to,
-            subject: `Link đăng nhập ${SITE_NAME}`,
+            subject,
             html,
-            text,
             tags: ["authsignal", "magic-link"],
           });
         } catch (e: any) {
