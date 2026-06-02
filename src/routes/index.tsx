@@ -5,6 +5,7 @@ import { Ticker } from "@/components/site/Ticker";
 import { BentoTiles } from "@/components/site/BentoTiles";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { OilPriceTable } from "@/components/site/OilPriceTable";
+import { VnFuelPriceTable } from "@/components/site/VnFuelPriceTable";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/`;
@@ -84,6 +85,14 @@ function Index() {
               <div className="eyebrow opacity-60 hidden sm:block">Brent &amp; WTI · realtime</div>
             </div>
             <OilPriceTable />
+          </section>
+
+          <section className="py-10 md:py-14 border-t border-border">
+            <div className="flex items-baseline justify-between mb-5 md:mb-6">
+              <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Giá xăng dầu trong nước</h2>
+              <div className="eyebrow opacity-60 hidden sm:block">Petrolimex · 34 tỉnh thành</div>
+            </div>
+            <VnFuelPriceTable />
           </section>
 
           <section className="py-10 md:py-14 border-t border-border">
