@@ -11,7 +11,7 @@ import { FearGreedGauge } from "@/components/site/FearGreedGauge";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/tien-dien-tu`;
-const TITLE = "Giá Bitcoin hôm nay — Giá BTC, ETH, USDT, BNB, SOL realtime";
+const TITLE = "Giá Bitcoin hôm nay — BTC, ETH, USDT, BNB, SOL realtime";
 const DESC = "Giá BTC hôm nay, giá Bitcoin, Ethereum, USDT, BNB, Solana, XRP, Dogecoin, TON cập nhật realtime theo USD và VND — vốn hoá, volume 24h và biến động giá.";
 
 const FAQ = [
