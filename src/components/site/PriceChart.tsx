@@ -9,7 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 type Asset = "btc" | "eth" | "gold-sjc" | "usd-vnd" | "eur-vnd" | "gbp-vnd" | "jpy-vnd" | "cny-vnd" | "krw-vnd" | "sgd-vnd" | "aud-vnd" | "cad-vnd" | "chf-vnd" | "hkd-vnd" | "thb-vnd";
-type Range = "1" | "7" | "30";
+type Range = "1" | "7" | "30" | "365";
+type ChangeUnit = "pct" | "abs";
 type AssetGroup = "crypto" | "gold" | "forex";
 
 const ASSET_GROUPS: Record<AssetGroup, Asset[]> = {
@@ -91,10 +92,11 @@ async function loadSeries(asset: Asset, days: Range): Promise<SeriesData> {
     } catch {}
   }
   // Synthesize plausible series for gold/forex or as fallback
-  const n = Number(days) * 24;
+  const totalMs = Number(days) * 24 * 3600 * 1000;
+  const n = Math.min(Number(days) * 24, 480);
   const base = (BASE_VALUES as Record<string, number>)[asset] ?? 25_400;
   const now = Date.now();
-  const step = (Number(days) * 24 * 3600 * 1000) / n;
+  const step = totalMs / n;
   const out: Point[] = [];
   let v = base * (1 - 0.03);
   for (let i = 0; i < n; i++) {
