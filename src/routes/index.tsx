@@ -7,7 +7,7 @@ import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/`;
-const TITLE = "MarketWatch — Giá vàng SJC, Bitcoin, USD/VND realtime hôm nay";
+const TITLE = "Giá vàng SJC, Bitcoin, USD/VND hôm nay — MarketWatch";
 const DESC = "Giá vàng SJC, DOJI, PNJ, Bitcoin (BTC), Ethereum (ETH), USDT, tỷ giá USD/VND, EUR, JPY, CNY cập nhật realtime — dashboard tài chính tiếng Việt cho nhà đầu tư.";
 
 export const Route = createFileRoute("/")({
