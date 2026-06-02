@@ -51,7 +51,6 @@ export const Route = createFileRoute("/cai-dat/bao-mat")({
       { property: "og:url", content: URL },
       { name: "robots", content: "noindex,nofollow" },
     ],
-    links: [{ rel: "canonical", href: URL }],
   }),
   component: SecuritySettingsPage,
 });

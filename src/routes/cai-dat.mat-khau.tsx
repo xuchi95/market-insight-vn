@@ -28,7 +28,6 @@ export const Route = createFileRoute("/cai-dat/mat-khau")({
       { property: "og:url", content: URL },
       { name: "robots", content: "noindex,nofollow" },
     ],
-    links: [{ rel: "canonical", href: URL }],
   }),
   component: ChangePasswordPage,
 });

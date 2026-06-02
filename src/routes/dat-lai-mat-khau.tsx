@@ -22,7 +22,6 @@ export const Route = createFileRoute("/dat-lai-mat-khau")({
       { property: "og:url", content: PAGE_URL },
       { name: "robots", content: "noindex,nofollow" },
     ],
-    links: [{ rel: "canonical", href: PAGE_URL }],
   }),
   component: ResetPasswordPage,
 });

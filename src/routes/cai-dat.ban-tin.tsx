@@ -32,7 +32,6 @@ export const Route = createFileRoute("/cai-dat/ban-tin")({
       { property: "og:url", content: URL },
       { name: "robots", content: "noindex,nofollow" },
     ],
-    links: [{ rel: "canonical", href: URL }],
   }),
   component: NewsletterSettingsPage,
 });

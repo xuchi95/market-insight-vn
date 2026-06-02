@@ -35,7 +35,6 @@ export const Route = createFileRoute("/portfolio")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
     ],
-    links: [{ rel: "canonical", href: URL }],
   }),
   component: PortfolioPage,
 });
