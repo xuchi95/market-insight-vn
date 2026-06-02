@@ -21,7 +21,7 @@ export function NumberFormatToggle() {
             onClick={toggle}
             aria-label={compact ? "Hiển thị số đầy đủ" : "Hiển thị rút gọn"}
             aria-pressed={compact}
-            className="inline-flex h-8 min-w-[44px] items-center justify-center rounded-full border border-border bg-card/60 px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground hover:border-[var(--gold)]/50 transition-colors"
+            className="inline-flex h-8 items-center justify-center rounded-full px-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground hover:text-[var(--gold)] hover:bg-accent transition-colors tabular"
           >
             {compact ? "1,2M" : "1.234.567"}
           </button>
