@@ -440,12 +440,25 @@ export function PriceChart({
             </ResponsiveContainer>
           )}
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: color }} /> Đường giá</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-muted-foreground/70" /> Giá đầu kỳ</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--up)" }} /> Đỉnh</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full" style={{ background: "var(--down)" }} /> Đáy</span>
-          <span className="ml-auto hidden md:inline">Di chuột để xem chi tiết · Kéo thanh dưới biểu đồ để zoom</span>
+        <div className="mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-medium tabular"
+            style={{ color, borderColor: `color-mix(in oklab, ${color} 40%, transparent)`, background: `color-mix(in oklab, ${color} 10%, transparent)` }}
+          >
+            <TrendIcon className="h-3 w-3" />
+            <span>{positive ? "Đang tăng" : trendStrength < 0.3 ? "Đi ngang" : "Đang giảm"}</span>
+            <span className="opacity-80">{positive ? "+" : ""}{(stats?.change ?? 0).toFixed(2)}%</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-muted-foreground">
+            <span className="inline-block h-0 w-3 border-t-2 border-dashed border-muted-foreground/70" /> Đầu kỳ
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5" style={{ color: "var(--up)", borderColor: "color-mix(in oklab, var(--up) 35%, transparent)", background: "color-mix(in oklab, var(--up) 10%, transparent)" }}>
+            <ArrowUp className="h-3 w-3" /> Đỉnh
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5" style={{ color: "var(--down)", borderColor: "color-mix(in oklab, var(--down) 35%, transparent)", background: "color-mix(in oklab, var(--down) 10%, transparent)" }}>
+            <ArrowDown className="h-3 w-3" /> Đáy
+          </span>
+          <span className="ml-auto hidden md:inline text-muted-foreground">Di chuột để xem chi tiết · Kéo thanh dưới biểu đồ để zoom</span>
         </div>
         {source && (
           <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs text-muted-foreground border-t border-border/40 pt-2">
