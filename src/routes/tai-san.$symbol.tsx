@@ -85,6 +85,8 @@ function AssetDetail() {
   const lower = symbol.toLowerCase();
   const isGold = lower.startsWith("gold-");
   const isBank = lower.startsWith("bank-");
+  const isOil = lower === "oil-brent" || lower === "oil-wti";
+  const oilId = isOil ? (lower === "oil-brent" ? "brent" : "wti") : null;
   const goldId = isGold ? lower.slice("gold-".length) : null;
   const bankCode = isBank ? lower.slice("bank-".length).toUpperCase() : null;
 
@@ -93,7 +95,7 @@ function AssetDetail() {
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
     refetchInterval: 60_000,
-    enabled: !isGold && !isBank,
+    enabled: !isGold && !isBank && !isOil,
   });
   const coin = coins?.find((c) => c.symbol.toLowerCase() === lower);
 
@@ -103,11 +105,56 @@ function AssetDetail() {
   const { data: bank } = useQuery({ queryKey: ["bank-rates"], queryFn: fetchBankRates, enabled: isBank });
   const bankRow = bank?.items.find((r) => r.code.toUpperCase() === bankCode);
 
+  // Oil (Brent/WTI) — current price + history
+  const { data: oilData } = useQuery({
+    queryKey: ["oil"],
+    queryFn: async () => {
+      const r = await fetch("/api/public/oil");
+      if (!r.ok) throw new Error("oil " + r.status);
+      return r.json() as Promise<{ items: any[]; updatedAt: number }>;
+    },
+    enabled: isOil,
+    refetchInterval: 60_000,
+  });
+  const oil = oilData?.items?.find((o) => o.id === oilId);
+
   // Fallback lookups for stocks & forex when not a crypto symbol
-  const { data: stocks } = useQuery({ queryKey: ["stocks-indices"], queryFn: fetchStockIndices, enabled: !isGold && !isBank && !coin && !isLoading });
+  const { data: stocks } = useQuery({ queryKey: ["stocks-indices"], queryFn: fetchStockIndices, enabled: !isGold && !isBank && !isOil && !coin && !isLoading });
   const stock = stocks?.find((s) => s.code.toLowerCase() === lower);
-  const { data: forex } = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, enabled: !isGold && !isBank && !coin && !stock && !isLoading });
+  const { data: forex } = useQuery({ queryKey: ["forex"], queryFn: fetchForexRates, enabled: !isGold && !isBank && !isOil && !coin && !stock && !isLoading });
   const fx = forex?.find((r) => r.code.toLowerCase() === lower);
+
+  // Oil history per range tab
+  const {
+    data: oilHistory,
+    isLoading: oilHistLoading,
+    isError: oilHistError,
+    refetch: refetchOilHist,
+  } = useQuery({
+    queryKey: ["oil-history", oilId, range],
+    queryFn: async () => {
+      const r = await fetch(`/api/public/oil-history?id=${oilId}&days=${range}`);
+      if (!r.ok) throw new Error("oil-history " + r.status);
+      const j = (await r.json()) as { points: { t: number; v: number }[] };
+      return j.points ?? [];
+    },
+    enabled: isOil && !!oilId,
+    refetchInterval: 5 * 60_000,
+    retry: 1,
+  });
+
+  const oilStats = useMemo(() => {
+    if (!oilHistory || oilHistory.length < 2) return null;
+    const vals = oilHistory.map((p) => p.v);
+    const first = vals[0];
+    const last = vals[vals.length - 1];
+    return {
+      min: Math.min(...vals),
+      max: Math.max(...vals),
+      changePct: first ? ((last - first) / first) * 100 : 0,
+      changeAbs: last - first,
+    };
+  }, [oilHistory]);
 
   const others = useMemo(() => coins?.filter((c) => c.id !== coin?.id).slice(0, 5) ?? [], [coins, coin]);
 
@@ -155,11 +202,12 @@ function AssetDetail() {
   const assetCrumb = useMemo(() => {
     if (gold) return [{ label: "Giá vàng", to: "/gia-vang" }, { label: `${gold.brand} · ${gold.type}` }];
     if (bankRow) return [{ label: "Tỷ giá ngân hàng", to: "/ty-gia-ngan-hang" }, { label: `Vietcombank · ${bankRow.code}` }];
+    if (oil) return [{ label: "Trang chủ", to: "/" }, { label: `Giá dầu · ${oil.nameVi}` }];
     if (coin) return [{ label: "Giá crypto", to: "/tien-dien-tu" }, { label: symbol.toUpperCase() }];
     if (stock) return [{ label: "Chứng khoán", to: "/chung-khoan" }, { label: symbol.toUpperCase() }];
     if (fx) return [{ label: "Tỷ giá ngoại tệ", to: "/ty-gia-ngoai-te" }, { label: symbol.toUpperCase() }];
     return [{ label: symbol.toUpperCase() }];
-  }, [coin, stock, fx, gold, bankRow, symbol]);
+  }, [coin, stock, fx, gold, bankRow, oil, symbol]);
 
   // pair-history asset key resolver
   const historyKey = useMemo(() => {
@@ -178,11 +226,127 @@ function AssetDetail() {
         <Breadcrumbs extra={assetCrumb} />
 
         {isLoading && !isGold && !isBank && <Skeleton className="h-40 w-full" />}
-        {!isLoading && !coin && !stock && !fx && !gold && !bankRow && (
+        {!isLoading && !coin && !stock && !fx && !gold && !bankRow && !oil && (
           <div className="text-center py-20">
             <h1 className="text-2xl font-bold">Không tìm thấy tài sản "{symbol.toUpperCase()}"</h1>
             <p className="text-muted-foreground mt-2">Trang chi tiết hỗ trợ crypto, chỉ số chứng khoán, ngoại tệ, vàng và tỷ giá ngân hàng.</p>
           </div>
+        )}
+
+        {oil && (
+          <>
+            <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+              <div className="flex flex-wrap items-center gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold tracking-tight text-gold">{oil.nameVi}</h1>
+                  <div className="text-sm text-muted-foreground mt-1">{oil.name} · Sàn {oil.exchange} · USD/thùng</div>
+                </div>
+                <div className="ml-auto text-right">
+                  <div className="text-4xl font-bold tabular tracking-tight">${fmtNum(oil.priceUsd, 2)}</div>
+                  <div className={`text-sm tabular ${oil.changeAbs >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+                    {oil.changeAbs >= 0 ? "+" : ""}{fmtNum(oil.changeAbs, 2)} USD
+                  </div>
+                </div>
+                <ChangeBadge value={oil.changePct} className="text-sm px-3 py-1" />
+                <WatchButton item={{ symbol: lower, label: oil.nameVi, category: "Dầu thô", to: `/tai-san/${lower}` }} />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <Stat label="Đóng cửa trước" value={`$${fmtNum(oil.prevClose, 2)}`} />
+                <Stat label={`Cao nhất (${rangeLabel})`} value={oilStats ? `$${fmtNum(oilStats.max, 2)}` : "—"} />
+                <Stat label={`Thấp nhất (${rangeLabel})`} value={oilStats ? `$${fmtNum(oilStats.min, 2)}` : "—"} />
+                <Stat label="Cập nhật" value={fmtTime(oil.updatedAt)} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <ChangeCard label="Biến động phiên" value={oil.changePct} />
+              <ChangeCard label={`Biến động ${rangeLabel}`} value={oilStats?.changePct ?? null} />
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="flex items-center gap-3 p-4 border-b border-border">
+                <h2 className="font-bold">Lịch sử giá {oil.nameVi}</h2>
+                <Tabs value={range} onValueChange={setRange} className="ml-auto">
+                  <TabsList className="h-9">
+                    <TabsTrigger value="1">24h</TabsTrigger>
+                    <TabsTrigger value="7">7 ngày</TabsTrigger>
+                    <TabsTrigger value="30">30 ngày</TabsTrigger>
+                    <TabsTrigger value="90">90 ngày</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              <div className="h-80 w-full p-4">
+                {oilHistLoading ? (
+                  <Skeleton className="h-full w-full" />
+                ) : oilHistError ? (
+                  <div className="h-full w-full flex flex-col items-center justify-center gap-3 text-center">
+                    <AlertTriangle className="h-8 w-8 text-[var(--down)]" />
+                    <div className="text-sm font-semibold">Không tải được biểu đồ</div>
+                    <button
+                      type="button"
+                      onClick={() => refetchOilHist()}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
+                    >
+                      <RefreshCw className="h-3 w-3" /> Thử lại
+                    </button>
+                  </div>
+                ) : !oilHistory || oilHistory.length === 0 ? (
+                  <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
+                    Chưa có dữ liệu lịch sử.
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={oilHistory}>
+                      <defs>
+                        <linearGradient id={`oil-${oilId}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={(oilStats?.changePct ?? 0) >= 0 ? "var(--up)" : "var(--down)"} stopOpacity={0.35} />
+                          <stop offset="100%" stopColor={(oilStats?.changePct ?? 0) >= 0 ? "var(--up)" : "var(--down)"} stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                      <XAxis
+                        dataKey="t"
+                        stroke="var(--muted-foreground)"
+                        fontSize={11}
+                        tickFormatter={(t) =>
+                          range === "1"
+                            ? new Date(t).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+                            : new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })
+                        }
+                        tickLine={false}
+                        axisLine={false}
+                        minTickGap={32}
+                      />
+                      <YAxis
+                        dataKey="v"
+                        stroke="var(--muted-foreground)"
+                        fontSize={11}
+                        tickLine={false}
+                        axisLine={false}
+                        width={70}
+                        domain={["auto", "auto"]}
+                        tickFormatter={(v) => "$" + fmtNum(v as number, 0)}
+                      />
+                      <Tooltip
+                        contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
+                        labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")}
+                        formatter={(v: number) => ["$" + fmtNum(v, 2), "USD/thùng"]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="v"
+                        stroke={(oilStats?.changePct ?? 0) >= 0 ? "var(--up)" : "var(--down)"}
+                        strokeWidth={2}
+                        fill={`url(#oil-${oilId})`}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            <Link to="/" className="text-sm text-gold hover:underline inline-flex items-center gap-1">← Về trang chủ</Link>
+          </>
         )}
 
         {gold && (
