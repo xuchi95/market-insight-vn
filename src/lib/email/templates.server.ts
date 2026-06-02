@@ -131,3 +131,182 @@ export function watchlistAlertEmail(opts: {
   `);
   return { subject: `${arrow} ${opts.label} ${pct} — MarketWatch`, html };
 }
+
+// ---------- Auth: xác nhận đăng ký ----------
+export function signupConfirmEmail(opts: { name?: string | null; actionLink: string }) {
+  const greet = opts.name ? `Xin chào ${escape(opts.name)},` : "Xin chào,";
+  const html = shell("Xác nhận đăng ký MarketWatch", `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Xác thực email</div>
+    <h1 style="font-size:22px;margin:0 0 12px;color:#111;">Xác nhận đăng ký tài khoản</h1>
+    <p style="margin:0 0 12px;line-height:1.6;color:#333;">${greet}</p>
+    <p style="margin:0 0 12px;line-height:1.6;color:#333;">Cảm ơn bạn đã đăng ký MarketWatch. Vui lòng bấm nút bên dưới để xác nhận địa chỉ email của bạn. Liên kết có hiệu lực trong 24 giờ.</p>
+    ${button(opts.actionLink, "Xác nhận email")}
+    <p style="margin:0 0 6px;font-size:12px;color:#666;">Nếu nút không hoạt động, sao chép liên kết sau vào trình duyệt:</p>
+    <p style="margin:0 0 18px;font-size:12px;color:#0a58ca;word-break:break-all;">${escape(opts.actionLink)}</p>
+    <p style="margin:0;font-size:12px;color:#999;">Bạn không tạo tài khoản này? Bỏ qua email — không có thay đổi nào được thực hiện.</p>
+  `);
+  return { subject: "Xác nhận đăng ký MarketWatch", html };
+}
+
+// ---------- Auth: OTP đăng nhập ----------
+export function loginOtpEmail(opts: { code: string; minutesValid?: number }) {
+  const mins = opts.minutesValid ?? 10;
+  const code = String(opts.code).replace(/\s+/g, "");
+  const html = shell("Mã đăng nhập MarketWatch", `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Mã xác thực một lần</div>
+    <h1 style="font-size:22px;margin:0 0 12px;color:#111;">Mã đăng nhập của bạn</h1>
+    <p style="margin:0 0 16px;line-height:1.6;color:#333;">Nhập mã sau để hoàn tất đăng nhập. Mã có hiệu lực trong <strong>${mins} phút</strong> và chỉ dùng được một lần.</p>
+    <div style="margin:20px 0;padding:18px 24px;background:#fafafa;border:1px dashed #d6d6d6;border-radius:10px;text-align:center;">
+      <div style="font-family:'SF Mono',Menlo,Consolas,monospace;font-size:30px;letter-spacing:0.4em;font-weight:700;color:#111;">${escape(code)}</div>
+    </div>
+    <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">Không thực hiện đăng nhập này? Hãy đổi mật khẩu MarketWatch ngay và liên hệ <a href="mailto:contact@marketwatch.vn" style="color:#555;">contact@marketwatch.vn</a>.</p>
+  `);
+  return { subject: `Mã đăng nhập MarketWatch: ${code}`, html };
+}
+
+// ---------- Auth: magic link ----------
+export function magicLinkEmail(opts: { actionLink: string; minutesValid?: number }) {
+  const mins = opts.minutesValid ?? 60;
+  const html = shell("Liên kết đăng nhập MarketWatch", `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Đăng nhập an toàn</div>
+    <h1 style="font-size:22px;margin:0 0 12px;color:#111;">Đăng nhập MarketWatch</h1>
+    <p style="margin:0 0 12px;line-height:1.6;color:#333;">Bấm nút bên dưới để đăng nhập vào tài khoản của bạn. Liên kết có hiệu lực trong ${mins} phút và chỉ dùng được một lần.</p>
+    ${button(opts.actionLink, "Đăng nhập ngay")}
+    <p style="margin:0 0 6px;font-size:12px;color:#666;">Hoặc dán liên kết sau vào trình duyệt:</p>
+    <p style="margin:0 0 18px;font-size:12px;color:#0a58ca;word-break:break-all;">${escape(opts.actionLink)}</p>
+    <p style="margin:0;font-size:12px;color:#999;">Bạn không yêu cầu đăng nhập? Có thể bỏ qua email này.</p>
+  `);
+  return { subject: "Liên kết đăng nhập MarketWatch", html };
+}
+
+// ---------- Auth: đặt lại mật khẩu (dùng chung shell) ----------
+export function passwordResetEmail(opts: { actionLink: string }) {
+  const html = shell("Đặt lại mật khẩu MarketWatch", `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Bảo mật tài khoản</div>
+    <h1 style="font-size:22px;margin:0 0 12px;color:#111;">Đặt lại mật khẩu</h1>
+    <p style="margin:0 0 12px;line-height:1.6;color:#333;">Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Bấm nút bên dưới để chọn mật khẩu mới. Liên kết có hiệu lực trong 60 phút.</p>
+    ${button(opts.actionLink, "Đặt lại mật khẩu")}
+    <p style="margin:0 0 6px;font-size:12px;color:#666;">Nếu nút không hoạt động, sao chép liên kết sau:</p>
+    <p style="margin:0 0 18px;font-size:12px;color:#0a58ca;word-break:break-all;">${escape(opts.actionLink)}</p>
+    <p style="margin:0;font-size:12px;color:#999;">Không yêu cầu việc này? Bỏ qua email — mật khẩu của bạn vẫn an toàn.</p>
+  `);
+  return { subject: "Đặt lại mật khẩu MarketWatch", html };
+}
+
+// ---------- Bản tin giá vàng ----------
+export interface GoldDigestRow { label: string; buy?: number | null; sell: number; changePct?: number | null }
+export function goldDigestEmail(opts: { dateLabel: string; rows: GoldDigestRow[]; unsubUrl?: string }) {
+  const fmtVnd = (n: number) => new Intl.NumberFormat("vi-VN").format(Math.round(n));
+  const rows = opts.rows.map((r) => {
+    const ch = typeof r.changePct === "number" ? r.changePct : null;
+    const chColor = ch === null ? "#888" : ch >= 0 ? "#0a8f4a" : "#c8312f";
+    const chText = ch === null ? "—" : `${ch >= 0 ? "+" : ""}${ch.toFixed(2)}%`;
+    return `<tr>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-weight:600;color:#111;">${escape(r.label)}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:#333;">${r.buy != null ? fmtVnd(r.buy) : "—"}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:#111;font-weight:600;">${fmtVnd(r.sell)}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:${chColor};font-weight:600;">${chText}</td>
+    </tr>`;
+  }).join("");
+  const html = shell(`Bản tin giá vàng • ${opts.dateLabel}`, `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Bản tin giá vàng</div>
+    <h1 style="font-size:22px;margin:0 0 6px;color:#111;">Giá vàng ${escape(opts.dateLabel)}</h1>
+    <p style="margin:0 0 14px;color:#666;font-size:13px;">Đơn vị: VNĐ/lượng. Dữ liệu cập nhật tự động từ MarketWatch.</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #ececec;border-radius:8px;overflow:hidden;">
+      <thead><tr style="background:#fafafa;">
+        <th align="left" style="padding:10px 12px;color:#888;font-weight:500;">Loại vàng</th>
+        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Mua</th>
+        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Bán</th>
+        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">24h</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${button(SITE + "/gia-vang", "Xem biểu đồ chi tiết")}
+    ${opts.unsubUrl ? `<p style="margin:24px 0 0;font-size:12px;color:#888;">Không muốn nhận bản tin vàng? <a href="${opts.unsubUrl}" style="color:#555;">Hủy đăng ký</a>.</p>` : ""}
+  `);
+  return { subject: `Giá vàng ${opts.dateLabel} — MarketWatch`, html };
+}
+
+// ---------- Bản tin tiền điện tử ----------
+export interface CoinDigestRow { symbol: string; name?: string; price: number; changePct: number }
+export function cryptoDigestEmail(opts: { dateLabel: string; rows: CoinDigestRow[]; unsubUrl?: string }) {
+  const fmt = (n: number) => n >= 1
+    ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(n)
+    : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 6 }).format(n);
+  const rows = opts.rows.map((r) => {
+    const up = r.changePct >= 0;
+    const color = up ? "#0a8f4a" : "#c8312f";
+    const arrow = up ? "▲" : "▼";
+    return `<tr>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;">
+        <div style="font-weight:600;color:#111;">${escape(r.symbol.toUpperCase())}</div>
+        ${r.name ? `<div style="font-size:11px;color:#888;">${escape(r.name)}</div>` : ""}
+      </td>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:#111;font-weight:600;">${fmt(r.price)}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:${color};font-weight:600;">${arrow} ${up ? "+" : ""}${r.changePct.toFixed(2)}%</td>
+    </tr>`;
+  }).join("");
+  const html = shell(`Bản tin Crypto • ${opts.dateLabel}`, `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Bản tin tiền điện tử</div>
+    <h1 style="font-size:22px;margin:0 0 6px;color:#111;">Top biến động ${escape(opts.dateLabel)}</h1>
+    <p style="margin:0 0 14px;color:#666;font-size:13px;">Giá USD cập nhật theo dữ liệu thị trường gần nhất.</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #ececec;border-radius:8px;overflow:hidden;">
+      <thead><tr style="background:#fafafa;">
+        <th align="left" style="padding:10px 12px;color:#888;font-weight:500;">Coin</th>
+        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Giá</th>
+        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">24h</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${button(SITE + "/crypto", "Mở bảng giá Crypto")}
+    ${opts.unsubUrl ? `<p style="margin:24px 0 0;font-size:12px;color:#888;">Không muốn nhận bản tin crypto? <a href="${opts.unsubUrl}" style="color:#555;">Hủy đăng ký</a>.</p>` : ""}
+  `);
+  return { subject: `Crypto ${opts.dateLabel} — MarketWatch`, html };
+}
+
+// ---------- Bản tin tỷ giá ngoại tệ ----------
+export interface FxDigestRow { pair: string; rate: number; changePct?: number | null }
+export function fxDigestEmail(opts: { dateLabel: string; rows: FxDigestRow[]; unsubUrl?: string }) {
+  const fmt = (n: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: n >= 1000 ? 0 : 4 }).format(n);
+  const rows = opts.rows.map((r) => {
+    const ch = typeof r.changePct === "number" ? r.changePct : null;
+    const color = ch === null ? "#888" : ch >= 0 ? "#0a8f4a" : "#c8312f";
+    const chText = ch === null ? "—" : `${ch >= 0 ? "+" : ""}${ch.toFixed(2)}%`;
+    return `<tr>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;font-weight:600;color:#111;">${escape(r.pair)}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:#111;font-weight:600;">${fmt(r.rate)}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:${color};font-weight:600;">${chText}</td>
+    </tr>`;
+  }).join("");
+  const html = shell(`Tỷ giá ngoại tệ • ${opts.dateLabel}`, `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Bản tin ngoại tệ</div>
+    <h1 style="font-size:22px;margin:0 0 6px;color:#111;">Tỷ giá ngày ${escape(opts.dateLabel)}</h1>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #ececec;border-radius:8px;overflow:hidden;margin-top:8px;">
+      <thead><tr style="background:#fafafa;">
+        <th align="left" style="padding:10px 12px;color:#888;font-weight:500;">Cặp</th>
+        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Tỷ giá</th>
+        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">24h</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${button(SITE + "/ngoai-te", "Xem chi tiết tỷ giá")}
+    ${opts.unsubUrl ? `<p style="margin:24px 0 0;font-size:12px;color:#888;">Không muốn nhận bản tin tỷ giá? <a href="${opts.unsubUrl}" style="color:#555;">Hủy đăng ký</a>.</p>` : ""}
+  `);
+  return { subject: `Tỷ giá ${opts.dateLabel} — MarketWatch`, html };
+}
+
+// ---------- Cảnh báo bảo mật / đăng nhập mới ----------
+export function securityAlertEmail(opts: { event: string; ip?: string | null; userAgent?: string | null; whenLabel: string }) {
+  const html = shell("Hoạt động đăng nhập mới", `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Cảnh báo bảo mật</div>
+    <h1 style="font-size:22px;margin:0 0 12px;color:#111;">${escape(opts.event)}</h1>
+    <table style="font-size:13px;color:#333;line-height:1.7;margin:6px 0 14px;"><tbody>
+      <tr><td style="color:#888;padding-right:18px;">Thời gian</td><td>${escape(opts.whenLabel)}</td></tr>
+      ${opts.ip ? `<tr><td style="color:#888;padding-right:18px;">IP</td><td>${escape(opts.ip)}</td></tr>` : ""}
+      ${opts.userAgent ? `<tr><td style="color:#888;padding-right:18px;">Thiết bị</td><td>${escape(opts.userAgent)}</td></tr>` : ""}
+    </tbody></table>
+    <p style="margin:0 0 12px;line-height:1.6;color:#333;">Nếu đây là bạn, không cần làm gì. Nếu không, hãy đổi mật khẩu ngay và liên hệ <a href="mailto:contact@marketwatch.vn" style="color:#555;">contact@marketwatch.vn</a>.</p>
+    ${button(SITE + "/tai-khoan/bao-mat", "Mở cài đặt bảo mật")}
+  `);
+  return { subject: `[Bảo mật] ${opts.event} — MarketWatch`, html };
+}
