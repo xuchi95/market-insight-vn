@@ -43,7 +43,15 @@ export const Route = createFileRoute("/api/newsletter/subscribe")({
           return Response.json({ error: "db_error" }, { status: 500 });
         }
         try {
-          const { subject, html } = newsletterConfirmEmail({ email });
+          const { data: row } = await supabaseAdmin
+            .from("newsletter_subscribers")
+            .select("unsubscribe_token")
+            .eq("email", email)
+            .maybeSingle();
+          const unsubUrl = row?.unsubscribe_token
+            ? `https://marketwatch.vn/huy-ban-tin?token=${encodeURIComponent(row.unsubscribe_token)}`
+            : undefined;
+          const { subject, html } = newsletterConfirmEmail({ email, unsubUrl });
           await sendEmail({ to: email, subject, html, tags: ["newsletter-confirm"] });
         } catch (e) {
           console.error("newsletter email failed", e);
