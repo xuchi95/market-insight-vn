@@ -46,7 +46,7 @@ const NAV_GROUPS: NavGroup[] = [
         items: [
           { label: "Ngoại tệ", to: "/ty-gia-ngoai-te", hint: "USD, EUR, JPY…" },
           { label: "Tỷ giá ngân hàng", to: "/ty-gia-ngan-hang", hint: "VCB, BIDV, TCB" },
-          { label: "Giá dầu thế giới", to: "/gia-dau-the-gioi", hint: "Brent & WTI realtime" },
+          { label: "Giá xăng/dầu", to: "/gia-xang-dau", hint: "Brent, WTI & Petrolimex" },
         ],
       },
     ],

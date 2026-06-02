@@ -3,14 +3,15 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Ticker } from "@/components/site/Ticker";
 import { OilPriceTable } from "@/components/site/OilPriceTable";
+import { VnFuelPriceTable } from "@/components/site/VnFuelPriceTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 
 const SITE = "https://marketwatch.vn";
-const URL = `${SITE}/gia-dau-the-gioi`;
-const TITLE = "Giá dầu thế giới hôm nay — Brent & WTI realtime | MarketWatch";
-const DESC = "Giá dầu thô Brent (ICE) và WTI (NYMEX) cập nhật realtime theo USD/thùng, kèm thay đổi so với phiên đóng cửa trước — nguồn Yahoo Finance.";
+const URL = `${SITE}/gia-xang-dau`;
+const TITLE = "Giá xăng/dầu hôm nay — Brent, WTI & Petrolimex | MarketWatch";
+const DESC = "Giá dầu thô Brent (ICE), WTI (NYMEX) realtime theo USD/thùng và giá xăng dầu trong nước Petrolimex (RON 95-V, E5 RON 92, Diesel…) cập nhật theo kỳ điều hành.";
 
-export const Route = createFileRoute("/gia-dau-the-gioi")({
+export const Route = createFileRoute("/gia-xang-dau")({
   head: () => ({
     meta: [
       { title: TITLE },
@@ -38,15 +39,27 @@ function Page() {
           <section className="py-10 md:py-14 border-b border-border">
             <div className="eyebrow opacity-60 mb-3">Hàng hoá · Năng lượng</div>
             <h1 className="font-display text-[2rem] sm:text-[2.5rem] md:text-5xl leading-[1.1] tracking-tight text-balance">
-              Giá <em className="text-[var(--gold)] not-italic italic">dầu thế giới</em> hôm nay
+              Giá <em className="text-[var(--gold)] not-italic italic">xăng/dầu</em> hôm nay
             </h1>
             <p className="mt-4 max-w-2xl text-sm md:text-base text-muted-foreground leading-relaxed">
-              Brent (ICE) và WTI (NYMEX) — USD/thùng, cập nhật realtime theo Yahoo Finance.
+              Dầu thô thế giới (Brent, WTI) cập nhật realtime và bảng giá xăng dầu trong nước Petrolimex.
             </p>
           </section>
 
           <section className="py-10 md:py-14">
+            <div className="flex items-baseline justify-between mb-5 md:mb-6">
+              <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Giá dầu thế giới</h2>
+              <div className="eyebrow opacity-60 hidden sm:block">Brent &amp; WTI · realtime</div>
+            </div>
             <OilPriceTable />
+          </section>
+
+          <section className="py-10 md:py-14 border-t border-border">
+            <div className="flex items-baseline justify-between mb-5 md:mb-6">
+              <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Giá xăng dầu trong nước</h2>
+              <div className="eyebrow opacity-60 hidden sm:block">Petrolimex · 34 tỉnh thành</div>
+            </div>
+            <VnFuelPriceTable />
           </section>
 
           <section className="py-10 md:py-14 border-t border-border">

@@ -28,8 +28,8 @@ import { Route as LaiSuatTietKiemRouteImport } from './routes/lai-suat-tiet-kiem
 import { Route as HuyCanhBaoTheoDoiRouteImport } from './routes/huy-canh-bao-theo-doi'
 import { Route as HuyBanTinRouteImport } from './routes/huy-ban-tin'
 import { Route as GoldRouteImport } from './routes/gold'
+import { Route as GiaXangDauRouteImport } from './routes/gia-xang-dau'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
-import { Route as GiaDauTheGioiRouteImport } from './routes/gia-dau-the-gioi'
 import { Route as ForexRouteImport } from './routes/forex'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DieuKhoanSuDungRouteImport } from './routes/dieu-khoan-su-dung'
@@ -191,14 +191,14 @@ const GoldRoute = GoldRouteImport.update({
   path: '/gold',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GiaXangDauRoute = GiaXangDauRouteImport.update({
+  id: '/gia-xang-dau',
+  path: '/gia-xang-dau',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GiaVangRoute = GiaVangRouteImport.update({
   id: '/gia-vang',
   path: '/gia-vang',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GiaDauTheGioiRoute = GiaDauTheGioiRouteImport.update({
-  id: '/gia-dau-the-gioi',
-  path: '/gia-dau-the-gioi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForexRoute = ForexRouteImport.update({
@@ -550,8 +550,8 @@ export interface FileRoutesByFullPath {
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
-  '/gia-dau-the-gioi': typeof GiaDauTheGioiRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gia-xang-dau': typeof GiaXangDauRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
   '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
@@ -637,8 +637,8 @@ export interface FileRoutesByTo {
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
-  '/gia-dau-the-gioi': typeof GiaDauTheGioiRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gia-xang-dau': typeof GiaXangDauRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
   '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
@@ -726,8 +726,8 @@ export interface FileRoutesById {
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
   '/forex': typeof ForexRoute
-  '/gia-dau-the-gioi': typeof GiaDauTheGioiRoute
   '/gia-vang': typeof GiaVangRoute
+  '/gia-xang-dau': typeof GiaXangDauRoute
   '/gold': typeof GoldRoute
   '/huy-ban-tin': typeof HuyBanTinRoute
   '/huy-canh-bao-theo-doi': typeof HuyCanhBaoTheoDoiRoute
@@ -815,8 +815,8 @@ export interface FileRouteTypes {
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
-    | '/gia-dau-the-gioi'
     | '/gia-vang'
+    | '/gia-xang-dau'
     | '/gold'
     | '/huy-ban-tin'
     | '/huy-canh-bao-theo-doi'
@@ -902,8 +902,8 @@ export interface FileRouteTypes {
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
-    | '/gia-dau-the-gioi'
     | '/gia-vang'
+    | '/gia-xang-dau'
     | '/gold'
     | '/huy-ban-tin'
     | '/huy-canh-bao-theo-doi'
@@ -990,8 +990,8 @@ export interface FileRouteTypes {
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
     | '/forex'
-    | '/gia-dau-the-gioi'
     | '/gia-vang'
+    | '/gia-xang-dau'
     | '/gold'
     | '/huy-ban-tin'
     | '/huy-canh-bao-theo-doi'
@@ -1079,8 +1079,8 @@ export interface RootRouteChildren {
   DieuKhoanSuDungRoute: typeof DieuKhoanSuDungRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ForexRoute: typeof ForexRoute
-  GiaDauTheGioiRoute: typeof GiaDauTheGioiRoute
   GiaVangRoute: typeof GiaVangRoute
+  GiaXangDauRoute: typeof GiaXangDauRoute
   GoldRoute: typeof GoldRoute
   HuyBanTinRoute: typeof HuyBanTinRoute
   HuyCanhBaoTheoDoiRoute: typeof HuyCanhBaoTheoDoiRoute
@@ -1278,18 +1278,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GoldRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gia-xang-dau': {
+      id: '/gia-xang-dau'
+      path: '/gia-xang-dau'
+      fullPath: '/gia-xang-dau'
+      preLoaderRoute: typeof GiaXangDauRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gia-vang': {
       id: '/gia-vang'
       path: '/gia-vang'
       fullPath: '/gia-vang'
       preLoaderRoute: typeof GiaVangRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gia-dau-the-gioi': {
-      id: '/gia-dau-the-gioi'
-      path: '/gia-dau-the-gioi'
-      fullPath: '/gia-dau-the-gioi'
-      preLoaderRoute: typeof GiaDauTheGioiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forex': {
@@ -1805,8 +1805,8 @@ const rootRouteChildren: RootRouteChildren = {
   DieuKhoanSuDungRoute: DieuKhoanSuDungRoute,
   DisclaimerRoute: DisclaimerRoute,
   ForexRoute: ForexRoute,
-  GiaDauTheGioiRoute: GiaDauTheGioiRoute,
   GiaVangRoute: GiaVangRoute,
+  GiaXangDauRoute: GiaXangDauRoute,
   GoldRoute: GoldRoute,
   HuyBanTinRoute: HuyBanTinRoute,
   HuyCanhBaoTheoDoiRoute: HuyCanhBaoTheoDoiRoute,
