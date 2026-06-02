@@ -82,7 +82,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 p-4 lg:p-5">
         {/* Category filter */}
         <div className="flex flex-wrap items-center gap-2">
           {(["all", "top-mcap", "top-volume"] as Category[]).map((cat) => (
