@@ -87,7 +87,7 @@ export function BentoTiles() {
     <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
       {/* Gold — large hero tile */}
       <TileFrame className="col-span-2 md:col-span-4 md:row-span-2 flex flex-col">
-        <Link to="/gia-vang" className="block group">
+        <Link to="/gia-vang" className="flex flex-col h-full group">
           <div className="flex justify-between items-start mb-4 md:mb-5">
             <div>
               <div className="eyebrow mb-2">Vàng miếng SJC</div>
@@ -108,7 +108,7 @@ export function BentoTiles() {
             <Stat label="Thấp" value={`${fmtTrieu(goldLow)} tr`} />
           </div>
 
-          <div className="flex items-end gap-1 h-12 md:h-16">
+          <div className="flex items-end gap-1 h-12 md:h-20 lg:h-28">
             {Array.from({ length: 24 }).map((_, i) => {
               const h = 30 + Math.abs(Math.sin((i + (sjc?.changePct ?? 0)) * 0.7)) * 60;
               const cur = i === 23;
@@ -122,7 +122,7 @@ export function BentoTiles() {
             })}
           </div>
 
-          <div className="mt-4 md:mt-5 flex items-center justify-between eyebrow opacity-70 group-hover:opacity-100">
+          <div className="mt-auto pt-4 md:pt-5 flex items-center justify-between eyebrow opacity-70 group-hover:opacity-100">
             <span>Xem bảng giá vàng đầy đủ</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </div>

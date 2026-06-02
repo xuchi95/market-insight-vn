@@ -54,7 +54,7 @@ function Index() {
           <section className="py-10 md:py-14 border-b border-border">
             <div className="grid md:grid-cols-12 gap-6 md:gap-10 items-end">
               <div className="md:col-span-7">
-                <h1 className="font-display text-[2.25rem] sm:text-5xl md:text-6xl leading-[1.1] tracking-tight text-foreground text-balance">
+                <h1 className="font-display text-[2.25rem] sm:text-[2.75rem] md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-foreground text-balance">
                   Theo dõi giá <em className="text-[var(--gold)] not-italic font-display italic">vàng</em>,{" "}
                   <span className="text-[var(--gold)]">crypto</span> &amp; tỷ giá ngoại tệ.
                 </h1>
