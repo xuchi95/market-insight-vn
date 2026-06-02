@@ -172,7 +172,7 @@ export function PriceAlerts() {
         )
       }
     >
-      <div className="space-y-4">
+      <div className="space-y-4 p-4 lg:p-5">
         {/* Email alerts banner */}
         {user ? (
           <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card/50 px-3 py-2">
