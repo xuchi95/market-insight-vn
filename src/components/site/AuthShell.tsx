@@ -128,9 +128,9 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
 
             <p className="mt-10 text-center text-sm leading-relaxed text-muted-foreground/80">
               Bằng cách tiếp tục, bạn đồng ý với{" "}
-              <Link to="/" className="underline underline-offset-2 hover:text-foreground">Điều khoản</Link>{" "}
+              <Link to="/dieu-khoan-su-dung" className="underline underline-offset-2 hover:text-foreground">Điều khoản</Link>{" "}
               và{" "}
-              <Link to="/" className="underline underline-offset-2 hover:text-foreground">Chính sách bảo mật</Link>{" "}
+              <Link to="/chinh-sach-bao-mat" className="underline underline-offset-2 hover:text-foreground">Chính sách bảo mật</Link>{" "}
               của MarketWatch.
             </p>
           </div>
