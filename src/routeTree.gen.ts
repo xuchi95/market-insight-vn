@@ -61,6 +61,7 @@ import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
+import { Route as ApiPublicOilHistoryRouteImport } from './routes/api/public/oil-history'
 import { Route as ApiPublicOilRouteImport } from './routes/api/public/oil'
 import { Route as ApiPublicNewsletterWeeklyDigestRouteImport } from './routes/api/public/newsletter-weekly-digest'
 import { Route as ApiPublicMetalsRouteImport } from './routes/api/public/metals'
@@ -353,6 +354,11 @@ const ApiPublicPairHistoryRoute = ApiPublicPairHistoryRouteImport.update({
   path: '/api/public/pair-history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicOilHistoryRoute = ApiPublicOilHistoryRouteImport.update({
+  id: '/api/public/oil-history',
+  path: '/api/public/oil-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicOilRoute = ApiPublicOilRouteImport.update({
   id: '/api/public/oil',
   path: '/api/public/oil',
@@ -580,6 +586,7 @@ export interface FileRoutesByFullPath {
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/oil': typeof ApiPublicOilRoute
+  '/api/public/oil-history': typeof ApiPublicOilHistoryRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -663,6 +670,7 @@ export interface FileRoutesByTo {
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/oil': typeof ApiPublicOilRoute
+  '/api/public/oil-history': typeof ApiPublicOilHistoryRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -748,6 +756,7 @@ export interface FileRoutesById {
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/oil': typeof ApiPublicOilRoute
+  '/api/public/oil-history': typeof ApiPublicOilHistoryRoute
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
@@ -833,6 +842,7 @@ export interface FileRouteTypes {
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
     | '/api/public/oil'
+    | '/api/public/oil-history'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -916,6 +926,7 @@ export interface FileRouteTypes {
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
     | '/api/public/oil'
+    | '/api/public/oil-history'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -1000,6 +1011,7 @@ export interface FileRouteTypes {
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
     | '/api/public/oil'
+    | '/api/public/oil-history'
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
@@ -1078,6 +1090,7 @@ export interface RootRouteChildren {
   ApiPublicMetalsRoute: typeof ApiPublicMetalsRoute
   ApiPublicNewsletterWeeklyDigestRoute: typeof ApiPublicNewsletterWeeklyDigestRoute
   ApiPublicOilRoute: typeof ApiPublicOilRoute
+  ApiPublicOilHistoryRoute: typeof ApiPublicOilHistoryRoute
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
@@ -1458,6 +1471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPairHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/oil-history': {
+      id: '/api/public/oil-history'
+      path: '/api/public/oil-history'
+      fullPath: '/api/public/oil-history'
+      preLoaderRoute: typeof ApiPublicOilHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/oil': {
       id: '/api/public/oil'
       path: '/api/public/oil'
@@ -1758,6 +1778,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMetalsRoute: ApiPublicMetalsRoute,
   ApiPublicNewsletterWeeklyDigestRoute: ApiPublicNewsletterWeeklyDigestRoute,
   ApiPublicOilRoute: ApiPublicOilRoute,
+  ApiPublicOilHistoryRoute: ApiPublicOilHistoryRoute,
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
@@ -1775,13 +1796,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
