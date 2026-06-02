@@ -455,6 +455,113 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_audit_runs: {
+        Row: {
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          search_perf: Json | null
+          sitemap_status: Json | null
+          started_at: string
+          status: string
+          total_urls: number
+          trigger: string
+          urls_with_issues: number
+        }
+        Insert: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          search_perf?: Json | null
+          sitemap_status?: Json | null
+          started_at?: string
+          status?: string
+          total_urls?: number
+          trigger?: string
+          urls_with_issues?: number
+        }
+        Update: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          search_perf?: Json | null
+          sitemap_status?: Json | null
+          started_at?: string
+          status?: string
+          total_urls?: number
+          trigger?: string
+          urls_with_issues?: number
+        }
+        Relationships: []
+      }
+      seo_audit_url_results: {
+        Row: {
+          amp_verdict: string | null
+          coverage_state: string | null
+          created_at: string
+          google_canonical: string | null
+          id: string
+          indexing_state: string | null
+          issues: string[]
+          last_crawl_time: string | null
+          mobile_verdict: string | null
+          page_fetch_state: string | null
+          raw: Json | null
+          rich_results_verdict: string | null
+          robots_txt_state: string | null
+          run_id: string
+          url: string
+          user_canonical: string | null
+          verdict: string | null
+        }
+        Insert: {
+          amp_verdict?: string | null
+          coverage_state?: string | null
+          created_at?: string
+          google_canonical?: string | null
+          id?: string
+          indexing_state?: string | null
+          issues?: string[]
+          last_crawl_time?: string | null
+          mobile_verdict?: string | null
+          page_fetch_state?: string | null
+          raw?: Json | null
+          rich_results_verdict?: string | null
+          robots_txt_state?: string | null
+          run_id: string
+          url: string
+          user_canonical?: string | null
+          verdict?: string | null
+        }
+        Update: {
+          amp_verdict?: string | null
+          coverage_state?: string | null
+          created_at?: string
+          google_canonical?: string | null
+          id?: string
+          indexing_state?: string | null
+          issues?: string[]
+          last_crawl_time?: string | null
+          mobile_verdict?: string | null
+          page_fetch_state?: string | null
+          raw?: Json | null
+          rich_results_verdict?: string | null
+          robots_txt_state?: string | null
+          run_id?: string
+          url?: string
+          user_canonical?: string | null
+          verdict?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_audit_url_results_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "seo_audit_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppressed_emails: {
         Row: {
           created_at: string
