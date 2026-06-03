@@ -3,7 +3,7 @@ import { AlertTriangle, Bitcoin, RefreshCw, ArrowUpDown, Trophy, BarChart3 } fro
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
-import { fmtCompactUSD, fmtTime, fmtUSD, fmtVND, fmtSmartUSD, fmtSmartVND } from "@/lib/format";
+import { fmtCompactUSD, fmtTime, fmtUSD, fmtVND, fmtSmartVND } from "@/lib/format";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 import { AnimatedNumber } from "./AnimatedNumber";
@@ -183,7 +183,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                     <AnimatedNumber
                       value={c.priceUsd}
                       minChars={10}
-                      format={(v) => fmtSmartUSD(v, compact, c.priceUsd < 1 ? 4 : 2)}
+                      format={(v) => fmtUSD(v, c.priceUsd < 1 ? 4 : 2)}
                     />
                   </td>
                   <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell">
