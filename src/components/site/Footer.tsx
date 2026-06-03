@@ -64,7 +64,7 @@ export function Footer() {
             <dt className="text-foreground/80 font-medium">Địa chỉ</dt>
             <dd>90/12 Hà Huy Tập, phường Thanh Khê, thành phố Đà Nẵng</dd>
             <dt className="text-foreground/80 font-medium">Giấy ĐKKD</dt>
-            <dd>Số 040222404 cấp tại Đà Nẵng</dd>
+            <dd>Số 0402222404 cấp tại Đà Nẵng</dd>
             <dt className="text-foreground/80 font-medium">Người đại diện &amp; chịu trách nhiệm nội dung</dt>
             <dd>Ông Nguyễn Xuân Chính</dd>
             <dt className="text-foreground/80 font-medium">Số điện thoại</dt>
