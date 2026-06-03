@@ -503,6 +503,15 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </Link>
             </div>
           )}
+          {/* Mobile search trigger */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Tìm kiếm"
+            className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          >
+            <Search className="h-4.5 w-4.5" />
+          </button>
           <button
             className="md:hidden text-muted-foreground hover:text-foreground"
             onClick={() => setOpen((v) => !v)}
@@ -512,6 +521,84 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </button>
         </div>
       </div>
+
+      {/* Mobile search sheet */}
+      {searchOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-xl animate-in fade-in duration-150">
+          <div className="mx-auto max-w-6xl px-4 pt-3 pb-4 border-b border-border bg-background">
+            <form
+              className="relative flex items-center gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (suggestions[activeIdx]) { goToSuggestion(suggestions[activeIdx]); return; }
+                const term = q.trim().toLowerCase();
+                if (!term) return;
+                onSearch?.(term);
+                const dest = fallbackRoute(term);
+                if (dest) navigate({ to: dest as never });
+                setSearchOpen(false);
+              }}
+            >
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gold)]/80" />
+                <Input
+                  ref={searchInputRef}
+                  value={q}
+                  onChange={(e) => { setQ(e.target.value); setSuggestOpen(true); }}
+                  onFocus={() => setSuggestOpen(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1)); }
+                    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx((i) => Math.max(i - 1, 0)); }
+                    else if (e.key === "Escape") { setSearchOpen(false); }
+                  }}
+                  placeholder="SUI, XRP, Ethereum, SJC, USD…"
+                  className="pl-9 pr-3 h-11 w-full rounded-full border border-[var(--gold)]/30 bg-card text-base"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => { setSearchOpen(false); setQ(""); }}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+                aria-label="Đóng"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </form>
+          </div>
+          <div className="mx-auto max-w-6xl px-2 py-2 overflow-auto" style={{ maxHeight: "calc(100vh - 88px)" }}>
+            <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+              {q.trim() ? `Kết quả (${suggestions.length})` : "Gợi ý phổ biến"}
+            </div>
+            {suggestions.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                Không tìm thấy "{q}"
+              </div>
+            ) : (
+              <ul className="space-y-0.5">
+                {suggestions.map((s, idx) => (
+                  <li key={s.symbol}>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); goToSuggestion(s); }}
+                      onClick={() => goToSuggestion(s)}
+                      onMouseEnter={() => setActiveIdx(idx)}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
+                    >
+                      <span className="inline-flex min-w-[52px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-2 py-1 text-[11px] font-bold tracking-wider text-[var(--gold)]">
+                        {s.symbol}
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[15px] text-foreground truncate">{s.label}</span>
+                        <span className="block text-[11px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Mobile nav */}
       {open && (
