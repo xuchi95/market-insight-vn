@@ -571,6 +571,7 @@ function AssetDetail() {
                 <LiveDot />
               </div>
               <TradingViewChart
+                key={`tv-${coin.symbol}-${theme}`}
                 symbol={toTradingViewCryptoSymbol(coin.symbol)}
                 interval="60"
                 height={760}
