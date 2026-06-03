@@ -12,6 +12,16 @@ import { toast } from "sonner";
 
 const KEY_SUBSCRIBED = "mw_nl_subscribed";
 const KEY_LAST_SHOWN_PREFIX = "mw_nl_last_shown:";
+const KEY_COOKIE_CONSENT = "mw_cookie_consent";
+
+function hasCookieConsent() {
+  if (typeof window === "undefined") return false;
+  try {
+    return !!localStorage.getItem(KEY_COOKIE_CONSENT);
+  } catch {
+    return false;
+  }
+}
 
 type PopupField = { name: string; label: string; type: "email" | "text" | "select"; required: boolean; placeholder?: string };
 type PopupTheme = { accent: "gold" | "primary" | "down" | "up"; layout: "center" | "bottom" | "side"; animation: "fade" | "slide" | "pop" };
@@ -41,6 +51,7 @@ export function NewsletterPopup() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [popup, setPopup] = useState<ActivePopup | null>(null);
+  const [consentReady, setConsentReady] = useState<boolean>(() => hasCookieConsent());
   const fetchPopups = useServerFn(getActivePopups);
 
   useEffect(() => {
@@ -62,6 +73,8 @@ export function NewsletterPopup() {
     if (loading) return;
     if (typeof window === "undefined") return;
     if (!popup) return;
+    // Mutually exclusive with the cookie consent banner — wait until consent saved.
+    if (!consentReady) return;
     try {
       const t = popup.targeting;
       if (t.hideForSubscribers && localStorage.getItem(KEY_SUBSCRIBED) === "1") return;
@@ -74,9 +87,27 @@ export function NewsletterPopup() {
       const timer = setTimeout(() => setOpen(true), delay);
       return () => clearTimeout(timer);
     } catch {}
-  }, [loading, user, popup]);
+  }, [loading, user, popup, consentReady]);
+
+  // Sync with cookie consent banner: never show together.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onConsent = () => setConsentReady(true);
+    const onCookieSettingsOpen = () => setOpen(false);
+    window.addEventListener("mw:cookie-consent", onConsent);
+    window.addEventListener("mw:open-cookie-settings", onCookieSettingsOpen);
+    return () => {
+      window.removeEventListener("mw:cookie-consent", onConsent);
+      window.removeEventListener("mw:open-cookie-settings", onCookieSettingsOpen);
+    };
+  }, []);
 
   function handleOpenChange(next: boolean) {
+    // Block opening if cookie banner is active (no consent yet).
+    if (next && !hasCookieConsent()) {
+      setOpen(false);
+      return;
+    }
     setOpen(next);
     if (!next && popup) {
       try {
