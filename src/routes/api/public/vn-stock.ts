@@ -66,9 +66,13 @@ async function fetchJson(url: string): Promise<any | null> {
       },
       signal: ctrl.signal,
     });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      console.warn("[vn-stock] upstream not ok", r.status, url);
+      return null;
+    }
     return await r.json();
-  } catch {
+  } catch (e) {
+    console.warn("[vn-stock] upstream fetch error", (e as Error).message, url);
     return null;
   } finally {
     clearTimeout(t);
