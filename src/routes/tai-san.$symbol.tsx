@@ -292,8 +292,26 @@ function AssetDetail() {
     return { min: Math.min(...vals), max: Math.max(...vals), first: vals[0], last: vals[vals.length - 1] };
   }, [chart]);
 
-  const positive = (coin?.change24h ?? 0) >= 0;
-  const color = positive ? "var(--up)" : "var(--down)";
+  // Downsample chart points so 30/90-day ranges don't make Recharts redraw
+  // thousands of segments on each tab switch. Keep at most ~180 points
+  // (enough density for an 800px-wide area chart).
+  const chartData = useMemo(() => {
+    if (!chart || chart.length === 0) return chart ?? [];
+    const MAX = 180;
+    if (chart.length <= MAX) return chart;
+    const step = chart.length / MAX;
+    const out: { t: number; v: number }[] = [];
+    for (let i = 0; i < MAX; i++) out.push(chart[Math.floor(i * step)]);
+    // Always keep the final point so the latest price is exact.
+    out.push(chart[chart.length - 1]);
+    return out;
+  }, [chart]);
+
+  // Derive chart tint from the chart series itself (first vs last). Using
+  // `coin.change24h` would re-tint — and force Recharts to re-render the
+  // gradient + area — every 10s when the live ticker updates.
+  const chartPositive = stats ? stats.last >= stats.first : true;
+  const color = chartPositive ? "var(--up)" : "var(--down)";
   const rangeLabel = range === "1" ? "24 giờ" : range === "7" ? "7 ngày" : range === "30" ? "30 ngày" : "90 ngày";
 
   const assetCrumb = useMemo(() => {
@@ -677,7 +695,7 @@ function AssetDetail() {
                   </div>
                 ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chart}>
+                  <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -688,7 +706,7 @@ function AssetDetail() {
                     <XAxis dataKey="t" stroke="var(--muted-foreground)" fontSize={11} tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} tickLine={false} axisLine={false} />
                     <YAxis dataKey="v" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} tickFormatter={(v) => "$" + new Intl.NumberFormat("en", { notation: "compact" }).format(v)} />
                     <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }} labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")} formatter={(v: number) => [fmtUSD(v, 2), "Giá"]} />
-                    <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill="url(#ag)" />
+                    <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill="url(#ag)" isAnimationActive={false} />
                   </AreaChart>
                 </ResponsiveContainer>
                 )}
