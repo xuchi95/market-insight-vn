@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Star, X, Plus, ArrowUpRight, Search } from "lucide-react";
+import { Star, X, Plus, ArrowUpRight } from "lucide-react";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -146,10 +146,7 @@ export function WatchlistPanel() {
           </DialogDescription>
         </DialogHeader>
         <Command className="border-t border-border">
-          <div className="flex items-center px-3 border-b border-border">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <CommandInput placeholder="Ví dụ: BTC, vàng, EUR…" className="border-0 focus:ring-0" />
-          </div>
+          <CommandInput placeholder="Ví dụ: BTC, vàng, EUR…" />
           <CommandList className="max-h-[60vh]">
             <CommandEmpty>Không có kết quả.</CommandEmpty>
             {(Object.keys(grouped) as Array<keyof typeof grouped>).map((cat) => {
