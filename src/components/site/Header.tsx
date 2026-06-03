@@ -59,6 +59,7 @@ const NAV_GROUPS: NavGroup[] = [
         items: [
           { label: "DCA & ROI", to: "/cong-cu/dca-roi", hint: "Tính lợi nhuận" },
           { label: "Danh mục", to: "/portfolio", hint: "Theo dõi tài sản" },
+          { label: "Tính lãi tiết kiệm", to: "/tinh-lai-suat-tiet-kiem", hint: "Tính lãi gửi ngân hàng" },
           { label: "Lãi suất tiết kiệm", to: "/lai-suat-tiet-kiem", hint: "So sánh ngân hàng" },
           { label: "Quy đổi tiền tệ", to: "/quy-doi-tien-te", hint: "Đổi tiền nhanh" },
         ],
