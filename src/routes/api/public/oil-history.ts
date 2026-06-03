@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireRequestUser } from "@/lib/api/require-request-user.server";
 
 // Lịch sử giá dầu (Brent/WTI) từ Yahoo Finance.
 // GET /api/public/oil-history?id=brent|wti&days=1|7|30|90
@@ -64,6 +65,8 @@ export const Route = createFileRoute("/api/public/oil-history")({
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async ({ request }) => {
+        const guard = await requireRequestUser(request);
+        if (guard) return guard;
         const url = new URL(request.url);
         const id = (url.searchParams.get("id") ?? "").toLowerCase();
         const days = Math.max(1, Math.min(365, Number(url.searchParams.get("days") ?? "7") || 7));

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
+import { requireRequestUser } from "@/lib/api/require-request-user.server";
 
 // CoinGecko coin IDs (public free API, no key required, ~30 req/min)
 const COIN_IDS = [
@@ -180,7 +181,9 @@ export const Route = createFileRoute("/api/public/crypto")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: async ({ request }) => {
+        const guard = await requireRequestUser(request);
+        if (guard) return guard;
         try {
           // Cold start: hydrate in-memory cache from DB so we never wait on
           // CoinGecko's 3–6s upstream when a fresh isolate spins up.

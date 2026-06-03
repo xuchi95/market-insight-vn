@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireRequestUser } from "@/lib/api/require-request-user.server";
 import {
   midOf,
   parseVnNumber,
@@ -350,7 +351,9 @@ function refreshInBackground() {
 export const Route = createFileRoute("/api/public/gold")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        const guard = await requireRequestUser(request);
+        if (guard) return guard;
         try {
           // Cold start: hydrate from DB so the request doesn't block on
           // PNJ + BTMC upstream (3–6s combined). Subsequent SWR refresh

@@ -23,8 +23,11 @@ export const getInitialGold = createServerFn({ method: "GET" }).handler(
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 1500);
       try {
+        const headers: Record<string, string> = { accept: "application/json" };
+        const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        if (key) headers["x-internal-key"] = key;
         const r = await fetch(`${origin}${path}`, {
-          headers: { accept: "application/json" },
+          headers,
           signal: ctrl.signal,
         });
         if (!r.ok) return null;

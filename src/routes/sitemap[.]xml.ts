@@ -31,8 +31,11 @@ const STATIC_ENTRIES: SitemapEntry[] = [
 
 async function fetchAssetEntries(): Promise<SitemapEntry[]> {
   try {
+    const headers: Record<string, string> = { accept: "application/json" };
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (key) headers["x-internal-key"] = key;
     const res = await fetch(`${BASE_URL}/api/public/crypto`, {
-      headers: { accept: "application/json" },
+      headers,
       // @ts-ignore - cloudflare worker fetch supports this
       cf: { cacheTtl: 60 },
     });

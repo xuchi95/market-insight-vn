@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireRequestUser } from "@/lib/api/require-request-user.server";
 import {
   isValidVndChi,
   midOf,
@@ -80,6 +81,8 @@ export const Route = createFileRoute("/api/public/gold-history")({
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async ({ request }) => {
+        const guard = await requireRequestUser(request);
+        if (guard) return guard;
         const url = new URL(request.url);
         const type = (url.searchParams.get("type") || "SJC").toUpperCase();
         const daysParam = parseInt(url.searchParams.get("days") || "7", 10);

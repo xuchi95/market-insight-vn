@@ -6,6 +6,8 @@ import { ChangeBadge } from "./ChangeBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtNum, fmtTime } from "@/lib/format";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
+import { useAuth } from "@/hooks/useAuth";
+import { LockedDataPanel } from "./LockedDataPanel";
 
 interface OilItem {
   id: string;
@@ -31,6 +33,19 @@ async function fetchOil(): Promise<{ items: OilItem[]; updatedAt: number }> {
 }
 
 export function OilPriceTable() {
+  const { user } = useAuth();
+  if (!user) {
+    return (
+      <SectionCard
+        id="oil"
+        icon={<Fuel className="h-4 w-4" />}
+        title="Giá dầu thế giới"
+        description="Brent (ICE) & WTI (NYMEX) • dành cho thành viên"
+      >
+        <LockedDataPanel description="Giá dầu Brent và WTI realtime theo USD/thùng chỉ hiển thị cho thành viên đã đăng nhập." />
+      </SectionCard>
+    );
+  }
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["oil"],
     queryFn: fetchOil,
