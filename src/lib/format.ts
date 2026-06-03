@@ -61,12 +61,37 @@ export const fmtCompact = (n: number, decimals = 2) =>
  * readable while $1.23B / $4.56M get abbreviated.
  */
 export const fmtSmartUSD = (n: number, compact: boolean, decimals = 2) => {
+  // Sub-dollar prices (meme coins like SHIB, PEPE) need adaptive precision —
+  // a fixed 4 decimals renders $0.00000529 as "$0.0000". Use significant
+  // digits so tiny values keep meaningful precision.
+  const abs = Math.abs(n);
+  if (abs > 0 && abs < 1) {
+    const frac = abs < 0.0001 ? 8 : abs < 0.01 ? 6 : 4;
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: frac,
+    }).format(n);
+  }
   if (!compact || Math.abs(n) < 10_000) return fmtUSD(n, decimals);
   return fmtCompactUSD(n);
 };
 
 /** Smart VND formatter that respects the compact preference. */
 export const fmtSmartVND = (n: number, compact: boolean) => {
+  const abs = Math.abs(n);
+  if (abs > 0 && abs < 1000) {
+    // Tiny VND amounts (meme-coin unit price) — show fractional đồng so we
+    // don't display "0 ₫" for things like 0,13 ₫.
+    const frac = abs < 0.01 ? 6 : abs < 1 ? 4 : 2;
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: frac,
+    }).format(n);
+  }
   if (!compact || Math.abs(n) < 1_000_000) return fmtVND(n);
   return fmtVNDCompact(n);
 };
