@@ -134,35 +134,18 @@ export function TradingViewChart({
         className="tradingview-widget-container absolute inset-0"
         style={{ height: "100%", width: "100%" }}
       />
-      {/*
-        Brand overlay — che:
-        1) Logo TradingView nhỏ ở góc dưới trái (ngay sát đáy chart)
-        2) Watermark "TradingView" lớn nằm phía trên thanh date-range
-        Cả hai đều ở bottom-left nên dùng một overlay đặc bự che kín vùng đó,
-        rồi gắn link "Made by MarketWatch.vn" lên trên.
-      */}
+      {/* Mask cross-origin TradingView attribution rendered inside the iframe. */}
       <div
         aria-hidden="true"
-        className="absolute z-10 bg-card"
+        className="absolute z-30 bg-card"
         style={{
-          left: 0,
-          bottom: isMobile ? 38 : 42,
-          width: isMobile ? 150 : 190,
-          height: isMobile ? 26 : 30,
+          left: isMobile ? 0 : 100,
+          bottom: isMobile ? 14 : 18,
+          width: isMobile ? 310 : 330,
+          height: isMobile ? 86 : 92,
           pointerEvents: "none",
         }}
       />
-      <a
-        href="https://marketwatch.vn"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Made by MarketWatch.vn"
-        className="absolute left-2 z-20 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition-colors shadow-sm"
-        style={{ left: isMobile ? 6 : 8, bottom: isMobile ? 40 : 44 }}
-      >
-        <span className="opacity-70">Made by</span>
-        <span className="font-semibold text-foreground">MarketWatch.vn</span>
-      </a>
     </div>
   );
 }
