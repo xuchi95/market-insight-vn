@@ -42,47 +42,72 @@ const CORS = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
 
-async function fetchSbvCentralRate(): Promise<{ value: number | null; date: string | null }> {
+async function fetchVcbUsdMid(): Promise<{ value: number | null; date: string | null; source: string }> {
+  // 1) Thử Vietcombank XML feed (ổn định, không cần key).
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
   try {
-    // SBV trang tỷ giá trung tâm (rất hay đổi). Cố gắng parse số gần "USD".
-    const res = await fetch("https://www.sbv.gov.vn/webcenter/portal/vi/menu/rm/tg", {
-      headers: {
-        accept: "text/html,application/xhtml+xml",
-        "user-agent": "Mozilla/5.0 AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+    const res = await fetch(
+      "https://portal.vietcombank.com.vn/UserControls/TVPortal.TyGia/pXML.aspx",
+      {
+        headers: {
+          accept: "application/xml,text/xml,*/*",
+          "user-agent": "Mozilla/5.0 AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+        },
+        signal: ctrl.signal,
       },
-      signal: ctrl.signal,
-    });
-    if (!res.ok) return { value: null, date: null };
-    const html = await res.text();
-    // Tìm mẫu "USD ... 24,xxx" (số VND thường có dấu phẩy ngăn nghìn)
-    const m = html.match(/USD[\s\S]{0,200}?([23]\d[.,]\d{3})/);
-    const rate = m ? Number(m[1].replace(/[.,]/g, "")) : null;
-    // Tìm ngày dd/mm/yyyy gần nhất
-    const md = html.match(/(\d{2}\/\d{2}\/\d{4})/);
-    const dateRaw = md ? md[1] : null;
-    let date: string | null = null;
-    if (dateRaw) {
-      const [d, mo, y] = dateRaw.split("/");
-      date = `${y}-${mo}-${d}`;
+    );
+    if (res.ok) {
+      const xml = await res.text();
+      // <Exrate CurrencyCode="USD" CurrencyName="..." Buy="..." Transfer="25,470.00" Sell="..." />
+      const m = xml.match(/CurrencyCode="USD"[^>]*Transfer="([\d.,]+)"[^>]*Sell="([\d.,]+)"/i);
+      const dateM = xml.match(/DateTime>([^<]+)</);
+      if (m) {
+        const transfer = Number(m[1].replace(/,/g, ""));
+        const sell = Number(m[2].replace(/,/g, ""));
+        const mid = Number.isFinite(transfer) && Number.isFinite(sell) ? Math.round((transfer + sell) / 2) : null;
+        if (mid && mid > 20000 && mid < 35000) {
+          return { value: mid, date: dateM ? dateM[1].trim() : null, source: "Vietcombank XML" };
+        }
+      }
     }
-    return { value: rate && rate > 20000 && rate < 35000 ? rate : null, date };
   } catch {
-    return { value: null, date: null };
+    /* fallthrough to exchangerate.host */
   } finally {
     clearTimeout(t);
   }
+
+  // 2) Fallback: exchangerate.host (free, USD/VND mid-rate)
+  const ctrl2 = new AbortController();
+  const t2 = setTimeout(() => ctrl2.abort(), UPSTREAM_TIMEOUT_MS);
+  try {
+    const res = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=VND", {
+      headers: { accept: "application/json" },
+      signal: ctrl2.signal,
+    });
+    if (res.ok) {
+      const j: any = await res.json();
+      const v = Number(j?.rates?.VND);
+      if (Number.isFinite(v) && v > 20000 && v < 35000) {
+        return { value: Math.round(v), date: j?.date ?? null, source: "exchangerate.host" };
+      }
+    }
+  } catch {
+    /* ignore */
+  } finally {
+    clearTimeout(t2);
+  }
+  return { value: null, date: null, source: "unavailable" };
 }
 
 async function build(): Promise<SbvPayload> {
-  const central = await fetchSbvCentralRate();
+  const central = await fetchVcbUsdMid();
   return {
-    centralRate: { pair: "USD/VND", value: central.value, date: central.date, source: "Ngân hàng Nhà nước Việt Nam" },
+    centralRate: { pair: "USD/VND", value: central.value, date: central.date, source: central.source },
     policyRates: POLICY_RATES_SEED,
     fetchedAt: Date.now(),
-    source: "SBV (sbv.gov.vn) + QĐ 1124/QĐ-NHNN",
-    notes: "Lãi suất điều hành được cập nhật theo Quyết định mới nhất của SBV. Tỷ giá trung tâm được parse từ trang chính thức của SBV và có thể lỗi khi cấu trúc trang thay đổi.",
+    source: "Vietcombank (USD/VND) + QĐ 1124/QĐ-NHNN (lãi suất điều hành SBV)",
+    notes: "Tỷ giá USD/VND lấy từ Vietcombank (trung bình mua chuyển khoản + bán) — dùng làm tham chiếu vì SBV không expose API tỷ giá trung tâm. Lãi suất điều hành cập nhật thủ công theo QĐ mới nhất của SBV.",
   };
 }
 
