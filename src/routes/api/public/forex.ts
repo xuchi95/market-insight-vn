@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
 
 // Currencies we expose (must match client BASE list)
 const CURRENCIES: { code: string; name: string; spread: number }[] = [
@@ -98,9 +99,19 @@ export const Route = createFileRoute("/api/public/forex")({
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async () => {
         try {
+          // Cold start: seed in-memory cache from DB so the request can serve
+          // instantly while a stale entry triggers a background refresh.
+          if (!cache) {
+            const seed = await readPriceCache<Awaited<ReturnType<typeof buildPayload>>>(
+              "forex",
+              CACHE_MS * 6,
+            );
+            if (seed) cache = { at: seed.updatedAt, payload: seed.payload };
+          }
           if (!cache || Date.now() - cache.at > CACHE_MS) {
             const payload = await buildPayload();
             cache = { at: Date.now(), payload };
+            writePriceCache("forex", payload);
           }
           return new Response(JSON.stringify(cache.payload), {
             status: 200,
