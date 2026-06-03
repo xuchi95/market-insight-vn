@@ -19,6 +19,7 @@ const STATIC_ENTRIES: SitemapEntry[] = [
   { path: "/quy-doi-tien-te", changefreq: "daily", priority: "0.8" },
   { path: "/lai-suat-tiet-kiem", changefreq: "daily", priority: "0.9" },
   { path: "/tinh-lai-suat-tiet-kiem", changefreq: "weekly", priority: "0.9" },
+  { path: "/vi-mo-viet-nam", changefreq: "daily", priority: "0.85" },
   { path: "/cong-cu/dca-roi", changefreq: "monthly", priority: "0.7" },
   { path: "/tai-san/oil-brent", changefreq: "hourly", priority: "0.8" },
   { path: "/tai-san/oil-wti", changefreq: "hourly", priority: "0.8" },
@@ -30,6 +31,14 @@ const STATIC_ENTRIES: SitemapEntry[] = [
   { path: "/privacy", changefreq: "monthly", priority: "0.3" },
   { path: "/terms", changefreq: "monthly", priority: "0.3" },
   { path: "/disclaimer", changefreq: "monthly", priority: "0.3" },
+];
+
+// Cổ phiếu VN phổ biến (HOSE/HNX) — index trực tiếp trang chi tiết.
+const POPULAR_VN_TICKERS = [
+  "VNM", "VCB", "BID", "CTG", "TCB", "MBB", "VPB", "ACB", "HDB", "STB", "MSB", "SHB",
+  "HPG", "HSG", "NKG", "FPT", "MWG", "PNJ", "MSN", "VIC", "VHM", "VRE", "NVL", "KDH",
+  "GAS", "PLX", "BSR", "POW", "REE", "GVR", "DGC", "DCM", "DPM", "VJC", "HVN", "SSI",
+  "VND", "VCI", "HCM",
 ];
 
 async function fetchAssetEntries(): Promise<SitemapEntry[]> {
@@ -52,6 +61,14 @@ async function fetchAssetEntries(): Promise<SitemapEntry[]> {
   } catch {
     return [];
   }
+}
+
+function vnStockEntries(): SitemapEntry[] {
+  return POPULAR_VN_TICKERS.map((sym) => ({
+    path: `/co-phieu/${sym.toLowerCase()}`,
+    changefreq: "hourly" as const,
+    priority: "0.8",
+  }));
 }
 
 function escapeXml(str: string): string {
@@ -79,7 +96,7 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const now = new Date().toISOString().slice(0, 10);
         const assetEntries = await fetchAssetEntries();
-        const entries = [...STATIC_ENTRIES, ...assetEntries];
+        const entries = [...STATIC_ENTRIES, ...vnStockEntries(), ...assetEntries];
         const urls = entries.map((e) => renderUrl(e, now)).join("\n");
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>

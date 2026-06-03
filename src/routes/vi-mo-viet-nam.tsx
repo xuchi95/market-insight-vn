@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/vi-mo-viet-nam`;
-const TITLE = "Kinh tế vĩ mô Việt Nam — GDP, lạm phát, thất nghiệp, dự trữ ngoại hối";
-const DESC = "Số liệu vĩ mô Việt Nam cập nhật từ IMF WEO và World Bank: tăng trưởng GDP, lạm phát CPI, thất nghiệp, lãi suất, xuất nhập khẩu, dự trữ ngoại hối qua các năm.";
+const TITLE = "Kinh tế vĩ mô Việt Nam — GDP, CPI, lãi suất SBV, dự trữ ngoại hối";
+const DESC = "Số liệu vĩ mô Việt Nam chuẩn chính thống: tăng trưởng GDP, lạm phát CPI (GSO/IMF), lãi suất điều hành SBV, tỷ giá trung tâm, xuất nhập khẩu và dự trữ ngoại hối qua các năm.";
 
 interface MacroPoint { year: number; value: number }
 interface MacroIndicator {
@@ -31,9 +31,23 @@ interface MacroPayload {
   source: string;
 }
 
+interface SbvPayload {
+  centralRate: { pair: string; value: number | null; date: string | null; source: string };
+  policyRates: { code: string; name: string; value: number; unit: string; effectiveFrom: string }[];
+  fetchedAt: number;
+  source: string;
+  notes: string;
+}
+
 async function fetchMacro(force = false): Promise<MacroPayload> {
   const url = force ? "/api/public/macro-vn?refresh=1" : "/api/public/macro-vn";
   const res = await fetch(url, { headers: { accept: "application/json" } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function fetchSbv(): Promise<SbvPayload> {
+  const res = await fetch("/api/public/sbv", { headers: { accept: "application/json" } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -121,7 +135,7 @@ export const Route = createFileRoute("/vi-mo-viet-nam")({
     meta: [
       { title: TITLE },
       { name: "description", content: DESC },
-      { name: "keywords", content: "kinh tế vĩ mô việt nam, gdp việt nam, lạm phát cpi, thất nghiệp, dự trữ ngoại hối, xuất nhập khẩu, world bank" },
+      { name: "keywords", content: "kinh tế vĩ mô việt nam, gdp việt nam, lạm phát cpi, lãi suất sbv, lãi suất điều hành, lãi suất tái cấp vốn, tỷ giá trung tâm, dự trữ ngoại hối, xuất nhập khẩu, gso, world bank, imf" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
       { property: "og:url", content: URL },
@@ -158,6 +172,14 @@ function MacroPage() {
     retry: 1,
   });
 
+  const { data: sbv } = useQuery<SbvPayload, Error>({
+    queryKey: ["sbv"],
+    queryFn: fetchSbv,
+    staleTime: 6 * 60 * 60 * 1000,
+    refetchInterval: false,
+    retry: 1,
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -167,9 +189,43 @@ function MacroPage() {
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Kinh tế vĩ mô Việt Nam</h1>
             <p className="text-muted-foreground max-w-2xl">
-              Các chỉ số kinh tế quan trọng của Việt Nam: <strong>tăng trưởng GDP</strong>, lạm phát CPI, thất nghiệp, lãi suất cho vay, dự trữ ngoại hối, xuất nhập khẩu — số liệu cập nhật từ <strong>IMF WEO</strong> và <strong>World Bank Open Data</strong>.
+              Các chỉ số kinh tế quan trọng của Việt Nam: <strong>tăng trưởng GDP</strong>, lạm phát CPI, thất nghiệp, dự trữ ngoại hối, xuất nhập khẩu — số liệu cập nhật từ <strong>SBV</strong>, <strong>GSO</strong>, <strong>IMF WEO</strong> và <strong>World Bank Open Data</strong>.
             </p>
           </header>
+
+          {sbv && (
+            <SectionCard
+              title="Chính sách tiền tệ — Ngân hàng Nhà nước (SBV)"
+              description="Lãi suất điều hành & tỷ giá trung tâm USD/VND"
+              meta={<span className="text-muted-foreground text-xs">Nguồn: {sbv.source}</span>}
+            >
+              <div className="p-4 lg:p-5 space-y-4">
+                {sbv.centralRate.value && (
+                  <div className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-4 flex items-center justify-between gap-4 flex-wrap">
+                    <div>
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground">Tỷ giá trung tâm USD/VND</div>
+                      <div className="text-2xl font-bold tabular-nums text-[var(--gold)] mt-1">
+                        {sbv.centralRate.value.toLocaleString("vi-VN")} VND
+                      </div>
+                    </div>
+                    {sbv.centralRate.date && (
+                      <div className="text-xs text-muted-foreground">Áp dụng từ {sbv.centralRate.date}</div>
+                    )}
+                  </div>
+                )}
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {sbv.policyRates.map((r) => (
+                    <div key={r.code} className="rounded-xl border border-border bg-card p-4">
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground">{r.name}</div>
+                      <div className="text-2xl font-bold tabular-nums mt-1">{r.value.toFixed(2)}{r.unit.startsWith("%") ? "%" : ""}</div>
+                      <div className="text-[11px] text-muted-foreground/80 mt-1">Hiệu lực từ {r.effectiveFrom}</div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground/70 italic">{sbv.notes}</p>
+              </div>
+            </SectionCard>
+          )}
 
           <SectionCard
             title="Tổng quan chỉ số vĩ mô"
