@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Calculator, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TENORS, type SavingsRate } from "@/lib/data/savingsRates";
@@ -28,6 +28,29 @@ function parseAmount(s: string): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+function getEffectiveRate(bank: SavingsRate | undefined, requestedTenor: TenorKey) {
+  if (!bank) return null;
+  const directRate = bank.rates[requestedTenor];
+  if (typeof directRate === "number") {
+    return { key: requestedTenor, rate: directRate, isFallback: false };
+  }
+
+  const available = (Object.keys(TENOR_MONTHS) as TenorKey[]).filter(
+    (key) => typeof bank.rates[key] === "number",
+  );
+  if (available.length === 0) return null;
+
+  const requestedMonths = TENOR_MONTHS[requestedTenor];
+  const nearest = available.reduce((best, key) => {
+    const distance = Math.abs(TENOR_MONTHS[key] - requestedMonths);
+    const bestDistance = Math.abs(TENOR_MONTHS[best] - requestedMonths);
+    if (distance !== bestDistance) return distance < bestDistance ? key : best;
+    return TENOR_MONTHS[key] > TENOR_MONTHS[best] ? key : best;
+  }, available[0]);
+
+  return { key: nearest, rate: bank.rates[nearest] as number, isFallback: true };
+}
+
 interface Props {
   items: SavingsRate[];
 }
@@ -52,37 +75,30 @@ export function SavingsCalculator({ items }: Props) {
   const [periodCount, setPeriodCount] = useState<string>("1");
   const [mode, setMode] = useState<Mode>("compound");
 
+  useEffect(() => {
+    if (items.length === 0) return;
+    if (!items.some((b) => b.shortName === bankShort)) {
+      setBankShort(items[0].shortName);
+      setCustomRateStr("");
+    }
+  }, [items, bankShort]);
+
   const amount = parseAmount(amountStr);
   const periods = Math.max(0, Number(periodCount) || 0);
   const totalMonths = period === "month" ? periods : period === "quarter" ? periods * 3 : periods * 12;
 
   const selectedBank = items.find((b) => b.shortName === bankShort);
-  const directBankRate = selectedBank?.rates[tenor];
-
-  // Fallback: nếu ngân hàng không công bố kỳ hạn đã chọn, dùng kỳ hạn gần nhất có dữ liệu
-  // để tính toán mà không bao giờ trả về 0. Người dùng vẫn giữ nguyên lựa chọn.
-  const fallback = useMemo(() => {
-    if (!selectedBank) return null;
-    if (typeof directBankRate === "number") return null;
-    const available = (Object.keys(TENOR_MONTHS) as TenorKey[])
-      .filter((k) => typeof selectedBank.rates[k] === "number");
-    if (available.length === 0) return null;
-    const currentMonths = TENOR_MONTHS[tenor];
-    const nearest = available.reduce((best, k) =>
-      Math.abs(TENOR_MONTHS[k] - currentMonths) < Math.abs(TENOR_MONTHS[best] - currentMonths) ? k : best,
-    available[0]);
-    return { key: nearest, rate: selectedBank.rates[nearest] as number };
-  }, [selectedBank, directBankRate, tenor]);
+  const effectiveRate = useMemo(() => getEffectiveRate(selectedBank, tenor), [selectedBank, tenor]);
 
   const customRate = Number(customRateStr.replace(",", "."));
   const hasCustom = customRateStr.trim() !== "" && Number.isFinite(customRate) && customRate > 0;
-  const bankRate = typeof directBankRate === "number" ? directBankRate : fallback?.rate;
+  const bankRate = effectiveRate?.rate;
   const annualRate = hasCustom ? customRate : bankRate ?? 0;
   // Kỳ hạn dùng để tính lãi: ưu tiên kỳ hạn người dùng chọn; nếu ngân hàng không có,
   // dùng kỳ hạn fallback để công thức tái tục không sai (tránh chia cho 0 hoặc lãi 0).
-  const tenorMonths = typeof directBankRate === "number" || hasCustom
+  const tenorMonths = hasCustom || !effectiveRate?.isFallback
     ? TENOR_MONTHS[tenor]
-    : TENOR_MONTHS[fallback?.key ?? tenor];
+    : TENOR_MONTHS[effectiveRate.key];
 
   const result = useMemo(() => {
     if (amount <= 0 || annualRate <= 0 || totalMonths <= 0) {
@@ -107,26 +123,28 @@ export function SavingsCalculator({ items }: Props) {
     if (amount <= 0 || totalMonths <= 0) return [];
     return items
       .map((b) => {
-        const rate = b.rates[tenor];
-        if (typeof rate !== "number") return null;
+        const rowRate = getEffectiveRate(b, tenor);
+        if (!rowRate) return null;
+        const rate = rowRate.rate;
+        const rowTenorMonths = rowRate.isFallback ? TENOR_MONTHS[rowRate.key] : TENOR_MONTHS[tenor];
         const r = rate / 100;
         let total: number;
         if (mode === "simple") {
           total = amount + amount * r * (totalMonths / 12);
         } else {
-          const cycles = Math.floor(totalMonths / tenorMonths);
-          const leftover = totalMonths - cycles * tenorMonths;
-          const perCycle = 1 + r * (tenorMonths / 12);
+          const cycles = Math.floor(totalMonths / rowTenorMonths);
+          const leftover = totalMonths - cycles * rowTenorMonths;
+          const perCycle = 1 + r * (rowTenorMonths / 12);
           let p = amount * Math.pow(perCycle, cycles);
           if (leftover > 0) p = p * (1 + r * (leftover / 12));
           total = p;
         }
-        return { bank: b.bank, shortName: b.shortName, rate, interest: total - amount, total };
+        return { bank: b.bank, shortName: b.shortName, rate, interest: total - amount, total, appliedTenor: rowRate.key };
       })
-      .filter((x): x is { bank: string; shortName: string; rate: number; interest: number; total: number } => x !== null)
+      .filter((x): x is { bank: string; shortName: string; rate: number; interest: number; total: number; appliedTenor: TenorKey } => x !== null)
       .sort((a, b) => b.total - a.total)
       .slice(0, 8);
-  }, [items, tenor, amount, totalMonths, tenorMonths, mode]);
+  }, [items, tenor, amount, totalMonths, mode]);
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[var(--gold)]/40 bg-gradient-to-br from-[var(--gold)]/[0.08] via-background to-background shadow-[0_0_60px_-15px_color-mix(in_oklab,var(--gold)_40%,transparent)]">
@@ -207,10 +225,9 @@ export function SavingsCalculator({ items }: Props) {
                   <option
                     key={t.key}
                     value={t.key}
-                    disabled={selectedBank ? typeof selectedBank.rates[t.key] !== "number" : false}
                     className="bg-background text-foreground"
                   >
-                    {t.label}{selectedBank && typeof selectedBank.rates[t.key] === "number" ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%` : ""}
+                    {t.label}{selectedBank && typeof selectedBank.rates[t.key] === "number" ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%` : " · dùng kỳ hạn gần nhất"}
                   </option>
                 ))}
               </select>
@@ -218,9 +235,9 @@ export function SavingsCalculator({ items }: Props) {
             <div className="mt-2 flex items-center justify-between rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3 py-2">
               <span className="text-xs text-muted-foreground">
                 Lãi suất áp dụng
-                {fallback && !hasCustom && (
+                {effectiveRate?.isFallback && !hasCustom && (
                   <span className="ml-1 text-[10px] text-amber-400">
-                    (dùng kỳ hạn {TENORS.find((t) => t.key === fallback.key)?.label})
+                    (dùng kỳ hạn {TENORS.find((t) => t.key === effectiveRate.key)?.label})
                   </span>
                 )}
               </span>
