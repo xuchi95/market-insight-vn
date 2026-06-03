@@ -571,8 +571,8 @@ function AssetDetail() {
               <TradingViewChart
                 symbol={toTradingViewCryptoSymbol(coin.symbol)}
                 interval="60"
-                height={680}
-                mobileHeight={480}
+                height={760}
+                mobileHeight={540}
               />
             </div>
 
