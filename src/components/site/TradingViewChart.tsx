@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 
 interface Props {
@@ -6,16 +6,33 @@ interface Props {
   symbol: string;
   /** Interval: 1, 5, 15, 60, 240, D, W */
   interval?: string;
+  /** Desktop height (>= 768px). Default 640. */
   height?: number;
+  /** Mobile height (< 768px). Default 460. */
+  mobileHeight?: number;
 }
 
 /**
  * TradingView Advanced Chart widget — realtime candles, indicators, drawing tools.
  * Uses TradingView's official embed script.
  */
-export function TradingViewChart({ symbol, interval = "60", height = 520 }: Props) {
+export function TradingViewChart({
+  symbol,
+  interval = "60",
+  height = 640,
+  mobileHeight = 460,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -35,10 +52,15 @@ export function TradingViewChart({ symbol, interval = "60", height = 520 }: Prop
       style: "1",
       locale: "vi_VN",
       enable_publishing: false,
-      hide_side_toolbar: false,
+      hide_side_toolbar: isMobile,
+      hide_top_toolbar: false,
+      hide_legend: false,
       allow_symbol_change: false,
-      withdateranges: true,
+      withdateranges: !isMobile,
       hide_volume: false,
+      details: false,
+      hotlist: false,
+      calendar: false,
       support_host: "https://www.tradingview.com",
     });
     container.appendChild(script);
@@ -46,13 +68,13 @@ export function TradingViewChart({ symbol, interval = "60", height = 520 }: Prop
     return () => {
       container.innerHTML = "";
     };
-  }, [symbol, interval, theme]);
+  }, [symbol, interval, theme, isMobile]);
 
   return (
     <div
       ref={ref}
       className="tradingview-widget-container"
-      style={{ height, width: "100%" }}
+      style={{ height: isMobile ? mobileHeight : height, width: "100%" }}
     />
   );
 }

@@ -571,7 +571,12 @@ function AssetDetail() {
                   Nến realtime · indicator · vẽ trendline
                 </span>
               </div>
-              <TradingViewChart symbol={toTradingViewCryptoSymbol(coin.symbol)} interval="60" height={560} />
+              <TradingViewChart
+                symbol={toTradingViewCryptoSymbol(coin.symbol)}
+                interval="60"
+                height={680}
+                mobileHeight={480}
+              />
             </div>
 
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
