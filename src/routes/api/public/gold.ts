@@ -5,6 +5,7 @@ import {
   vndPerChiFromNganChi,
   vndPerChiFromNganLuong,
 } from "@/lib/gold-units";
+import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
 
 // In-memory state for change computation between fetches
 let cache: { at: number; data: MappedItem[] } | null = null;
@@ -327,6 +328,7 @@ function refreshInBackground() {
   inflight = fetchAllSources()
     .then((items) => {
       cache = { at: Date.now(), data: items };
+      writePriceCache("gold", items);
       return items;
     })
     .catch((err) => {
@@ -344,6 +346,13 @@ export const Route = createFileRoute("/api/public/gold")({
     handlers: {
       GET: async () => {
         try {
+          // Cold start: hydrate from DB so the request doesn't block on
+          // PNJ + BTMC upstream (3–6s combined). Subsequent SWR refresh
+          // happens in the background.
+          if (!cache) {
+            const seed = await readPriceCache<MappedItem[]>("gold", CACHE_SWR_MS);
+            if (seed) cache = { at: seed.updatedAt, data: seed.payload };
+          }
           const now = Date.now();
           let items: MappedItem[];
           const age = cache ? now - cache.at : Infinity;

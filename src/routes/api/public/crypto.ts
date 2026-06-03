@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
 
 // CoinGecko coin IDs (public free API, no key required, ~30 req/min)
 const COIN_IDS = [
@@ -160,6 +161,7 @@ function refresh(): Promise<any> {
   inflight = buildPayload()
     .then((payload) => {
       cache = { at: Date.now(), payload };
+      writePriceCache("crypto", payload);
       return payload;
     })
     .finally(() => {
@@ -180,6 +182,12 @@ export const Route = createFileRoute("/api/public/crypto")({
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async () => {
         try {
+          // Cold start: hydrate in-memory cache from DB so we never wait on
+          // CoinGecko's 3–6s upstream when a fresh isolate spins up.
+          if (!cache) {
+            const seed = await readPriceCache<any>("crypto", CACHE_SWR_MS);
+            if (seed) cache = { at: seed.updatedAt, payload: seed.payload };
+          }
           let payload: any;
           const age = cache ? Date.now() - cache.at : Infinity;
           if (cache && age < CACHE_FRESH_MS) {
