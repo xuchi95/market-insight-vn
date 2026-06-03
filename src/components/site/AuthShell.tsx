@@ -80,14 +80,13 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
               <p className="mt-1 text-[13px] text-muted-foreground">Những thứ bạn sẽ có ngay sau khi tạo tài khoản miễn phí.</p>
             </div>
             <ul className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-3.5">
-              {FEATURES.map((f, i) => (
+              {FEATURES.map((f) => (
                 <li key={f.title} className="group flex gap-3">
                   <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-md text-gold/90">
                     <f.icon className="h-[15px] w-[15px]" strokeWidth={1.75} />
                   </span>
                   <div className="min-w-0 flex-1 pb-3.5 border-b border-border/50 group-last:border-b-0 xl:[&:nth-last-child(-n+2)]:border-b-0">
                     <div className="text-[13.5px] font-medium text-foreground leading-tight">
-                      <span className="mr-1.5 text-[11px] tabular-nums text-muted-foreground/60">{String(i + 1).padStart(2, "0")}</span>
                       {f.title}
                     </div>
                     <div className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">{f.desc}</div>
