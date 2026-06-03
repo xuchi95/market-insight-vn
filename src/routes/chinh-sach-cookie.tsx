@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/chinh-sach-cookie`;
@@ -158,6 +159,7 @@ function CookiePolicyPage() {
             <p>
               Mọi yêu cầu liên quan đến Cookie, quyền của Chủ thể dữ liệu hoặc khiếu nại vui lòng gửi tới:
             </p>
+            <CompanyInfoCard />
             <ul className="list-disc pl-6 space-y-2">
               <li>Email: <a href="mailto:privacy@marketwatch.vn" className="text-foreground underline">privacy@marketwatch.vn</a></li>
               <li>Biểu mẫu: <Link to="/lien-he" className="text-foreground underline">trang Liên hệ</Link></li>
@@ -173,7 +175,7 @@ function CookiePolicyPage() {
 
             <h2 className="text-xl font-semibold text-foreground">11. Luật áp dụng và giải quyết tranh chấp</h2>
             <p>
-              Chính sách này được điều chỉnh bởi <strong>pháp luật nước Cộng hoà Xã hội Chủ nghĩa Việt Nam</strong>. Mọi tranh chấp phát sinh sẽ được ưu tiên giải quyết thông qua thương lượng, hoà giải; nếu không đạt kết quả, Toà án Nhân dân có thẩm quyền tại thành phố Hà Nội sẽ là cơ quan giải quyết cuối cùng.
+              Chính sách này được điều chỉnh bởi <strong>pháp luật nước Cộng hoà Xã hội Chủ nghĩa Việt Nam</strong>. Mọi tranh chấp phát sinh sẽ được ưu tiên giải quyết thông qua thương lượng, hoà giải; nếu không đạt kết quả, Toà án Nhân dân có thẩm quyền tại thành phố Đà Nẵng — nơi đặt trụ sở của Công ty TNHH MTV Xuân Diệu Media — sẽ là cơ quan giải quyết cuối cùng.
             </p>
           </section>
         </div>

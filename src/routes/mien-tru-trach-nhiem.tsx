@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/mien-tru-trach-nhiem`;
@@ -90,6 +91,7 @@ function DisclaimerPage() {
             <p>
               Mọi phản ánh về nội dung, dữ liệu hoặc khiếu nại vui lòng gửi về: <a href="mailto:contact@marketwatch.vn" className="text-foreground underline">contact@marketwatch.vn</a>.
             </p>
+            <CompanyInfoCard />
           </section>
         </div>
       </main>

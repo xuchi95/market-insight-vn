@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/dieu-khoan-su-dung`;
@@ -192,6 +193,7 @@ function TermsPage() {
             <p>
               Mọi thắc mắc, phản ánh, khiếu nại, yêu cầu liên quan đến Điều khoản hoặc hoạt động của Website, vui lòng gửi về:
             </p>
+            <CompanyInfoCard />
             <ul className="list-disc pl-6 space-y-2">
               <li>Email: <a href="mailto:contact@marketwatch.vn" className="text-foreground underline">contact@marketwatch.vn</a></li>
               <li>Trang liên hệ: <Link to="/lien-he" className="text-foreground underline">marketwatch.vn/lien-he</Link></li>

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/chinh-sach-bao-mat`;
@@ -63,8 +64,9 @@ function PrivacyPage() {
 
             <h2 className="text-xl font-semibold text-foreground">2. Bên Kiểm soát dữ liệu</h2>
             <p>
-              Bên Kiểm soát dữ liệu cá nhân (theo Khoản 9 Điều 2 Nghị định 13/2023/NĐ-CP) là <strong>MarketWatch</strong>. Mọi yêu cầu liên quan đến dữ liệu cá nhân vui lòng gửi về địa chỉ liên hệ tại Mục 13.
+              Bên Kiểm soát dữ liệu cá nhân (theo Khoản 9 Điều 2 Nghị định 13/2023/NĐ-CP) là <strong>Công ty TNHH MTV Xuân Diệu Media</strong> — đơn vị chủ quản và vận hành Website MarketWatch. Mọi yêu cầu liên quan đến dữ liệu cá nhân vui lòng gửi về địa chỉ liên hệ tại Mục 14.
             </p>
+            <CompanyInfoCard />
 
             <h2 className="text-xl font-semibold text-foreground">3. Các loại dữ liệu cá nhân Chúng tôi thu thập</h2>
             <p>Tuỳ vào cách Bạn tương tác với Website, Chúng tôi có thể thu thập các nhóm dữ liệu sau:</p>
@@ -198,6 +200,7 @@ function PrivacyPage() {
 
             <h2 className="text-xl font-semibold text-foreground">14. Thông tin liên hệ về bảo vệ dữ liệu</h2>
             <p>Mọi câu hỏi, yêu cầu, khiếu nại liên quan đến dữ liệu cá nhân vui lòng gửi về:</p>
+            <CompanyInfoCard title="Đầu mối tiếp nhận yêu cầu" />
             <ul className="list-disc pl-6 space-y-2">
               <li>Email: <a href="mailto:contact@marketwatch.vn" className="text-foreground underline">contact@marketwatch.vn</a></li>
               <li>Trang liên hệ: <Link to="/lien-he" className="text-foreground underline">marketwatch.vn/lien-he</Link></li>
