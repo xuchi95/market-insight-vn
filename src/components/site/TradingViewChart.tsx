@@ -19,8 +19,8 @@ interface Props {
 export function TradingViewChart({
   symbol,
   interval = "60",
-  height = 640,
-  mobileHeight = 460,
+  height = 760,
+  mobileHeight = 520,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
@@ -37,14 +37,17 @@ export function TradingViewChart({
   useEffect(() => {
     if (!ref.current) return;
     const container = ref.current;
-    container.innerHTML = `<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>`;
+    const h = isMobile ? mobileHeight : height;
+    container.innerHTML = `<div class="tradingview-widget-container__widget" style="height:${h}px;width:100%"></div>`;
 
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
     script.async = true;
     script.innerHTML = JSON.stringify({
-      autosize: true,
+      autosize: false,
+      width: "100%",
+      height: h,
       symbol,
       interval,
       timezone: "Asia/Ho_Chi_Minh",
@@ -68,13 +71,13 @@ export function TradingViewChart({
     return () => {
       container.innerHTML = "";
     };
-  }, [symbol, interval, theme, isMobile]);
+  }, [symbol, interval, theme, isMobile, height, mobileHeight]);
 
   return (
     <div
       ref={ref}
       className="tradingview-widget-container"
-      style={{ height: isMobile ? mobileHeight : height, width: "100%" }}
+      style={{ height: isMobile ? mobileHeight : height, width: "100%", minHeight: isMobile ? mobileHeight : height }}
     />
   );
 }
