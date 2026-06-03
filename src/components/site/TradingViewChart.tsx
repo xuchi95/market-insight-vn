@@ -137,12 +137,14 @@ export function TradingViewChart({
       {/* Mask cross-origin TradingView attribution rendered inside the iframe. */}
       <div
         aria-hidden="true"
-        className="absolute z-30 bg-card"
+        className="absolute"
         style={{
-          left: isMobile ? 0 : 100,
-          bottom: isMobile ? 14 : 18,
-          width: isMobile ? 310 : 330,
-          height: isMobile ? 86 : 92,
+          zIndex: 2147483647,
+          left: isMobile ? 104 : 108,
+          bottom: isMobile ? 8 : 8,
+          width: isMobile ? 292 : 300,
+          height: isMobile ? 96 : 102,
+          background: "var(--tradingview-chart-mask)",
           pointerEvents: "none",
         }}
       />
