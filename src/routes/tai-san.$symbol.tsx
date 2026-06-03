@@ -17,7 +17,7 @@ import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
-import { Star, BellRing, BellOff, Loader2, Mail, AlertTriangle, RefreshCw } from "lucide-react";
+import { Star, BellRing, BellOff, Loader2, Mail, AlertTriangle, RefreshCw, Lock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Link as RouterLink } from "@tanstack/react-router";
@@ -155,6 +155,7 @@ function AssetDetail() {
   const { symbol } = useParams({ from: "/tai-san/$symbol" });
   const [range, setRange] = useState("7");
   const { theme } = useTheme();
+  const { user } = useAuth();
 
   const lower = symbol.toLowerCase();
   const isGold = lower.startsWith("gold-");
@@ -570,13 +571,41 @@ function AssetDetail() {
                 <h2 className="font-bold">Biểu đồ nâng cao · {coin.symbol}/USDT</h2>
                 <LiveDot />
               </div>
-              <TradingViewChart
-                key={`tv-${coin.symbol}-${theme}`}
-                symbol={toTradingViewCryptoSymbol(coin.symbol)}
-                interval="60"
-                height={760}
-                mobileHeight={540}
-              />
+              {user ? (
+                <TradingViewChart
+                  key={`tv-${coin.symbol}-${theme}`}
+                  symbol={toTradingViewCryptoSymbol(coin.symbol)}
+                  interval="60"
+                  height={760}
+                  mobileHeight={540}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center gap-4 px-6 py-16 sm:py-24">
+                  <div className="h-12 w-12 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center">
+                    <Lock className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1.5 max-w-md">
+                    <h3 className="font-display text-xl">Biểu đồ nâng cao dành cho thành viên</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Chỉ thành viên đã đăng ký/đăng nhập mới xem được biểu đồ nến realtime, chỉ báo kỹ thuật và công cụ vẽ.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <RouterLink
+                      to="/dang-nhap"
+                      className="inline-flex h-9 items-center rounded-md bg-[var(--gold)] px-4 text-sm font-semibold text-[var(--gold-foreground)] hover:opacity-90 transition-opacity"
+                    >
+                      Đăng nhập
+                    </RouterLink>
+                    <RouterLink
+                      to="/dang-ky"
+                      className="inline-flex h-9 items-center rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-accent transition-colors"
+                    >
+                      Đăng ký miễn phí
+                    </RouterLink>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
