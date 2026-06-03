@@ -169,7 +169,13 @@ async function ensureBaseline(): Promise<void> {
         break;
       }
     }
-    baseline = { date: today, mids: found };
+    // Chỉ cache khi đã tìm được baseline. Nếu rỗng (timeout / upstream lỗi),
+    // giữ `baseline = null` để request sau retry, tránh kẹt 0% cả ngày.
+    if (Object.keys(found).length > 0) {
+      baseline = { date: today, mids: found };
+    } else {
+      baseline = null;
+    }
   })().finally(() => {
     baselineInflight = null;
   });
