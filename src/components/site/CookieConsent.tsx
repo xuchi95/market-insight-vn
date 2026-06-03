@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Cookie, Shield, BarChart3, Sparkles, X, Check } from "lucide-react";
+import { Cookie, Shield, BarChart3, Sparkles, X, Check, LogOut, AlertTriangle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const STORAGE_KEY = "mw_cookie_consent";
 const VERSION = "1.0";
@@ -52,6 +53,8 @@ export function CookieConsent() {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [forcedLogout, setForcedLogout] = useState(false);
+  const { user, signOut } = useAuth();
   const [prefs, setPrefs] = useState<Prefs>({
     necessary: true,
     functional: true,
@@ -104,17 +107,36 @@ export function CookieConsent() {
     writeConsent({ necessary: true, functional: true, analytics: true, marketing: true });
     close();
   };
-  const rejectAll = () => {
+  const rejectAll = async () => {
     writeConsent({ necessary: true, functional: false, analytics: false, marketing: false });
+    if (user) {
+      // Logged-in users must accept cookies — sign out and explain via modal
+      try {
+        await signOut();
+      } catch {
+        /* ignore */
+      }
+      setShowDetails(false);
+      setForcedLogout(true);
+      return;
+    }
     close();
   };
   const savePrefs = () => {
     writeConsent(prefs);
+    // If user is signed in and turned off all optional categories, treat as reject
+    if (user && !prefs.functional && !prefs.analytics && !prefs.marketing) {
+      void rejectAll();
+      return;
+    }
     close();
   };
 
   return (
     <>
+      {/* Forced-logout explanation modal */}
+      {forcedLogout && <ForcedLogoutDialog onClose={() => { setForcedLogout(false); close(); }} />}
+
       {/* Mobile backdrop — only when details panel open */}
       <div
         aria-hidden
