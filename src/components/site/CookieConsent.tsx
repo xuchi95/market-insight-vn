@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Cookie, Shield, BarChart3, Sparkles, X, Check } from "lucide-react";
 
@@ -49,7 +49,8 @@ function writeConsent(prefs: Prefs) {
 }
 
 export function CookieConsent() {
-  const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [prefs, setPrefs] = useState<Prefs>({
     necessary: true,
@@ -60,8 +61,9 @@ export function CookieConsent() {
 
   useEffect(() => {
     if (!readConsent()) {
-      // Slight delay so it doesn't fight the first paint
-      const t = setTimeout(() => setVisible(true), 600);
+      // Mount immediately, then trigger enter animation next frame
+      setMounted(true);
+      const t = setTimeout(() => setOpen(true), 350);
       return () => clearTimeout(t);
     }
   }, []);
@@ -69,168 +71,219 @@ export function CookieConsent() {
   useEffect(() => {
     const open = () => {
       setShowDetails(true);
-      setVisible(true);
+      setMounted(true);
+      requestAnimationFrame(() => setOpen(true));
     };
     window.addEventListener("mw:open-cookie-settings", open);
     return () => window.removeEventListener("mw:open-cookie-settings", open);
   }, []);
 
-  if (!visible) return null;
+  // Lock body scroll on mobile when details panel is open
+  useEffect(() => {
+    if (!mounted || !open || !showDetails) return;
+    const prev = document.body.style.overflow;
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mounted, open, showDetails]);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    setTimeout(() => {
+      setMounted(false);
+      setShowDetails(false);
+    }, 320);
+  }, []);
+
+  if (!mounted) return null;
 
   const acceptAll = () => {
     writeConsent({ necessary: true, functional: true, analytics: true, marketing: true });
-    setVisible(false);
+    close();
   };
   const rejectAll = () => {
     writeConsent({ necessary: true, functional: false, analytics: false, marketing: false });
-    setVisible(false);
+    close();
   };
   const savePrefs = () => {
     writeConsent(prefs);
-    setVisible(false);
+    close();
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="false"
-      aria-labelledby="mw-cookie-title"
-      className="fixed inset-x-0 bottom-0 z-[80] px-3 pb-3 sm:px-5 sm:pb-5 animate-in slide-in-from-bottom-6 fade-in duration-500"
-    >
+    <>
+      {/* Mobile backdrop — only when details panel open */}
       <div
-        className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-[color-mix(in_oklab,var(--gold)_30%,var(--border))] bg-[color-mix(in_oklab,var(--card)_92%,transparent)] shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--gold)_40%,transparent)] backdrop-blur-xl"
+        aria-hidden
+        onClick={rejectAll}
+        className={`fixed inset-0 z-[79] bg-black/50 backdrop-blur-sm transition-opacity duration-300 sm:hidden ${
+          open && showDetails ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+
+      <div
+        role="dialog"
+        aria-modal={showDetails ? "true" : "false"}
+        aria-labelledby="mw-cookie-title"
+        className={`fixed inset-x-0 bottom-0 z-[80] sm:px-5 sm:pb-5 ${
+          showDetails ? "max-sm:top-auto" : ""
+        }`}
         style={{
-          backgroundImage:
-            "linear-gradient(135deg, color-mix(in oklab, var(--gold) 8%, transparent) 0%, transparent 60%)",
+          paddingBottom: "max(env(safe-area-inset-bottom), 0px)",
         }}
       >
-        {/* Header bar */}
-        <div className="flex items-center justify-between border-b border-border/60 px-4 py-2.5 sm:px-5">
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--gold)_18%,transparent)] text-[var(--gold)]">
-              <Cookie className="h-3.5 w-3.5" />
-            </span>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--gold)]">
-              MarketWatch · Cookie
-            </span>
+        <div
+          className={`mx-auto w-full max-w-3xl overflow-hidden border-t border-x-0 border-b-0 sm:border bg-[color-mix(in_oklab,var(--card)_94%,transparent)] backdrop-blur-xl
+            rounded-t-3xl sm:rounded-2xl
+            border-[color-mix(in_oklab,var(--gold)_30%,var(--border))]
+            shadow-[0_-20px_60px_-20px_rgba(0,0,0,0.6)] sm:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--gold)_40%,transparent)]
+            transform-gpu transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
+            ${open
+              ? "translate-y-0 opacity-100 sm:scale-100"
+              : "translate-y-[110%] opacity-0 sm:translate-y-6 sm:scale-95"
+            }`}
+          style={{
+            backgroundImage:
+              "linear-gradient(135deg, color-mix(in oklab, var(--gold) 9%, transparent) 0%, transparent 55%)",
+          }}
+        >
+          {/* Mobile grab handle */}
+          <div className="flex justify-center pt-2 pb-1 sm:hidden">
+            <span className="h-1 w-10 rounded-full bg-border" />
           </div>
-          <button
-            type="button"
-            onClick={rejectAll}
-            className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-            aria-label="Đóng và chỉ dùng cookie thiết yếu"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
 
-        <div className="px-4 py-4 sm:px-5 sm:py-5">
-          {!showDetails ? (
-            <>
-              <h2 id="mw-cookie-title" className="font-display text-lg leading-snug text-foreground sm:text-xl">
-                Chúng tôi dùng <span className="text-[var(--gold)]">cookie</span> để giữ phiên đăng nhập và đo lường hiệu năng.
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Cookie thiết yếu luôn bật để Website vận hành an toàn. Bạn có thể đồng ý tất cả, từ chối tuỳ chọn,
-                hoặc tinh chỉnh theo nhu cầu. Xem chi tiết tại{" "}
-                <Link to="/chinh-sach-cookie" className="text-foreground underline underline-offset-2 hover:text-[var(--gold)]">
-                  Chính sách Cookie
-                </Link>{" "}
-                và{" "}
-                <Link to="/chinh-sach-bao-mat" className="text-foreground underline underline-offset-2 hover:text-[var(--gold)]">
-                  Chính sách dữ liệu
-                </Link>
-                .
-              </p>
+          {/* Header bar */}
+          <div className="flex items-center justify-between border-b border-border/60 px-4 py-2.5 sm:px-5">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--gold)_18%,transparent)] text-[var(--gold)]">
+                <Cookie className="h-3.5 w-3.5" />
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--gold)]">
+                MarketWatch · Cookie
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={rejectAll}
+              className="-mr-1 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label="Đóng và chỉ dùng cookie thiết yếu"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
 
-              <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <button
-                  type="button"
-                  onClick={() => setShowDetails(true)}
-                  className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
-                >
-                  Tuỳ chỉnh
-                </button>
-                <div className="flex flex-col gap-2 sm:flex-row">
+          {/* Inner content with crossfade between summary <-> details */}
+          <div className="relative">
+            {!showDetails ? (
+              <div className="px-4 pb-5 pt-4 sm:px-5 sm:pb-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <h2 id="mw-cookie-title" className="font-display text-lg leading-snug text-foreground sm:text-xl">
+                  Chúng tôi dùng <span className="text-[var(--gold)]">cookie</span> để giữ phiên đăng nhập và đo lường hiệu năng.
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  Cookie thiết yếu luôn bật để Website vận hành an toàn. Bạn có thể đồng ý tất cả, từ chối tuỳ chọn, hoặc tinh chỉnh theo nhu cầu.{" "}
+                  <Link to="/chinh-sach-cookie" className="text-foreground underline underline-offset-2 hover:text-[var(--gold)]">
+                    Chính sách Cookie
+                  </Link>
+                  {" · "}
+                  <Link to="/chinh-sach-bao-mat" className="text-foreground underline underline-offset-2 hover:text-[var(--gold)]">
+                    Chính sách dữ liệu
+                  </Link>
+                </p>
+
+                {/* Action stack: mobile = full-width stacked, desktop = inline */}
+                <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowDetails(true)}
+                    className="order-3 inline-flex h-11 items-center justify-center rounded-xl border border-border bg-transparent px-4 text-sm font-semibold text-muted-foreground transition-colors hover:border-[var(--gold)]/40 hover:text-foreground sm:order-1 sm:h-10 sm:justify-self-start sm:border-0 sm:bg-transparent sm:px-2 sm:text-xs sm:uppercase sm:tracking-[0.18em]"
+                  >
+                    Tuỳ chỉnh
+                  </button>
                   <button
                     type="button"
                     onClick={rejectAll}
-                    className="inline-flex h-9 items-center justify-center rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground transition-colors hover:border-[var(--gold)]/60 hover:bg-card/70"
+                    className="order-2 inline-flex h-11 items-center justify-center rounded-xl border border-border bg-card/60 px-4 text-sm font-semibold text-foreground transition-colors hover:border-[var(--gold)]/60 hover:bg-card sm:order-2 sm:h-10"
                   >
                     Chỉ thiết yếu
                   </button>
                   <button
                     type="button"
                     onClick={acceptAll}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-[var(--gold)] px-4 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_8px_24px_-10px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-transform hover:-translate-y-0.5"
+                    className="order-1 inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-[var(--gold)] px-5 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_10px_28px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-12px_color-mix(in_oklab,var(--gold)_80%,transparent)] active:translate-y-0 sm:order-3 sm:h-10"
                   >
-                    <Check className="h-3.5 w-3.5" />
+                    <Check className="h-4 w-4" />
                     Đồng ý tất cả
                   </button>
                 </div>
               </div>
-            </>
-          ) : (
-            <>
-              <h2 id="mw-cookie-title" className="font-display text-lg leading-snug text-foreground sm:text-xl">
-                Tuỳ chỉnh <span className="text-[var(--gold)]">Cookie</span>
-              </h2>
-              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                Bạn có quyền bật/tắt từng loại cookie không thiết yếu. Lựa chọn được lưu 12 tháng.
-              </p>
+            ) : (
+              <div className="flex max-h-[78vh] flex-col sm:max-h-none">
+                <div className="overflow-y-auto px-4 pb-4 pt-4 sm:px-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <h2 id="mw-cookie-title" className="font-display text-lg leading-snug text-foreground sm:text-xl">
+                    Tuỳ chỉnh <span className="text-[var(--gold)]">Cookie</span>
+                  </h2>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                    Bật/tắt từng nhóm cookie không thiết yếu. Lựa chọn được lưu 12 tháng.
+                  </p>
 
-              <div className="mt-4 space-y-2">
-                <CookieRow
-                  icon={<Shield className="h-3.5 w-3.5" />}
-                  title="Thiết yếu"
-                  desc="Bắt buộc cho đăng nhập, bảo mật, lưu lựa chọn giao diện."
-                  checked
-                  disabled
-                />
-                <CookieRow
-                  icon={<Sparkles className="h-3.5 w-3.5" />}
-                  title="Chức năng"
-                  desc="Ghi nhớ watchlist, khung biểu đồ, tuỳ chọn cá nhân."
-                  checked={prefs.functional}
-                  onChange={(v) => setPrefs((p) => ({ ...p, functional: v }))}
-                />
-                <CookieRow
-                  icon={<BarChart3 className="h-3.5 w-3.5" />}
-                  title="Phân tích"
-                  desc="Đo lưu lượng, hiệu năng, lỗi — ẩn danh, không nhận dạng cá nhân."
-                  checked={prefs.analytics}
-                  onChange={(v) => setPrefs((p) => ({ ...p, analytics: v }))}
-                />
-                <CookieRow
-                  icon={<Cookie className="h-3.5 w-3.5" />}
-                  title="Tiếp thị"
-                  desc="Hiện chưa kích hoạt. Sẽ xin lại đồng ý nếu triển khai."
-                  checked={prefs.marketing}
-                  onChange={(v) => setPrefs((p) => ({ ...p, marketing: v }))}
-                />
-              </div>
+                  <div className="mt-4 space-y-2">
+                    <CookieRow
+                      icon={<Shield className="h-3.5 w-3.5" />}
+                      title="Thiết yếu"
+                      desc="Bắt buộc cho đăng nhập, bảo mật, lưu lựa chọn giao diện."
+                      checked
+                      disabled
+                    />
+                    <CookieRow
+                      icon={<Sparkles className="h-3.5 w-3.5" />}
+                      title="Chức năng"
+                      desc="Ghi nhớ watchlist, khung biểu đồ, tuỳ chọn cá nhân."
+                      checked={prefs.functional}
+                      onChange={(v) => setPrefs((p) => ({ ...p, functional: v }))}
+                    />
+                    <CookieRow
+                      icon={<BarChart3 className="h-3.5 w-3.5" />}
+                      title="Phân tích"
+                      desc="Đo lưu lượng, hiệu năng, lỗi — ẩn danh, không nhận dạng cá nhân."
+                      checked={prefs.analytics}
+                      onChange={(v) => setPrefs((p) => ({ ...p, analytics: v }))}
+                    />
+                    <CookieRow
+                      icon={<Cookie className="h-3.5 w-3.5" />}
+                      title="Tiếp thị"
+                      desc="Hiện chưa kích hoạt. Sẽ xin lại đồng ý nếu triển khai."
+                      checked={prefs.marketing}
+                      onChange={(v) => setPrefs((p) => ({ ...p, marketing: v }))}
+                    />
+                  </div>
+                </div>
 
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-                <button
-                  type="button"
-                  onClick={rejectAll}
-                  className="inline-flex h-9 items-center justify-center rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground hover:border-[var(--gold)]/60"
-                >
-                  Từ chối tất cả
-                </button>
-                <button
-                  type="button"
-                  onClick={savePrefs}
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--gold)] px-4 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_8px_24px_-10px_color-mix(in_oklab,var(--gold)_70%,transparent)]"
-                >
-                  Lưu lựa chọn
-                </button>
+                {/* Sticky CTA bar — full width on mobile */}
+                <div className="sticky bottom-0 grid grid-cols-2 gap-2 border-t border-border/60 bg-[color-mix(in_oklab,var(--card)_96%,transparent)] px-4 py-3 backdrop-blur sm:flex sm:justify-end sm:px-5">
+                  <button
+                    type="button"
+                    onClick={rejectAll}
+                    className="inline-flex h-11 items-center justify-center rounded-xl border border-border bg-card/60 px-4 text-sm font-semibold text-foreground hover:border-[var(--gold)]/60 sm:h-10"
+                  >
+                    Từ chối tất cả
+                  </button>
+                  <button
+                    type="button"
+                    onClick={savePrefs}
+                    className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--gold)] px-5 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_10px_28px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-all hover:-translate-y-0.5 active:translate-y-0 sm:h-10"
+                  >
+                    Lưu lựa chọn
+                  </button>
+                </div>
               </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
