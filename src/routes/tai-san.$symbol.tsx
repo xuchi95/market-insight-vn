@@ -567,9 +567,6 @@ function AssetDetail() {
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ nâng cao · {coin.symbol}/USDT</h2>
                 <LiveDot />
-                <span className="text-[11px] text-muted-foreground hidden sm:inline">
-                  Nến realtime · indicator · vẽ trendline
-                </span>
               </div>
               <TradingViewChart
                 symbol={toTradingViewCryptoSymbol(coin.symbol)}
