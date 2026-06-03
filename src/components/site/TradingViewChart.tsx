@@ -77,8 +77,26 @@ export function TradingViewChart({
     <div
       ref={ref}
       className="tradingview-widget-container"
-      style={{ height: isMobile ? mobileHeight : height, width: "100%", minHeight: isMobile ? mobileHeight : height }}
-    />
+      style={{
+        height: isMobile ? mobileHeight : height,
+        width: "100%",
+        minHeight: isMobile ? mobileHeight : height,
+        position: "relative",
+      }}
+    >
+      {/* Brand overlay — che logo TradingView ở góc dưới trái và thay bằng MarketWatch */}
+      <a
+        href="https://marketwatch.vn"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Made by MarketWatch.vn"
+        className="absolute bottom-1 left-1 z-10 flex items-center gap-1 rounded-md bg-card/85 px-2 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur-sm hover:text-[var(--gold)] transition-colors"
+        style={{ pointerEvents: "auto" }}
+      >
+        <span className="opacity-70">Made by</span>
+        <span className="font-semibold text-foreground">MarketWatch.vn</span>
+      </a>
+    </div>
   );
 }
 
