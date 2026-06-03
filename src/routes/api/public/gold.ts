@@ -365,12 +365,11 @@ export const Route = createFileRoute("/api/public/gold")({
           }
 
           // Baseline (giá đóng cửa hôm qua) cần cho cột "% thay đổi 24h".
-          // Worker isolate có thể bị recycle giữa các request → fire-and-forget
-          // dẫn tới % luôn = 0. Await ngắn (tối đa ~4s — đã chạy 7 ngày song
-          // song với timeout per-day) cho lần đầu trong ngày, sau đó cache nguyên
-          // ngày nên các call sau không chịu chi phí này.
+          // KHÔNG await trên cold-start: việc fetch 7 ngày history có thể tốn
+          // 3–7s và làm trang chủ trễ hiển thị giá. Fire-and-forget — request
+          // kế tiếp (sau ~vài giây) sẽ đã có baseline trong cache nguyên ngày.
           if (!baseline || baseline.date !== ymdVN(new Date())) {
-            await ensureBaseline().catch(() => {});
+            ensureBaseline().catch(() => {});
           }
 
           const mids = baseline?.mids ?? {};
