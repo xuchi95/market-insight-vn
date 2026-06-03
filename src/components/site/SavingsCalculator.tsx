@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Calculator, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { SectionCard } from "@/components/site/SectionCard";
 import { TENORS, type SavingsRate } from "@/lib/data/savingsRates";
 import { cn } from "@/lib/utils";
 
