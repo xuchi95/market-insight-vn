@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Calculator } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { SectionCard } from "@/components/site/SectionCard";
 import { TENORS, type SavingsRate } from "@/lib/data/savingsRates";
 import { cn } from "@/lib/utils";
@@ -34,9 +33,20 @@ interface Props {
   items: SavingsRate[];
 }
 
+function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
+  return (
+    <div className="mb-2 flex items-center gap-2">
+      <span className="grid h-5 w-5 place-items-center rounded-full bg-[var(--gold)]/20 text-[10px] font-bold text-[var(--gold)]">
+        {n}
+      </span>
+      <span className="text-sm font-semibold">{children}</span>
+    </div>
+  );
+}
+
 export function SavingsCalculator({ items }: Props) {
   const [amountStr, setAmountStr] = useState("100000000");
-  const [bankShort, setBankShort] = useState<string>("");
+  const [bankShort, setBankShort] = useState<string>(items[0]?.shortName ?? "");
   const [tenor, setTenor] = useState<TenorKey>("m12");
   const [customRateStr, setCustomRateStr] = useState<string>("");
   const [period, setPeriod] = useState<Period>("year");
@@ -50,7 +60,8 @@ export function SavingsCalculator({ items }: Props) {
   const selectedBank = items.find((b) => b.shortName === bankShort);
   const bankRate = selectedBank?.rates[tenor];
   const customRate = Number(customRateStr.replace(",", "."));
-  const annualRate = Number.isFinite(customRate) && customRate > 0 ? customRate : bankRate ?? 0;
+  const hasCustom = customRateStr.trim() !== "" && Number.isFinite(customRate) && customRate > 0;
+  const annualRate = hasCustom ? customRate : bankRate ?? 0;
   const tenorMonths = TENOR_MONTHS[tenor];
 
   const result = useMemo(() => {
@@ -100,124 +111,141 @@ export function SavingsCalculator({ items }: Props) {
   return (
     <SectionCard
       title="Công cụ tính lãi tiết kiệm"
-      description="Ước tính số tiền lãi và tổng nhận về theo lãi suất các ngân hàng — gửi tháng, quý, năm hoặc nhiều năm."
+      description={`Dùng lãi suất thật từ ${items.length} ngân hàng phía trên — chọn ngân hàng, kỳ hạn, số tiền và thời gian gửi.`}
       icon={<Calculator className="h-4 w-4" />}
     >
       <div className="grid gap-6 p-4 lg:p-5 lg:grid-cols-[1.1fr_1fr]">
-        {/* Form nhập */}
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="amount">Số tiền gửi (VND)</Label>
-            <Input
-              id="amount"
-              inputMode="numeric"
-              value={amount > 0 ? new Intl.NumberFormat("vi-VN").format(amount) : ""}
-              onChange={(e) => setAmountStr(e.target.value)}
-              placeholder="VD: 100.000.000"
-            />
-            <p className="text-xs text-muted-foreground">{fmtVnd(amount)}</p>
+        {/* Form nhập — chia 4 bước rõ ràng */}
+        <div className="space-y-5">
+          {/* Bước 1: Số tiền */}
+          <div>
+            <StepLabel n={1}>Số tiền gửi</StepLabel>
+            <div className="relative">
+              <Input
+                id="amount"
+                inputMode="numeric"
+                value={amount > 0 ? new Intl.NumberFormat("vi-VN").format(amount) : ""}
+                onChange={(e) => setAmountStr(e.target.value)}
+                placeholder="VD: 100.000.000"
+                className="h-11 pr-12 text-base font-semibold tabular-nums"
+              />
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">VND</span>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {[10_000_000, 50_000_000, 100_000_000, 500_000_000, 1_000_000_000].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setAmountStr(String(v))}
+                  className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground hover:border-[var(--gold)]/50 hover:text-foreground"
+                >
+                  {v >= 1_000_000_000 ? `${v / 1_000_000_000} tỷ` : `${v / 1_000_000} triệu`}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="bank">Ngân hàng</Label>
+          {/* Bước 2: Ngân hàng + kỳ hạn (lãi suất tự fill) */}
+          <div>
+            <StepLabel n={2}>Ngân hàng & kỳ hạn</StepLabel>
+            <div className="grid grid-cols-2 gap-2">
               <select
                 id="bank"
                 value={bankShort}
-                onChange={(e) => setBankShort(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                onChange={(e) => { setBankShort(e.target.value); setCustomRateStr(""); }}
+                className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
-                <option value="">— Tự nhập lãi suất —</option>
                 {items.map((b) => (
                   <option key={b.shortName} value={b.shortName}>{b.bank}</option>
                 ))}
               </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="tenor">Kỳ hạn</Label>
               <select
                 id="tenor"
                 value={tenor}
                 onChange={(e) => setTenor(e.target.value as TenorKey)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 {TENORS.map((t) => (
-                  <option key={t.key} value={t.key}>{t.label}</option>
+                  <option
+                    key={t.key}
+                    value={t.key}
+                    disabled={selectedBank ? typeof selectedBank.rates[t.key] !== "number" : false}
+                  >
+                    {t.label}{selectedBank && typeof selectedBank.rates[t.key] === "number" ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%` : ""}
+                  </option>
                 ))}
               </select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="rate">Lãi suất (%/năm)</Label>
-              <Input
-                id="rate"
-                inputMode="decimal"
-                value={customRateStr}
-                onChange={(e) => setCustomRateStr(e.target.value)}
-                placeholder={bankRate ? bankRate.toFixed(2) : "VD: 5.5"}
-              />
-              <p className="text-xs text-muted-foreground">
-                {selectedBank && bankRate ? (
-                  <>Đang dùng: <strong className="text-foreground">{annualRate.toFixed(2)}%</strong> ({selectedBank.bank})</>
-                ) : (
-                  <>Đang dùng: <strong className="text-foreground">{annualRate ? annualRate.toFixed(2) + "%" : "—"}</strong></>
-                )}
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Hình thức</Label>
-              <div className="grid grid-cols-2 gap-1 rounded-md border border-input p-1 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setMode("simple")}
-                  className={cn("rounded px-2 py-1.5", mode === "simple" ? "bg-[var(--gold)]/20 text-foreground font-semibold" : "text-muted-foreground hover:text-foreground")}
-                >Không tái tục</button>
-                <button
-                  type="button"
-                  onClick={() => setMode("compound")}
-                  className={cn("rounded px-2 py-1.5", mode === "compound" ? "bg-[var(--gold)]/20 text-foreground font-semibold" : "text-muted-foreground hover:text-foreground")}
-                >Tái tục (gốc + lãi)</button>
+            <div className="mt-2 flex items-center justify-between rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3 py-2">
+              <span className="text-xs text-muted-foreground">Lãi suất áp dụng</span>
+              <div className="flex items-baseline gap-2">
+                <Input
+                  id="rate"
+                  inputMode="decimal"
+                  value={customRateStr}
+                  onChange={(e) => setCustomRateStr(e.target.value)}
+                  placeholder={bankRate ? bankRate.toFixed(2) : "—"}
+                  className="h-7 w-20 border-0 bg-transparent p-0 text-right text-lg font-bold tabular-nums text-[var(--gold)] shadow-none focus-visible:ring-0"
+                />
+                <span className="text-sm font-semibold text-[var(--gold)]">%/năm</span>
               </div>
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Thời gian gửi</Label>
+          {/* Bước 3: Thời gian gửi */}
+          <div>
+            <StepLabel n={3}>Thời gian gửi</StepLabel>
             <div className="flex gap-2">
               <Input
                 inputMode="numeric"
                 value={periodCount}
                 onChange={(e) => setPeriodCount(e.target.value.replace(/[^\d]/g, ""))}
-                className="w-24"
+                className="h-11 w-20 text-center text-base font-semibold tabular-nums"
               />
-              <div className="grid flex-1 grid-cols-3 gap-1 rounded-md border border-input p-1 text-xs">
+              <div className="grid flex-1 grid-cols-3 gap-1 rounded-md border border-input p-1">
                 {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
                   <button
                     key={p}
                     type="button"
                     onClick={() => setPeriod(p)}
-                    className={cn("rounded px-2 py-1.5", period === p ? "bg-[var(--gold)]/20 text-foreground font-semibold" : "text-muted-foreground hover:text-foreground")}
+                    className={cn("rounded text-sm transition-colors", period === p ? "bg-[var(--gold)]/20 font-semibold text-foreground" : "text-muted-foreground hover:text-foreground")}
                   >
                     {PERIOD_LABEL[p]}
                   </button>
                 ))}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Tương đương <strong className="text-foreground">{totalMonths}</strong> tháng
-              {mode === "compound" && result.cycles > 0 && (
-                <> · {result.cycles} kỳ × {tenorMonths} tháng{result.leftover > 0 && <> + {result.leftover} tháng lẻ</>}</>
-              )}
-            </p>
+          </div>
+
+          {/* Bước 4: Hình thức */}
+          <div>
+            <StepLabel n={4}>Hình thức gửi</StepLabel>
+            <div className="grid grid-cols-2 gap-1 rounded-md border border-input p-1">
+              <button
+                type="button"
+                onClick={() => setMode("simple")}
+                className={cn("rounded px-2 py-2 text-sm transition-colors", mode === "simple" ? "bg-[var(--gold)]/20 font-semibold text-foreground" : "text-muted-foreground hover:text-foreground")}
+              >
+                Lĩnh lãi cuối kỳ
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("compound")}
+                className={cn("rounded px-2 py-2 text-sm transition-colors", mode === "compound" ? "bg-[var(--gold)]/20 font-semibold text-foreground" : "text-muted-foreground hover:text-foreground")}
+              >
+                Tái tục gốc + lãi
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Kết quả */}
         <div className="space-y-3">
           <div className="rounded-xl border border-border bg-gradient-to-br from-[var(--gold)]/10 via-transparent to-transparent p-5">
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Tiền lãi ước tính</div>
+            <div className="flex items-center justify-between">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Tiền lãi ước tính</div>
+              <div className="text-xs text-muted-foreground tabular-nums">{totalMonths} tháng · {annualRate ? annualRate.toFixed(2) : "—"}%/năm</div>
+            </div>
             <div className="mt-1 text-3xl font-bold tabular-nums text-[var(--gold)]">{fmtVnd(result.interest)}</div>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div>
@@ -235,7 +263,7 @@ export function SavingsCalculator({ items }: Props) {
             <div className="rounded-xl border border-border overflow-hidden">
               <div className="px-4 py-2.5 border-b border-border bg-muted/30">
                 <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Top 8 ngân hàng — kỳ hạn {TENORS.find((t) => t.key === tenor)?.label}, {totalMonths} tháng
+                  So sánh top 8 ngân hàng · {TENORS.find((t) => t.key === tenor)?.label}
                 </div>
               </div>
               <div className="max-h-72 overflow-y-auto">
@@ -249,7 +277,11 @@ export function SavingsCalculator({ items }: Props) {
                   </thead>
                   <tbody>
                     {compareRows.map((r, idx) => (
-                      <tr key={r.shortName} className="border-b border-border/40 hover:bg-accent/40">
+                      <tr
+                        key={r.shortName}
+                        onClick={() => { setBankShort(r.shortName); setCustomRateStr(""); }}
+                        className={cn("border-b border-border/40 cursor-pointer hover:bg-accent/40", r.shortName === bankShort && "bg-[var(--gold)]/5")}
+                      >
                         <td className="px-3 py-2">
                           <div className="font-medium">{r.bank}</div>
                         </td>
@@ -262,10 +294,6 @@ export function SavingsCalculator({ items }: Props) {
               </div>
             </div>
           )}
-
-          <p className="text-xs text-muted-foreground">
-            * Công thức: <em>Không tái tục</em> = Gốc × lãi suất × (số tháng / 12). <em>Tái tục</em> = lãi nhập gốc sau mỗi kỳ hạn. Kết quả mang tính tham khảo, chưa bao gồm thuế/phí và các ưu đãi riêng của ngân hàng.
-          </p>
         </div>
       </div>
     </SectionCard>
