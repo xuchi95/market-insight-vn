@@ -5,6 +5,8 @@ import { ChangeBadge } from "./ChangeBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtNum, fmtTime } from "@/lib/format";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
+import { useAuth } from "@/hooks/useAuth";
+import { LockedDataPanel } from "./LockedDataPanel";
 
 interface MetalItem {
   symbol: string;
@@ -25,6 +27,19 @@ async function fetchMetals(): Promise<{ items: MetalItem[]; updatedAt: number }>
 const GRAM_PER_OZ = 31.1035;
 
 export function MetalsTable() {
+  const { user } = useAuth();
+  if (!user) {
+    return (
+      <SectionCard
+        id="metals"
+        icon={<Gem className="h-4 w-4" />}
+        title="Kim loại quý thế giới"
+        description="Vàng, Bạc, Bạch kim, Palladi • dành cho thành viên"
+      >
+        <LockedDataPanel description="Giá XAU/XAG/XPT/XPD theo USD/ounce chỉ hiển thị cho thành viên đã đăng nhập." />
+      </SectionCard>
+    );
+  }
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["metals"],
     queryFn: fetchMetals,

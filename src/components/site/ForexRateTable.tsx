@@ -10,8 +10,23 @@ import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
+import { useAuth } from "@/hooks/useAuth";
+import { LockedDataPanel } from "./LockedDataPanel";
 
 export function ForexRateTable({ search }: { search?: string }) {
+  const { user } = useAuth();
+  if (!user) {
+    return (
+      <SectionCard
+        id="forex"
+        icon={<DollarSign className="h-4 w-4" />}
+        title="Tỷ giá ngoại tệ"
+        description="Cập nhật mỗi 10 phút • dành cho thành viên"
+      >
+        <LockedDataPanel description="Tỷ giá ngoại tệ realtime quy đổi sang VND chỉ hiển thị cho thành viên đã đăng nhập." />
+      </SectionCard>
+    );
+  }
   const { data, isLoading, refetch, isFetching, dataUpdatedAt, isError, error } = useQuery({
     queryKey: ["forex"],
     queryFn: fetchForexRates,

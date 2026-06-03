@@ -5,6 +5,8 @@ import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
+import { useAuth } from "@/hooks/useAuth";
+import { LockedDataPanel } from "./LockedDataPanel";
 
 interface UsStock {
   symbol: string;
@@ -44,6 +46,19 @@ function fmtMcap(n: number) {
 }
 
 export function UsStockTable() {
+  const { user } = useAuth();
+  if (!user) {
+    return (
+      <SectionCard
+        id="us-stocks"
+        icon={<Globe className="h-4 w-4" />}
+        title="Cổ phiếu Mỹ nổi bật"
+        description="Big Tech & SPY • dành cho thành viên"
+      >
+        <LockedDataPanel description="Bảng giá cổ phiếu Mỹ (AAPL, MSFT, NVDA, SPY…) chỉ hiển thị cho thành viên đã đăng nhập." />
+      </SectionCard>
+    );
+  }
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["us-stocks"],
     queryFn: fetchUsStocks,
