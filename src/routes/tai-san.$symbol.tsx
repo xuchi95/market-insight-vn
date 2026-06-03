@@ -266,6 +266,8 @@ function AssetDetail() {
     queryFn: () => loadChart(coin!.id, range),
     enabled: !!coin,
     refetchInterval: 60_000,
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
     retry: 1,
   });
 
