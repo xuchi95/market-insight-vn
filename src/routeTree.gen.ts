@@ -13,6 +13,7 @@ import { Route as XacThuc2faRouteImport } from './routes/xac-thuc-2fa'
 import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
 import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
+import { Route as TinhLaiSuatTietKiemRouteImport } from './routes/tinh-lai-suat-tiet-kiem'
 import { Route as TienDienTuRouteImport } from './routes/tien-dien-tu'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StocksRouteImport } from './routes/stocks'
@@ -117,6 +118,11 @@ const TyGiaNgoaiTeRoute = TyGiaNgoaiTeRouteImport.update({
 const TyGiaNganHangRoute = TyGiaNganHangRouteImport.update({
   id: '/ty-gia-ngan-hang',
   path: '/ty-gia-ngan-hang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TinhLaiSuatTietKiemRoute = TinhLaiSuatTietKiemRouteImport.update({
+  id: '/tinh-lai-suat-tiet-kiem',
+  path: '/tinh-lai-suat-tiet-kiem',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TienDienTuRoute = TienDienTuRouteImport.update({
@@ -587,6 +593,7 @@ export interface FileRoutesByFullPath {
   '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
+  '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
@@ -677,6 +684,7 @@ export interface FileRoutesByTo {
   '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
+  '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
@@ -769,6 +777,7 @@ export interface FileRoutesById {
   '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
+  '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
@@ -861,6 +870,7 @@ export interface FileRouteTypes {
     | '/stocks'
     | '/terms'
     | '/tien-dien-tu'
+    | '/tinh-lai-suat-tiet-kiem'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
@@ -951,6 +961,7 @@ export interface FileRouteTypes {
     | '/stocks'
     | '/terms'
     | '/tien-dien-tu'
+    | '/tinh-lai-suat-tiet-kiem'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
@@ -1042,6 +1053,7 @@ export interface FileRouteTypes {
     | '/stocks'
     | '/terms'
     | '/tien-dien-tu'
+    | '/tinh-lai-suat-tiet-kiem'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
@@ -1134,6 +1146,7 @@ export interface RootRouteChildren {
   StocksRoute: typeof StocksRoute
   TermsRoute: typeof TermsRoute
   TienDienTuRoute: typeof TienDienTuRoute
+  TinhLaiSuatTietKiemRoute: typeof TinhLaiSuatTietKiemRoute
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   ViMoVietNamRoute: typeof ViMoVietNamRoute
@@ -1211,6 +1224,13 @@ declare module '@tanstack/react-router' {
       path: '/ty-gia-ngan-hang'
       fullPath: '/ty-gia-ngan-hang'
       preLoaderRoute: typeof TyGiaNganHangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tinh-lai-suat-tiet-kiem': {
+      id: '/tinh-lai-suat-tiet-kiem'
+      path: '/tinh-lai-suat-tiet-kiem'
+      fullPath: '/tinh-lai-suat-tiet-kiem'
+      preLoaderRoute: typeof TinhLaiSuatTietKiemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tien-dien-tu': {
@@ -1884,6 +1904,7 @@ const rootRouteChildren: RootRouteChildren = {
   StocksRoute: StocksRoute,
   TermsRoute: TermsRoute,
   TienDienTuRoute: TienDienTuRoute,
+  TinhLaiSuatTietKiemRoute: TinhLaiSuatTietKiemRoute,
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   ViMoVietNamRoute: ViMoVietNamRoute,
