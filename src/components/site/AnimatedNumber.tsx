@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useMotionPref } from "@/hooks/useMotionPref";
 
 interface Props {
   /** The current numeric value. */
@@ -33,6 +34,9 @@ export function AnimatedNumber({
   className,
   noFlash,
 }: Props) {
+  const { animate } = useMotionPref();
+  const effDuration = animate ? duration : 0;
+  const effNoFlash = noFlash || !animate;
   const [display, setDisplay] = useState(value);
   const fromRef = useRef(value);
   const rafRef = useRef<number | null>(null);
@@ -44,12 +48,12 @@ export function AnimatedNumber({
     if (from === to) return;
 
     let flashTimer: number | null = null;
-    if (!noFlash) {
+    if (!effNoFlash) {
       setFlash(to > from ? "up" : "down");
       flashTimer = window.setTimeout(() => setFlash(null), 900);
     }
 
-    if (duration <= 0 || !Number.isFinite(from) || !Number.isFinite(to)) {
+    if (effDuration <= 0 || !Number.isFinite(from) || !Number.isFinite(to)) {
       fromRef.current = to;
       setDisplay(to);
       return;
@@ -57,7 +61,7 @@ export function AnimatedNumber({
 
     const start = performance.now();
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
+      const t = Math.min(1, (now - start) / effDuration);
       const v = from + (to - from) * easeOutCubic(t);
       setDisplay(v);
       if (t < 1) {
@@ -74,7 +78,7 @@ export function AnimatedNumber({
       if (flashTimer != null) clearTimeout(flashTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, duration]);
+  }, [value, effDuration, effNoFlash]);
 
   return (
     <span
