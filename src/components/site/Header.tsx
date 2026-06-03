@@ -7,7 +7,6 @@ import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { NumberFormatToggle } from "@/components/site/NumberFormatToggle";
-import { MotionToggle } from "@/components/site/MotionToggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -482,7 +481,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
             <span className="hidden 2xl:inline px-1.5 text-[11px] font-medium tabular text-muted-foreground/80">{time}</span>
             <NumberFormatToggle />
-            <MotionToggle />
             <ThemeToggle />
           </div>
 
