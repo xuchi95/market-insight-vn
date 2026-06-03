@@ -26,6 +26,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { updateWatchAlertPrefs, getMyWatchAlertPrefs } from "@/lib/watchlist/alerts.functions";
 import { toast } from "sonner";
+import { TradingViewChart, toTradingViewCryptoSymbol } from "@/components/site/TradingViewChart";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
