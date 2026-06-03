@@ -421,7 +421,10 @@ function ForcedLogoutDialog({ onClose }: { onClose: () => void }) {
           </button>
           <Link
             to="/dang-nhap"
-            onClick={onClose}
+            onClick={() => {
+              try { localStorage.removeItem("mw_cookie_consent"); } catch { /* ignore */ }
+              onClose();
+            }}
             className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--gold)] px-5 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_10px_28px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] hover:-translate-y-0.5 transition-transform sm:h-10"
           >
             Đồng ý &amp; đăng nhập lại
