@@ -83,9 +83,9 @@ export function AnimatedNumber({
   return (
     <span
       className={cn(
-        "tabular inline-block text-right transition-colors duration-300",
-        flash === "up" && "text-[var(--up)]",
-        flash === "down" && "text-[var(--down)]",
+        "tabular inline-block -mx-1 rounded-md px-1 text-right transition-colors duration-300 will-change-transform",
+        flash === "up" && "price-flash-up text-[var(--up)]",
+        flash === "down" && "price-flash-down text-[var(--down)]",
         className,
       )}
       style={minChars ? { minWidth: `${minChars}ch` } : undefined}
