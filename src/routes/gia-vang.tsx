@@ -8,6 +8,7 @@ import { GoldPriceTable } from "@/components/site/GoldPriceTable";
 import { MetalsTable } from "@/components/site/MetalsTable";
 import { PriceChart } from "@/components/site/PriceChart";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { getInitialGold } from "@/lib/initial-gold.functions";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/gia-vang`;
@@ -90,6 +91,28 @@ export const Route = createFileRoute("/gia-vang")({
       },
     ],
   }),
+  loader: async ({ context }) => {
+    // SSR-prime: nạp giá vàng vào TanStack Query cache trước khi component
+    // render → không có flash skeleton, không phải đợi hydrate xong rồi
+    // mới fetch. Nếu fail (timeout 1.5s) thì client tự fetch như cũ.
+    try {
+      const initial = await getInitialGold();
+      if (initial && initial.length > 0) {
+        context.queryClient.setQueryData(["gold"], initial);
+      }
+    } catch {
+      /* swallow — client query sẽ tự fetch */
+    }
+    return null;
+  },
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-8 text-sm text-muted-foreground">
+      Không tải được trang giá vàng: {error.message}
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="p-8 text-sm text-muted-foreground">Không tìm thấy trang.</div>
+  ),
   component: GoldPage,
 });
 
