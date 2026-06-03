@@ -176,10 +176,6 @@ export function NewsletterPopup() {
           <div className="mt-5 animate-scale-in">
             {onlyEmail ? <NewsletterForm /> : <CustomPopupForm popup={popup} />}
           </div>
-
-          <p className="mt-3 text-xs text-muted-foreground/80">
-            Miễn phí · Huỷ bất cứ lúc nào.
-          </p>
         </div>
       </DialogContent>
     </Dialog>
