@@ -140,7 +140,7 @@ export function CookieConsent() {
       {/* Mobile backdrop — only when details panel open */}
       <div
         aria-hidden
-        onClick={rejectAll}
+        onClick={essentialOnly}
         className={`fixed inset-0 z-[79] bg-black/50 backdrop-blur-sm transition-opacity duration-300 sm:hidden ${
           open && showDetails ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
@@ -189,7 +189,7 @@ export function CookieConsent() {
             </div>
             <button
               type="button"
-              onClick={rejectAll}
+              onClick={essentialOnly}
               className="-mr-1 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               aria-label="Đóng và chỉ dùng cookie thiết yếu"
             >
@@ -226,7 +226,7 @@ export function CookieConsent() {
                   </button>
                   <button
                     type="button"
-                    onClick={rejectAll}
+                    onClick={essentialOnly}
                     className="order-2 inline-flex h-11 items-center justify-center rounded-xl border border-border bg-card/60 px-4 text-sm font-semibold text-foreground transition-colors hover:border-[var(--gold)]/60 hover:bg-card sm:order-2 sm:h-10"
                   >
                     Chỉ thiết yếu
