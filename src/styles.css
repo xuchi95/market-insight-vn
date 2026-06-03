@@ -114,7 +114,6 @@
   --chart-3: oklch(0.68 0.22 25);
   --chart-4: oklch(0.65 0.2 250);
   --chart-5: oklch(0.72 0.18 300);
-  --tradingview-chart-mask: oklch(0.13 0.003 80);
   color-scheme: dark;
 }
 
@@ -147,7 +146,6 @@
   --gold-foreground: oklch(0.985 0.004 85);
   --up: oklch(0.55 0.18 145);
   --down: oklch(0.55 0.22 25);
-  --tradingview-chart-mask: oklch(0.985 0.004 85);
   color-scheme: light;
 }
 
