@@ -191,23 +191,24 @@ export function SavingsCalculator({ items }: Props) {
                 id="bank"
                 value={bankShort}
                 onChange={(e) => { setBankShort(e.target.value); setCustomRateStr(""); }}
-                className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 {items.map((b) => (
-                  <option key={b.shortName} value={b.shortName}>{b.bank}</option>
+                  <option key={b.shortName} value={b.shortName} className="bg-background text-foreground">{b.bank}</option>
                 ))}
               </select>
               <select
                 id="tenor"
                 value={tenor}
                 onChange={(e) => setTenor(e.target.value as TenorKey)}
-                className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 {TENORS.map((t) => (
                   <option
                     key={t.key}
                     value={t.key}
                     disabled={selectedBank ? typeof selectedBank.rates[t.key] !== "number" : false}
+                    className="bg-background text-foreground"
                   >
                     {t.label}{selectedBank && typeof selectedBank.rates[t.key] === "number" ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%` : ""}
                   </option>
