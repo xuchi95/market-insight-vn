@@ -49,6 +49,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
+import { Route as CoPhieuSymbolRouteImport } from './routes/co-phieu.$symbol'
 import { Route as CaiDatMatKhauRouteImport } from './routes/cai-dat.mat-khau'
 import { Route as CaiDatEmailRouteImport } from './routes/cai-dat.email'
 import { Route as CaiDatCanhBaoRouteImport } from './routes/cai-dat.canh-bao'
@@ -59,9 +60,12 @@ import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-prev
 import { Route as AdminMwAdminIndexRouteImport } from './routes/_admin/mw-admin.index'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicWatchlistAlertsCronRouteImport } from './routes/api/public/watchlist-alerts-cron'
+import { Route as ApiPublicVnStockChartRouteImport } from './routes/api/public/vn-stock-chart'
+import { Route as ApiPublicVnStockRouteImport } from './routes/api/public/vn-stock'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicTestPostmarkRouteImport } from './routes/api/public/test-postmark'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
+import { Route as ApiPublicSbvRouteImport } from './routes/api/public/sbv'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
 import { Route as ApiPublicPriceAlertsCronRouteImport } from './routes/api/public/price-alerts-cron'
 import { Route as ApiPublicPairHistoryRouteImport } from './routes/api/public/pair-history'
@@ -299,6 +303,11 @@ const CongCuDcaRoiRoute = CongCuDcaRoiRouteImport.update({
   path: '/cong-cu/dca-roi',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoPhieuSymbolRoute = CoPhieuSymbolRouteImport.update({
+  id: '/co-phieu/$symbol',
+  path: '/co-phieu/$symbol',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaiDatMatKhauRoute = CaiDatMatKhauRouteImport.update({
   id: '/cai-dat/mat-khau',
   path: '/cai-dat/mat-khau',
@@ -350,6 +359,16 @@ const ApiPublicWatchlistAlertsCronRoute =
     path: '/api/public/watchlist-alerts-cron',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicVnStockChartRoute = ApiPublicVnStockChartRouteImport.update({
+  id: '/api/public/vn-stock-chart',
+  path: '/api/public/vn-stock-chart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVnStockRoute = ApiPublicVnStockRouteImport.update({
+  id: '/api/public/vn-stock',
+  path: '/api/public/vn-stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicUsStocksRoute = ApiPublicUsStocksRouteImport.update({
   id: '/api/public/us-stocks',
   path: '/api/public/us-stocks',
@@ -363,6 +382,11 @@ const ApiPublicTestPostmarkRoute = ApiPublicTestPostmarkRouteImport.update({
 const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
   id: '/api/public/stocks',
   path: '/api/public/stocks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSbvRoute = ApiPublicSbvRouteImport.update({
+  id: '/api/public/sbv',
+  path: '/api/public/sbv',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSavingsRatesRoute = ApiPublicSavingsRatesRouteImport.update({
@@ -605,6 +629,7 @@ export interface FileRoutesByFullPath {
   '/cai-dat/canh-bao': typeof CaiDatCanhBaoRoute
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
+  '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
@@ -639,9 +664,12 @@ export interface FileRoutesByFullPath {
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
+  '/api/public/sbv': typeof ApiPublicSbvRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/vn-stock': typeof ApiPublicVnStockRoute
+  '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
@@ -696,6 +724,7 @@ export interface FileRoutesByTo {
   '/cai-dat/canh-bao': typeof CaiDatCanhBaoRoute
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
+  '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat': typeof CaiDatIndexRoute
@@ -730,9 +759,12 @@ export interface FileRoutesByTo {
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
+  '/api/public/sbv': typeof ApiPublicSbvRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/vn-stock': typeof ApiPublicVnStockRoute
+  '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
@@ -789,6 +821,7 @@ export interface FileRoutesById {
   '/cai-dat/canh-bao': typeof CaiDatCanhBaoRoute
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
+  '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
@@ -823,9 +856,12 @@ export interface FileRoutesById {
   '/api/public/pair-history': typeof ApiPublicPairHistoryRoute
   '/api/public/price-alerts-cron': typeof ApiPublicPriceAlertsCronRoute
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
+  '/api/public/sbv': typeof ApiPublicSbvRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/vn-stock': typeof ApiPublicVnStockRoute
+  '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
@@ -882,6 +918,7 @@ export interface FileRouteTypes {
     | '/cai-dat/canh-bao'
     | '/cai-dat/email'
     | '/cai-dat/mat-khau'
+    | '/co-phieu/$symbol'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
@@ -916,9 +953,12 @@ export interface FileRouteTypes {
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
+    | '/api/public/sbv'
     | '/api/public/stocks'
     | '/api/public/test-postmark'
     | '/api/public/us-stocks'
+    | '/api/public/vn-stock'
+    | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin/'
@@ -973,6 +1013,7 @@ export interface FileRouteTypes {
     | '/cai-dat/canh-bao'
     | '/cai-dat/email'
     | '/cai-dat/mat-khau'
+    | '/co-phieu/$symbol'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat'
@@ -1007,9 +1048,12 @@ export interface FileRouteTypes {
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
+    | '/api/public/sbv'
     | '/api/public/stocks'
     | '/api/public/test-postmark'
     | '/api/public/us-stocks'
+    | '/api/public/vn-stock'
+    | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin'
@@ -1065,6 +1109,7 @@ export interface FileRouteTypes {
     | '/cai-dat/canh-bao'
     | '/cai-dat/email'
     | '/cai-dat/mat-khau'
+    | '/co-phieu/$symbol'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
@@ -1099,9 +1144,12 @@ export interface FileRouteTypes {
     | '/api/public/pair-history'
     | '/api/public/price-alerts-cron'
     | '/api/public/savings-rates'
+    | '/api/public/sbv'
     | '/api/public/stocks'
     | '/api/public/test-postmark'
     | '/api/public/us-stocks'
+    | '/api/public/vn-stock'
+    | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/_admin/mw-admin/'
@@ -1158,6 +1206,7 @@ export interface RootRouteChildren {
   CaiDatCanhBaoRoute: typeof CaiDatCanhBaoRoute
   CaiDatEmailRoute: typeof CaiDatEmailRoute
   CaiDatMatKhauRoute: typeof CaiDatMatKhauRoute
+  CoPhieuSymbolRoute: typeof CoPhieuSymbolRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   CaiDatIndexRoute: typeof CaiDatIndexRoute
@@ -1184,9 +1233,12 @@ export interface RootRouteChildren {
   ApiPublicPairHistoryRoute: typeof ApiPublicPairHistoryRoute
   ApiPublicPriceAlertsCronRoute: typeof ApiPublicPriceAlertsCronRoute
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
+  ApiPublicSbvRoute: typeof ApiPublicSbvRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicTestPostmarkRoute: typeof ApiPublicTestPostmarkRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
+  ApiPublicVnStockRoute: typeof ApiPublicVnStockRoute
+  ApiPublicVnStockChartRoute: typeof ApiPublicVnStockChartRoute
   ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
@@ -1478,6 +1530,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CongCuDcaRoiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/co-phieu/$symbol': {
+      id: '/co-phieu/$symbol'
+      path: '/co-phieu/$symbol'
+      fullPath: '/co-phieu/$symbol'
+      preLoaderRoute: typeof CoPhieuSymbolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cai-dat/mat-khau': {
       id: '/cai-dat/mat-khau'
       path: '/cai-dat/mat-khau'
@@ -1548,6 +1607,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWatchlistAlertsCronRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/vn-stock-chart': {
+      id: '/api/public/vn-stock-chart'
+      path: '/api/public/vn-stock-chart'
+      fullPath: '/api/public/vn-stock-chart'
+      preLoaderRoute: typeof ApiPublicVnStockChartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/vn-stock': {
+      id: '/api/public/vn-stock'
+      path: '/api/public/vn-stock'
+      fullPath: '/api/public/vn-stock'
+      preLoaderRoute: typeof ApiPublicVnStockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/us-stocks': {
       id: '/api/public/us-stocks'
       path: '/api/public/us-stocks'
@@ -1567,6 +1640,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/stocks'
       fullPath: '/api/public/stocks'
       preLoaderRoute: typeof ApiPublicStocksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sbv': {
+      id: '/api/public/sbv'
+      path: '/api/public/sbv'
+      fullPath: '/api/public/sbv'
+      preLoaderRoute: typeof ApiPublicSbvRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/savings-rates': {
@@ -1916,6 +1996,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaiDatCanhBaoRoute: CaiDatCanhBaoRoute,
   CaiDatEmailRoute: CaiDatEmailRoute,
   CaiDatMatKhauRoute: CaiDatMatKhauRoute,
+  CoPhieuSymbolRoute: CoPhieuSymbolRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   CaiDatIndexRoute: CaiDatIndexRoute,
@@ -1942,9 +2023,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPairHistoryRoute: ApiPublicPairHistoryRoute,
   ApiPublicPriceAlertsCronRoute: ApiPublicPriceAlertsCronRoute,
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
+  ApiPublicSbvRoute: ApiPublicSbvRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicTestPostmarkRoute: ApiPublicTestPostmarkRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
+  ApiPublicVnStockRoute: ApiPublicVnStockRoute,
+  ApiPublicVnStockChartRoute: ApiPublicVnStockChartRoute,
   ApiPublicWatchlistAlertsCronRoute: ApiPublicWatchlistAlertsCronRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
   ApiPublicHooksRefreshSavingsRatesRoute:
