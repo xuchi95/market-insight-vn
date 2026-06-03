@@ -47,7 +47,9 @@ const COIN_IDS = [
 
 // Free CoinGecko data refreshes every ~30-60s upstream. Re-poll often enough
 // to feel realtime while staying well under the public rate limit.
-const CACHE_FRESH_MS = 20 * 1000;
+// CoinGecko base (marketCap, sparkline, metadata) refreshes every 60s — live
+// price comes from the Binance overlay below.
+const CACHE_FRESH_MS = 60 * 1000;
 const CACHE_SWR_MS = 5 * 60 * 1000;
 const UPSTREAM_TIMEOUT_MS = 6_000;
 let cache: { at: number; payload: any } | null = null;
@@ -283,7 +285,7 @@ async function overlayLive(base: any) {
 
 function refresh(): Promise<any> {
   if (inflight) return inflight;
-  inflight = buildPayload()
+  inflight = buildBasePayload()
     .then((payload) => {
       cache = { at: Date.now(), payload };
       writePriceCache("crypto", payload);
@@ -313,27 +315,32 @@ export const Route = createFileRoute("/api/public/crypto")({
             const seed = await readPriceCache<any>("crypto", CACHE_SWR_MS);
             if (seed) cache = { at: seed.updatedAt, payload: seed.payload };
           }
-          let payload: any;
+          let base: any;
           const age = cache ? Date.now() - cache.at : Infinity;
           if (cache && age < CACHE_FRESH_MS) {
-            payload = cache.payload;
+            base = cache.payload;
           } else if (cache && age < CACHE_SWR_MS) {
-            payload = cache.payload;
+            base = cache.payload;
             refresh().catch(() => {});
           } else {
             try {
-              payload = await refresh();
+              base = await refresh();
             } catch (e) {
-              if (cache) payload = cache.payload;
+              if (cache) base = cache.payload;
               else throw e;
             }
           }
+          // Always overlay live Binance prices (5s cache) on top of the
+          // cached CoinGecko base. Keeps marketCap/sparkline stable while
+          // making priceUsd / change24h near-realtime.
+          const payload = await overlayLive(base);
           return new Response(JSON.stringify(payload), {
             status: 200,
             headers: {
               "Content-Type": "application/json",
+              // Live overlay is 5s fresh upstream — let clients revalidate fast.
               "Cache-Control":
-                "public, max-age=15, s-maxage=20, stale-while-revalidate=300",
+                "public, max-age=5, s-maxage=5, stale-while-revalidate=60",
               ...CORS,
             },
           });
