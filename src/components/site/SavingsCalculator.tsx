@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Calculator, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TENORS, type SavingsRate } from "@/lib/data/savingsRates";
@@ -57,26 +57,32 @@ export function SavingsCalculator({ items }: Props) {
   const totalMonths = period === "month" ? periods : period === "quarter" ? periods * 3 : periods * 12;
 
   const selectedBank = items.find((b) => b.shortName === bankShort);
-  const bankRate = selectedBank?.rates[tenor];
+  const directBankRate = selectedBank?.rates[tenor];
 
-  // Nếu ngân hàng đang chọn không công bố lãi suất cho kỳ hạn hiện tại,
-  // tự động chuyển sang kỳ hạn gần nhất có công bố để tránh kết quả = 0.
-  useEffect(() => {
-    if (!selectedBank) return;
-    if (typeof selectedBank.rates[tenor] === "number") return;
-    const available = TENORS.filter((t) => typeof selectedBank.rates[t.key] === "number");
-    if (available.length === 0) return;
+  // Fallback: nếu ngân hàng không công bố kỳ hạn đã chọn, dùng kỳ hạn gần nhất có dữ liệu
+  // để tính toán mà không bao giờ trả về 0. Người dùng vẫn giữ nguyên lựa chọn.
+  const fallback = useMemo(() => {
+    if (!selectedBank) return null;
+    if (typeof directBankRate === "number") return null;
+    const available = (Object.keys(TENOR_MONTHS) as TenorKey[])
+      .filter((k) => typeof selectedBank.rates[k] === "number");
+    if (available.length === 0) return null;
     const currentMonths = TENOR_MONTHS[tenor];
-    const nearest = available.reduce((best, t) =>
-      Math.abs(TENOR_MONTHS[t.key] - currentMonths) < Math.abs(TENOR_MONTHS[best.key] - currentMonths) ? t : best,
+    const nearest = available.reduce((best, k) =>
+      Math.abs(TENOR_MONTHS[k] - currentMonths) < Math.abs(TENOR_MONTHS[best] - currentMonths) ? k : best,
     available[0]);
-    setTenor(nearest.key);
-  }, [bankShort, tenor, selectedBank]);
+    return { key: nearest, rate: selectedBank.rates[nearest] as number };
+  }, [selectedBank, directBankRate, tenor]);
 
   const customRate = Number(customRateStr.replace(",", "."));
   const hasCustom = customRateStr.trim() !== "" && Number.isFinite(customRate) && customRate > 0;
+  const bankRate = typeof directBankRate === "number" ? directBankRate : fallback?.rate;
   const annualRate = hasCustom ? customRate : bankRate ?? 0;
-  const tenorMonths = TENOR_MONTHS[tenor];
+  // Kỳ hạn dùng để tính lãi: ưu tiên kỳ hạn người dùng chọn; nếu ngân hàng không có,
+  // dùng kỳ hạn fallback để công thức tái tục không sai (tránh chia cho 0 hoặc lãi 0).
+  const tenorMonths = typeof directBankRate === "number" || hasCustom
+    ? TENOR_MONTHS[tenor]
+    : TENOR_MONTHS[fallback?.key ?? tenor];
 
   const result = useMemo(() => {
     if (amount <= 0 || annualRate <= 0 || totalMonths <= 0) {
@@ -209,7 +215,14 @@ export function SavingsCalculator({ items }: Props) {
               </select>
             </div>
             <div className="mt-2 flex items-center justify-between rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3 py-2">
-              <span className="text-xs text-muted-foreground">Lãi suất áp dụng</span>
+              <span className="text-xs text-muted-foreground">
+                Lãi suất áp dụng
+                {fallback && !hasCustom && (
+                  <span className="ml-1 text-[10px] text-amber-400">
+                    (dùng kỳ hạn {TENORS.find((t) => t.key === fallback.key)?.label})
+                  </span>
+                )}
+              </span>
               <div className="flex items-baseline gap-2">
                 <Input
                   id="rate"
@@ -282,7 +295,7 @@ export function SavingsCalculator({ items }: Props) {
             <div className="relative mt-1 text-4xl font-extrabold tabular-nums text-[var(--gold)] drop-shadow-[0_0_20px_color-mix(in_oklab,var(--gold)_40%,transparent)]">{fmtVnd(result.interest)}</div>
             {annualRate === 0 && (
               <div className="relative mt-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                Ngân hàng này chưa công bố lãi suất kỳ hạn {TENORS.find((t) => t.key === tenor)?.label}. Vui lòng đổi kỳ hạn hoặc nhập lãi suất tùy chỉnh ở mục bên trên.
+                Ngân hàng này chưa công bố lãi suất nào. Vui lòng nhập lãi suất tùy chỉnh ở mục bên trên.
               </div>
             )}
             <div className="relative mt-4 grid grid-cols-2 gap-3 text-sm">
