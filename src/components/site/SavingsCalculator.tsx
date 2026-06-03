@@ -123,26 +123,28 @@ export function SavingsCalculator({ items }: Props) {
     if (amount <= 0 || totalMonths <= 0) return [];
     return items
       .map((b) => {
-        const rate = b.rates[tenor];
-        if (typeof rate !== "number") return null;
+        const rowRate = getEffectiveRate(b, tenor);
+        if (!rowRate) return null;
+        const rate = rowRate.rate;
+        const rowTenorMonths = rowRate.isFallback ? TENOR_MONTHS[rowRate.key] : TENOR_MONTHS[tenor];
         const r = rate / 100;
         let total: number;
         if (mode === "simple") {
           total = amount + amount * r * (totalMonths / 12);
         } else {
-          const cycles = Math.floor(totalMonths / tenorMonths);
-          const leftover = totalMonths - cycles * tenorMonths;
-          const perCycle = 1 + r * (tenorMonths / 12);
+          const cycles = Math.floor(totalMonths / rowTenorMonths);
+          const leftover = totalMonths - cycles * rowTenorMonths;
+          const perCycle = 1 + r * (rowTenorMonths / 12);
           let p = amount * Math.pow(perCycle, cycles);
           if (leftover > 0) p = p * (1 + r * (leftover / 12));
           total = p;
         }
-        return { bank: b.bank, shortName: b.shortName, rate, interest: total - amount, total };
+        return { bank: b.bank, shortName: b.shortName, rate, interest: total - amount, total, appliedTenor: rowRate.key };
       })
-      .filter((x): x is { bank: string; shortName: string; rate: number; interest: number; total: number } => x !== null)
+      .filter((x): x is { bank: string; shortName: string; rate: number; interest: number; total: number; appliedTenor: TenorKey } => x !== null)
       .sort((a, b) => b.total - a.total)
       .slice(0, 8);
-  }, [items, tenor, amount, totalMonths, tenorMonths, mode]);
+  }, [items, tenor, amount, totalMonths, mode]);
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[var(--gold)]/40 bg-gradient-to-br from-[var(--gold)]/[0.08] via-background to-background shadow-[0_0_60px_-15px_color-mix(in_oklab,var(--gold)_40%,transparent)]">
