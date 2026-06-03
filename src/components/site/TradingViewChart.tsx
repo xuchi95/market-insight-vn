@@ -114,6 +114,7 @@ export function TradingViewChart({
 
     return () => {
       observer.disconnect();
+      timers.forEach((t) => window.clearTimeout(t));
       container.innerHTML = "";
     };
   }, [symbol, interval, theme, isMobile, height, mobileHeight]);
