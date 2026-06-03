@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Cookie, Shield, BarChart3, Sparkles, X, Check, LogOut, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { getMyCookieConsent, saveMyCookieConsent } from "@/lib/cookie-consent.functions";
 
 const STORAGE_KEY = "mw_cookie_consent";
 const VERSION = "1.0";
@@ -49,12 +51,23 @@ function writeConsent(prefs: Prefs) {
   }
 }
 
+function writeConsentRaw(payload: StoredConsent) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    window.dispatchEvent(new CustomEvent("mw:cookie-consent", { detail: payload }));
+  } catch {
+    /* ignore */
+  }
+}
+
 export function CookieConsent() {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [forcedLogout, setForcedLogout] = useState(false);
   const { user, signOut } = useAuth();
+  const fetchRemoteConsent = useServerFn(getMyCookieConsent);
+  const pushRemoteConsent = useServerFn(saveMyCookieConsent);
   const [prefs, setPrefs] = useState<Prefs>({
     necessary: true,
     functional: true,
@@ -70,6 +83,47 @@ export function CookieConsent() {
       return () => clearTimeout(t);
     }
   }, []);
+
+  // Sync consent across devices: when a user logs in, pull their saved consent
+  // from the backend. If it exists and is newer than local (or local missing),
+  // hydrate localStorage and dismiss the banner without re-prompting.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const remote = await fetchRemoteConsent();
+        if (cancelled || !remote) return;
+        if (remote.version !== VERSION) return;
+        const local = readConsent();
+        const remoteAt = new Date(remote.accepted_at).getTime();
+        const localAt = local ? new Date(local.acceptedAt).getTime() : 0;
+        if (remoteAt > localAt) {
+          writeConsentRaw({
+            version: remote.version,
+            acceptedAt: remote.accepted_at,
+            prefs: remote.prefs as Prefs,
+          });
+          // If banner was showing because local was empty, hide it now.
+          setOpen(false);
+          setTimeout(() => {
+            setMounted(false);
+            setShowDetails(false);
+          }, 320);
+        } else if (local && localAt > remoteAt) {
+          // Local newer — push to backend so other devices catch up.
+          await pushRemoteConsent({
+            data: { version: local.version, prefs: local.prefs, userAgent: navigator.userAgent },
+          }).catch(() => undefined);
+        }
+      } catch {
+        /* network / auth issues — fail silently, local consent still works */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, fetchRemoteConsent, pushRemoteConsent]);
 
   useEffect(() => {
     const open = () => {
@@ -103,13 +157,27 @@ export function CookieConsent() {
 
   if (!mounted) return null;
 
+  const syncToBackend = (next: Prefs) => {
+    if (!user) return;
+    pushRemoteConsent({
+      data: { version: VERSION, prefs: next, userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined },
+    }).catch(() => undefined);
+  };
+
   const acceptAll = () => {
-    writeConsent({ necessary: true, functional: true, analytics: true, marketing: true });
+    const next: Prefs = { necessary: true, functional: true, analytics: true, marketing: true };
+    writeConsent(next);
+    syncToBackend(next);
     close();
   };
   const rejectAll = async () => {
-    writeConsent({ necessary: true, functional: false, analytics: false, marketing: false });
+    const next: Prefs = { necessary: true, functional: false, analytics: false, marketing: false };
+    writeConsent(next);
     if (user) {
+      // Push BEFORE signOut so the bearer is still valid.
+      await pushRemoteConsent({
+        data: { version: VERSION, prefs: next, userAgent: navigator.userAgent },
+      }).catch(() => undefined);
       // "Từ chối tất cả": bắt buộc đăng xuất an toàn, chuyển sang chế độ ẩn danh
       try {
         await signOut();
@@ -124,11 +192,14 @@ export function CookieConsent() {
   };
   // "Chỉ thiết yếu": vẫn cho phép duy trì phiên đăng nhập, chỉ tắt cookie tuỳ chọn
   const essentialOnly = () => {
-    writeConsent({ necessary: true, functional: false, analytics: false, marketing: false });
+    const next: Prefs = { necessary: true, functional: false, analytics: false, marketing: false };
+    writeConsent(next);
+    syncToBackend(next);
     close();
   };
   const savePrefs = () => {
     writeConsent(prefs);
+    syncToBackend(prefs);
     close();
   };
 
