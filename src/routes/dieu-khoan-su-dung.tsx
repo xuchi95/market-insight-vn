@@ -74,7 +74,7 @@ function TermsPage() {
 
             <h2 className="text-xl font-semibold text-foreground">3. Bản chất và mục đích của Website</h2>
             <p>
-              MarketWatch là <strong>kênh thông tin tham khảo phi thương mại</strong> tổng hợp dữ liệu thị trường công khai. Website <strong>KHÔNG</strong>:
+              MarketWatch là <strong>trang thông tin điện tử cung cấp dịch vụ chuyên ngành về dữ liệu thị trường tài chính</strong> (giá vàng, tỷ giá ngoại tệ, lãi suất, giá tài sản mã hoá, chỉ số chứng khoán, giá nhiên liệu) phục vụ mục đích tra cứu, tham khảo phi thương mại. Website <strong>KHÔNG</strong>:
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Cung cấp dịch vụ môi giới, tư vấn đầu tư, quản lý danh mục, ủy thác đầu tư theo Luật Chứng khoán 2019.</li>
@@ -82,9 +82,10 @@ function TermsPage() {
               <li>Tổ chức mua bán vàng miếng, ngoại tệ; không phải tổ chức tín dụng theo Luật Các tổ chức tín dụng 2024.</li>
               <li>Cung cấp dịch vụ thông tin tín dụng theo Nghị định 58/2021/NĐ-CP.</li>
               <li>Phát hành báo chí, không thuộc đối tượng điều chỉnh của Luật Báo chí 2016.</li>
+              <li><strong>Không phải trang thông tin điện tử tổng hợp</strong>: Website chỉ trích xuất và hiển thị các chỉ số, số liệu chuyên ngành tài chính từ nguồn công khai, không sao chép, biên tập lại tin tức, bài viết của cơ quan báo chí hay nguồn thông tin khác. Do đó Website không thuộc diện phải xin cấp phép trang thông tin điện tử tổng hợp theo Điều 30 Nghị định 147/2024/NĐ-CP.</li>
             </ul>
             <p>
-              Website hoạt động theo mô hình <strong>trang thông tin điện tử tổng hợp cá nhân/doanh nghiệp</strong> theo Nghị định 147/2024/NĐ-CP, chỉ phục vụ nhu cầu tra cứu thông tin của Người dùng.
+              Website được phân loại là <strong>trang thông tin điện tử cung cấp dịch vụ chuyên ngành</strong> theo Điều 26, Điều 30 Nghị định 147/2024/NĐ-CP, hoạt động trong phạm vi dữ liệu thị trường tài chính công khai và chỉ phục vụ nhu cầu tra cứu của Người dùng. Trường hợp cơ quan nhà nước có thẩm quyền yêu cầu phân loại lại hoặc bổ sung thủ tục cấp phép, Chúng tôi sẽ thực hiện đầy đủ theo quy định.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground">4. Tài khoản người dùng</h2>
