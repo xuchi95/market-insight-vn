@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
+// Throttle UI updates from the WS stream. Binance pushes ~1 frame/sec but
+// price ticks can burst more often during volatile moments; flushing every
+// frame causes visible jank on mobile. 1s feels realtime and avoids re-render
+// storms.
+const UI_FLUSH_MS = 1000;
+
 // CoinGecko id -> Binance USDT spot pair. Must mirror server map in
 // src/routes/api/public/crypto.ts (BINANCE_SYMBOL). Coins absent here will
 // fall back to the REST snapshot from /api/public/crypto.
@@ -58,6 +64,9 @@ export interface BinanceTick {
 export function useBinanceTicker(coinId: string | undefined | null): BinanceTick | null {
   const [tick, setTick] = useState<BinanceTick | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const pendingRef = useRef<BinanceTick | null>(null);
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastFlushRef = useRef(0);
 
   useEffect(() => {
     setTick(null);
@@ -69,6 +78,28 @@ export function useBinanceTicker(coinId: string | undefined | null): BinanceTick
     let closed = false;
     let retry = 0;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const flush = () => {
+      flushTimerRef.current = null;
+      if (closed) return;
+      const next = pendingRef.current;
+      if (!next) return;
+      pendingRef.current = null;
+      lastFlushRef.current = Date.now();
+      setTick(next);
+    };
+
+    const schedule = (next: BinanceTick) => {
+      pendingRef.current = next;
+      const now = Date.now();
+      const elapsed = now - lastFlushRef.current;
+      if (elapsed >= UI_FLUSH_MS) {
+        flush();
+        return;
+      }
+      if (flushTimerRef.current) return;
+      flushTimerRef.current = setTimeout(flush, UI_FLUSH_MS - elapsed);
+    };
 
     const connect = () => {
       if (closed) return;
@@ -85,7 +116,7 @@ export function useBinanceTicker(coinId: string | undefined | null): BinanceTick
           const m = JSON.parse(ev.data as string);
           const price = Number(m.c);
           if (!Number.isFinite(price)) return;
-          setTick({
+          schedule({
             priceUsd: price,
             change24h: Number(m.P) || 0,
             high24h: Number(m.h) || 0,
@@ -119,6 +150,10 @@ export function useBinanceTicker(coinId: string | undefined | null): BinanceTick
     return () => {
       closed = true;
       if (retryTimer) clearTimeout(retryTimer);
+      if (flushTimerRef.current) clearTimeout(flushTimerRef.current);
+      flushTimerRef.current = null;
+      pendingRef.current = null;
+      lastFlushRef.current = 0;
       try { wsRef.current?.close(); } catch {}
       wsRef.current = null;
     };
