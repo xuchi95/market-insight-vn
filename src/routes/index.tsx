@@ -4,6 +4,7 @@ import { Footer } from "@/components/site/Footer";
 import { Ticker } from "@/components/site/Ticker";
 import { BentoTiles } from "@/components/site/BentoTiles";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { WatchlistPanel } from "@/components/site/WatchlistPanel";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/`;
@@ -75,6 +76,14 @@ function Index() {
               <div className="eyebrow opacity-60 hidden sm:block">Cập nhật mỗi 30 giây</div>
             </div>
             <BentoTiles />
+          </section>
+
+          <section className="py-10 md:py-14 border-t border-border">
+            <div className="flex items-baseline justify-between mb-5 md:mb-6">
+              <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Theo dõi của bạn</h2>
+              <div className="eyebrow opacity-60 hidden sm:block">Đồng bộ giữa các thiết bị khi đăng nhập</div>
+            </div>
+            <WatchlistPanel />
           </section>
 
           <section className="py-10 md:py-14 border-t border-border">
