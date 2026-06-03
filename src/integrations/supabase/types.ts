@@ -595,6 +595,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_cookie_consent: {
+        Row: {
+          accepted_at: string
+          prefs: Json
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted_at?: string
+          prefs: Json
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+          version: string
+        }
+        Update: {
+          accepted_at?: string
+          prefs?: Json
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: []
+      }
       user_mfa: {
         Row: {
           authenticator_id: string | null
