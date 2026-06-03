@@ -85,6 +85,19 @@ function StocksPage() {
           </header>
           <StockIndexTable />
           <UsStockTable />
+          <section aria-labelledby="popular-tickers" className="space-y-4">
+            <h2 id="popular-tickers" className="text-2xl font-bold tracking-tight">Cổ phiếu Việt Nam phổ biến</h2>
+            <p className="text-sm text-muted-foreground">Xem chi tiết giá, P/E, EPS và biểu đồ kỹ thuật của từng mã.</p>
+            <ul className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+              {["VNM","VCB","BID","CTG","TCB","MBB","VPB","ACB","HPG","HSG","FPT","MWG","PNJ","MSN","VIC","VHM","GAS","PLX","POW","SSI","VND","HCM","VJC","HVN"].map((t) => (
+                <li key={t}>
+                  <Link to="/co-phieu/$symbol" params={{ symbol: t.toLowerCase() }} className="block rounded-lg border border-border bg-card px-3 py-2 text-center font-semibold text-sm hover:border-[var(--gold)]/60 hover:text-[var(--gold)] transition-colors">
+                    {t}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
           <section className="prose prose-invert max-w-none space-y-3">
             <h2 className="text-2xl font-bold tracking-tight">Về dữ liệu chỉ số</h2>
             <p className="text-muted-foreground">
