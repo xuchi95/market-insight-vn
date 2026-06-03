@@ -41,11 +41,12 @@ function normalizeCoin(raw: any, usdVnd: number): CryptoCoin | null {
 
 export async function fetchCryptoPrices(usdVnd = USD_VND_FALLBACK): Promise<CryptoCoin[]> {
   try {
-    // Bypass browser HTTP cache so the manual refresh button always hits the
-    // server (which has its own short-lived in-memory cache).
-    const res = await fetch(`/api/public/crypto?t=${Date.now()}`, {
+    // Để browser HTTP cache hoạt động theo header `Cache-Control` của API
+    // (max-age=15, s-maxage=20, stale-while-revalidate=300). Trước đây dùng
+    // `?t=Date.now()` + `cache: "no-store"` khiến mỗi lần load đều phải gọi
+    // Worker, làm cold-start chậm 3–6s.
+    const res = await fetch(`/api/public/crypto`, {
       headers: { accept: "application/json" },
-      cache: "no-store",
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const j = await res.json();
