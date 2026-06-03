@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireRequestUser } from "@/lib/api/require-request-user.server";
 
 // Lịch sử giá dầu (Brent/WTI) từ Yahoo Finance.
 // GET /api/public/oil-history?id=brent|wti&days=1|7|30|90
