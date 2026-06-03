@@ -67,6 +67,8 @@ export function Footer() {
             <dd>Số 040222404 cấp tại Đà Nẵng</dd>
             <dt className="text-foreground/80 font-medium">Người đại diện &amp; chịu trách nhiệm nội dung</dt>
             <dd>Ông Nguyễn Xuân Chính</dd>
+            <dt className="text-foreground/80 font-medium">Số điện thoại</dt>
+            <dd><a href="tel:0382663891" className="hover:text-[var(--gold)]">0382 663 891</a></dd>
           </dl>
         </div>
 

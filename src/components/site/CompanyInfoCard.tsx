@@ -13,6 +13,8 @@ export function CompanyInfoCard({ title = "Đơn vị chịu trách nhiệm" }: 
         <dd>Ông Nguyễn Xuân Chính</dd>
         <dt className="text-foreground/80 font-medium">Người chịu trách nhiệm nội dung</dt>
         <dd>Ông Nguyễn Xuân Chính</dd>
+        <dt className="text-foreground/80 font-medium">Số điện thoại</dt>
+        <dd><a href="tel:0382663891" className="hover:text-[var(--gold)]">0382 663 891</a></dd>
       </dl>
     </div>
   );
