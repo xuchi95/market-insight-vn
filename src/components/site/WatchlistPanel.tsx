@@ -1,11 +1,26 @@
 import { useEffect, useState, useMemo } from "react";
-import { Link } from "@tanstack/react-router";
 import { Star, X, Plus, ArrowUpRight } from "lucide-react";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 type Quote = {
   priceLabel: string;
@@ -29,10 +44,11 @@ const QUICK_ADD: WatchItem[] = [
 ];
 
 export function WatchlistPanel() {
-  const { list, toggle, remove, isWatched, synced } = useWatchlist();
+  const { list, add, remove, isWatched, synced } = useWatchlist();
   const [gold, setGold] = useState<GoldPrice[]>([]);
   const [crypto, setCrypto] = useState<CryptoCoin[]>([]);
   const [fx, setFx] = useState<ForexRate[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -73,6 +89,103 @@ export function WatchlistPanel() {
 
   const isEmpty = list.length === 0;
 
+  const allOptions = useMemo<WatchItem[]>(() => {
+    const goldOpts: WatchItem[] = gold.map((g) => ({
+      symbol: g.id,
+      label: `${g.brand} ${g.type}`.trim(),
+      category: "Vàng",
+      to: `/tai-san/${g.id.toLowerCase()}`,
+    }));
+    const cryptoOpts: WatchItem[] = crypto.map((c) => ({
+      symbol: c.symbol.toUpperCase(),
+      label: c.name,
+      category: "Tiền điện tử",
+      to: `/tai-san/${c.symbol.toLowerCase()}`,
+    }));
+    const fxOpts: WatchItem[] = fx.map((f) => ({
+      symbol: f.code.toUpperCase(),
+      label: `${f.code}/VND — ${f.name}`,
+      category: "Ngoại tệ",
+      to: `/tai-san/${f.code.toLowerCase()}`,
+    }));
+    return [...goldOpts, ...cryptoOpts, ...fxOpts];
+  }, [gold, crypto, fx]);
+
+  const grouped = useMemo(() => {
+    const groups: Record<string, WatchItem[]> = {
+      "Vàng": [],
+      "Tiền điện tử": [],
+      "Ngoại tệ": [],
+    };
+    for (const opt of allOptions) {
+      if (isWatched(opt.symbol)) continue;
+      (groups[opt.category] ||= []).push(opt);
+    }
+    return groups;
+  }, [allOptions, isWatched]);
+
+  const handlePick = async (item: WatchItem) => {
+    await add(item);
+  };
+
+  const Picker = (
+    <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/20 transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" /> Thêm tài sản
+        </button>
+      </DialogTrigger>
+      <DialogContent className="p-0 overflow-hidden max-w-lg">
+        <DialogHeader className="px-4 pt-4 pb-2">
+          <DialogTitle className="font-display text-lg tracking-tight">Chọn tài sản theo dõi</DialogTitle>
+          <DialogDescription className="text-xs">
+            Tìm theo mã, tên, hoặc danh mục (vàng, crypto, ngoại tệ).
+          </DialogDescription>
+        </DialogHeader>
+        <Command className="border-t border-border">
+          <CommandInput placeholder="Ví dụ: BTC, vàng, EUR…" />
+          <CommandList className="max-h-[60vh]">
+            <CommandEmpty>Không có kết quả.</CommandEmpty>
+            {(Object.keys(grouped) as Array<keyof typeof grouped>).map((cat) => {
+              const items = grouped[cat] ?? [];
+              if (items.length === 0) return null;
+              return (
+                <CommandGroup key={cat} heading={cat}>
+                  {items.map((opt) => (
+                    <CommandItem
+                      key={`${cat}-${opt.symbol}`}
+                      value={`${opt.symbol} ${opt.label} ${cat}`}
+                      onSelect={() => {
+                        void handlePick(opt);
+                      }}
+                      className="flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="inline-flex min-w-[52px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
+                          {opt.symbol}
+                        </span>
+                        <span className="truncate text-sm">{opt.label}</span>
+                      </div>
+                      <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              );
+            })}
+            {allOptions.length === 0 && (
+              <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+                Đang tải danh sách tài sản…
+              </div>
+            )}
+          </CommandList>
+        </Command>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
     <div className="rounded-2xl border border-border bg-card/40">
       <div className="flex items-center justify-between px-4 md:px-5 py-3 border-b border-border">
@@ -89,22 +202,25 @@ export function WatchlistPanel() {
             {synced ? "Đã đồng bộ" : "Cục bộ"}
           </span>
         </div>
-        {!isEmpty && (
-          <span className="text-xs text-muted-foreground">{list.length} tài sản</span>
-        )}
+        <div className="flex items-center gap-3">
+          {!isEmpty && (
+            <span className="text-xs text-muted-foreground">{list.length} tài sản</span>
+          )}
+          {Picker}
+        </div>
       </div>
 
       {isEmpty ? (
         <div className="px-4 md:px-5 py-6">
           <p className="text-sm text-muted-foreground mb-3">
-            Thêm tài sản phổ biến để theo dõi giá ngay trên dashboard:
+            Thêm tài sản phổ biến hoặc nhấn <span className="text-[var(--gold)] font-medium">“Thêm tài sản”</span> để tìm vàng, crypto, ngoại tệ:
           </p>
           <div className="flex flex-wrap gap-2">
             {QUICK_ADD.map((q) => (
               <button
                 key={q.symbol}
                 type="button"
-                onClick={() => toggle(q)}
+                onClick={() => void add(q)}
                 className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/20 transition-colors"
               >
                 <Plus className="h-3 w-3" />
@@ -126,9 +242,9 @@ export function WatchlistPanel() {
                     {item.symbol}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <Link to={item.to} className="block truncate text-sm font-medium text-foreground hover:text-[var(--gold)]">
+                    <a href={item.to} className="block truncate text-sm font-medium text-foreground hover:text-[var(--gold)]">
                       {item.label}
-                    </Link>
+                    </a>
                     <div className="text-[11px] text-muted-foreground">{item.category}</div>
                   </div>
                   <div className="text-right">
@@ -152,7 +268,7 @@ export function WatchlistPanel() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => remove(item.symbol)}
+                    onClick={() => void remove(item.symbol)}
                     className="ml-1 p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                     aria-label={`Bỏ theo dõi ${item.label}`}
                   >
@@ -163,35 +279,13 @@ export function WatchlistPanel() {
             })}
           </ul>
 
-          {/* Quick-add for popular if not already watched */}
-          {QUICK_ADD.some((q) => !isWatched(q.symbol)) && (
-            <div className="border-t border-border px-4 md:px-5 py-3">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 mb-2">
-                Gợi ý thêm
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {QUICK_ADD.filter((q) => !isWatched(q.symbol)).map((q) => (
-                  <button
-                    key={q.symbol}
-                    type="button"
-                    onClick={() => toggle(q)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition-colors"
-                  >
-                    <Plus className="h-3 w-3" />
-                    {q.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="border-t border-border px-4 md:px-5 py-2.5 text-right">
-            <Link
-              to="/cai-dat/canh-bao"
+            <a
+              href="/cai-dat/canh-bao"
               className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-[var(--gold)]"
             >
               Quản lý cảnh báo <ArrowUpRight className="h-3 w-3" />
-            </Link>
+            </a>
           </div>
         </>
       )}

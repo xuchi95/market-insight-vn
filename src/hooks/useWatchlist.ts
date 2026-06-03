@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 export interface WatchItem {
   symbol: string;
@@ -29,6 +30,7 @@ function writeLocal(list: WatchItem[]) {
 export function useWatchlist() {
   const { user } = useAuth();
   const [list, setList] = useState<WatchItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const mergedRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -41,6 +43,7 @@ export function useWatchlist() {
 
     let cancelled = false;
     (async () => {
+      setLoading(true);
       const { data } = await supabase
         .from("watchlist_items")
         .select("symbol,label,category,to_path")
@@ -61,7 +64,7 @@ export function useWatchlist() {
           (l) => !remote.some((r) => r.symbol.toLowerCase() === l.symbol.toLowerCase()),
         );
         if (missing.length > 0) {
-          await supabase.from("watchlist_items").insert(
+          const { error: mergeErr } = await supabase.from("watchlist_items").insert(
             missing.map((m) => ({
               user_id: user.id,
               symbol: m.symbol,
@@ -70,11 +73,14 @@ export function useWatchlist() {
               to_path: m.to,
             })),
           );
-          remote.push(...missing);
-          writeLocal([]);
+          if (!mergeErr) {
+            remote.push(...missing);
+            writeLocal([]);
+          }
         }
       }
       setList(remote);
+      setLoading(false);
     })();
 
     return () => {
@@ -87,60 +93,67 @@ export function useWatchlist() {
     [list],
   );
 
-  const toggle = useCallback(
-    (item: WatchItem) => {
-      setList((prev) => {
-        const exists = prev.some(
-          (i) => i.symbol.toLowerCase() === item.symbol.toLowerCase(),
-        );
-        const next = exists
-          ? prev.filter((i) => i.symbol.toLowerCase() !== item.symbol.toLowerCase())
-          : [...prev, item];
-        if (user) {
-          if (exists) {
-            void supabase
-              .from("watchlist_items")
-              .delete()
-              .eq("user_id", user.id)
-              .eq("symbol", item.symbol);
-          } else {
-            void supabase.from("watchlist_items").insert({
-              user_id: user.id,
-              symbol: item.symbol,
-              label: item.label,
-              category: item.category,
-              to_path: item.to,
-            });
-          }
-        } else {
-          writeLocal(next);
+  const add = useCallback(
+    async (item: WatchItem) => {
+      const exists = list.some(
+        (i) => i.symbol.toLowerCase() === item.symbol.toLowerCase(),
+      );
+      if (exists) return;
+      const next = [...list, item];
+      setList(next);
+      if (user) {
+        const { error } = await supabase.from("watchlist_items").insert({
+          user_id: user.id,
+          symbol: item.symbol,
+          label: item.label,
+          category: item.category,
+          to_path: item.to,
+        });
+        if (error) {
+          setList((prev) => prev.filter((i) => i.symbol !== item.symbol));
+          toast.error("Không thể lưu vào danh sách theo dõi", { description: error.message });
         }
-        return next;
-      });
+      } else {
+        writeLocal(next);
+      }
     },
-    [user],
+    [list, user],
   );
 
   const remove = useCallback(
-    (symbol: string) => {
-      setList((prev) => {
-        const next = prev.filter(
-          (i) => i.symbol.toLowerCase() !== symbol.toLowerCase(),
-        );
-        if (user) {
-          void supabase
-            .from("watchlist_items")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("symbol", symbol);
-        } else {
-          writeLocal(next);
+    async (symbol: string) => {
+      const prev = list;
+      const next = prev.filter(
+        (i) => i.symbol.toLowerCase() !== symbol.toLowerCase(),
+      );
+      setList(next);
+      if (user) {
+        const { error } = await supabase
+          .from("watchlist_items")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("symbol", symbol);
+        if (error) {
+          setList(prev);
+          toast.error("Không thể xoá", { description: error.message });
         }
-        return next;
-      });
+      } else {
+        writeLocal(next);
+      }
     },
-    [user],
+    [list, user],
   );
 
-  return { list, isWatched, toggle, remove, synced: !!user };
+  const toggle = useCallback(
+    async (item: WatchItem) => {
+      const exists = list.some(
+        (i) => i.symbol.toLowerCase() === item.symbol.toLowerCase(),
+      );
+      if (exists) await remove(item.symbol);
+      else await add(item);
+    },
+    [list, add, remove],
+  );
+
+  return { list, isWatched, add, toggle, remove, loading, synced: !!user };
 }
