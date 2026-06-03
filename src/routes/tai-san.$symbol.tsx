@@ -155,7 +155,7 @@ function AssetDetail() {
   const { symbol } = useParams({ from: "/tai-san/$symbol" });
   const [range, setRange] = useState("7");
   const { theme } = useTheme();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const lower = symbol.toLowerCase();
   const isGold = lower.startsWith("gold-");
@@ -571,7 +571,11 @@ function AssetDetail() {
                 <h2 className="font-bold">Biểu đồ nâng cao · {coin.symbol}/USDT</h2>
                 <LiveDot />
               </div>
-              {user ? (
+              {authLoading ? (
+                <div className="flex items-center justify-center px-6 py-16 sm:py-24">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-label="Đang kiểm tra phiên đăng nhập" />
+                </div>
+              ) : user ? (
                 <TradingViewChart
                   key={`tv-${coin.symbol}-${theme}`}
                   symbol={toTradingViewCryptoSymbol(coin.symbol)}
