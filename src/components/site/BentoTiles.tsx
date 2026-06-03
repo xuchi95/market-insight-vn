@@ -7,6 +7,12 @@ import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
 import { fmtTrieu } from "@/lib/format";
 
+interface InitialPrices {
+  gold: GoldPrice[] | null;
+  crypto: CryptoCoin[] | null;
+  fx: ForexRate[] | null;
+}
+
 function fmt(n: number, digits = 0) {
   return n.toLocaleString("vi-VN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
 }
@@ -50,12 +56,12 @@ function TileFrame({ children, className = "" }: { children: React.ReactNode; cl
   );
 }
 
-export function BentoTiles() {
+export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   // null = chưa fetch xong (hiển thị "Đang cập nhật giá")
   // []   = đã fetch nhưng rỗng (hiển thị "—")
-  const [gold, setGold] = useState<GoldPrice[] | null>(null);
-  const [crypto, setCrypto] = useState<CryptoCoin[] | null>(null);
-  const [fx, setFx] = useState<ForexRate[] | null>(null);
+  const [gold, setGold] = useState<GoldPrice[] | null>(initial?.gold ?? null);
+  const [crypto, setCrypto] = useState<CryptoCoin[] | null>(initial?.crypto ?? null);
+  const [fx, setFx] = useState<ForexRate[] | null>(initial?.fx ?? null);
 
   useEffect(() => {
     let alive = true;
