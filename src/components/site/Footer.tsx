@@ -35,6 +35,16 @@ export function Footer() {
             <ul className="space-y-2.5 text-base text-muted-foreground">
               <li><Link to="/dieu-khoan-su-dung" className="hover:text-foreground">Điều khoản sử dụng</Link></li>
               <li><Link to="/chinh-sach-bao-mat" className="hover:text-foreground">Chính sách dữ liệu</Link></li>
+              <li><Link to="/chinh-sach-cookie" className="hover:text-foreground">Chính sách Cookie</Link></li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => typeof window !== "undefined" && window.dispatchEvent(new CustomEvent("mw:open-cookie-settings"))}
+                  className="hover:text-foreground text-left"
+                >
+                  Quản lý Cookie
+                </button>
+              </li>
               <li><Link to="/mien-tru-trach-nhiem" className="hover:text-foreground">Miễn trừ trách nhiệm</Link></li>
               <li><Link to="/lien-he" className="hover:text-foreground">Liên hệ</Link></li>
             </ul>
