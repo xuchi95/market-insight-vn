@@ -222,6 +222,36 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
     setQ("");
   };
 
+  const highlightMatch = (text: string, term: string): React.ReactNode => {
+    const t = term.trim();
+    if (!t) return text;
+    const normChar = (c: string) =>
+      c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+    const n = normChar(t);
+    const map: number[] = [];
+    let normStr = "";
+    for (let i = 0; i < text.length; i++) {
+      const dec = normChar(text[i]);
+      for (let j = 0; j < dec.length; j++) {
+        map.push(i);
+        normStr += dec[j];
+      }
+    }
+    const idx = normStr.indexOf(n);
+    if (idx < 0 || n.length === 0) return text;
+    const startOrig = map[idx];
+    const endOrig = (map[idx + n.length - 1] ?? startOrig) + 1;
+    return (
+      <>
+        {text.slice(0, startOrig)}
+        <mark className="bg-[var(--gold)]/25 text-[var(--gold)] rounded-sm px-0.5 py-0">
+          {text.slice(startOrig, endOrig)}
+        </mark>
+        {text.slice(endOrig)}
+      </>
+    );
+  };
+
   const fallbackRoute = (term: string): string | null => {
     const sym = term.replace(/[^a-z0-9-]/g, "");
     if (/^(brent|wti)$/.test(sym)) return `/tai-san/oil-${sym}`;
