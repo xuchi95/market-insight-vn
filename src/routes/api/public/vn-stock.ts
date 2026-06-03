@@ -1,17 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * Lấy dữ liệu cổ phiếu VN từ TCBS public API (apipubaws.tcbs.com.vn).
- * Bao gồm: thông tin công ty, giá hiện tại, các chỉ số tài chính (P/E, EPS, ROE, ROA, BVPS, Market Cap).
+ * Lấy dữ liệu cổ phiếu VN từ VNDIRECT finfo-api (finfo-api.vndirect.com.vn).
+ * Cùng nhà với dchart đã hoạt động ổn, không cần API key. TCBS apipubaws.* đã 404.
  *
- * Endpoint mẫu:
- *  - overview:    /tcanalysis/v1/ticker/{SYM}/overview
- *  - ratio (quý): /tcanalysis/v1/finance/{SYM}/financialratio?yearly=0&isAll=true
- *  - giá:         /stock-insight/v1/stock/second-tc-price?tickers={SYM}
+ * Endpoint:
+ *  - giá lịch sử:   /v4/stock_prices?sort=date:desc&size=2&page=1&q=code:{SYM}
+ *  - hồ sơ cty:    /v4/company_profiles?q=code:{SYM}
+ *  - thông tin cty: /v4/stocks?q=code:{SYM}
+ *  - chỉ số TC:    /v4/ratios/latest?q=code:{SYM}
  */
 
 const UPSTREAM_TIMEOUT_MS = 6000;
-const CACHE_MS = 5 * 60 * 1000; // 5 phút — giá thay đổi liên tục trong giờ giao dịch
+const CACHE_MS = 5 * 60 * 1000;
 const HARD_CAP_MS = 30 * 60 * 1000;
 
 const SYMBOL_RE = /^[A-Z0-9]{2,8}$/;
@@ -61,7 +62,7 @@ async function fetchJson(url: string): Promise<any | null> {
       headers: {
         accept: "application/json",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
-        referer: "https://tcinvest.tcbs.com.vn/",
+        referer: "https://dstock.vndirect.com.vn/",
       },
       signal: ctrl.signal,
     });
@@ -79,49 +80,78 @@ function num(v: any): number | null {
   return typeof n === "number" && Number.isFinite(n) ? n : null;
 }
 
+// VNDIRECT ratios/latest trả về mảng các bản ghi, mỗi bản ghi có
+// { code, itemCode, reportDate, value, ratioCode, ... }. Map ratioCode (text)
+// hoặc itemCode (number) sang field thân thiện.
+function pickRatio(rows: any[], keys: string[]): number | null {
+  if (!Array.isArray(rows)) return null;
+  for (const r of rows) {
+    const k = String(r?.ratioCode ?? r?.itemCode ?? r?.code ?? "").toUpperCase();
+    if (keys.some((x) => k === x.toUpperCase())) {
+      const v = num(r?.value);
+      if (v !== null) return v;
+    }
+  }
+  return null;
+}
+
 async function build(symbol: string): Promise<VnStockPayload> {
   const SYM = symbol.toUpperCase();
 
-  const [overview, ratios, priceArr] = await Promise.all([
-    fetchJson(`https://apipubaws.tcbs.com.vn/tcanalysis/v1/ticker/${SYM}/overview`),
-    fetchJson(`https://apipubaws.tcbs.com.vn/tcanalysis/v1/finance/${SYM}/financialratio?yearly=0&isAll=true`),
-    fetchJson(`https://apipubaws.tcbs.com.vn/stock-insight/v1/stock/second-tc-price?tickers=${SYM}`),
+  const [pricesJson, profileJson, stockJson, ratiosJson] = await Promise.all([
+    fetchJson(`https://finfo-api.vndirect.com.vn/v4/stock_prices?sort=date:desc&size=2&page=1&q=code:${SYM}`),
+    fetchJson(`https://finfo-api.vndirect.com.vn/v4/company_profiles?q=code:${SYM}`),
+    fetchJson(`https://finfo-api.vndirect.com.vn/v4/stocks?q=code:${SYM}`),
+    fetchJson(`https://finfo-api.vndirect.com.vn/v4/ratios/latest?q=code:${SYM}`),
   ]);
 
-  const latestRatio: any = Array.isArray(ratios) && ratios.length ? ratios[0] : null;
-  const priceRow: any = Array.isArray(priceArr?.data) && priceArr.data.length ? priceArr.data[0] : null;
+  const priceRows: any[] = Array.isArray(pricesJson?.data) ? pricesJson.data : [];
+  const last = priceRows[0] ?? null;
+  const prev = priceRows[1] ?? null;
+  const profile: any = Array.isArray(profileJson?.data) && profileJson.data.length ? profileJson.data[0] : null;
+  const stock: any = Array.isArray(stockJson?.data) && stockJson.data.length ? stockJson.data[0] : null;
+  const ratios: any[] = Array.isArray(ratiosJson?.data) ? ratiosJson.data : [];
 
-  const price = num(priceRow?.cp);
-  const prevClose = num(priceRow?.rcp);
-  const change = price !== null && prevClose !== null ? price - prevClose : null;
-  const changePct = price !== null && prevClose && prevClose > 0 ? ((price - prevClose) / prevClose) * 100 : null;
+  // Giá VNDIRECT đã ở đơn vị VND/cp (vd VNM ~ 70000). Đôi khi field "close" là
+  // adjusted close — ưu tiên `close`, fallback `adClose` / `basicPrice`.
+  const price = num(last?.close) ?? num(last?.adClose) ?? num(last?.basicPrice);
+  const prevCloseRaw =
+    num(last?.basicPrice) ?? // tham chiếu phiên hiện tại
+    num(prev?.close) ??
+    num(prev?.adClose);
+  const prevClose = prevCloseRaw;
+  const change =
+    num(last?.change) ?? (price !== null && prevClose !== null ? price - prevClose : null);
+  const changePct =
+    num(last?.pctChange) ??
+    (price !== null && prevClose && prevClose > 0 ? ((price - prevClose) / prevClose) * 100 : null);
 
   return {
     symbol: SYM,
-    companyName: overview?.companyName ?? overview?.ticker ?? null,
-    shortName: overview?.shortName ?? null,
-    industry: overview?.industry ?? overview?.industryEn ?? null,
-    exchange: overview?.exchange ?? null,
-    website: overview?.website ?? null,
-    established: num(overview?.establishedYear),
-    employees: num(overview?.noEmployees),
+    companyName: profile?.companyName ?? stock?.companyName ?? stock?.companyNameEng ?? null,
+    shortName: stock?.shortName ?? profile?.shortName ?? null,
+    industry: profile?.industryName ?? stock?.industryName ?? profile?.industryLevel2 ?? null,
+    exchange: stock?.floor ?? last?.floor ?? profile?.floor ?? null,
+    website: profile?.companyWebsite ?? profile?.website ?? null,
+    established: num(profile?.establishedYear) ?? num(profile?.foundingDate?.slice?.(0, 4)),
+    employees: num(profile?.noEmployees) ?? num(profile?.totalEmployees),
     price,
     prevClose,
     change,
     changePct,
-    high: num(priceRow?.hp),
-    low: num(priceRow?.lp),
-    open: num(priceRow?.op),
-    volume: num(priceRow?.totalVol),
-    pe: num(latestRatio?.priceToEarning),
-    eps: num(latestRatio?.earningPerShare),
-    roe: num(latestRatio?.roe),
-    roa: num(latestRatio?.roa),
-    bvps: num(latestRatio?.bookValuePerShare),
-    pb: num(latestRatio?.priceToBook),
-    marketCap: num(latestRatio?.marketCap),
+    high: num(last?.high) ?? num(last?.adHigh),
+    low: num(last?.low) ?? num(last?.adLow),
+    open: num(last?.open) ?? num(last?.adOpen),
+    volume: num(last?.nmVolume) ?? num(last?.totalMatchVol) ?? num(last?.accumulatedVol),
+    pe: pickRatio(ratios, ["PE", "PRICE_TO_EARNINGS", "51003"]),
+    eps: pickRatio(ratios, ["EPS", "BASIC_EPS", "52006", "52001"]),
+    roe: pickRatio(ratios, ["ROE", "53001"]),
+    roa: pickRatio(ratios, ["ROA", "53002"]),
+    bvps: pickRatio(ratios, ["BVPS", "BOOK_VALUE_PER_SHARE", "52007"]),
+    pb: pickRatio(ratios, ["PB", "PRICE_TO_BOOK", "51006"]),
+    marketCap: pickRatio(ratios, ["MARKETCAP", "MARKET_CAP", "51001"]),
     fetchedAt: Date.now(),
-    source: "TCBS Public API",
+    source: "VNDIRECT finfo-api",
   };
 }
 
