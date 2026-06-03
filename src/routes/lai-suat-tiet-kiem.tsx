@@ -6,6 +6,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SectionCard } from "@/components/site/SectionCard";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { SavingsCalculator } from "@/components/site/SavingsCalculator";
 import { Input } from "@/components/ui/input";
 import { SAVINGS_RATES, SAVINGS_UPDATED_AT, TENORS, type SavingsRate } from "@/lib/data/savingsRates";
 import { cn } from "@/lib/utils";
@@ -179,6 +180,8 @@ function SavingsPage() {
               </p>
             </div>
           </SectionCard>
+
+          <SavingsCalculator items={items} />
 
           <section aria-labelledby="savings-info" className="prose prose-invert max-w-none space-y-4">
             <h2 id="savings-info" className="text-2xl font-bold tracking-tight">Chọn ngân hàng gửi tiết kiệm thế nào?</h2>
