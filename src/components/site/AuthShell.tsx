@@ -75,9 +75,8 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
           {/* Features grid — mọi tính năng hữu ích */}
           <div className="relative">
             <div className="hairline mb-5" />
-            <div className="mb-4 flex items-center justify-between text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            <div className="mb-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <span>Mọi thứ bạn nhận được</span>
-              <span className="text-gold/80">{FEATURES.length} tính năng</span>
             </div>
             <ul className="grid grid-cols-1 xl:grid-cols-2 gap-x-5 gap-y-4">
               {FEATURES.map((f) => (
