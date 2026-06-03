@@ -145,10 +145,10 @@ export function TradingViewChart({
         aria-hidden="true"
         className="absolute z-10 bg-card"
         style={{
-          left: isMobile ? 0 : 78,
-          bottom: isMobile ? 42 : 88,
-          width: isMobile ? 210 : 330,
-          height: isMobile ? 72 : 118,
+          left: 0,
+          bottom: isMobile ? 38 : 42,
+          width: isMobile ? 150 : 190,
+          height: isMobile ? 26 : 30,
           pointerEvents: "none",
         }}
       />
@@ -158,7 +158,7 @@ export function TradingViewChart({
         rel="noopener noreferrer"
         aria-label="Made by MarketWatch.vn"
         className="absolute left-2 z-20 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition-colors shadow-sm"
-        style={{ left: isMobile ? 8 : 92, bottom: isMobile ? 58 : 112 }}
+        style={{ left: isMobile ? 6 : 8, bottom: isMobile ? 40 : 44 }}
       >
         <span className="opacity-70">Made by</span>
         <span className="font-semibold text-foreground">MarketWatch.vn</span>
