@@ -51,33 +51,36 @@ function TileFrame({ children, className = "" }: { children: React.ReactNode; cl
 }
 
 export function BentoTiles() {
-  const [gold, setGold] = useState<GoldPrice[]>([]);
-  const [crypto, setCrypto] = useState<CryptoCoin[]>([]);
-  const [fx, setFx] = useState<ForexRate[]>([]);
+  // null = chưa fetch xong (hiển thị "Đang cập nhật giá")
+  // []   = đã fetch nhưng rỗng (hiển thị "—")
+  const [gold, setGold] = useState<GoldPrice[] | null>(null);
+  const [crypto, setCrypto] = useState<CryptoCoin[] | null>(null);
+  const [fx, setFx] = useState<ForexRate[] | null>(null);
 
   useEffect(() => {
     let alive = true;
-    const load = async () => {
-      const [g, c, f] = await Promise.all([
-        fetchGoldPrices().catch(() => []),
-        fetchCryptoPrices().catch(() => []),
-        fetchForexRates().catch(() => []),
-      ]);
-      if (!alive) return;
-      setGold(g); setCrypto(c); setFx(f);
+    // Fire & forget từng nguồn — nguồn nào về trước render trước, không phải
+    // chờ nguồn chậm nhất (gold cold-start có thể mất 3–6s).
+    const load = () => {
+      fetchGoldPrices().then((v) => alive && setGold(v)).catch(() => alive && setGold([]));
+      fetchCryptoPrices().then((v) => alive && setCrypto(v)).catch(() => alive && setCrypto([]));
+      fetchForexRates().then((v) => alive && setFx(v)).catch(() => alive && setFx([]));
     };
     load();
     const t = setInterval(load, 30_000);
     return () => { alive = false; clearInterval(t); };
   }, []);
 
-  const sjc = gold.find((g) => g.id === "sjc-1l") ?? gold[0];
-  const btc = crypto.find((c) => c.symbol === "BTC");
-  const eth = crypto.find((c) => c.symbol === "ETH");
-  const usd = fx.find((r) => r.code === "USD");
-  const eur = fx.find((r) => r.code === "EUR");
-  const jpy = fx.find((r) => r.code === "JPY");
-  const cny = fx.find((r) => r.code === "CNY");
+  const goldLoading = gold === null;
+  const cryptoLoading = crypto === null;
+  const fxLoading = fx === null;
+  const sjc = gold?.find((g) => g.id === "sjc-1l") ?? gold?.[0];
+  const btc = crypto?.find((c) => c.symbol === "BTC");
+  const eth = crypto?.find((c) => c.symbol === "ETH");
+  const usd = fx?.find((r) => r.code === "USD");
+  const eur = fx?.find((r) => r.code === "EUR");
+  const jpy = fx?.find((r) => r.code === "JPY");
+  const cny = fx?.find((r) => r.code === "CNY");
 
   // Synthetic high/low for gold (no live history); compute from sell ± small range
   const goldHigh = sjc ? Math.round(sjc.sell * 1.004) : 0;
@@ -91,10 +94,16 @@ export function BentoTiles() {
           <div className="flex justify-between items-start mb-4 md:mb-5">
             <div>
               <div className="eyebrow mb-2">Vàng miếng SJC</div>
-              <div className="font-display text-3xl md:text-5xl leading-tight text-foreground">
-                {sjc ? fmtTrieu(sjc.sell) : "—"}
-                <span className="ml-1.5 text-sm md:text-base text-muted-foreground">tr/chỉ</span>
-              </div>
+              {sjc ? (
+                <div className="font-display text-3xl md:text-5xl leading-tight text-foreground">
+                  {fmtTrieu(sjc.sell)}
+                  <span className="ml-1.5 text-sm md:text-base text-muted-foreground">tr/chỉ</span>
+                </div>
+              ) : goldLoading ? (
+                <LoadingLine size="lg" />
+              ) : (
+                <div className="font-display text-3xl md:text-5xl leading-tight text-muted-foreground">—</div>
+              )}
             </div>
             <div className="text-right">
               {sjc && <ChangePill value={sjc.changePct} />}
@@ -103,9 +112,9 @@ export function BentoTiles() {
           </div>
 
           <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
-            <Stat label="Mua" value={sjc ? `${fmtTrieu(sjc.buy)} tr` : "—"} />
-            <Stat label="Cao" value={`${fmtTrieu(goldHigh)} tr`} accent />
-            <Stat label="Thấp" value={`${fmtTrieu(goldLow)} tr`} />
+            <Stat label="Mua" value={sjc ? `${fmtTrieu(sjc.buy)} tr` : goldLoading ? "Đang cập nhật" : "—"} />
+            <Stat label="Cao" value={sjc ? `${fmtTrieu(goldHigh)} tr` : goldLoading ? "Đang cập nhật" : "—"} accent />
+            <Stat label="Thấp" value={sjc ? `${fmtTrieu(goldLow)} tr` : goldLoading ? "Đang cập nhật" : "—"} />
           </div>
 
           <div className="flex items-end gap-1 h-12 md:h-20 lg:h-28">
@@ -133,16 +142,22 @@ export function BentoTiles() {
       <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
           <div className="eyebrow mb-2">Bitcoin</div>
-          <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
-            ${btc ? fmt(btc.priceUsd, 0) : "—"}
-          </div>
+          {btc ? (
+            <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
+              ${fmt(btc.priceUsd, 0)}
+            </div>
+          ) : cryptoLoading ? (
+            <LoadingLine />
+          ) : (
+            <div className="font-display text-2xl md:text-3xl leading-tight text-muted-foreground">—</div>
+          )}
           <div className="mt-1.5">{btc && <ChangePill value={btc.change24h} />}</div>
           <div className="mt-4">
             {btc && <Spark data={btc.sparkline} color={btc.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
           </div>
           <div className="mt-3 flex justify-between eyebrow opacity-60">
             <span>Vol</span>
-            <span className="tabular normal-case tracking-normal text-foreground/80">${btc ? fmt(btc.volume24h / 1_000_000_000, 1) : "—"}B</span>
+            <span className="tabular normal-case tracking-normal text-foreground/80">{btc ? `$${fmt(btc.volume24h / 1_000_000_000, 1)}B` : cryptoLoading ? "Đang cập nhật" : "—"}</span>
           </div>
         </Link>
       </TileFrame>
@@ -151,16 +166,22 @@ export function BentoTiles() {
       <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
           <div className="eyebrow mb-2">Ethereum</div>
-          <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
-            ${eth ? fmt(eth.priceUsd, 0) : "—"}
-          </div>
+          {eth ? (
+            <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
+              ${fmt(eth.priceUsd, 0)}
+            </div>
+          ) : cryptoLoading ? (
+            <LoadingLine />
+          ) : (
+            <div className="font-display text-2xl md:text-3xl leading-tight text-muted-foreground">—</div>
+          )}
           <div className="mt-1.5">{eth && <ChangePill value={eth.change24h} />}</div>
           <div className="mt-4">
             {eth && <Spark data={eth.sparkline} color={eth.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
           </div>
           <div className="mt-3 flex justify-between eyebrow opacity-60">
             <span>Vol</span>
-            <span className="tabular normal-case tracking-normal text-foreground/80">${eth ? fmt(eth.volume24h / 1_000_000_000, 1) : "—"}B</span>
+            <span className="tabular normal-case tracking-normal text-foreground/80">{eth ? `$${fmt(eth.volume24h / 1_000_000_000, 1)}B` : cryptoLoading ? "Đang cập nhật" : "—"}</span>
           </div>
         </Link>
       </TileFrame>
@@ -173,13 +194,25 @@ export function BentoTiles() {
             <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
-            <FxCell rate={usd} />
-            <FxCell rate={eur} />
-            <FxCell rate={jpy} digits={2} />
-            <FxCell rate={cny} />
+            <FxCell rate={usd} loading={fxLoading} code="USD" />
+            <FxCell rate={eur} loading={fxLoading} code="EUR" />
+            <FxCell rate={jpy} loading={fxLoading} code="JPY" digits={2} />
+            <FxCell rate={cny} loading={fxLoading} code="CNY" />
           </div>
         </Link>
       </TileFrame>
+    </div>
+  );
+}
+
+function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
+  return (
+    <div
+      className={`tabular text-muted-foreground/80 animate-pulse ${
+        size === "lg" ? "text-lg md:text-xl" : "text-sm"
+      }`}
+    >
+      Đang cập nhật giá…
     </div>
   );
 }
@@ -193,8 +226,17 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
   );
 }
 
-function FxCell({ rate, digits = 0 }: { rate?: ForexRate; digits?: number }) {
-  if (!rate) return <div className="bg-card p-3 h-[68px]" />;
+function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?: number; loading?: boolean; code?: string }) {
+  if (!rate) {
+    return (
+      <div className="bg-card p-3 h-[68px]">
+        {code && <div className="eyebrow opacity-70">{code}/VND</div>}
+        <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
+          {loading ? "Đang cập nhật giá…" : "—"}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-card p-3">
       <div className="eyebrow opacity-70">{rate.code}/VND</div>
