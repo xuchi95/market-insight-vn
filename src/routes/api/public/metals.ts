@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireRequestUser } from "@/lib/api/require-request-user.server";
 
 // Gói Copper: 2,500 calls/tháng (~83/ngày).
 // Cache 30 phút => ~48 calls/ngày, ~1,440/tháng — chừa ~40% buffer cho retry/burst.
@@ -84,9 +83,7 @@ export const Route = createFileRoute("/api/public/metals")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async ({ request }) => {
-        const guard = await requireRequestUser(request);
-        if (guard) return guard;
+      GET: async () => {
         try {
           if (!cache || Date.now() - cache.at > CACHE_MS) {
             await refresh();

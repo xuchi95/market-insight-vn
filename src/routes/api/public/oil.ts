@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireRequestUser } from "@/lib/api/require-request-user.server";
 
 // Giá dầu thô — Brent (ICE) & WTI (NYMEX), lấy từ Yahoo Finance.
 // Cache server-side 60s để cân bằng "realtime cảm giác" vs upstream rate-limit.
@@ -98,9 +97,7 @@ export const Route = createFileRoute("/api/public/oil")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async ({ request }) => {
-        const guard = await requireRequestUser(request);
-        if (guard) return guard;
+      GET: async () => {
         try {
           if (!cache || Date.now() - cache.at > CACHE_MS) {
             await refresh();

@@ -1,6 +1,5 @@
 import type { GoldPrice } from "./types";
 import { midOf } from "@/lib/gold-units";
-import { authedFetch } from "@/lib/api/authed-fetch";
 
 // Bổ sung các thương hiệu chưa có trong feed PNJ — jitter giả lập quanh giá gần đây.
 // XAU/USD KHÔNG nằm đây nữa: lấy realtime từ `/api/public/xau` (xem `fetchXauRow`).
@@ -61,7 +60,7 @@ export async function fetchGoldPrices(): Promise<GoldPrice[]> {
   // Fetch live gold + XAU world-price in parallel — đừng tuần tự,
   // mỗi cái có thể mất 1–6s.
   const [goldRes, xau] = await Promise.all([
-    authedFetch("/api/public/gold", { headers: { Accept: "application/json" } })
+    fetch("/api/public/gold", { headers: { Accept: "application/json" } })
       .then(async (r) => {
         if (!r.ok) throw new Error(`gold api ${r.status}`);
         const j = (await r.json()) as { items?: GoldPrice[] };
@@ -86,7 +85,7 @@ export async function fetchGoldPrices(): Promise<GoldPrice[]> {
  */
 async function fetchXauRow(): Promise<GoldPrice | null> {
   try {
-    const res = await authedFetch("/api/public/xau", { headers: { Accept: "application/json" } });
+    const res = await fetch("/api/public/xau", { headers: { Accept: "application/json" } });
     if (!res.ok) return null;
     const j = (await res.json()) as {
       price?: number;

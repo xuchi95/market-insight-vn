@@ -8,8 +8,6 @@ import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard } from "./SectionCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
-import { useAuth } from "@/hooks/useAuth";
-import { LockedDataPanel } from "./LockedDataPanel";
 
 function fmtVol(n: number) {
   if (!n) return "—";
@@ -20,19 +18,6 @@ function fmtVol(n: number) {
 }
 
 export function StockIndexTable() {
-  const { user } = useAuth();
-  if (!user) {
-    return (
-      <SectionCard
-        id="stock-indices"
-        icon={<LineChart className="h-4 w-4" />}
-        title="Chỉ số chứng khoán Việt Nam"
-        description="VN-Index, VN30, HNX, UPCOM • dành cho thành viên"
-      >
-        <LockedDataPanel description="Chỉ số chứng khoán Việt Nam cập nhật mỗi 5 phút chỉ hiển thị cho thành viên đã đăng nhập." />
-      </SectionCard>
-    );
-  }
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["stocks-indices"],
     queryFn: fetchStockIndices,

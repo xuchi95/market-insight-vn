@@ -12,23 +12,8 @@ import { SectionCard } from "./SectionCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
-import { useAuth } from "@/hooks/useAuth";
-import { LockedDataPanel } from "./LockedDataPanel";
 
 export function GoldPriceTable({ search }: { search?: string }) {
-  const { user } = useAuth();
-  if (!user) {
-    return (
-      <SectionCard
-        id="gold"
-        icon={<Coins className="h-4 w-4" />}
-        title="Bảng giá vàng"
-        description="Giá vàng trong nước & XAU/USD • dành cho thành viên"
-      >
-        <LockedDataPanel description="Bảng giá vàng realtime từ SJC, PNJ, DOJI, BTMC và giá XAU/USD chỉ hiển thị cho thành viên." />
-      </SectionCard>
-    );
-  }
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["gold"],
     queryFn: fetchGoldPrices,

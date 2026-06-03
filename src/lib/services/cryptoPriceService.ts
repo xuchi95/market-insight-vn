@@ -1,5 +1,4 @@
 import type { CryptoCoin } from "./types";
-import { authedFetch } from "@/lib/api/authed-fetch";
 
 const USD_VND_FALLBACK = 25_400;
 
@@ -46,7 +45,7 @@ export async function fetchCryptoPrices(usdVnd = USD_VND_FALLBACK): Promise<Cryp
     // (max-age=15, s-maxage=20, stale-while-revalidate=300). Trước đây dùng
     // `?t=Date.now()` + `cache: "no-store"` khiến mỗi lần load đều phải gọi
     // Worker, làm cold-start chậm 3–6s.
-    const res = await authedFetch(`/api/public/crypto`, {
+    const res = await fetch(`/api/public/crypto`, {
       headers: { accept: "application/json" },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

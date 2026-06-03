@@ -5,7 +5,6 @@ import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fmtTrieu } from "@/lib/format";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useAuth } from "@/hooks/useAuth";
 
 async function fetchXau(): Promise<{ price: number; changePct: number } | null> {
   try {
@@ -48,8 +47,6 @@ function fmtCompact(n: number): string {
 }
 
 export function Ticker() {
-  const { user } = useAuth();
-  if (!user) return null;
   // Mỗi nguồn dữ liệu được lưu riêng để render tăng dần — không phải chờ
   // nguồn chậm nhất (giá vàng cold-start có thể mất 5–7s) thì mới hiện ticker.
   type GoldArr = Awaited<ReturnType<typeof fetchGoldPrices>>;

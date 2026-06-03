@@ -12,8 +12,6 @@ import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
-import { useAuth } from "@/hooks/useAuth";
-import { LockedDataPanel } from "./LockedDataPanel";
 
 type SortKey = "marketCap" | "priceUsd" | "priceVnd" | "change24h" | "volume24h";
 type Category = "all" | "top-mcap" | "top-volume";
@@ -33,26 +31,12 @@ const SORT_LABELS: Record<SortKey, string> = {
 };
 
 export function CryptoPriceTable({ search }: { search?: string }) {
-  const { user } = useAuth();
   const { data, isLoading, refetch, isFetching, dataUpdatedAt, isError, error } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
     refetchInterval: 60_000,
-    enabled: !!user,
   });
   useQueryErrorToast(isError, error, "giá crypto");
-  if (!user) {
-    return (
-      <SectionCard
-        id="crypto"
-        icon={<Bitcoin className="h-4 w-4" />}
-        title="Bảng giá crypto"
-        description="Giá thị trường realtime • dành cho thành viên"
-      >
-        <LockedDataPanel description="Bảng giá crypto realtime, sparkline 7 ngày và bộ lọc nâng cao chỉ hiển thị cho thành viên đã đăng nhập." />
-      </SectionCard>
-    );
-  }
   const { compact } = useNumberFormat();
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");

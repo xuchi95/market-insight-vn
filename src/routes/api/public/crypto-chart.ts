@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireRequestUser } from "@/lib/api/require-request-user.server";
 
 const CACHE_MS = 60 * 1000;
 const cache = new Map<string, { at: number; payload: any }>();
@@ -30,8 +29,6 @@ export const Route = createFileRoute("/api/public/crypto-chart")({
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async ({ request }) => {
-        const guard = await requireRequestUser(request);
-        if (guard) return guard;
         const url = new URL(request.url);
         const rawId = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9-]/g, "");
         const id = ID_ALIAS[rawId] || rawId;
