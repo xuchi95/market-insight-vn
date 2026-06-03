@@ -68,21 +68,53 @@ export function TradingViewChart({
     });
     container.appendChild(script);
 
-    // Liên tục gỡ mọi nhãn "tradingview-widget-copyright" mà script tự chèn vào.
+    // Gỡ MỌI thành phần attribution do script TradingView tự chèn,
+    // bền vững qua mọi lần re-render (đổi theme, đổi symbol, đổi interval...).
+    const BRAND_SELECTORS = [
+      ".tradingview-widget-copyright",
+      ".tv-widget-copyright",
+      '[class*="copyright"]',
+      'a[href*="tradingview.com"]',
+      'a[href*="//tradingview"]',
+      "div.blue-text",
+      '[class*="tv-widget"][class*="brand"]',
+    ].join(",");
+
     const stripBranding = () => {
-      container.querySelectorAll(
-        '.tradingview-widget-copyright, a[href*="tradingview.com"]',
-      ).forEach((el) => {
-        // chỉ gỡ phần copyright/branding bên ngoài iframe — không đụng chính iframe
-        if (el.tagName !== "IFRAME") (el as HTMLElement).remove();
+      // 1) Gỡ theo selector — chỉ trong phạm vi container, không đụng <iframe>
+      container.querySelectorAll(BRAND_SELECTORS).forEach((el) => {
+        if (el.tagName === "IFRAME") return;
+        (el as HTMLElement).remove();
+      });
+      // 2) Quét text "TradingView" trong các node nhỏ bên ngoài iframe (link/caption)
+      container.querySelectorAll("a, span, p, div").forEach((el) => {
+        if (el.tagName === "IFRAME") return;
+        if (el.querySelector("iframe")) return; // bỏ qua wrapper của iframe
+        const txt = (el.textContent || "").trim().toLowerCase();
+        if (!txt || txt.length > 80) return;
+        if (txt.includes("tradingview") || txt.includes("track all markets")) {
+          (el as HTMLElement).remove();
+        }
       });
     };
-    const observer = new MutationObserver(stripBranding);
-    observer.observe(container, { childList: true, subtree: true });
+
+    const observer = new MutationObserver(() => stripBranding());
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "href"],
+      characterData: true,
+    });
     stripBranding();
+    // Quét lặp lại vài lần sau khi script async load xong (để bắt node chèn muộn).
+    const timers = [80, 300, 800, 1800, 3500].map((ms) =>
+      window.setTimeout(stripBranding, ms),
+    );
 
     return () => {
       observer.disconnect();
+      timers.forEach((t) => window.clearTimeout(t));
       container.innerHTML = "";
     };
   }, [symbol, interval, theme, isMobile, height, mobileHeight]);
