@@ -32,10 +32,6 @@ async function fetchOil(): Promise<{ items: OilItem[]; updatedAt: number }> {
   return { items: j.items ?? [], updatedAt: j.updatedAt ?? Date.now() };
 }
 
-async function fetchOilAuthed(): Promise<{ items: OilItem[]; updatedAt: number }> {
-  return fetchOil();
-}
-
 export function OilPriceTable() {
   const { user } = useAuth();
   if (!user) {
