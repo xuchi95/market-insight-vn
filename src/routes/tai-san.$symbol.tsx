@@ -28,6 +28,8 @@ import { updateWatchAlertPrefs, getMyWatchAlertPrefs } from "@/lib/watchlist/ale
 import { toast } from "sonner";
 import { TradingViewChart, toTradingViewCryptoSymbol } from "@/components/site/TradingViewChart";
 import { useTheme } from "@/hooks/useTheme";
+import { useBinanceTicker } from "@/hooks/useBinanceTicker";
+import { keepPreviousData } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
@@ -169,10 +171,28 @@ function AssetDetail() {
   const { data: coins, isLoading } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
+    staleTime: 15_000,
+    placeholderData: keepPreviousData,
     enabled: !isGold && !isBank && !isOil,
   });
-  const coin = coins?.find((c) => c.symbol.toLowerCase() === lower);
+  const baseCoin = coins?.find((c) => c.symbol.toLowerCase() === lower);
+
+  // Realtime overlay from Binance WebSocket (~1s cadence). Falls back to the
+  // REST snapshot when the coin has no Binance pair or WS fails.
+  const liveTick = useBinanceTicker(baseCoin?.id);
+  const coin = useMemo(() => {
+    if (!baseCoin) return undefined;
+    if (!liveTick) return baseCoin;
+    const rate = baseCoin.priceUsd > 0 ? baseCoin.priceVnd / baseCoin.priceUsd : 0;
+    return {
+      ...baseCoin,
+      priceUsd: liveTick.priceUsd,
+      priceVnd: rate > 0 ? liveTick.priceUsd * rate : baseCoin.priceVnd,
+      change24h: liveTick.change24h,
+      volume24h: liveTick.volume24h || baseCoin.volume24h,
+    };
+  }, [baseCoin, liveTick]);
 
   const { data: golds } = useQuery({ queryKey: ["gold"], queryFn: fetchGoldPrices, enabled: isGold });
   const gold = golds?.find((g) => g.id.toLowerCase() === goldId);
