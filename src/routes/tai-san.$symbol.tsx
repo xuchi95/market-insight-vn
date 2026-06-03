@@ -292,8 +292,27 @@ function AssetDetail() {
     return { min: Math.min(...vals), max: Math.max(...vals), first: vals[0], last: vals[vals.length - 1] };
   }, [chart]);
 
+  // Downsample chart points so 30/90-day ranges don't make Recharts redraw
+  // thousands of segments on each tab switch. Keep at most ~180 points
+  // (enough density for an 800px-wide area chart).
+  const chartData = useMemo(() => {
+    if (!chart || chart.length === 0) return chart ?? [];
+    const MAX = 180;
+    if (chart.length <= MAX) return chart;
+    const step = chart.length / MAX;
+    const out: { t: number; v: number }[] = [];
+    for (let i = 0; i < MAX; i++) out.push(chart[Math.floor(i * step)]);
+    // Always keep the final point so the latest price is exact.
+    out.push(chart[chart.length - 1]);
+    return out;
+  }, [chart]);
+
+  // Derive chart tint from the chart series itself (first vs last). Using
+  // `coin.change24h` would re-tint — and force Recharts to re-render the
+  // gradient + area — every 10s when the live ticker updates.
+  const chartPositive = stats ? stats.last >= stats.first : true;
+  const color = chartPositive ? "var(--up)" : "var(--down)";
   const positive = (coin?.change24h ?? 0) >= 0;
-  const color = positive ? "var(--up)" : "var(--down)";
   const rangeLabel = range === "1" ? "24 giờ" : range === "7" ? "7 ngày" : range === "30" ? "30 ngày" : "90 ngày";
 
   const assetCrumb = useMemo(() => {
