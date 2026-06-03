@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fmtCompactUSD, fmtTime, fmtUSD, fmtVND, fmtSmartUSD, fmtSmartVND } from "@/lib/format";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
+import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { ChangeBadge } from "./ChangeBadge";
 import { Sparkline } from "./Sparkline";
@@ -43,8 +44,23 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   const [sort, setSort] = useState<SortKey>("marketCap");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
 
+  // Realtime price overlay via Binance WS (throttled to ~10s in the hook)
+  const ids = useMemo(() => (data ?? []).map((c) => c.id), [data]);
+  const liveTicks = useBinanceTickers(ids);
+
   const rows = useMemo(() => {
-    let r = data ?? [];
+    const usdVnd = data && data.length ? (data[0].priceVnd / (data[0].priceUsd || 1)) : 25_400;
+    let r = (data ?? []).map((c) => {
+      const t = liveTicks[c.id];
+      if (!t) return c;
+      return {
+        ...c,
+        priceUsd: t.priceUsd,
+        priceVnd: t.priceUsd * usdVnd,
+        change24h: t.change24h,
+        volume24h: t.volume24h || c.volume24h,
+      };
+    });
     if (search) {
       const q = search.toLowerCase();
       r = r.filter((c) => c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q));
@@ -58,7 +74,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       r = [...r].sort((a, b) => (dir === "asc" ? a[sort] - b[sort] : b[sort] - a[sort]));
     }
     return r;
-  }, [data, search, category, sort, dir]);
+  }, [data, liveTicks, search, category, sort, dir]);
 
   const toggleSort = (k: SortKey) => {
     if (sort === k) setDir(dir === "asc" ? "desc" : "asc");
