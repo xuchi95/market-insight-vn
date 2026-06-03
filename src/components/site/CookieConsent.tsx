@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Cookie, Shield, BarChart3, Sparkles, X, Check } from "lucide-react";
+import { Cookie, Shield, BarChart3, Sparkles, X, Check, LogOut, AlertTriangle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const STORAGE_KEY = "mw_cookie_consent";
 const VERSION = "1.0";
@@ -52,6 +53,8 @@ export function CookieConsent() {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [forcedLogout, setForcedLogout] = useState(false);
+  const { user, signOut } = useAuth();
   const [prefs, setPrefs] = useState<Prefs>({
     necessary: true,
     functional: true,
@@ -104,17 +107,36 @@ export function CookieConsent() {
     writeConsent({ necessary: true, functional: true, analytics: true, marketing: true });
     close();
   };
-  const rejectAll = () => {
+  const rejectAll = async () => {
     writeConsent({ necessary: true, functional: false, analytics: false, marketing: false });
+    if (user) {
+      // Logged-in users must accept cookies — sign out and explain via modal
+      try {
+        await signOut();
+      } catch {
+        /* ignore */
+      }
+      setShowDetails(false);
+      setForcedLogout(true);
+      return;
+    }
     close();
   };
   const savePrefs = () => {
     writeConsent(prefs);
+    // If user is signed in and turned off all optional categories, treat as reject
+    if (user && !prefs.functional && !prefs.analytics && !prefs.marketing) {
+      void rejectAll();
+      return;
+    }
     close();
   };
 
   return (
     <>
+      {/* Forced-logout explanation modal */}
+      {forcedLogout && <ForcedLogoutDialog onClose={() => { setForcedLogout(false); close(); }} />}
+
       {/* Mobile backdrop — only when details panel open */}
       <div
         aria-hidden
@@ -339,5 +361,76 @@ function CookieRow({
         <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{desc}</span>
       </span>
     </label>
+  );
+}
+
+function ForcedLogoutDialog({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mw-forced-logout-title"
+      className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center px-3 pb-3 sm:p-5 animate-in fade-in duration-200"
+    >
+      <div
+        aria-hidden
+        onClick={onClose}
+        className="absolute inset-0 bg-black/65 backdrop-blur-sm"
+      />
+      <div
+        className="relative w-full max-w-md overflow-hidden rounded-2xl border border-[color-mix(in_oklab,var(--down)_30%,var(--border))] bg-card shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)] animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+      >
+        <div className="flex items-start gap-3 border-b border-border/60 bg-[color-mix(in_oklab,var(--down)_10%,transparent)] px-5 py-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--down)_18%,transparent)] text-[var(--down)]">
+            <AlertTriangle className="h-5 w-5" />
+          </span>
+          <div className="flex-1">
+            <h2 id="mw-forced-logout-title" className="font-display text-lg leading-snug text-foreground">
+              Bạn đã được đăng xuất
+            </h2>
+            <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--down)]">
+              Không chấp nhận Cookie
+            </p>
+          </div>
+        </div>
+
+        <div className="px-5 py-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            Để duy trì phiên đăng nhập an toàn, MarketWatch bắt buộc lưu một số <strong className="text-foreground">cookie thiết yếu</strong> (token xác thực, chống CSRF, ghi nhớ thiết bị tin cậy).
+          </p>
+          <p>
+            Vì bạn vừa <strong className="text-foreground">từ chối</strong> bảng yêu cầu cookie, chúng tôi đã <strong className="text-foreground">tự động đăng xuất</strong> tài khoản của bạn theo Nghị định 13/2023/NĐ-CP và{" "}
+            <Link to="/chinh-sach-cookie" className="text-foreground underline underline-offset-2 hover:text-[var(--gold)]" onClick={onClose}>
+              Chính sách Cookie
+            </Link>
+            . Bạn vẫn có thể tiếp tục xem nội dung công khai.
+          </p>
+          <p className="text-xs text-muted-foreground/80">
+            Muốn dùng lại tài khoản? Hãy bấm <em>Đồng ý &amp; đăng nhập lại</em> rồi đăng nhập như bình thường.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-border/60 px-5 py-3 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-border bg-card/60 px-4 text-sm font-semibold text-foreground hover:border-[var(--gold)]/60 sm:h-10"
+          >
+            <LogOut className="mr-1.5 h-3.5 w-3.5" />
+            Tiếp tục không đăng nhập
+          </button>
+          <Link
+            to="/dang-nhap"
+            onClick={() => {
+              try { localStorage.removeItem("mw_cookie_consent"); } catch { /* ignore */ }
+              onClose();
+            }}
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--gold)] px-5 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_10px_28px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] hover:-translate-y-0.5 transition-transform sm:h-10"
+          >
+            Đồng ý &amp; đăng nhập lại
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
