@@ -6,7 +6,6 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SectionCard } from "@/components/site/SectionCard";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
-import { SavingsCalculator } from "@/components/site/SavingsCalculator";
 import { Input } from "@/components/ui/input";
 import { SAVINGS_RATES, SAVINGS_UPDATED_AT, TENORS, type SavingsRate } from "@/lib/data/savingsRates";
 import { cn } from "@/lib/utils";
@@ -181,7 +180,21 @@ function SavingsPage() {
             </div>
           </SectionCard>
 
-          <SavingsCalculator items={items} />
+          <section className="rounded-2xl border border-[var(--gold)]/40 bg-gradient-to-br from-[var(--gold)]/[0.08] via-background to-background p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">Công cụ miễn phí</p>
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight mt-1">Tính lãi suất tiết kiệm online</h2>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-xl">
+                Tính ngay tiền lãi gửi tiết kiệm theo lãi suất thật của 30+ ngân hàng — kỳ hạn 1 đến 36 tháng, lĩnh lãi cuối kỳ hoặc lãi kép tái tục.
+              </p>
+            </div>
+            <Link
+              to="/tinh-lai-suat-tiet-kiem"
+              className="inline-flex items-center justify-center rounded-lg bg-[var(--gold)] px-5 py-2.5 text-sm font-semibold text-background hover:opacity-90 shrink-0"
+            >
+              Mở công cụ tính lãi →
+            </Link>
+          </section>
 
           <section aria-labelledby="savings-info" className="prose prose-invert max-w-none space-y-4">
             <h2 id="savings-info" className="text-2xl font-bold tracking-tight">Chọn ngân hàng gửi tiết kiệm thế nào?</h2>
