@@ -326,6 +326,13 @@ export function SavingsCalculator({ items }: Props) {
                 <div className="font-semibold tabular-nums">{fmtVnd(totalMonths > 0 ? result.interest / totalMonths : 0)}</div>
               </div>
             </div>
+            {mode === "compound" && annualRate > 0 && totalMonths > 0 && (
+              <div className="relative mt-3 rounded-md border border-[var(--gold)]/20 bg-background/40 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+                Tái tục <span className="font-semibold text-foreground">{result.cycles}</span> chu kỳ × {tenorMonths} tháng
+                {result.leftover > 0 && <> + <span className="font-semibold text-foreground">{result.leftover}</span> tháng lẻ (tính lãi đơn)</>}.
+                {" "}Kỳ hạn ngắn hơn → lãi nhập gốc nhiều lần hơn → tổng thường cao hơn dù cùng %/năm.
+              </div>
+            )}
           </div>
 
           {compareRows.length > 0 && (
