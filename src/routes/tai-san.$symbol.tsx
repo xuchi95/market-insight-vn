@@ -695,7 +695,7 @@ function AssetDetail() {
                   </div>
                 ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chart}>
+                  <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -706,7 +706,7 @@ function AssetDetail() {
                     <XAxis dataKey="t" stroke="var(--muted-foreground)" fontSize={11} tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} tickLine={false} axisLine={false} />
                     <YAxis dataKey="v" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} tickFormatter={(v) => "$" + new Intl.NumberFormat("en", { notation: "compact" }).format(v)} />
                     <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }} labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")} formatter={(v: number) => [fmtUSD(v, 2), "Giá"]} />
-                    <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill="url(#ag)" />
+                    <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill="url(#ag)" isAnimationActive={false} />
                   </AreaChart>
                 </ResponsiveContainer>
                 )}
