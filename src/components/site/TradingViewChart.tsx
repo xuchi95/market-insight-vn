@@ -68,7 +68,21 @@ export function TradingViewChart({
     });
     container.appendChild(script);
 
+    // Liên tục gỡ mọi nhãn "tradingview-widget-copyright" mà script tự chèn vào.
+    const stripBranding = () => {
+      container.querySelectorAll(
+        '.tradingview-widget-copyright, a[href*="tradingview.com"]',
+      ).forEach((el) => {
+        // chỉ gỡ phần copyright/branding bên ngoài iframe — không đụng chính iframe
+        if (el.tagName !== "IFRAME") (el as HTMLElement).remove();
+      });
+    };
+    const observer = new MutationObserver(stripBranding);
+    observer.observe(container, { childList: true, subtree: true });
+    stripBranding();
+
     return () => {
+      observer.disconnect();
       container.innerHTML = "";
     };
   }, [symbol, interval, theme, isMobile, height, mobileHeight]);
@@ -90,8 +104,8 @@ export function TradingViewChart({
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Made by MarketWatch.vn"
-        className="absolute bottom-1 left-1 z-10 flex items-center gap-1 rounded-md bg-card/85 px-2 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur-sm hover:text-[var(--gold)] transition-colors"
-        style={{ pointerEvents: "auto" }}
+        className="absolute bottom-0 left-0 z-20 flex items-center gap-1 rounded-tr-md bg-card px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-[var(--gold)] transition-colors shadow-sm"
+        style={{ pointerEvents: "auto", minWidth: 44, minHeight: 32 }}
       >
         <span className="opacity-70">Made by</span>
         <span className="font-semibold text-foreground">MarketWatch.vn</span>
