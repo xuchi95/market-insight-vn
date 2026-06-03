@@ -24,18 +24,18 @@ interface Props {
 }
 
 const FEATURES = [
-  { icon: TrendingUp, title: "Dashboard realtime", desc: "Vàng, crypto, tỷ giá, chứng khoán cập nhật liên tục." },
-  { icon: LineChart, title: "Biểu đồ nâng cao", desc: "Nến realtime, chỉ báo kỹ thuật & công cụ vẽ chuyên nghiệp." },
-  { icon: BellRing, title: "Cảnh báo giá qua email", desc: "Đặt ngưỡng SJC, BTC, USD — gửi ngay khi chạm." },
-  { icon: Star, title: "Watchlist cá nhân", desc: "Theo dõi nhanh các tài sản yêu thích trong một nơi." },
-  { icon: Briefcase, title: "Danh mục đầu tư", desc: "Quản lý portfolio đa loại tài sản, lãi/lỗ realtime." },
-  { icon: Calculator, title: "Bộ công cụ tài chính", desc: "DCA ROI, quy đổi tiền tệ, lãi suất tiết kiệm." },
-  { icon: ArrowLeftRight, title: "Quy đổi tiền tệ", desc: "Tỷ giá ngân hàng & thị trường tự do, cập nhật ngày." },
-  { icon: CalendarDays, title: "Lịch kinh tế", desc: "Sự kiện vĩ mô VN & thế giới ảnh hưởng đến thị trường." },
-  { icon: Newspaper, title: "Bản tin sáng", desc: "Tóm tắt phiên giao dịch quan trọng gửi vào email mỗi sáng." },
-  { icon: KeyRound, title: "Bảo mật 2FA", desc: "TOTP & Magic Link — chuẩn bảo mật ngân hàng." },
-  { icon: ShieldCheck, title: "Bảo vệ dữ liệu", desc: "Mã hóa đầu cuối, không bao giờ chia sẻ dữ liệu cá nhân." },
-  { icon: Sparkles, title: "Hoàn toàn miễn phí", desc: "Mọi tính năng dành cho thành viên, không phí ẩn." },
+  { icon: TrendingUp, title: "Bảng giá cập nhật từng giây", desc: "Vàng SJC, USD, Bitcoin, chứng khoán — xem nhanh trong một màn hình." },
+  { icon: LineChart, title: "Biểu đồ chuyên sâu", desc: "Nến thời gian thực, chỉ báo kỹ thuật và công cụ vẽ như dân trong nghề." },
+  { icon: BellRing, title: "Báo giá qua email", desc: "Đặt ngưỡng cho SJC, Bitcoin hay USD — chạm giá là email tới ngay." },
+  { icon: Star, title: "Danh sách theo dõi riêng", desc: "Ghim những mã bạn quan tâm để mở ra là thấy, khỏi tìm khắp nơi." },
+  { icon: Briefcase, title: "Quản lý danh mục", desc: "Theo dõi lãi lỗ cả vàng, crypto, cổ phiếu trong cùng một chỗ." },
+  { icon: Calculator, title: "Công cụ tính toán", desc: "Tính DCA, lãi kép, lãi suất tiết kiệm — gọn gàng, dễ dùng." },
+  { icon: ArrowLeftRight, title: "Quy đổi tiền tệ", desc: "Tỷ giá ngân hàng và chợ đen, cập nhật mỗi ngày." },
+  { icon: CalendarDays, title: "Lịch sự kiện kinh tế", desc: "Tin vĩ mô trong nước và thế giới có thể ảnh hưởng tới thị trường." },
+  { icon: Newspaper, title: "Bản tin sáng mỗi ngày", desc: "Tóm tắt phiên giao dịch quan trọng, gửi tới hộp thư mỗi sáng." },
+  { icon: KeyRound, title: "Bảo mật hai lớp", desc: "Đăng nhập bằng Magic Link hoặc mã OTP — an tâm như ở ngân hàng." },
+  { icon: ShieldCheck, title: "Dữ liệu của riêng bạn", desc: "Chúng tôi không bán, không chia sẻ thông tin cá nhân cho bên thứ ba." },
+  { icon: Sparkles, title: "Miễn phí trọn gói", desc: "Tất cả tính năng dành cho thành viên — không phí ẩn, không nâng cấp." },
 ];
 
 export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props) {
@@ -75,18 +75,22 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
           {/* Features grid — mọi tính năng hữu ích */}
           <div className="relative">
             <div className="hairline mb-5" />
-            <div className="mb-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              <span>Mọi thứ bạn nhận được</span>
+            <div className="mb-5">
+              <div className="font-display text-[20px] tracking-tight text-foreground">Đăng ký một lần, dùng cả bộ</div>
+              <p className="mt-1 text-[13px] text-muted-foreground">Những thứ bạn sẽ có ngay sau khi tạo tài khoản miễn phí.</p>
             </div>
-            <ul className="grid grid-cols-1 xl:grid-cols-2 gap-x-5 gap-y-4">
-              {FEATURES.map((f) => (
-                <li key={f.title} className="flex gap-3">
-                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-gold/25 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] text-gold">
-                    <f.icon className="h-4 w-4" />
+            <ul className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-3.5">
+              {FEATURES.map((f, i) => (
+                <li key={f.title} className="group flex gap-3">
+                  <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-md text-gold/90">
+                    <f.icon className="h-[15px] w-[15px]" strokeWidth={1.75} />
                   </span>
-                  <div className="min-w-0">
-                    <div className="text-[13.5px] font-medium text-foreground leading-tight">{f.title}</div>
-                    <div className="mt-0.5 text-[12.5px] leading-snug text-muted-foreground">{f.desc}</div>
+                  <div className="min-w-0 flex-1 pb-3.5 border-b border-border/50 group-last:border-b-0 xl:[&:nth-last-child(-n+2)]:border-b-0">
+                    <div className="text-[13.5px] font-medium text-foreground leading-tight">
+                      <span className="mr-1.5 text-[11px] tabular-nums text-muted-foreground/60">{String(i + 1).padStart(2, "0")}</span>
+                      {f.title}
+                    </div>
+                    <div className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">{f.desc}</div>
                   </div>
                 </li>
               ))}
