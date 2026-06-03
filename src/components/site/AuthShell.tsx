@@ -56,7 +56,6 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
               </span>
               <span className="font-display text-xl tracking-tight">MarketWatch</span>
             </Link>
-            <span className="eyebrow">Vietnam · Financial Desk</span>
           </header>
 
           <div className="my-10 max-w-xl">
