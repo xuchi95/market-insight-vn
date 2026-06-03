@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * Lấy dữ liệu cổ phiếu VN từ VNDIRECT finfo-api (finfo-api.vndirect.com.vn).
- * Cùng nhà với dchart đã hoạt động ổn, không cần API key. TCBS apipubaws.* đã 404.
+ * Lấy dữ liệu cổ phiếu VN từ SSI iBoard (iboard-api.ssi.com.vn) — public, không
+ * cần API key, hoạt động ổn từ edge ngoài VN (TCBS apipubaws.* đã 404,
+ * VNDIRECT finfo-api geo-block IP nước ngoài).
  *
  * Endpoint:
- *  - giá lịch sử:   /v4/stock_prices?sort=date:desc&size=2&page=1&q=code:{SYM}
- *  - hồ sơ cty:    /v4/company_profiles?q=code:{SYM}
- *  - thông tin cty: /v4/stocks?q=code:{SYM}
- *  - chỉ số TC:    /v4/ratios/latest?q=code:{SYM}
+ *  - OHLC 2 phiên gần nhất:  /statistics/charts/history?resolution=1D&symbol={SYM}&from=...&to=...
+ *  - hồ sơ công ty:           /statistics/company/company-profile?symbol={SYM}
+ *  - chỉ số tài chính:        /statistics/company/company-statistics?symbol={SYM}
+ *
+ * Lưu ý: giá trong charts/history ở đơn vị NGÀN VND (vd 60.9 = 60.900 đ/cp);
+ * marketCap & EPS trả về ở đơn vị VND nguyên.
  */
 
 const UPSTREAM_TIMEOUT_MS = 6000;
@@ -62,7 +65,8 @@ async function fetchJson(url: string): Promise<any | null> {
       headers: {
         accept: "application/json",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
-        referer: "https://dstock.vndirect.com.vn/",
+        referer: "https://iboard.ssi.com.vn/",
+        origin: "https://iboard.ssi.com.vn",
       },
       signal: ctrl.signal,
     });
@@ -84,78 +88,93 @@ function num(v: any): number | null {
   return typeof n === "number" && Number.isFinite(n) ? n : null;
 }
 
-// VNDIRECT ratios/latest trả về mảng các bản ghi, mỗi bản ghi có
-// { code, itemCode, reportDate, value, ratioCode, ... }. Map ratioCode (text)
-// hoặc itemCode (number) sang field thân thiện.
-function pickRatio(rows: any[], keys: string[]): number | null {
-  if (!Array.isArray(rows)) return null;
-  for (const r of rows) {
-    const k = String(r?.ratioCode ?? r?.itemCode ?? r?.code ?? "").toUpperCase();
-    if (keys.some((x) => k === x.toUpperCase())) {
-      const v = num(r?.value);
-      if (v !== null) return v;
-    }
-  }
-  return null;
-}
-
 async function build(symbol: string): Promise<VnStockPayload> {
   const SYM = symbol.toUpperCase();
 
-  const [pricesJson, profileJson, stockJson, ratiosJson] = await Promise.all([
-    fetchJson(`https://finfo-api.vndirect.com.vn/v4/stock_prices?sort=date:desc&size=2&page=1&q=code:${SYM}`),
-    fetchJson(`https://finfo-api.vndirect.com.vn/v4/company_profiles?q=code:${SYM}`),
-    fetchJson(`https://finfo-api.vndirect.com.vn/v4/stocks?q=code:${SYM}`),
-    fetchJson(`https://finfo-api.vndirect.com.vn/v4/ratios/latest?q=code:${SYM}`),
+  const now = Math.floor(Date.now() / 1000);
+  const from = now - 30 * 86400; // 30 ngày để đủ lấy 2 phiên gần nhất kể cả nghỉ lễ
+
+  const [chartJson, profileJson, statsJson] = await Promise.all([
+    fetchJson(
+      `https://iboard-api.ssi.com.vn/statistics/charts/history?resolution=1D&symbol=${SYM}&from=${from}&to=${now}`,
+    ),
+    fetchJson(`https://iboard-api.ssi.com.vn/statistics/company/company-profile?symbol=${SYM}`),
+    fetchJson(`https://iboard-api.ssi.com.vn/statistics/company/company-statistics?symbol=${SYM}`),
   ]);
 
-  const priceRows: any[] = Array.isArray(pricesJson?.data) ? pricesJson.data : [];
-  const last = priceRows[0] ?? null;
-  const prev = priceRows[1] ?? null;
-  const profile: any = Array.isArray(profileJson?.data) && profileJson.data.length ? profileJson.data[0] : null;
-  const stock: any = Array.isArray(stockJson?.data) && stockJson.data.length ? stockJson.data[0] : null;
-  const ratios: any[] = Array.isArray(ratiosJson?.data) ? ratiosJson.data : [];
+  const chart: any = chartJson?.data ?? null;
+  const profile: any = profileJson?.data ?? null;
+  const stats: any = statsJson?.data ?? null;
 
-  // Giá VNDIRECT đã ở đơn vị VND/cp (vd VNM ~ 70000). Đôi khi field "close" là
-  // adjusted close — ưu tiên `close`, fallback `adClose` / `basicPrice`.
-  const price = num(last?.close) ?? num(last?.adClose) ?? num(last?.basicPrice);
-  const prevCloseRaw =
-    num(last?.basicPrice) ?? // tham chiếu phiên hiện tại
-    num(prev?.close) ??
-    num(prev?.adClose);
-  const prevClose = prevCloseRaw;
-  const change =
-    num(last?.change) ?? (price !== null && prevClose !== null ? price - prevClose : null);
+  // SSI charts/history trả về cột song song t/o/h/l/c (đơn vị NGÀN VND).
+  const c: number[] = Array.isArray(chart?.c) ? chart.c : [];
+  const o: number[] = Array.isArray(chart?.o) ? chart.o : [];
+  const h: number[] = Array.isArray(chart?.h) ? chart.h : [];
+  const l: number[] = Array.isArray(chart?.l) ? chart.l : [];
+  const v: number[] = Array.isArray(chart?.v) ? chart.v : [];
+  const lastIdx = c.length - 1;
+  const prevIdx = c.length - 2;
+
+  // Quy đổi sang VND/cp (× 1000) cho khớp các trang khác đã dùng VND.
+  const toVnd = (x: number | null | undefined) =>
+    x === null || x === undefined || !Number.isFinite(x) ? null : Math.round(x * 1000);
+
+  const price = lastIdx >= 0 ? toVnd(c[lastIdx]) : null;
+  const prevClose = prevIdx >= 0 ? toVnd(c[prevIdx]) : null;
+  const change = price !== null && prevClose !== null ? price - prevClose : null;
   const changePct =
-    num(last?.pctChange) ??
-    (price !== null && prevClose && prevClose > 0 ? ((price - prevClose) / prevClose) * 100 : null);
+    price !== null && prevClose && prevClose > 0
+      ? ((price - prevClose) / prevClose) * 100
+      : null;
+
+  // SSI company-statistics: marketCap & EPS đã ở đơn vị VND nguyên;
+  // roe/roa/dividendYield trả về dạng tỉ lệ (0.31 = 31%).
+  const pe = num(stats?.pe);
+  const eps = num(stats?.eps);
+  const roeRaw = num(stats?.roe);
+  const roaRaw = num(stats?.roa);
+  const bvps = num(stats?.bv);
+  const pb = num(stats?.pb);
+  const mcapVnd = num(stats?.marketCap);
+  // Chuẩn hoá: % cho roe/roa, tỉ VND cho marketCap.
+  const roe = roeRaw !== null ? roeRaw * 100 : null;
+  const roa = roaRaw !== null ? roaRaw * 100 : null;
+  const marketCap = mcapVnd !== null ? mcapVnd / 1e9 : null;
+
+  // foundingDate dạng "20/11/2003 00:00:00" → năm thành lập
+  let established: number | null = null;
+  const fd: string | undefined = profile?.foundingDate;
+  if (typeof fd === "string") {
+    const m = fd.match(/(\d{4})/);
+    if (m) established = Number(m[1]);
+  }
 
   return {
     symbol: SYM,
-    companyName: profile?.companyName ?? stock?.companyName ?? stock?.companyNameEng ?? null,
-    shortName: stock?.shortName ?? profile?.shortName ?? null,
-    industry: profile?.industryName ?? stock?.industryName ?? profile?.industryLevel2 ?? null,
-    exchange: stock?.floor ?? last?.floor ?? profile?.floor ?? null,
-    website: profile?.companyWebsite ?? profile?.website ?? null,
-    established: num(profile?.establishedYear) ?? num(profile?.foundingDate?.slice?.(0, 4)),
-    employees: num(profile?.noEmployees) ?? num(profile?.totalEmployees),
+    companyName: profile?.companyName ?? profile?.companyNameVi ?? profile?.companyNameEn ?? null,
+    shortName: profile?.shortName ?? null,
+    industry: profile?.sector ?? profile?.industryName ?? profile?.superSector ?? null,
+    exchange: profile?.exchange ?? null,
+    website: profile?.website ?? profile?.companyWebsite ?? null,
+    established,
+    employees: num(profile?.numberOfEmployee),
     price,
     prevClose,
     change,
     changePct,
-    high: num(last?.high) ?? num(last?.adHigh),
-    low: num(last?.low) ?? num(last?.adLow),
-    open: num(last?.open) ?? num(last?.adOpen),
-    volume: num(last?.nmVolume) ?? num(last?.totalMatchVol) ?? num(last?.accumulatedVol),
-    pe: pickRatio(ratios, ["PE", "PRICE_TO_EARNINGS", "51003"]),
-    eps: pickRatio(ratios, ["EPS", "BASIC_EPS", "52006", "52001"]),
-    roe: pickRatio(ratios, ["ROE", "53001"]),
-    roa: pickRatio(ratios, ["ROA", "53002"]),
-    bvps: pickRatio(ratios, ["BVPS", "BOOK_VALUE_PER_SHARE", "52007"]),
-    pb: pickRatio(ratios, ["PB", "PRICE_TO_BOOK", "51006"]),
-    marketCap: pickRatio(ratios, ["MARKETCAP", "MARKET_CAP", "51001"]),
+    high: lastIdx >= 0 ? toVnd(h[lastIdx]) : null,
+    low: lastIdx >= 0 ? toVnd(l[lastIdx]) : null,
+    open: lastIdx >= 0 ? toVnd(o[lastIdx]) : null,
+    volume: lastIdx >= 0 && Number.isFinite(v[lastIdx]) ? Math.round(v[lastIdx]) : null,
+    pe,
+    eps,
+    roe,
+    roa,
+    bvps,
+    pb,
+    marketCap,
     fetchedAt: Date.now(),
-    source: "VNDIRECT finfo-api",
+    source: "SSI iBoard (charts/history + company-profile + company-statistics)",
   };
 }
 
