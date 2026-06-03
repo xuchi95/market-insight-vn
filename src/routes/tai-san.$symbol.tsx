@@ -312,7 +312,6 @@ function AssetDetail() {
   // gradient + area — every 10s when the live ticker updates.
   const chartPositive = stats ? stats.last >= stats.first : true;
   const color = chartPositive ? "var(--up)" : "var(--down)";
-  const positive = (coin?.change24h ?? 0) >= 0;
   const rangeLabel = range === "1" ? "24 giờ" : range === "7" ? "7 ngày" : range === "30" ? "30 ngày" : "90 ngày";
 
   const assetCrumb = useMemo(() => {
