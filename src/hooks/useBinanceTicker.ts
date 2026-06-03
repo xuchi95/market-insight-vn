@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
 // Throttle UI updates from the WS stream. Binance pushes ~1 frame/sec but
-// price ticks can burst more often during volatile moments; flushing every
-// frame causes visible jank on mobile. 1s feels realtime and avoids re-render
-// storms.
-const UI_FLUSH_MS = 1000;
+// we only need a "near-realtime" feel on the asset page — flushing every
+// 10s keeps the UI smooth and battery-friendly while still showing live
+// price/change movement.
+const UI_FLUSH_MS = 10_000;
 
 // CoinGecko id -> Binance USDT spot pair. Must mirror server map in
 // src/routes/api/public/crypto.ts (BINANCE_SYMBOL). Coins absent here will
