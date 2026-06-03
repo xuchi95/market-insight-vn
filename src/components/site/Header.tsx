@@ -390,10 +390,10 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                             className={`w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
                           >
                             <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
-                              {s.symbol}
+                              {highlightMatch(s.symbol, q)}
                             </span>
                             <span className="flex-1 min-w-0">
-                              <span className="block text-sm text-foreground truncate">{s.label}</span>
+                              <span className="block text-sm text-foreground truncate">{highlightMatch(s.label, q)}</span>
                               <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
                             </span>
                           </button>
@@ -615,10 +615,10 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                       className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
                     >
                       <span className="inline-flex min-w-[52px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-2 py-1 text-[11px] font-bold tracking-wider text-[var(--gold)]">
-                        {s.symbol}
+                        {highlightMatch(s.symbol, q)}
                       </span>
                       <span className="flex-1 min-w-0">
-                        <span className="block text-[15px] text-foreground truncate">{s.label}</span>
+                        <span className="block text-[15px] text-foreground truncate">{highlightMatch(s.label, q)}</span>
                         <span className="block text-[11px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
                       </span>
                     </button>
