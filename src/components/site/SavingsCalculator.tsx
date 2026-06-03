@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Calculator } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Calculator, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SectionCard } from "@/components/site/SectionCard";
 import { TENORS, type SavingsRate } from "@/lib/data/savingsRates";
@@ -59,6 +59,21 @@ export function SavingsCalculator({ items }: Props) {
 
   const selectedBank = items.find((b) => b.shortName === bankShort);
   const bankRate = selectedBank?.rates[tenor];
+
+  // Nếu ngân hàng đang chọn không công bố lãi suất cho kỳ hạn hiện tại,
+  // tự động chuyển sang kỳ hạn gần nhất có công bố để tránh kết quả = 0.
+  useEffect(() => {
+    if (!selectedBank) return;
+    if (typeof selectedBank.rates[tenor] === "number") return;
+    const available = TENORS.filter((t) => typeof selectedBank.rates[t.key] === "number");
+    if (available.length === 0) return;
+    const currentMonths = TENOR_MONTHS[tenor];
+    const nearest = available.reduce((best, t) =>
+      Math.abs(TENOR_MONTHS[t.key] - currentMonths) < Math.abs(TENOR_MONTHS[best.key] - currentMonths) ? t : best,
+    available[0]);
+    setTenor(nearest.key);
+  }, [bankShort, tenor, selectedBank]);
+
   const customRate = Number(customRateStr.replace(",", "."));
   const hasCustom = customRateStr.trim() !== "" && Number.isFinite(customRate) && customRate > 0;
   const annualRate = hasCustom ? customRate : bankRate ?? 0;
@@ -109,12 +124,30 @@ export function SavingsCalculator({ items }: Props) {
   }, [items, tenor, amount, totalMonths, tenorMonths, mode]);
 
   return (
-    <SectionCard
-      title="Công cụ tính lãi tiết kiệm"
-      description={`Dùng lãi suất thật từ ${items.length} ngân hàng phía trên — chọn ngân hàng, kỳ hạn, số tiền và thời gian gửi.`}
-      icon={<Calculator className="h-4 w-4" />}
-    >
-      <div className="grid gap-6 p-4 lg:p-5 lg:grid-cols-[1.1fr_1fr]">
+    <div className="relative overflow-hidden rounded-2xl border border-[var(--gold)]/40 bg-gradient-to-br from-[var(--gold)]/[0.08] via-background to-background shadow-[0_0_60px_-15px_color-mix(in_oklab,var(--gold)_40%,transparent)]">
+      {/* Ambient gold glows */}
+      <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[var(--gold)]/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[var(--gold)]/[0.07] blur-3xl" />
+
+      {/* Header */}
+      <div className="relative flex items-center gap-3 border-b border-[var(--gold)]/20 bg-gradient-to-r from-[var(--gold)]/10 to-transparent px-5 py-4">
+        <div className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)] ring-1 ring-[var(--gold)]/30">
+          <Calculator className="h-5 w-5" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-bold tracking-tight md:text-lg">Công cụ tính lãi tiết kiệm</h3>
+            <span className="hidden items-center gap-1 rounded-full bg-[var(--gold)]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--gold)] md:inline-flex">
+              <Sparkles className="h-3 w-3" /> Lãi suất thật
+            </span>
+          </div>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Ước tính tiền lãi theo {items.length} ngân hàng — chọn ngân hàng, kỳ hạn và số tiền gửi.
+          </p>
+        </div>
+      </div>
+
+      <div className="relative grid gap-6 p-4 lg:p-6 lg:grid-cols-[1.1fr_1fr]">
         {/* Form nhập — chia 4 bước rõ ràng */}
         <div className="space-y-5">
           {/* Bước 1: Số tiền */}
@@ -241,13 +274,19 @@ export function SavingsCalculator({ items }: Props) {
 
         {/* Kết quả */}
         <div className="space-y-3">
-          <div className="rounded-xl border border-border bg-gradient-to-br from-[var(--gold)]/10 via-transparent to-transparent p-5">
-            <div className="flex items-center justify-between">
+          <div className="relative overflow-hidden rounded-xl border border-[var(--gold)]/40 bg-gradient-to-br from-[var(--gold)]/15 via-[var(--gold)]/[0.04] to-transparent p-5 shadow-[0_0_40px_-10px_color-mix(in_oklab,var(--gold)_35%,transparent)]">
+            <div aria-hidden className="pointer-events-none absolute -top-16 -right-10 h-40 w-40 rounded-full bg-[var(--gold)]/15 blur-2xl" />
+            <div className="relative flex items-center justify-between">
               <div className="text-xs uppercase tracking-wider text-muted-foreground">Tiền lãi ước tính</div>
               <div className="text-xs text-muted-foreground tabular-nums">{totalMonths} tháng · {annualRate ? annualRate.toFixed(2) : "—"}%/năm</div>
             </div>
-            <div className="mt-1 text-3xl font-bold tabular-nums text-[var(--gold)]">{fmtVnd(result.interest)}</div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+            <div className="relative mt-1 text-4xl font-extrabold tabular-nums text-[var(--gold)] drop-shadow-[0_0_20px_color-mix(in_oklab,var(--gold)_40%,transparent)]">{fmtVnd(result.interest)}</div>
+            {annualRate === 0 && (
+              <div className="relative mt-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                Ngân hàng này chưa công bố lãi suất kỳ hạn {TENORS.find((t) => t.key === tenor)?.label}. Vui lòng đổi kỳ hạn hoặc nhập lãi suất tùy chỉnh ở mục bên trên.
+              </div>
+            )}
+            <div className="relative mt-4 grid grid-cols-2 gap-3 text-sm">
               <div>
                 <div className="text-xs text-muted-foreground">Tổng nhận về</div>
                 <div className="font-semibold tabular-nums">{fmtVnd(result.total)}</div>
@@ -296,6 +335,6 @@ export function SavingsCalculator({ items }: Props) {
           )}
         </div>
       </div>
-    </SectionCard>
+    </div>
   );
 }
