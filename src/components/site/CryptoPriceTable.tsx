@@ -34,7 +34,8 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   const { data, isLoading, refetch, isFetching, dataUpdatedAt, isError, error } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
-    refetchInterval: 60_000,
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: false,
   });
   useQueryErrorToast(isError, error, "giá crypto");
   const { compact } = useNumberFormat();
@@ -78,7 +79,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       id="crypto"
       icon={<Bitcoin className="h-4 w-4" />}
       title="Bảng giá crypto"
-      description="Giá thị trường realtime • cập nhật mỗi 15s"
+      description="Giá thị trường realtime • cập nhật mỗi 10s"
       meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
