@@ -15,6 +15,7 @@ import { NumberFormatProvider } from "@/hooks/useNumberFormat";
 import { Toaster } from "@/components/ui/sonner";
 import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
+import { CookieConsent } from "@/components/site/CookieConsent";
 
 function NotFoundComponent() {
   const path = typeof window !== "undefined" ? window.location.pathname : "/";
@@ -279,6 +280,7 @@ function RootComponent() {
             <Toaster position="top-right" richColors />
             <NewsletterPopup />
             <AuthWelcomeBanner />
+            <CookieConsent />
           </NumberFormatProvider>
         </AuthProvider>
       </ThemeProvider>

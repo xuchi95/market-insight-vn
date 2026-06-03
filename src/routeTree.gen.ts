@@ -40,6 +40,7 @@ import { Route as CryptoRouteImport } from './routes/crypto'
 import { Route as ConverterRouteImport } from './routes/converter'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ChungKhoanRouteImport } from './routes/chung-khoan'
+import { Route as ChinhSachCookieRouteImport } from './routes/chinh-sach-cookie'
 import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat'
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as AdminRouteImport } from './routes/_admin'
@@ -251,6 +252,11 @@ const ContactRoute = ContactRouteImport.update({
 const ChungKhoanRoute = ChungKhoanRouteImport.update({
   id: '/chung-khoan',
   path: '/chung-khoan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChinhSachCookieRoute = ChinhSachCookieRouteImport.update({
+  id: '/chinh-sach-cookie',
+  path: '/chinh-sach-cookie',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChinhSachBaoMatRoute = ChinhSachBaoMatRouteImport.update({
@@ -553,6 +559,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
+  '/chinh-sach-cookie': typeof ChinhSachCookieRoute
   '/chung-khoan': typeof ChungKhoanRoute
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
@@ -642,6 +649,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
+  '/chinh-sach-cookie': typeof ChinhSachCookieRoute
   '/chung-khoan': typeof ChungKhoanRoute
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
@@ -733,6 +741,7 @@ export interface FileRoutesById {
   '/_admin': typeof AdminRouteWithChildren
   '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
+  '/chinh-sach-cookie': typeof ChinhSachCookieRoute
   '/chung-khoan': typeof ChungKhoanRoute
   '/contact': typeof ContactRoute
   '/converter': typeof ConverterRoute
@@ -824,6 +833,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bank-rates'
     | '/chinh-sach-bao-mat'
+    | '/chinh-sach-cookie'
     | '/chung-khoan'
     | '/contact'
     | '/converter'
@@ -913,6 +923,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bank-rates'
     | '/chinh-sach-bao-mat'
+    | '/chinh-sach-cookie'
     | '/chung-khoan'
     | '/contact'
     | '/converter'
@@ -1003,6 +1014,7 @@ export interface FileRouteTypes {
     | '/_admin'
     | '/bank-rates'
     | '/chinh-sach-bao-mat'
+    | '/chinh-sach-cookie'
     | '/chung-khoan'
     | '/contact'
     | '/converter'
@@ -1094,6 +1106,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   BankRatesRoute: typeof BankRatesRoute
   ChinhSachBaoMatRoute: typeof ChinhSachBaoMatRoute
+  ChinhSachCookieRoute: typeof ChinhSachCookieRoute
   ChungKhoanRoute: typeof ChungKhoanRoute
   ContactRoute: typeof ContactRoute
   ConverterRoute: typeof ConverterRoute
@@ -1387,6 +1400,13 @@ declare module '@tanstack/react-router' {
       path: '/chung-khoan'
       fullPath: '/chung-khoan'
       preLoaderRoute: typeof ChungKhoanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chinh-sach-cookie': {
+      id: '/chinh-sach-cookie'
+      path: '/chinh-sach-cookie'
+      fullPath: '/chinh-sach-cookie'
+      preLoaderRoute: typeof ChinhSachCookieRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chinh-sach-bao-mat': {
@@ -1836,6 +1856,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   BankRatesRoute: BankRatesRoute,
   ChinhSachBaoMatRoute: ChinhSachBaoMatRoute,
+  ChinhSachCookieRoute: ChinhSachCookieRoute,
   ChungKhoanRoute: ChungKhoanRoute,
   ContactRoute: ContactRoute,
   ConverterRoute: ConverterRoute,
