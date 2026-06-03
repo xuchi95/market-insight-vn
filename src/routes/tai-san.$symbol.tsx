@@ -565,6 +565,17 @@ function AssetDetail() {
 
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
+                <h2 className="font-bold">Biểu đồ nâng cao · {coin.symbol}/USDT</h2>
+                <LiveDot />
+                <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                  Nến realtime · indicator · vẽ trendline
+                </span>
+              </div>
+              <TradingViewChart symbol={toTradingViewCryptoSymbol(coin.symbol)} interval="60" height={560} />
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ giá</h2>
                 {chartFetching && !chartLoading && (
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" aria-label="Đang cập nhật" />
