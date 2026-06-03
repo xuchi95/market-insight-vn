@@ -17,7 +17,7 @@ import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
-import { Star, BellRing, BellOff, Loader2, Mail, AlertTriangle, RefreshCw } from "lucide-react";
+import { Star, BellRing, BellOff, Loader2, Mail, AlertTriangle, RefreshCw, Lock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Link as RouterLink } from "@tanstack/react-router";
