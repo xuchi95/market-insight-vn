@@ -40,7 +40,7 @@ export function Footer() {
                 <button
                   type="button"
                   onClick={() => typeof window !== "undefined" && window.dispatchEvent(new CustomEvent("mw:open-cookie-settings"))}
-                  className="hover:text-foreground text-left"
+                  className="hover:text-foreground text-left cursor-pointer"
                 >
                   Quản lý Cookie
                 </button>
