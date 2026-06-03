@@ -16,7 +16,7 @@ const COIN_IDS = [
   "tron",
   "chainlink",
   "polkadot",
-  "matic-network",
+  "polygon-ecosystem-token",
   "shiba-inu",
   "litecoin",
   "bitcoin-cash",
