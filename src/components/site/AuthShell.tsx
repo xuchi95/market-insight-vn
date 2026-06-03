@@ -98,6 +98,14 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
 
         {/* RIGHT — form */}
         <section className="relative flex flex-col px-5 py-8 sm:px-10 lg:px-14 lg:py-14">
+          {/* ambient background — subtle, won't wash out the form */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_oklab,var(--gold)_10%,transparent),transparent_60%),radial-gradient(ellipse_at_bottom_left,color-mix(in_oklab,var(--gold)_6%,transparent),transparent_55%)]" />
+            <div className="absolute inset-0 bg-grid opacity-[0.06] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
+            <div className="absolute -top-24 -right-24 h-[360px] w-[360px] rounded-full bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] blur-3xl" />
+            <div className="absolute -bottom-32 -left-16 h-[320px] w-[320px] rounded-full bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] blur-3xl" />
+          </div>
+          <div className="relative flex flex-1 flex-col">
           {/* mobile brand */}
           <div className="mb-8 flex items-center justify-between lg:hidden">
             <Link to="/" className="inline-flex items-center gap-2.5">
@@ -132,6 +140,7 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
               <Link to="/chinh-sach-bao-mat" className="underline underline-offset-2 hover:text-foreground">Chính sách bảo mật</Link>{" "}
               của MarketWatch.
             </p>
+          </div>
           </div>
         </section>
       </div>
