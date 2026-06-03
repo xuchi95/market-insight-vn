@@ -85,7 +85,7 @@ function Index() {
               <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Bảng giá thị trường</h2>
               <div className="eyebrow opacity-60 hidden sm:block">Cập nhật mỗi 30 giây</div>
             </div>
-            <BentoTiles />
+            <BentoTiles initial={initialPrices} />
           </section>
 
           {user && (
