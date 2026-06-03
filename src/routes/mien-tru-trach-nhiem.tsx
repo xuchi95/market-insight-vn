@@ -82,9 +82,12 @@ function DisclaimerPage() {
               Website nỗ lực bảo đảm tính chính xác và kịp thời của dữ liệu nhưng <strong>không cam kết, không bảo đảm</strong> và <strong>không chịu trách nhiệm</strong> đối với bất kỳ tổn thất, thiệt hại trực tiếp hoặc gián tiếp nào phát sinh từ việc người dùng sử dụng, tin cậy hoặc giao dịch dựa trên thông tin tại Website.
             </p>
 
-            <h2 className="text-xl font-semibold text-foreground">6. Tuân thủ pháp luật</h2>
+            <h2 className="text-xl font-semibold text-foreground">6. Phân loại Website và tuân thủ pháp luật</h2>
             <p>
-              Website hoạt động phù hợp với pháp luật Việt Nam, bao gồm Luật An ninh mạng 2018, Luật Giao dịch điện tử, Nghị định 72/2013/NĐ-CP và các văn bản hướng dẫn. Khi phát hiện nội dung sai sót hoặc có yêu cầu hợp pháp từ cơ quan nhà nước có thẩm quyền, Website sẽ phối hợp xử lý kịp thời.
+              MarketWatch được phân loại là <strong>trang thông tin điện tử cung cấp dịch vụ chuyên ngành</strong> về dữ liệu thị trường tài chính (giá vàng, tỷ giá ngoại tệ, lãi suất, giá tài sản mã hoá, chỉ số chứng khoán, giá nhiên liệu) theo Điều 26 và Điều 30 Nghị định 147/2024/NĐ-CP. Website <strong>KHÔNG PHẢI</strong> trang thông tin điện tử tổng hợp, không sao chép, biên tập lại tin tức, bài viết của cơ quan báo chí, do đó không thuộc diện phải xin Giấy phép thiết lập trang thông tin điện tử tổng hợp theo Điều 25 Nghị định 147/2024/NĐ-CP.
+            </p>
+            <p>
+              Website hoạt động phù hợp với pháp luật Việt Nam, bao gồm Luật An ninh mạng 2018, Luật Giao dịch điện tử 2023, Nghị định 147/2024/NĐ-CP (thay thế Nghị định 72/2013/NĐ-CP và Nghị định 27/2018/NĐ-CP từ ngày có hiệu lực), Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân và các văn bản hướng dẫn liên quan. Khi phát hiện nội dung sai sót hoặc có yêu cầu hợp pháp từ cơ quan nhà nước có thẩm quyền, Website sẽ phối hợp xử lý kịp thời.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground">7. Liên hệ</h2>
