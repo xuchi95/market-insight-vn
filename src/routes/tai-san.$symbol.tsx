@@ -593,7 +593,6 @@ function AssetDetail() {
                   <div className="flex flex-wrap gap-2 justify-center">
                     <RouterLink
                       to="/dang-nhap"
-                      search={{ redirect: `/tai-san/${coin.symbol.toLowerCase()}` }}
                       className="inline-flex h-9 items-center rounded-md bg-[var(--gold)] px-4 text-sm font-semibold text-[var(--gold-foreground)] hover:opacity-90 transition-opacity"
                     >
                       Đăng nhập
