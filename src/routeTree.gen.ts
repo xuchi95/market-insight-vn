@@ -59,6 +59,8 @@ import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-prev
 import { Route as AdminMwAdminIndexRouteImport } from './routes/_admin/mw-admin.index'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicWatchlistAlertsCronRouteImport } from './routes/api/public/watchlist-alerts-cron'
+import { Route as ApiPublicVnStockChartRouteImport } from './routes/api/public/vn-stock-chart'
+import { Route as ApiPublicVnStockRouteImport } from './routes/api/public/vn-stock'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
 import { Route as ApiPublicTestPostmarkRouteImport } from './routes/api/public/test-postmark'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
@@ -350,6 +352,16 @@ const ApiPublicWatchlistAlertsCronRoute =
     path: '/api/public/watchlist-alerts-cron',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicVnStockChartRoute = ApiPublicVnStockChartRouteImport.update({
+  id: '/api/public/vn-stock-chart',
+  path: '/api/public/vn-stock-chart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVnStockRoute = ApiPublicVnStockRouteImport.update({
+  id: '/api/public/vn-stock',
+  path: '/api/public/vn-stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicUsStocksRoute = ApiPublicUsStocksRouteImport.update({
   id: '/api/public/us-stocks',
   path: '/api/public/us-stocks',
@@ -642,6 +654,8 @@ export interface FileRoutesByFullPath {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/vn-stock': typeof ApiPublicVnStockRoute
+  '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
@@ -733,6 +747,8 @@ export interface FileRoutesByTo {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/vn-stock': typeof ApiPublicVnStockRoute
+  '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
@@ -826,6 +842,8 @@ export interface FileRoutesById {
   '/api/public/stocks': typeof ApiPublicStocksRoute
   '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
+  '/api/public/vn-stock': typeof ApiPublicVnStockRoute
+  '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
@@ -919,6 +937,8 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/test-postmark'
     | '/api/public/us-stocks'
+    | '/api/public/vn-stock'
+    | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin/'
@@ -1010,6 +1030,8 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/test-postmark'
     | '/api/public/us-stocks'
+    | '/api/public/vn-stock'
+    | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/mw-admin'
@@ -1102,6 +1124,8 @@ export interface FileRouteTypes {
     | '/api/public/stocks'
     | '/api/public/test-postmark'
     | '/api/public/us-stocks'
+    | '/api/public/vn-stock'
+    | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/xau'
     | '/_admin/mw-admin/'
@@ -1187,6 +1211,8 @@ export interface RootRouteChildren {
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
   ApiPublicTestPostmarkRoute: typeof ApiPublicTestPostmarkRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
+  ApiPublicVnStockRoute: typeof ApiPublicVnStockRoute
+  ApiPublicVnStockChartRoute: typeof ApiPublicVnStockChartRoute
   ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
@@ -1546,6 +1572,20 @@ declare module '@tanstack/react-router' {
       path: '/api/public/watchlist-alerts-cron'
       fullPath: '/api/public/watchlist-alerts-cron'
       preLoaderRoute: typeof ApiPublicWatchlistAlertsCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/vn-stock-chart': {
+      id: '/api/public/vn-stock-chart'
+      path: '/api/public/vn-stock-chart'
+      fullPath: '/api/public/vn-stock-chart'
+      preLoaderRoute: typeof ApiPublicVnStockChartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/vn-stock': {
+      id: '/api/public/vn-stock'
+      path: '/api/public/vn-stock'
+      fullPath: '/api/public/vn-stock'
+      preLoaderRoute: typeof ApiPublicVnStockRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/us-stocks': {
@@ -1945,6 +1985,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicStocksRoute: ApiPublicStocksRoute,
   ApiPublicTestPostmarkRoute: ApiPublicTestPostmarkRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
+  ApiPublicVnStockRoute: ApiPublicVnStockRoute,
+  ApiPublicVnStockChartRoute: ApiPublicVnStockChartRoute,
   ApiPublicWatchlistAlertsCronRoute: ApiPublicWatchlistAlertsCronRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
   ApiPublicHooksRefreshSavingsRatesRoute:
