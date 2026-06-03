@@ -110,7 +110,7 @@ export function CookieConsent() {
   const rejectAll = async () => {
     writeConsent({ necessary: true, functional: false, analytics: false, marketing: false });
     if (user) {
-      // Logged-in users must accept cookies — sign out and explain via modal
+      // "Từ chối tất cả": bắt buộc đăng xuất an toàn, chuyển sang chế độ ẩn danh
       try {
         await signOut();
       } catch {
@@ -122,13 +122,13 @@ export function CookieConsent() {
     }
     close();
   };
+  // "Chỉ thiết yếu": vẫn cho phép duy trì phiên đăng nhập, chỉ tắt cookie tuỳ chọn
+  const essentialOnly = () => {
+    writeConsent({ necessary: true, functional: false, analytics: false, marketing: false });
+    close();
+  };
   const savePrefs = () => {
     writeConsent(prefs);
-    // If user is signed in and turned off all optional categories, treat as reject
-    if (user && !prefs.functional && !prefs.analytics && !prefs.marketing) {
-      void rejectAll();
-      return;
-    }
     close();
   };
 
