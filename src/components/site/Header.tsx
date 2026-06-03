@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, Star, User as UserIcon, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
@@ -222,7 +222,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
     setQ("");
   };
 
-  const highlightMatch = (text: string, term: string): React.ReactNode => {
+  const highlightMatch = (text: string, term: string): ReactNode => {
     const t = term.trim();
     if (!t) return text;
     const normChar = (c: string) =>
