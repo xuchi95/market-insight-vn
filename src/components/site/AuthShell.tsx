@@ -1,5 +1,18 @@
 import { Link } from "@tanstack/react-router";
-import { TrendingUp, ShieldCheck, BellRing, Sparkles } from "lucide-react";
+import {
+  TrendingUp,
+  ShieldCheck,
+  BellRing,
+  Sparkles,
+  LineChart,
+  Star,
+  Briefcase,
+  ArrowLeftRight,
+  Calculator,
+  CalendarDays,
+  Newspaper,
+  KeyRound,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 interface Props {
@@ -10,18 +23,19 @@ interface Props {
   children: ReactNode;
 }
 
-const TICKER = [
-  { sym: "SJC", val: "84.20", chg: "+0.42%", up: true },
-  { sym: "BTC", val: "97,420", chg: "+1.81%", up: true },
-  { sym: "ETH", val: "3,412", chg: "−0.62%", up: false },
-  { sym: "USD", val: "25,460", chg: "+0.08%", up: true },
-  { sym: "XAU", val: "2,680", chg: "+0.31%", up: true },
-];
-
 const FEATURES = [
-  { icon: BellRing, title: "Cảnh báo giá qua email", desc: "Đặt ngưỡng SJC, BTC, USD — chúng tôi gửi ngay khi chạm." },
-  { icon: TrendingUp, title: "Dashboard realtime", desc: "Vàng, crypto, tỷ giá cập nhật liên tục, biểu đồ chuyên sâu." },
-  { icon: ShieldCheck, title: "Bảo mật chuẩn ngân hàng", desc: "Mã hóa đầu cuối, không bao giờ chia sẻ dữ liệu cá nhân." },
+  { icon: TrendingUp, title: "Dashboard realtime", desc: "Vàng, crypto, tỷ giá, chứng khoán cập nhật liên tục." },
+  { icon: LineChart, title: "Biểu đồ nâng cao", desc: "Nến realtime, chỉ báo kỹ thuật & công cụ vẽ chuyên nghiệp." },
+  { icon: BellRing, title: "Cảnh báo giá qua email", desc: "Đặt ngưỡng SJC, BTC, USD — gửi ngay khi chạm." },
+  { icon: Star, title: "Watchlist cá nhân", desc: "Theo dõi nhanh các tài sản yêu thích trong một nơi." },
+  { icon: Briefcase, title: "Danh mục đầu tư", desc: "Quản lý portfolio đa loại tài sản, lãi/lỗ realtime." },
+  { icon: Calculator, title: "Bộ công cụ tài chính", desc: "DCA ROI, quy đổi tiền tệ, lãi suất tiết kiệm." },
+  { icon: ArrowLeftRight, title: "Quy đổi tiền tệ", desc: "Tỷ giá ngân hàng & thị trường tự do, cập nhật ngày." },
+  { icon: CalendarDays, title: "Lịch kinh tế", desc: "Sự kiện vĩ mô VN & thế giới ảnh hưởng đến thị trường." },
+  { icon: Newspaper, title: "Bản tin sáng", desc: "Tóm tắt phiên giao dịch quan trọng gửi vào email mỗi sáng." },
+  { icon: KeyRound, title: "Bảo mật 2FA", desc: "TOTP & Magic Link — chuẩn bảo mật ngân hàng." },
+  { icon: ShieldCheck, title: "Bảo vệ dữ liệu", desc: "Mã hóa đầu cuối, không bao giờ chia sẻ dữ liệu cá nhân." },
+  { icon: Sparkles, title: "Hoàn toàn miễn phí", desc: "Mọi tính năng dành cho thành viên, không phí ẩn." },
 ];
 
 export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props) {
@@ -45,55 +59,39 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
             <span className="eyebrow">Vietnam · Financial Desk</span>
           </header>
 
-          <div className="my-12 max-w-xl">
+          <div className="my-10 max-w-xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-3 py-1 text-xs font-medium text-gold">
               <Sparkles className="h-3.5 w-3.5" />
               {eyebrow}
             </div>
-            <h2 className="font-display text-[42px] xl:text-[52px] leading-[1.05] tracking-tight">
+            <h2 className="font-display text-[38px] xl:text-[46px] leading-[1.05] tracking-tight">
               Đọc thị trường <span className="text-gold italic">như một biên tập viên</span>, hành động như một trader.
             </h2>
-            <p className="mt-5 text-base text-muted-foreground max-w-md">
+            <p className="mt-4 text-[15px] text-muted-foreground max-w-md">
               Bản tin sáng, cảnh báo giá realtime và bảng dữ liệu chuyên sâu — tất cả trong một tài khoản MarketWatch.
             </p>
+          </div>
 
-            <ul className="mt-10 space-y-5">
+          {/* Features grid — mọi tính năng hữu ích */}
+          <div className="relative">
+            <div className="hairline mb-5" />
+            <div className="mb-4 flex items-center justify-between text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              <span>Mọi thứ bạn nhận được</span>
+              <span className="text-gold/80">{FEATURES.length} tính năng</span>
+            </div>
+            <ul className="grid grid-cols-1 xl:grid-cols-2 gap-x-5 gap-y-4">
               {FEATURES.map((f) => (
-                <li key={f.title} className="flex gap-4">
-                  <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-gold/25 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] text-gold">
+                <li key={f.title} className="flex gap-3">
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-gold/25 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] text-gold">
                     <f.icon className="h-4 w-4" />
                   </span>
-                  <div>
-                    <div className="text-sm font-medium text-foreground">{f.title}</div>
-                    <div className="text-sm text-muted-foreground">{f.desc}</div>
+                  <div className="min-w-0">
+                    <div className="text-[13.5px] font-medium text-foreground leading-tight">{f.title}</div>
+                    <div className="mt-0.5 text-[12.5px] leading-snug text-muted-foreground">{f.desc}</div>
                   </div>
                 </li>
               ))}
             </ul>
-          </div>
-
-          {/* ticker tape */}
-          <div className="relative">
-            <div className="hairline mb-4" />
-            <div className="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-muted-foreground mb-3">
-              <span>Live Tape · Phiên đang mở</span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--up)] opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--up)]" />
-                </span>
-                Realtime
-              </span>
-            </div>
-            <div className="grid grid-cols-5 gap-px overflow-hidden rounded-lg border border-border bg-border">
-              {TICKER.map((t) => (
-                <div key={t.sym} className="bg-card px-3 py-3">
-                  <div className="text-xs font-semibold tracking-widest text-muted-foreground">{t.sym}</div>
-                  <div className="mt-1 font-mono text-sm font-semibold tabular">{t.val}</div>
-                  <div className={`mt-0.5 font-mono text-xs tabular ${t.up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>{t.chg}</div>
-                </div>
-              ))}
-            </div>
           </div>
         </aside>
 
