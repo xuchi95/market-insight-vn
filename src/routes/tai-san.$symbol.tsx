@@ -26,6 +26,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { updateWatchAlertPrefs, getMyWatchAlertPrefs } from "@/lib/watchlist/alerts.functions";
 import { toast } from "sonner";
+import { TradingViewChart, toTradingViewCryptoSymbol } from "@/components/site/TradingViewChart";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
@@ -560,6 +561,17 @@ function AssetDetail() {
             <div className="grid grid-cols-2 gap-3">
               <ChangeCard label="Biến động 24h" value={coin.change24h} />
               <ChangeCard label="Biến động 7 ngày" value={change7d} />
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="flex items-center gap-3 p-4 border-b border-border">
+                <h2 className="font-bold">Biểu đồ nâng cao · {coin.symbol}/USDT</h2>
+                <LiveDot />
+                <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                  Nến realtime · indicator · vẽ trendline
+                </span>
+              </div>
+              <TradingViewChart symbol={toTradingViewCryptoSymbol(coin.symbol)} interval="60" height={560} />
             </div>
 
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
