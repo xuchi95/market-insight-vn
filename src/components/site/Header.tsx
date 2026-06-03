@@ -510,7 +510,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             aria-label="Tìm kiếm"
             className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
-            <Search className="h-4.5 w-4.5" />
+            <Search className="h-5 w-5" />
           </button>
           <button
             className="md:hidden text-muted-foreground hover:text-foreground"
