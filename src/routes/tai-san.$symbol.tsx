@@ -27,6 +27,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { updateWatchAlertPrefs, getMyWatchAlertPrefs } from "@/lib/watchlist/alerts.functions";
 import { toast } from "sonner";
 import { TradingViewChart, toTradingViewCryptoSymbol } from "@/components/site/TradingViewChart";
+import { useTheme } from "@/hooks/useTheme";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
@@ -153,6 +154,7 @@ async function loadChart(id: string, days: string) {
 function AssetDetail() {
   const { symbol } = useParams({ from: "/tai-san/$symbol" });
   const [range, setRange] = useState("7");
+  const { theme } = useTheme();
 
   const lower = symbol.toLowerCase();
   const isGold = lower.startsWith("gold-");
@@ -569,6 +571,7 @@ function AssetDetail() {
                 <LiveDot />
               </div>
               <TradingViewChart
+                key={`tv-${coin.symbol}-${theme}`}
                 symbol={toTradingViewCryptoSymbol(coin.symbol)}
                 interval="60"
                 height={760}
