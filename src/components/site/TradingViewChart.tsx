@@ -121,15 +121,19 @@ export function TradingViewChart({
 
   return (
     <div
-      ref={ref}
-      className="tradingview-widget-container"
       style={{
         height: isMobile ? mobileHeight : height,
         width: "100%",
         minHeight: isMobile ? mobileHeight : height,
         position: "relative",
+        overflow: "hidden",
       }}
     >
+      <div
+        ref={ref}
+        className="tradingview-widget-container absolute inset-0"
+        style={{ height: "100%", width: "100%" }}
+      />
       {/*
         Brand overlay — che:
         1) Logo TradingView nhỏ ở góc dưới trái (ngay sát đáy chart)
@@ -139,8 +143,14 @@ export function TradingViewChart({
       */}
       <div
         aria-hidden="true"
-        className="absolute left-0 bottom-0 z-10 bg-card"
-        style={{ width: 220, height: isMobile ? 56 : 96, pointerEvents: "none" }}
+        className="absolute z-10 bg-card"
+        style={{
+          left: isMobile ? 0 : 78,
+          bottom: isMobile ? 42 : 88,
+          width: isMobile ? 210 : 330,
+          height: isMobile ? 72 : 118,
+          pointerEvents: "none",
+        }}
       />
       <a
         href="https://marketwatch.vn"
@@ -148,7 +158,7 @@ export function TradingViewChart({
         rel="noopener noreferrer"
         aria-label="Made by MarketWatch.vn"
         className="absolute left-2 z-20 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition-colors shadow-sm"
-        style={{ bottom: isMobile ? 18 : 36 }}
+        style={{ left: isMobile ? 8 : 92, bottom: isMobile ? 58 : 112 }}
       >
         <span className="opacity-70">Made by</span>
         <span className="font-semibold text-foreground">MarketWatch.vn</span>
