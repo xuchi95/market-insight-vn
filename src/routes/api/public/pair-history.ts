@@ -219,6 +219,8 @@ export const Route = createFileRoute("/api/public/pair-history")({
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async ({ request }) => {
+        const guard = await requireRequestUser(request);
+        if (guard) return guard;
         const url = new URL(request.url);
         const from = (url.searchParams.get("from") || "").toLowerCase();
         const to = (url.searchParams.get("to") || "").toLowerCase();
