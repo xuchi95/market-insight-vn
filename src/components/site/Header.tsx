@@ -86,19 +86,75 @@ type SearchSuggestion = {
 };
 
 const SEARCH_SUGGESTIONS: SearchSuggestion[] = [
+  // Tiền điện tử (top theo vốn hoá — khớp với danh sách /api/public/crypto)
   { symbol: "BTC", label: "Bitcoin", category: "Tiền điện tử", to: "/tai-san/btc", keywords: ["btc", "bitcoin", "crypto"] },
-  { symbol: "ETH", label: "Ethereum", category: "Tiền điện tử", to: "/tai-san/eth", keywords: ["eth", "ethereum", "crypto"] },
-  { symbol: "SOL", label: "Solana", category: "Tiền điện tử", to: "/tai-san/sol", keywords: ["sol", "solana", "crypto"] },
+  { symbol: "ETH", label: "Ethereum", category: "Tiền điện tử", to: "/tai-san/eth", keywords: ["eth", "ethereum"] },
+  { symbol: "USDT", label: "Tether", category: "Tiền điện tử", to: "/tai-san/usdt", keywords: ["usdt", "tether", "stablecoin"] },
+  { symbol: "BNB", label: "BNB", category: "Tiền điện tử", to: "/tai-san/bnb", keywords: ["bnb", "binance"] },
+  { symbol: "SOL", label: "Solana", category: "Tiền điện tử", to: "/tai-san/sol", keywords: ["sol", "solana"] },
+  { symbol: "XRP", label: "XRP (Ripple)", category: "Tiền điện tử", to: "/tai-san/xrp", keywords: ["xrp", "ripple"] },
+  { symbol: "DOGE", label: "Dogecoin", category: "Tiền điện tử", to: "/tai-san/doge", keywords: ["doge", "dogecoin"] },
+  { symbol: "TON", label: "Toncoin", category: "Tiền điện tử", to: "/tai-san/ton", keywords: ["ton", "toncoin"] },
+  { symbol: "ADA", label: "Cardano", category: "Tiền điện tử", to: "/tai-san/ada", keywords: ["ada", "cardano"] },
+  { symbol: "AVAX", label: "Avalanche", category: "Tiền điện tử", to: "/tai-san/avax", keywords: ["avax", "avalanche"] },
+  { symbol: "TRX", label: "Tron", category: "Tiền điện tử", to: "/tai-san/trx", keywords: ["trx", "tron"] },
+  { symbol: "LINK", label: "Chainlink", category: "Tiền điện tử", to: "/tai-san/link", keywords: ["link", "chainlink"] },
+  { symbol: "DOT", label: "Polkadot", category: "Tiền điện tử", to: "/tai-san/dot", keywords: ["dot", "polkadot"] },
+  { symbol: "POL", label: "Polygon (POL)", category: "Tiền điện tử", to: "/tai-san/pol", keywords: ["pol", "matic", "polygon"] },
+  { symbol: "SHIB", label: "Shiba Inu", category: "Tiền điện tử", to: "/tai-san/shib", keywords: ["shib", "shiba", "shiba inu"] },
+  { symbol: "LTC", label: "Litecoin", category: "Tiền điện tử", to: "/tai-san/ltc", keywords: ["ltc", "litecoin"] },
+  { symbol: "BCH", label: "Bitcoin Cash", category: "Tiền điện tử", to: "/tai-san/bch", keywords: ["bch", "bitcoin cash"] },
+  { symbol: "UNI", label: "Uniswap", category: "Tiền điện tử", to: "/tai-san/uni", keywords: ["uni", "uniswap"] },
+  { symbol: "XLM", label: "Stellar", category: "Tiền điện tử", to: "/tai-san/xlm", keywords: ["xlm", "stellar"] },
+  { symbol: "NEAR", label: "NEAR Protocol", category: "Tiền điện tử", to: "/tai-san/near", keywords: ["near"] },
+  { symbol: "ICP", label: "Internet Computer", category: "Tiền điện tử", to: "/tai-san/icp", keywords: ["icp", "internet computer"] },
+  { symbol: "APT", label: "Aptos", category: "Tiền điện tử", to: "/tai-san/apt", keywords: ["apt", "aptos"] },
+  { symbol: "ATOM", label: "Cosmos", category: "Tiền điện tử", to: "/tai-san/atom", keywords: ["atom", "cosmos"] },
+  { symbol: "XMR", label: "Monero", category: "Tiền điện tử", to: "/tai-san/xmr", keywords: ["xmr", "monero"] },
+  { symbol: "ETC", label: "Ethereum Classic", category: "Tiền điện tử", to: "/tai-san/etc", keywords: ["etc", "ethereum classic"] },
+  { symbol: "FIL", label: "Filecoin", category: "Tiền điện tử", to: "/tai-san/fil", keywords: ["fil", "filecoin"] },
+  { symbol: "HBAR", label: "Hedera", category: "Tiền điện tử", to: "/tai-san/hbar", keywords: ["hbar", "hedera"] },
+  { symbol: "ARB", label: "Arbitrum", category: "Tiền điện tử", to: "/tai-san/arb", keywords: ["arb", "arbitrum"] },
+  { symbol: "VET", label: "VeChain", category: "Tiền điện tử", to: "/tai-san/vet", keywords: ["vet", "vechain"] },
+  { symbol: "MKR", label: "Maker", category: "Tiền điện tử", to: "/tai-san/mkr", keywords: ["mkr", "maker"] },
+  { symbol: "RENDER", label: "Render", category: "Tiền điện tử", to: "/tai-san/render", keywords: ["render", "rndr"] },
+  { symbol: "INJ", label: "Injective", category: "Tiền điện tử", to: "/tai-san/inj", keywords: ["inj", "injective"] },
+  { symbol: "OP", label: "Optimism", category: "Tiền điện tử", to: "/tai-san/op", keywords: ["op", "optimism"] },
+  { symbol: "SUI", label: "Sui", category: "Tiền điện tử", to: "/tai-san/sui", keywords: ["sui"] },
+  { symbol: "PEPE", label: "Pepe", category: "Tiền điện tử", to: "/tai-san/pepe", keywords: ["pepe", "meme"] },
+  { symbol: "USDC", label: "USD Coin", category: "Tiền điện tử", to: "/tai-san/usdc", keywords: ["usdc", "usd coin", "stablecoin"] },
+  { symbol: "DAI", label: "Dai", category: "Tiền điện tử", to: "/tai-san/dai", keywords: ["dai", "stablecoin"] },
+  { symbol: "WBTC", label: "Wrapped Bitcoin", category: "Tiền điện tử", to: "/tai-san/wbtc", keywords: ["wbtc", "wrapped bitcoin"] },
+  { symbol: "LEO", label: "LEO Token", category: "Tiền điện tử", to: "/tai-san/leo", keywords: ["leo"] },
+  { symbol: "KAS", label: "Kaspa", category: "Tiền điện tử", to: "/tai-san/kas", keywords: ["kas", "kaspa"] },
+
+  // Vàng
   { symbol: "SJC", label: "Vàng miếng SJC 1L", category: "Vàng", to: "/tai-san/gold-sjc-1l", keywords: ["sjc", "vang", "vàng", "gold"] },
   { symbol: "XAU", label: "Vàng thế giới (XAU/USD)", category: "Vàng", to: "/tai-san/gold-xauusd", keywords: ["xau", "gold", "vàng thế giới"] },
   { symbol: "PNJ", label: "Vàng PNJ", category: "Vàng", to: "/tai-san/gold-pnj", keywords: ["pnj", "vang", "vàng"] },
+  { symbol: "DOJI", label: "Vàng DOJI", category: "Vàng", to: "/tai-san/gold-doji", keywords: ["doji", "vang", "vàng"] },
+
+  // Ngoại tệ
   { symbol: "USD", label: "Đô la Mỹ (USD/VND)", category: "Ngoại tệ", to: "/tai-san/usd", keywords: ["usd", "dollar", "đô"] },
   { symbol: "EUR", label: "Euro (EUR/VND)", category: "Ngoại tệ", to: "/tai-san/eur", keywords: ["eur", "euro"] },
   { symbol: "JPY", label: "Yên Nhật (JPY/VND)", category: "Ngoại tệ", to: "/tai-san/jpy", keywords: ["jpy", "yen", "yên"] },
-  { symbol: "VCB·USD", label: "Vietcombank · USD/VND", category: "Ngân hàng", to: "/tai-san/bank-usd", keywords: ["vcb", "vietcombank", "ngân hàng", "usd"] },
+  { symbol: "GBP", label: "Bảng Anh (GBP/VND)", category: "Ngoại tệ", to: "/tai-san/gbp", keywords: ["gbp", "bảng", "bang"] },
+  { symbol: "AUD", label: "Đô la Úc (AUD/VND)", category: "Ngoại tệ", to: "/tai-san/aud", keywords: ["aud", "úc"] },
+  { symbol: "CAD", label: "Đô la Canada (CAD/VND)", category: "Ngoại tệ", to: "/tai-san/cad", keywords: ["cad", "canada"] },
+  { symbol: "CHF", label: "Franc Thuỵ Sĩ (CHF/VND)", category: "Ngoại tệ", to: "/tai-san/chf", keywords: ["chf", "thuỵ sĩ", "swiss"] },
+  { symbol: "CNY", label: "Nhân dân tệ (CNY/VND)", category: "Ngoại tệ", to: "/tai-san/cny", keywords: ["cny", "yuan", "nhân dân tệ"] },
+  { symbol: "KRW", label: "Won Hàn Quốc (KRW/VND)", category: "Ngoại tệ", to: "/tai-san/krw", keywords: ["krw", "won", "hàn quốc"] },
+  { symbol: "SGD", label: "Đô la Singapore (SGD/VND)", category: "Ngoại tệ", to: "/tai-san/sgd", keywords: ["sgd", "singapore"] },
+  { symbol: "THB", label: "Baht Thái (THB/VND)", category: "Ngoại tệ", to: "/tai-san/thb", keywords: ["thb", "baht", "thái"] },
+  { symbol: "HKD", label: "Đô la Hồng Kông (HKD/VND)", category: "Ngoại tệ", to: "/tai-san/hkd", keywords: ["hkd", "hồng kông"] },
+
+  // Chứng khoán & hàng hoá
   { symbol: "VN-Index", label: "Chỉ số VN-Index", category: "Chứng khoán", to: "/tai-san/vnindex", keywords: ["vnindex", "vn-index", "hose", "chứng khoán"] },
   { symbol: "Brent", label: "Dầu Brent (BZ=F)", category: "Hàng hoá", to: "/tai-san/oil-brent", keywords: ["brent", "dau", "dầu", "oil", "bz=f", "bzf"] },
   { symbol: "WTI", label: "Dầu WTI (CL=F)", category: "Hàng hoá", to: "/tai-san/oil-wti", keywords: ["wti", "dau", "dầu", "oil", "cl=f", "clf", "crude"] },
+
+  // Ngân hàng & công cụ
+  { symbol: "VCB·USD", label: "Vietcombank · USD/VND", category: "Ngân hàng", to: "/tai-san/bank-usd", keywords: ["vcb", "vietcombank", "ngân hàng", "usd"] },
   { symbol: "DCA", label: "Công cụ DCA & ROI", category: "Công cụ", to: "/cong-cu/dca-roi", keywords: ["dca", "roi", "đầu tư"] },
 ];
 
@@ -129,15 +185,31 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
   const suggestions = useMemo(() => {
     const term = q.trim().toLowerCase();
-    const pool = term
-      ? SEARCH_SUGGESTIONS.filter(
-          (s) =>
-            s.symbol.toLowerCase().includes(term) ||
-            s.label.toLowerCase().includes(term) ||
-            s.keywords.some((k) => k.includes(term)),
-        )
-      : SEARCH_SUGGESTIONS.slice(0, 6);
-    return pool.slice(0, 6);
+    if (!term) return SEARCH_SUGGESTIONS.slice(0, 8);
+    const norm = (v: string) =>
+      v
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d");
+    const n = norm(term);
+    type Scored = { s: SearchSuggestion; score: number };
+    const scored: Scored[] = [];
+    for (const s of SEARCH_SUGGESTIONS) {
+      const sym = norm(s.symbol);
+      const lab = norm(s.label);
+      const kws = s.keywords.map(norm);
+      let score = 0;
+      if (sym === n) score = 100;
+      else if (sym.startsWith(n)) score = 80;
+      else if (kws.some((k) => k === n)) score = 70;
+      else if (kws.some((k) => k.startsWith(n))) score = 60;
+      else if (lab.startsWith(n)) score = 50;
+      else if (sym.includes(n) || lab.includes(n) || kws.some((k) => k.includes(n))) score = 30;
+      if (score > 0) scored.push({ s, score });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 8).map((x) => x.s);
   }, [q]);
 
   useEffect(() => { setActiveIdx(0); }, [q]);
@@ -431,6 +503,15 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </Link>
             </div>
           )}
+          {/* Mobile search trigger */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Tìm kiếm"
+            className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          >
+            <Search className="h-5 w-5" />
+          </button>
           <button
             className="md:hidden text-muted-foreground hover:text-foreground"
             onClick={() => setOpen((v) => !v)}
@@ -440,6 +521,84 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </button>
         </div>
       </div>
+
+      {/* Mobile search sheet */}
+      {searchOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-xl animate-in fade-in duration-150">
+          <div className="mx-auto max-w-6xl px-4 pt-3 pb-4 border-b border-border bg-background">
+            <form
+              className="relative flex items-center gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (suggestions[activeIdx]) { goToSuggestion(suggestions[activeIdx]); return; }
+                const term = q.trim().toLowerCase();
+                if (!term) return;
+                onSearch?.(term);
+                const dest = fallbackRoute(term);
+                if (dest) navigate({ to: dest as never });
+                setSearchOpen(false);
+              }}
+            >
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gold)]/80" />
+                <Input
+                  ref={searchInputRef}
+                  value={q}
+                  onChange={(e) => { setQ(e.target.value); setSuggestOpen(true); }}
+                  onFocus={() => setSuggestOpen(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1)); }
+                    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx((i) => Math.max(i - 1, 0)); }
+                    else if (e.key === "Escape") { setSearchOpen(false); }
+                  }}
+                  placeholder="SUI, XRP, Ethereum, SJC, USD…"
+                  className="pl-9 pr-3 h-11 w-full rounded-full border border-[var(--gold)]/30 bg-card text-base"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => { setSearchOpen(false); setQ(""); }}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+                aria-label="Đóng"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </form>
+          </div>
+          <div className="mx-auto max-w-6xl px-2 py-2 overflow-auto" style={{ maxHeight: "calc(100vh - 88px)" }}>
+            <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+              {q.trim() ? `Kết quả (${suggestions.length})` : "Gợi ý phổ biến"}
+            </div>
+            {suggestions.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                Không tìm thấy "{q}"
+              </div>
+            ) : (
+              <ul className="space-y-0.5">
+                {suggestions.map((s, idx) => (
+                  <li key={s.symbol}>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); goToSuggestion(s); }}
+                      onClick={() => goToSuggestion(s)}
+                      onMouseEnter={() => setActiveIdx(idx)}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
+                    >
+                      <span className="inline-flex min-w-[52px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-2 py-1 text-[11px] font-bold tracking-wider text-[var(--gold)]">
+                        {s.symbol}
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[15px] text-foreground truncate">{s.label}</span>
+                        <span className="block text-[11px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Mobile nav */}
       {open && (
