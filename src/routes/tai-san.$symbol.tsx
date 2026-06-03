@@ -297,7 +297,7 @@ function AssetDetail() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 space-y-6">
+      <main className="flex-1 mx-auto w-full max-w-6xl px-4 md:px-5 lg:px-6 py-8 space-y-6">
         <Breadcrumbs extra={assetCrumb} />
 
         {isLoading && !isGold && !isBank && <Skeleton className="h-40 w-full" />}
