@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AuthProvider } from "@/hooks/useAuth";
 import { NumberFormatProvider } from "@/hooks/useNumberFormat";
+import { MotionPrefProvider } from "@/hooks/useMotionPref";
 import { Toaster } from "@/components/ui/sonner";
 import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
@@ -276,11 +277,13 @@ function RootComponent() {
       <ThemeProvider>
         <AuthProvider>
           <NumberFormatProvider>
-            <Outlet />
-            <Toaster position="top-right" richColors />
-            <NewsletterPopup />
-            <AuthWelcomeBanner />
-            <CookieConsent />
+            <MotionPrefProvider>
+              <Outlet />
+              <Toaster position="top-right" richColors />
+              <NewsletterPopup />
+              <AuthWelcomeBanner />
+              <CookieConsent />
+            </MotionPrefProvider>
           </NumberFormatProvider>
         </AuthProvider>
       </ThemeProvider>
