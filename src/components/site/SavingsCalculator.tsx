@@ -223,10 +223,9 @@ export function SavingsCalculator({ items }: Props) {
                   <option
                     key={t.key}
                     value={t.key}
-                    disabled={selectedBank ? typeof selectedBank.rates[t.key] !== "number" : false}
                     className="bg-background text-foreground"
                   >
-                    {t.label}{selectedBank && typeof selectedBank.rates[t.key] === "number" ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%` : ""}
+                    {t.label}{selectedBank && typeof selectedBank.rates[t.key] === "number" ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%` : " · dùng kỳ hạn gần nhất"}
                   </option>
                 ))}
               </select>
@@ -234,9 +233,9 @@ export function SavingsCalculator({ items }: Props) {
             <div className="mt-2 flex items-center justify-between rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3 py-2">
               <span className="text-xs text-muted-foreground">
                 Lãi suất áp dụng
-                {fallback && !hasCustom && (
+                {effectiveRate?.isFallback && !hasCustom && (
                   <span className="ml-1 text-[10px] text-amber-400">
-                    (dùng kỳ hạn {TENORS.find((t) => t.key === fallback.key)?.label})
+                    (dùng kỳ hạn {TENORS.find((t) => t.key === effectiveRate.key)?.label})
                   </span>
                 )}
               </span>
