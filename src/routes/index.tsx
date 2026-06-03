@@ -6,6 +6,7 @@ import { BentoTiles } from "@/components/site/BentoTiles";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { WatchlistPanel } from "@/components/site/WatchlistPanel";
 import { useAuth } from "@/hooks/useAuth";
+import { getInitialPrices } from "@/lib/initial-prices.functions";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/`;
@@ -42,11 +43,18 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: () => getInitialPrices(),
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-8 text-sm text-muted-foreground">
+      Không tải được dữ liệu giá: {error.message}
+    </div>
+  ),
   component: Index,
 });
 
 function Index() {
   const { user } = useAuth();
+  const initialPrices = Route.useLoaderData();
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
