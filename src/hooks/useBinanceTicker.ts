@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 // Throttle UI updates from the WS stream. Binance pushes ~1 frame/sec but
 // we only need a "near-realtime" feel on the asset page — flushing every
@@ -62,104 +62,9 @@ export interface BinanceTick {
  * pair or the socket cannot connect.
  */
 export function useBinanceTicker(coinId: string | undefined | null): BinanceTick | null {
-  const [tick, setTick] = useState<BinanceTick | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
-  const pendingRef = useRef<BinanceTick | null>(null);
-  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastFlushRef = useRef(0);
-
-  useEffect(() => {
-    setTick(null);
-    if (!coinId) return;
-    const sym = BINANCE_SYMBOL[coinId];
-    if (!sym) return;
-    if (typeof window === "undefined" || typeof WebSocket === "undefined") return;
-
-    let closed = false;
-    let retry = 0;
-    let retryTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const flush = () => {
-      flushTimerRef.current = null;
-      if (closed) return;
-      const next = pendingRef.current;
-      if (!next) return;
-      pendingRef.current = null;
-      lastFlushRef.current = Date.now();
-      setTick(next);
-    };
-
-    const schedule = (next: BinanceTick) => {
-      pendingRef.current = next;
-      const now = Date.now();
-      const elapsed = now - lastFlushRef.current;
-      if (elapsed >= UI_FLUSH_MS) {
-        flush();
-        return;
-      }
-      if (flushTimerRef.current) return;
-      flushTimerRef.current = setTimeout(flush, UI_FLUSH_MS - elapsed);
-    };
-
-    const connect = () => {
-      if (closed) return;
-      let ws: WebSocket;
-      try {
-        ws = new WebSocket(`wss://stream.binance.com:9443/ws/${sym}@ticker`);
-      } catch {
-        scheduleRetry();
-        return;
-      }
-      wsRef.current = ws;
-      ws.onmessage = (ev) => {
-        try {
-          const m = JSON.parse(ev.data as string);
-          const price = Number(m.c);
-          if (!Number.isFinite(price)) return;
-          schedule({
-            priceUsd: price,
-            change24h: Number(m.P) || 0,
-            high24h: Number(m.h) || 0,
-            low24h: Number(m.l) || 0,
-            volume24h: Number(m.q) || 0,
-            updatedAt: Number(m.E) || Date.now(),
-          });
-          retry = 0;
-        } catch {
-          /* ignore malformed frame */
-        }
-      };
-      ws.onerror = () => {
-        try { ws.close(); } catch {}
-      };
-      ws.onclose = () => {
-        if (closed) return;
-        scheduleRetry();
-      };
-    };
-
-    const scheduleRetry = () => {
-      if (closed) return;
-      const delay = Math.min(15_000, 1_000 * 2 ** Math.min(retry, 4));
-      retry += 1;
-      retryTimer = setTimeout(connect, delay);
-    };
-
-    connect();
-
-    return () => {
-      closed = true;
-      if (retryTimer) clearTimeout(retryTimer);
-      if (flushTimerRef.current) clearTimeout(flushTimerRef.current);
-      flushTimerRef.current = null;
-      pendingRef.current = null;
-      lastFlushRef.current = 0;
-      try { wsRef.current?.close(); } catch {}
-      wsRef.current = null;
-    };
-  }, [coinId]);
-
-  return tick;
+  const ids = useMemo(() => (coinId ? [coinId] : []), [coinId]);
+  const ticks = useBinanceTickers(ids);
+  return coinId ? ticks[coinId] ?? null : null;
 }
 
 /**
@@ -174,13 +79,24 @@ export function useBinanceTickers(coinIds: string[]): Record<string, BinanceTick
   const lastFlushRef = useRef(0);
 
   // Stable key from sorted ids that have a Binance pair
-  const pairs = coinIds
-    .map((id) => [id, BINANCE_SYMBOL[id]] as const)
-    .filter(([, s]) => !!s);
-  const key = pairs.map(([id]) => id).sort().join(",");
+  const coinIdsKey = coinIds.join("|");
+  const pairs = useMemo(() => {
+    const seen = new Set<string>();
+    return coinIds
+      .filter((id) => {
+        if (!BINANCE_SYMBOL[id] || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      })
+      .map((id) => [id, BINANCE_SYMBOL[id]] as const);
+  }, [coinIdsKey]);
+  const key = useMemo(() => pairs.map(([id]) => id).sort().join(","), [pairs]);
 
   useEffect(() => {
-    if (!key) return;
+    if (!key) {
+      setTicks({});
+      return;
+    }
     if (typeof window === "undefined" || typeof WebSocket === "undefined") return;
 
     const idBySym: Record<string, string> = {};
