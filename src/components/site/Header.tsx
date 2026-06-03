@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, Star, User as UserIcon, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
@@ -222,6 +222,36 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
     setQ("");
   };
 
+  const highlightMatch = (text: string, term: string): ReactNode => {
+    const t = term.trim();
+    if (!t) return text;
+    const normChar = (c: string) =>
+      c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+    const n = normChar(t);
+    const map: number[] = [];
+    let normStr = "";
+    for (let i = 0; i < text.length; i++) {
+      const dec = normChar(text[i]);
+      for (let j = 0; j < dec.length; j++) {
+        map.push(i);
+        normStr += dec[j];
+      }
+    }
+    const idx = normStr.indexOf(n);
+    if (idx < 0 || n.length === 0) return text;
+    const startOrig = map[idx];
+    const endOrig = (map[idx + n.length - 1] ?? startOrig) + 1;
+    return (
+      <>
+        {text.slice(0, startOrig)}
+        <mark className="bg-[var(--gold)]/25 text-[var(--gold)] rounded-sm px-0.5 py-0">
+          {text.slice(startOrig, endOrig)}
+        </mark>
+        {text.slice(endOrig)}
+      </>
+    );
+  };
+
   const fallbackRoute = (term: string): string | null => {
     const sym = term.replace(/[^a-z0-9-]/g, "");
     if (/^(brent|wti)$/.test(sym)) return `/tai-san/oil-${sym}`;
@@ -360,10 +390,10 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                             className={`w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
                           >
                             <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
-                              {s.symbol}
+                              {highlightMatch(s.symbol, q)}
                             </span>
                             <span className="flex-1 min-w-0">
-                              <span className="block text-sm text-foreground truncate">{s.label}</span>
+                              <span className="block text-sm text-foreground truncate">{highlightMatch(s.label, q)}</span>
                               <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
                             </span>
                           </button>
@@ -585,10 +615,10 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                       className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
                     >
                       <span className="inline-flex min-w-[52px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-2 py-1 text-[11px] font-bold tracking-wider text-[var(--gold)]">
-                        {s.symbol}
+                        {highlightMatch(s.symbol, q)}
                       </span>
                       <span className="flex-1 min-w-0">
-                        <span className="block text-[15px] text-foreground truncate">{s.label}</span>
+                        <span className="block text-[15px] text-foreground truncate">{highlightMatch(s.label, q)}</span>
                         <span className="block text-[11px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
                       </span>
                     </button>
