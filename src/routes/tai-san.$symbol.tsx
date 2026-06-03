@@ -155,6 +155,7 @@ function AssetDetail() {
   const { symbol } = useParams({ from: "/tai-san/$symbol" });
   const [range, setRange] = useState("7");
   const { theme } = useTheme();
+  const { user } = useAuth();
 
   const lower = symbol.toLowerCase();
   const isGold = lower.startsWith("gold-");
