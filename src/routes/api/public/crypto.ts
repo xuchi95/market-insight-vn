@@ -67,6 +67,97 @@ interface CGAsset {
 
 const FALLBACK_USD_VND = 25_400;
 
+// CoinGecko id -> Binance spot symbol (against USDT). Coins without a Binance
+// spot pair fall back to CoinGecko's price.
+const BINANCE_SYMBOL: Record<string, string> = {
+  bitcoin: "BTCUSDT",
+  ethereum: "ETHUSDT",
+  binancecoin: "BNBUSDT",
+  solana: "SOLUSDT",
+  ripple: "XRPUSDT",
+  dogecoin: "DOGEUSDT",
+  "the-open-network": "TONUSDT",
+  cardano: "ADAUSDT",
+  "avalanche-2": "AVAXUSDT",
+  tron: "TRXUSDT",
+  chainlink: "LINKUSDT",
+  polkadot: "DOTUSDT",
+  "polygon-ecosystem-token": "POLUSDT",
+  "shiba-inu": "SHIBUSDT",
+  litecoin: "LTCUSDT",
+  "bitcoin-cash": "BCHUSDT",
+  uniswap: "UNIUSDT",
+  stellar: "XLMUSDT",
+  near: "NEARUSDT",
+  "internet-computer": "ICPUSDT",
+  aptos: "APTUSDT",
+  cosmos: "ATOMUSDT",
+  "ethereum-classic": "ETCUSDT",
+  filecoin: "FILUSDT",
+  "hedera-hashgraph": "HBARUSDT",
+  arbitrum: "ARBUSDT",
+  vechain: "VETUSDT",
+  maker: "MKRUSDT",
+  "render-token": "RENDERUSDT",
+  "injective-protocol": "INJUSDT",
+  optimism: "OPUSDT",
+  sui: "SUIUSDT",
+  pepe: "PEPEUSDT",
+  "wrapped-bitcoin": "WBTCUSDT",
+  kaspa: "KASUSDT",
+};
+
+// Stablecoins pinned to $1 (Binance pair is the stable itself, no useful tick).
+const STABLE_USD: Record<string, number> = {
+  tether: 1,
+  "usd-coin": 1,
+  dai: 1,
+};
+
+// Live tickers: refresh every 5s; Binance is ~1s realtime upstream.
+const TICKER_FRESH_MS = 5_000;
+const TICKER_TIMEOUT_MS = 3_000;
+interface LiveTick { price: number; change24h: number; volume24h: number }
+let tickerCache: { at: number; data: Map<string, LiveTick> } | null = null;
+let tickerInflight: Promise<Map<string, LiveTick>> | null = null;
+
+async function fetchBinanceTickers(): Promise<Map<string, LiveTick>> {
+  if (tickerCache && Date.now() - tickerCache.at < TICKER_FRESH_MS) {
+    return tickerCache.data;
+  }
+  if (tickerInflight) return tickerInflight;
+  tickerInflight = (async () => {
+    const symbols = Object.values(BINANCE_SYMBOL);
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), TICKER_TIMEOUT_MS);
+    try {
+      const u = new URL("https://api.binance.com/api/v3/ticker/24hr");
+      u.searchParams.set("symbols", JSON.stringify(symbols));
+      const r = await fetch(u, { signal: ctrl.signal, headers: { accept: "application/json" } });
+      if (!r.ok) throw new Error(`binance ${r.status}`);
+      const arr = (await r.json()) as Array<{ symbol: string; lastPrice: string; priceChangePercent: string; quoteVolume: string }>;
+      const map = new Map<string, LiveTick>();
+      for (const t of arr) {
+        map.set(t.symbol, {
+          price: Number(t.lastPrice),
+          change24h: Number(t.priceChangePercent),
+          volume24h: Number(t.quoteVolume),
+        });
+      }
+      tickerCache = { at: Date.now(), data: map };
+      return map;
+    } finally {
+      clearTimeout(timer);
+      tickerInflight = null;
+    }
+  })();
+  try {
+    return await tickerInflight;
+  } catch {
+    return tickerCache?.data ?? new Map();
+  }
+}
+
 function toNum(v: unknown, fallback = 0): number {
   const n = typeof v === "string" ? Number(v) : (v as number);
   return Number.isFinite(n) ? n : fallback;
@@ -105,7 +196,7 @@ function cgHeaders() {
   return h;
 }
 
-async function buildPayload() {
+async function buildBasePayload() {
   const url = new URL("https://api.coingecko.com/api/v3/coins/markets");
   url.searchParams.set("vs_currency", "usd");
   url.searchParams.set("ids", COIN_IDS.join(","));
@@ -154,6 +245,40 @@ async function buildPayload() {
   });
 
   return { updatedAt: Date.now(), usdVnd, coins };
+}
+
+/**
+ * Overlay live Binance prices (5s fresh) on top of the CoinGecko base payload
+ * (60s fresh — owns marketCap, sparkline, metadata). Result is realtime within
+ * ~5s while keeping slow-changing fields stable.
+ */
+async function buildPayload() {
+  const base = await buildBasePayload();
+  return overlayLive(base);
+}
+
+async function overlayLive(base: any) {
+  const ticks = await fetchBinanceTickers();
+  const usdVnd = base.usdVnd as number;
+  const coins = (base.coins as any[]).map((c) => {
+    const sym = BINANCE_SYMBOL[c.id];
+    const tick = sym ? ticks.get(sym) : undefined;
+    if (tick && Number.isFinite(tick.price) && tick.price > 0) {
+      return {
+        ...c,
+        priceUsd: tick.price,
+        priceVnd: tick.price * usdVnd,
+        change24h: Number.isFinite(tick.change24h) ? tick.change24h : c.change24h,
+        volume24h: Number.isFinite(tick.volume24h) && tick.volume24h > 0 ? tick.volume24h : c.volume24h,
+      };
+    }
+    if (STABLE_USD[c.id] !== undefined) {
+      const p = STABLE_USD[c.id];
+      return { ...c, priceUsd: p, priceVnd: p * usdVnd };
+    }
+    return c;
+  });
+  return { ...base, coins, updatedAt: Date.now() };
 }
 
 function refresh(): Promise<any> {
