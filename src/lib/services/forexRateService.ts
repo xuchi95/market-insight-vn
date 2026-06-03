@@ -1,4 +1,5 @@
 import type { ForexRate } from "./types";
+import { authedFetch, isAuthRequiredError } from "@/lib/api/authed-fetch";
 
 const FALLBACK: ForexRate[] = [
   { code: "USD", name: "Đô la Mỹ",        buy: 25_280, sell: 25_520, mid: 25_400, changePct: 0, updatedAt: Date.now() },
@@ -10,11 +11,12 @@ const FALLBACK: ForexRate[] = [
 
 export async function fetchForexRates(): Promise<ForexRate[]> {
   try {
-    const res = await fetch("/api/public/forex", { headers: { accept: "application/json" } });
+    const res = await authedFetch("/api/public/forex", { headers: { accept: "application/json" } });
     if (!res.ok) throw new Error(String(res.status));
     const j = await res.json();
     if (Array.isArray(j?.rates)) return j.rates as ForexRate[];
-  } catch {
+  } catch (e) {
+    if (isAuthRequiredError(e)) throw e;
     /* fallback */
   }
   return FALLBACK;
