@@ -16,7 +16,7 @@ export function Footer() {
             <p className="mt-4 text-base text-muted-foreground max-w-sm leading-relaxed">
               Nhật báo dữ liệu tài chính của Việt Nam — vàng, tiền số và ngoại tệ, cập nhật theo từng phút.
             </p>
-            <div className="mt-6 eyebrow opacity-60">Phát hành tại Hà Nội · {new Date().getFullYear()}</div>
+            <div className="mt-6 eyebrow opacity-60">Phát hành tại Đà Nẵng · {new Date().getFullYear()}</div>
           </div>
 
           <div className="md:col-span-2">
@@ -54,6 +54,20 @@ export function Footer() {
         <div className="mt-10 rounded-lg border-l-4 border border-[var(--gold)]/60 border-l-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_12%,var(--background))] p-4 text-sm text-foreground/90 leading-relaxed shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_20%,transparent)]">
           <strong className="text-[var(--gold)] uppercase tracking-wider text-sm">⚠ Lưu ý quan trọng:</strong>{" "}
           MarketWatch là kênh thông tin <em>tham khảo</em>. Dữ liệu giá vàng, tiền mã hoá và ngoại tệ được tổng hợp từ nguồn công khai của bên thứ ba, <strong className="text-foreground">không phải báo giá chính thức</strong> và <strong className="text-foreground">không cấu thành khuyến nghị đầu tư</strong>. Theo pháp luật Việt Nam, tiền ảo / tài sản mã hoá không phải phương tiện thanh toán hợp pháp; Website không tổ chức, môi giới hoặc cung cấp dịch vụ giao dịch. Xem chi tiết tại <Link to="/mien-tru-trach-nhiem" className="underline font-medium text-[var(--gold)] hover:opacity-80">Tuyên bố miễn trừ trách nhiệm</Link>.
+        </div>
+
+        <div className="mt-8 rounded-lg border border-border bg-background/40 p-5 text-sm leading-relaxed">
+          <h4 className="eyebrow mb-3 text-[var(--gold)]">Đơn vị chủ quản</h4>
+          <dl className="grid gap-y-2 gap-x-4 sm:grid-cols-[max-content_1fr] text-muted-foreground">
+            <dt className="text-foreground/80 font-medium">Công ty chủ quản</dt>
+            <dd>Công ty TNHH MTV Xuân Diệu Media</dd>
+            <dt className="text-foreground/80 font-medium">Địa chỉ</dt>
+            <dd>90/12 Hà Huy Tập, phường Thanh Khê, thành phố Đà Nẵng</dd>
+            <dt className="text-foreground/80 font-medium">Giấy ĐKKD</dt>
+            <dd>Số 040222404 cấp tại Đà Nẵng</dd>
+            <dt className="text-foreground/80 font-medium">Người đại diện &amp; chịu trách nhiệm nội dung</dt>
+            <dd>Ông Nguyễn Xuân Chính</dd>
+          </dl>
         </div>
 
         <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
