@@ -282,7 +282,9 @@ export const Route = createFileRoute("/api/public/stocks")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: async ({ request }) => {
+        const guard = await requireRequestUser(request);
+        if (guard) return guard;
         try {
           let items: IndexItem[];
           if (cache && Date.now() - cache.at < CACHE_MS) {

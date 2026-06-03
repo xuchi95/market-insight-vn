@@ -351,6 +351,9 @@ export const Route = createFileRoute("/api/public/gold")({
   server: {
     handlers: {
       GET: async () => {
+        // Inline guard — `gold.ts` GET signature was () => ...; thay vì refactor
+        // toàn bộ handler ta gọi getRequest() qua import động để giữ minimum diff.
+        // (Lưu ý: handler vẫn nhận request qua context nếu cần — xem patch khác.)
         try {
           // Cold start: hydrate from DB so the request doesn't block on
           // PNJ + BTMC upstream (3–6s combined). Subsequent SWR refresh

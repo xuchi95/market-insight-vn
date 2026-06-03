@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireRequestUser } from "@/lib/api/require-request-user.server";
 
 const CACHE_MS = 60_000;
 
@@ -70,7 +71,9 @@ export const Route = createFileRoute("/api/public/xau")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: async ({ request }) => {
+        const guard = await requireRequestUser(request);
+        if (guard) return guard;
         try {
           if (!cache || Date.now() - cache.at > CACHE_MS) {
             const payload = await fetchXau();
