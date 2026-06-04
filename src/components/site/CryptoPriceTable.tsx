@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, Bitcoin, RefreshCw, ArrowUpDown, Trophy, BarChart3 } from "lucide-react";
+import { AlertTriangle, Bitcoin, RefreshCw, ArrowUpDown, Trophy, BarChart3, ArrowDownNarrowWide, ArrowUpNarrowWide } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -12,6 +12,13 @@ import { Sparkline } from "./Sparkline";
 import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
 
 type SortKey = "marketCap" | "priceUsd" | "priceVnd" | "change24h" | "volume24h";
@@ -102,43 +109,60 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       <div className="flex flex-col gap-4 p-4 lg:p-5">
         {/* Category filter */}
         <div className="flex flex-wrap items-center gap-2">
-          {(["all", "top-mcap", "top-volume"] as Category[]).map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium border transition-colors ${
-                category === cat
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-foreground"
-              }`}
-            >
-              {cat === "top-mcap" && <Trophy className="h-3 w-3" />}
-              {cat === "top-volume" && <BarChart3 className="h-3 w-3" />}
-              {CATEGORY_LABELS[cat]}
-            </button>
-          ))}
-        </div>
-
-        {/* Advanced sort controls (only when not using category presets) */}
-        {category === "all" && (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted-foreground mr-1">Sắp xếp theo:</span>
-            {(["marketCap", "priceUsd", "priceVnd", "change24h", "volume24h"] as SortKey[]).map((k) => (
+          {/* Category segmented chips */}
+          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card/60 p-1">
+            {(["all", "top-mcap", "top-volume"] as Category[]).map((cat) => (
               <button
-                key={k}
-                onClick={() => toggleSort(k)}
-                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium border transition-colors ${
-                  sort === k
-                    ? "bg-primary/10 text-primary border-primary/30"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/30"
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  category === cat
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {SORT_LABELS[k]}
-                {sort === k && (dir === "desc" ? " ↓" : " ↑")}
+                {cat === "top-mcap" && <Trophy className="h-3 w-3" />}
+                {cat === "top-volume" && <BarChart3 className="h-3 w-3" />}
+                {CATEGORY_LABELS[cat]}
               </button>
             ))}
           </div>
-        )}
+
+          {/* Sort dropdown + direction toggle (only when not using category presets) */}
+          {category === "all" && (
+            <div className="ml-auto inline-flex items-center gap-1.5">
+              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                <SelectTrigger className="h-9 w-[150px] text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    <SelectValue />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {(["marketCap", "priceUsd", "priceVnd", "change24h", "volume24h"] as SortKey[]).map((k) => (
+                    <SelectItem key={k} value={k} className="text-xs">
+                      {SORT_LABELS[k]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => setDir(dir === "asc" ? "desc" : "asc")}
+                title={dir === "desc" ? "Giảm dần" : "Tăng dần"}
+                aria-label="Đảo chiều sắp xếp"
+              >
+                {dir === "desc" ? (
+                  <ArrowDownNarrowWide className="h-4 w-4" />
+                ) : (
+                  <ArrowUpNarrowWide className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
 
         <div className="overflow-x-auto rounded-lg border border-border">
           {isError && (data?.length ?? 0) > 0 && (
