@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator } from "lucide-react";
+import { Calculator, Wallet, Landmark, CalendarRange, Repeat } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TENORS, type SavingsRate } from "@/lib/data/savingsRates";
 import { cn } from "@/lib/utils";
 
@@ -55,13 +57,27 @@ interface Props {
   items: SavingsRate[];
 }
 
-function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
+function FieldHead({
+  icon,
+  title,
+  hint,
+  htmlFor,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  hint?: string;
+  htmlFor?: string;
+}) {
   return (
-    <div className="mb-2 flex items-center gap-2">
-      <span className="grid h-5 w-5 place-items-center rounded-full bg-[var(--gold)]/20 text-[10px] font-bold text-[var(--gold)]">
-        {n}
-      </span>
-      <span className="text-sm font-semibold">{children}</span>
+    <div className="mb-2 flex items-baseline justify-between gap-3">
+      <Label
+        htmlFor={htmlFor}
+        className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+      >
+        <span className="text-[var(--gold)]/80">{icon}</span>
+        {title}
+      </Label>
+      {hint && <span className="text-[11px] text-muted-foreground/70">{hint}</span>}
     </div>
   );
 }
