@@ -170,7 +170,6 @@ function useClock() {
 }
 
 export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
-  const time = useClock();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -481,7 +480,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </div>
             {/* Inline divider between functional groups */}
             <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
-            <span className="hidden 2xl:inline px-1.5 text-[11px] font-medium tabular text-muted-foreground/80">{time}</span>
             <NumberFormatToggle />
             <ThemeToggle />
           </div>

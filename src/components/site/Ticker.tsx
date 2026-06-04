@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Clock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -47,6 +48,16 @@ function fmtCompact(n: number): string {
 }
 
 export function Ticker() {
+  // Đồng hồ độc lập đặt ở đầu thanh ticker — tách khỏi header để gọn gàng.
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    setNow(new Date());
+    const t = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(t);
+  }, []);
+  const timeStr = now
+    ? now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+    : "";
   // Mỗi nguồn dữ liệu được lưu riêng để render tăng dần — không phải chờ
   // nguồn chậm nhất (giá vàng cold-start có thể mất 5–7s) thì mới hiện ticker.
   type GoldArr = Awaited<ReturnType<typeof fetchGoldPrices>>;
@@ -251,14 +262,24 @@ export function Ticker() {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="ticker-marquee group relative overflow-hidden border-y border-border bg-card/60 py-2.5">
-        <div className="animate-marquee whitespace-nowrap">
-          <Row />
-          <Row />
+      <div className="ticker-marquee group relative flex items-stretch overflow-hidden border-y border-border bg-card/60">
+        {/* Đồng hồ độc lập — không cuộn cùng marquee */}
+        <div
+          className="relative z-10 flex shrink-0 items-center gap-1.5 border-r border-border bg-card/80 px-3 py-2.5 text-[11px] font-medium tabular text-muted-foreground"
+          aria-label="Giờ hiện tại"
+        >
+          <Clock className="h-3 w-3 text-[var(--gold)]/80" aria-hidden />
+          <span className="min-w-[2.6rem] tracking-wider">{timeStr || "--:--"}</span>
         </div>
-        {/* edge fades */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent" />
+        <div className="relative flex-1 overflow-hidden py-2.5">
+          <div className="animate-marquee whitespace-nowrap">
+            <Row />
+            <Row />
+          </div>
+          {/* edge fades */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent" />
+        </div>
       </div>
     </TooltipProvider>
   );
