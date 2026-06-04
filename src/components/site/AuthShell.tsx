@@ -52,10 +52,10 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
         <aside className="relative hidden lg:flex flex-col justify-between border-r border-border/70 px-12 py-10 xl:px-16">
           <header className="flex items-center justify-between">
             <Link to="/" className="group inline-flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-md bg-gold-gradient text-[var(--gold-foreground)] font-display text-lg leading-none shadow-[0_8px_24px_-12px_color-mix(in_oklab,var(--gold)_60%,transparent)]">
-                M
+              <img src={logoUrl} alt="MarketWatch logo" className="h-8 w-8 object-contain" />
+              <span className="font-display text-xl leading-none tracking-tight">
+                <span className="text-[var(--gold)]">Market</span><span className="text-foreground">Watch</span>
               </span>
-              <span className="font-display text-xl tracking-tight">MarketWatch</span>
             </Link>
           </header>
 
@@ -112,8 +112,10 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
           {/* mobile brand */}
           <div className="mb-8 flex items-center justify-between lg:hidden">
             <Link to="/" className="inline-flex items-center gap-2.5">
-              <span className="grid h-8 w-8 place-items-center rounded-md bg-gold-gradient text-[var(--gold-foreground)] font-display text-base leading-none">M</span>
-              <span className="font-display text-lg tracking-tight">MarketWatch</span>
+              <img src={logoUrl} alt="MarketWatch logo" className="h-7 w-7 object-contain" />
+              <span className="font-display text-lg leading-none tracking-tight">
+                <span className="text-[var(--gold)]">Market</span><span className="text-foreground">Watch</span>
+              </span>
             </Link>
             <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">← Về trang chủ</Link>
           </div>
