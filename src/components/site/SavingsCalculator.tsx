@@ -187,11 +187,16 @@ export function SavingsCalculator({ items }: Props) {
       </div>
 
       <div className="relative grid gap-6 p-4 lg:p-6 lg:grid-cols-[1.1fr_1fr]">
-        {/* Form nhập — chia 4 bước rõ ràng */}
-        <div className="space-y-5">
-          {/* Bước 1: Số tiền */}
+        {/* Form nhập — bố cục field chuyên nghiệp */}
+        <div className="space-y-5 rounded-xl border border-border/60 bg-card/40 p-4 lg:p-5">
+          {/* Số tiền gửi */}
           <div>
-            <StepLabel n={1}>Số tiền gửi</StepLabel>
+            <FieldHead
+              htmlFor="amount"
+              icon={<Wallet className="h-3.5 w-3.5" />}
+              title="Số tiền gửi"
+              hint="VND"
+            />
             <div className="relative">
               <Input
                 id="amount"
@@ -199,17 +204,24 @@ export function SavingsCalculator({ items }: Props) {
                 value={amount > 0 ? new Intl.NumberFormat("vi-VN").format(amount) : ""}
                 onChange={(e) => setAmountStr(e.target.value)}
                 placeholder="VD: 100.000.000"
-                className="h-11 pr-12 text-base font-semibold tabular-nums"
+                className="h-11 pr-14 text-base font-semibold tabular-nums"
               />
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">VND</span>
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border/60 bg-muted/60 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground">
+                VND
+              </span>
             </div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
               {[10_000_000, 50_000_000, 100_000_000, 500_000_000, 1_000_000_000].map((v) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => setAmountStr(String(v))}
-                  className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground hover:border-[var(--gold)]/50 hover:text-foreground"
+                  className={cn(
+                    "rounded-md border px-2 py-0.5 text-xs tabular-nums transition-colors",
+                    amount === v
+                      ? "border-[var(--gold)]/60 bg-[var(--gold)]/10 text-foreground"
+                      : "border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground",
+                  )}
                 >
                   {v >= 1_000_000_000 ? `${v / 1_000_000_000} tỷ` : `${v / 1_000_000} triệu`}
                 </button>
@@ -217,103 +229,131 @@ export function SavingsCalculator({ items }: Props) {
             </div>
           </div>
 
-          {/* Bước 2: Ngân hàng + kỳ hạn (lãi suất tự fill) */}
-          <div>
-            <StepLabel n={2}>Ngân hàng & kỳ hạn</StepLabel>
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                id="bank"
-                value={bankShort}
-                onChange={(e) => { setBankShort(e.target.value); setCustomRateStr(""); }}
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                {items.map((b) => (
-                  <option key={b.shortName} value={b.shortName} className="bg-background text-foreground">{b.bank}</option>
-                ))}
-              </select>
-              <select
-                id="tenor"
-                value={tenor}
-                onChange={(e) => setTenor(e.target.value as TenorKey)}
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                {TENORS.map((t) => (
-                  <option
-                    key={t.key}
-                    value={t.key}
-                    className="bg-background text-foreground"
-                  >
-                    {t.label}{selectedBank && typeof selectedBank.rates[t.key] === "number" ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%` : " · dùng kỳ hạn gần nhất"}
-                  </option>
-                ))}
-              </select>
+          <div className="border-t border-border/60 pt-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <FieldHead htmlFor="bank" icon={<Landmark className="h-3.5 w-3.5" />} title="Ngân hàng" />
+                <Select
+                  value={bankShort}
+                  onValueChange={(v) => { setBankShort(v); setCustomRateStr(""); }}
+                >
+                  <SelectTrigger id="bank" className="h-11">
+                    <SelectValue placeholder="Chọn ngân hàng" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {items.map((b) => (
+                      <SelectItem key={b.shortName} value={b.shortName}>{b.bank}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <FieldHead
+                  htmlFor="tenor"
+                  icon={<CalendarRange className="h-3.5 w-3.5" />}
+                  title="Kỳ hạn"
+                  hint={selectedBank && typeof selectedBank.rates[tenor] === "number" ? `${selectedBank.rates[tenor]!.toFixed(2)}%` : undefined}
+                />
+                <Select value={tenor} onValueChange={(v) => setTenor(v as TenorKey)}>
+                  <SelectTrigger id="tenor" className="h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TENORS.map((t) => (
+                      <SelectItem key={t.key} value={t.key}>
+                        {t.label}
+                        {selectedBank && typeof selectedBank.rates[t.key] === "number"
+                          ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%`
+                          : " · gần nhất"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="mt-2 flex items-center justify-between rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3 py-2">
-              <span className="text-xs text-muted-foreground">
-                Lãi suất áp dụng
+
+            <div className="mt-3 flex items-center justify-between rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3 py-2">
+              <div className="flex flex-col">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Lãi suất áp dụng
+                </span>
                 {effectiveRate?.isFallback && !hasCustom && (
-                  <span className="ml-1 text-[10px] text-amber-400">
-                    (dùng kỳ hạn {TENORS.find((t) => t.key === effectiveRate.key)?.label})
+                  <span className="text-[10px] text-amber-400">
+                    dùng kỳ hạn {TENORS.find((t) => t.key === effectiveRate.key)?.label}
                   </span>
                 )}
-              </span>
-              <div className="flex items-baseline gap-2">
+              </div>
+              <div className="flex items-baseline gap-1.5">
                 <Input
                   id="rate"
                   inputMode="decimal"
                   value={customRateStr}
                   onChange={(e) => setCustomRateStr(e.target.value)}
                   placeholder={bankRate ? bankRate.toFixed(2) : "—"}
-                  className="h-7 w-20 border-0 bg-transparent p-0 text-right text-lg font-bold tabular-nums text-[var(--gold)] shadow-none focus-visible:ring-0"
+                  className="h-8 w-20 border-0 bg-transparent p-0 text-right text-xl font-bold tabular-nums text-[var(--gold)] shadow-none focus-visible:ring-0"
                 />
-                <span className="text-sm font-semibold text-[var(--gold)]">%/năm</span>
+                <span className="text-xs font-semibold text-[var(--gold)]">%/năm</span>
               </div>
             </div>
           </div>
 
-          {/* Bước 3: Thời gian gửi */}
-          <div>
-            <StepLabel n={3}>Thời gian gửi</StepLabel>
-            <div className="flex gap-2">
-              <Input
-                inputMode="numeric"
-                value={periodCount}
-                onChange={(e) => setPeriodCount(e.target.value.replace(/[^\d]/g, ""))}
-                className="h-11 w-20 text-center text-base font-semibold tabular-nums"
-              />
-              <div className="grid flex-1 grid-cols-3 gap-1 rounded-md border border-input p-1">
-                {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setPeriod(p)}
-                    className={cn("rounded text-sm transition-colors", period === p ? "bg-[var(--gold)]/20 font-semibold text-foreground" : "text-muted-foreground hover:text-foreground")}
-                  >
-                    {PERIOD_LABEL[p]}
-                  </button>
-                ))}
+          <div className="grid gap-4 border-t border-border/60 pt-5 sm:grid-cols-2">
+            <div>
+              <FieldHead icon={<CalendarRange className="h-3.5 w-3.5" />} title="Thời gian gửi" />
+              <div className="flex gap-1.5">
+                <Input
+                  inputMode="numeric"
+                  value={periodCount}
+                  onChange={(e) => setPeriodCount(e.target.value.replace(/[^\d]/g, ""))}
+                  className="h-11 w-16 text-center text-base font-semibold tabular-nums"
+                />
+                <div className="grid flex-1 grid-cols-3 gap-1 rounded-md border border-input p-1">
+                  {(Object.keys(PERIOD_LABEL) as Period[]).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPeriod(p)}
+                      className={cn(
+                        "rounded text-sm transition-colors",
+                        period === p
+                          ? "bg-[var(--gold)]/20 font-semibold text-foreground"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {PERIOD_LABEL[p]}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Bước 4: Hình thức */}
-          <div>
-            <StepLabel n={4}>Hình thức gửi</StepLabel>
-            <div className="grid grid-cols-2 gap-1 rounded-md border border-input p-1">
-              <button
-                type="button"
-                onClick={() => setMode("simple")}
-                className={cn("rounded px-2 py-2 text-sm transition-colors", mode === "simple" ? "bg-[var(--gold)]/20 font-semibold text-foreground" : "text-muted-foreground hover:text-foreground")}
-              >
-                Lĩnh lãi cuối kỳ
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("compound")}
-                className={cn("rounded px-2 py-2 text-sm transition-colors", mode === "compound" ? "bg-[var(--gold)]/20 font-semibold text-foreground" : "text-muted-foreground hover:text-foreground")}
-              >
-                Tái tục gốc + lãi
-              </button>
+            <div>
+              <FieldHead icon={<Repeat className="h-3.5 w-3.5" />} title="Hình thức gửi" />
+              <div className="grid h-11 grid-cols-2 gap-1 rounded-md border border-input p-1">
+                <button
+                  type="button"
+                  onClick={() => setMode("simple")}
+                  className={cn(
+                    "rounded text-sm transition-colors",
+                    mode === "simple"
+                      ? "bg-[var(--gold)]/20 font-semibold text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  Cuối kỳ
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("compound")}
+                  className={cn(
+                    "rounded text-sm transition-colors",
+                    mode === "compound"
+                      ? "bg-[var(--gold)]/20 font-semibold text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  Tái tục
+                </button>
+              </div>
             </div>
           </div>
         </div>
