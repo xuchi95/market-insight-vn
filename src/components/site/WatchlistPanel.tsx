@@ -5,6 +5,8 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
+import { useNumberFormat } from "@/hooks/useNumberFormat";
+import { fmtSmartVND, fmtSmartUSD } from "@/lib/format";
 import {
   Dialog,
   DialogContent,
@@ -28,15 +30,6 @@ type Quote = {
   changePct: number | null;
 };
 
-function fmtVnd(n: number, digits = 0) {
-  return n.toLocaleString("vi-VN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
-}
-function fmtUsd(n: number) {
-  if (n >= 1000) return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
-  if (n >= 1) return `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
-  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 4 })}`;
-}
-
 const QUICK_ADD: WatchItem[] = [
   { symbol: "sjc-1l", label: "Vàng SJC 1L", category: "Vàng", to: "/tai-san/sjc-1l" },
   { symbol: "BTC", label: "Bitcoin", category: "Tiền điện tử", to: "/tai-san/btc" },
@@ -45,6 +38,7 @@ const QUICK_ADD: WatchItem[] = [
 
 export function WatchlistPanel() {
   const { list, add, remove, isWatched, synced } = useWatchlist();
+  const { compact } = useNumberFormat();
   const [gold, setGold] = useState<GoldPrice[]>([]);
   const [crypto, setCrypto] = useState<CryptoCoin[]>([]);
   const [fx, setFx] = useState<ForexRate[]>([]);
@@ -77,15 +71,22 @@ export function WatchlistPanel() {
       const g = gold.find((x) => x.id.toLowerCase() === sym);
       if (g) {
         const mid = g.mid ?? (g.buy + g.sell) / 2;
-        return { priceLabel: fmtVnd(mid), unit: g.unit, changePct: g.changePct };
+        // Compact mode: show price in "triệu ₫" / "tỷ ₫" matching the
+        // header toggle. The VND symbol is already in the formatted label,
+        // so strip the per-unit suffix into `unit` (e.g. "/chỉ").
+        return {
+          priceLabel: fmtSmartVND(mid, compact),
+          unit: compact ? `/${g.unit.toLowerCase()}` : `${g.unit}`,
+          changePct: g.changePct,
+        };
       }
       const c = crypto.find((x) => x.symbol.toLowerCase() === sym || x.id.toLowerCase() === sym);
-      if (c) return { priceLabel: fmtUsd(c.priceUsd), unit: "USD", changePct: c.change24h };
+      if (c) return { priceLabel: fmtSmartUSD(c.priceUsd, compact), unit: "", changePct: c.change24h };
       const f = fx.find((x) => x.code.toLowerCase() === sym);
-      if (f) return { priceLabel: fmtVnd(f.mid), unit: "VND", changePct: f.changePct };
+      if (f) return { priceLabel: fmtSmartVND(f.mid, compact), unit: "", changePct: f.changePct };
       return null;
     };
-  }, [gold, crypto, fx]);
+  }, [gold, crypto, fx, compact]);
 
   const isEmpty = list.length === 0;
 
