@@ -257,8 +257,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       // Admin-injected snippets cho <head> (Google Analytics, AdSense, Tag Manager, verify…).
       ...((loaderData?.injections ?? [])
-        .filter((i) => i.location === "head")
-        .map((i) => ({ children: i.code }))),
+        .filter((i: PublicInjection) => i.location === "head")
+        .map((i: PublicInjection) => ({ children: i.code }))),
     ],
   }),
   shellComponent: RootShell,
@@ -285,8 +285,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const loaderData = Route.useLoaderData();
-  const bodyStart = (loaderData?.injections ?? []).filter((i) => i.location === "body_start");
-  const bodyEnd = (loaderData?.injections ?? []).filter((i) => i.location === "body_end");
+  const injections = (loaderData?.injections ?? []) as PublicInjection[];
+  const bodyStart = injections.filter((i) => i.location === "body_start");
+  const bodyEnd = injections.filter((i) => i.location === "body_end");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -294,7 +295,7 @@ function RootComponent() {
         <AuthProvider>
           <NumberFormatProvider>
             <MotionPrefProvider>
-              {bodyStart.map((i, idx) => (
+              {bodyStart.map((i: PublicInjection, idx: number) => (
                 <div key={`bs-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
               ))}
               <Outlet />
@@ -302,7 +303,7 @@ function RootComponent() {
               <NewsletterPopup />
               <AuthWelcomeBanner />
               <CookieConsent />
-              {bodyEnd.map((i, idx) => (
+              {bodyEnd.map((i: PublicInjection, idx: number) => (
                 <div key={`be-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
               ))}
             </MotionPrefProvider>
