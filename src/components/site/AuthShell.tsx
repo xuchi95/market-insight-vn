@@ -16,7 +16,7 @@ import {
 import type { ReactNode } from "react";
 
 interface Props {
-  eyebrow: string;
+  eyebrow?: string;
   title: ReactNode;
   subtitle: string;
   footer: ReactNode;
