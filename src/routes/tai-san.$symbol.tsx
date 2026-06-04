@@ -580,7 +580,6 @@ function AssetDetail() {
                 <img src={coin.image} alt={coin.name} className="h-14 w-14 rounded-full" />
                 <div>
                   <h1 className="text-3xl font-bold tracking-tight">{coin.name} <span className="text-muted-foreground text-xl font-medium">{coin.symbol}</span></h1>
-                  <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1"><LiveDot /> Giá thị trường realtime</div>
                 </div>
                 <div className="ml-auto text-right">
                   <div className="text-4xl font-bold tabular tracking-tight">{fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)}</div>
