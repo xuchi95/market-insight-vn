@@ -242,31 +242,6 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
         </Link>
       </TileFrame>
 
-      {/* Top crypto khác — BNB / SOL / XRP / DOGE */}
-      <TileFrame className="col-span-2 md:col-span-6">
-        <Link to="/tien-dien-tu" className="block">
-          <div className="flex items-baseline justify-between mb-4">
-            <div className="eyebrow">Top crypto khác</div>
-            <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
-            {(["BNB", "SOL", "XRP", "DOGE"] as const).map((sym) => {
-              const c = moreCoins.find((x) => x.symbol === sym);
-              const live = liveTicks[coinIdMap[sym]];
-              return (
-                <CoinCell
-                  key={sym}
-                  symbol={sym}
-                  price={live?.priceUsd ?? c?.priceUsd}
-                  change={live?.change24h ?? c?.change24h}
-                  loading={cryptoLoading}
-                />
-              );
-            })}
-          </div>
-        </Link>
-      </TileFrame>
-
       {/* Forex — full-width compact list */}
       <TileFrame className="col-span-2 md:col-span-6">
         <Link to="/ty-gia-ngoai-te" className="block">
