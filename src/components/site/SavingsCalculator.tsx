@@ -26,7 +26,9 @@ function fmtVnd(n: number) {
 
 function parseAmount(s: string): number {
   const n = Number(s.replace(/[^\d]/g, ""));
-  return Number.isFinite(n) ? n : 0;
+  if (!Number.isFinite(n) || n < 0) return 0;
+  // Trần 1.000 tỷ để chặn giá trị phi lý / tràn số.
+  return Math.min(n, 1_000_000_000_000);
 }
 
 function getEffectiveRate(bank: SavingsRate | undefined, requestedTenor: TenorKey) {
@@ -85,14 +87,24 @@ export function SavingsCalculator({ items }: Props) {
   }, [items, bankShort]);
 
   const amount = parseAmount(amountStr);
-  const periods = Math.max(0, Number(periodCount) || 0);
+  const periodsRaw = Math.floor(Number(periodCount) || 0);
+  const PERIOD_MAX: Record<Period, number> = { month: 600, quarter: 200, year: 50 };
+  const periods = Math.max(0, Math.min(periodsRaw, PERIOD_MAX[period]));
   const totalMonths = period === "month" ? periods : period === "quarter" ? periods * 3 : periods * 12;
 
   const selectedBank = items.find((b) => b.shortName === bankShort);
   const effectiveRate = useMemo(() => getEffectiveRate(selectedBank, tenor), [selectedBank, tenor]);
 
-  const customRate = Number(customRateStr.replace(",", "."));
-  const hasCustom = customRateStr.trim() !== "" && Number.isFinite(customRate) && customRate > 0;
+  const customRateNormalized = customRateStr.trim().replace(",", ".");
+  const customRate = Number(customRateNormalized);
+  const customRateValid =
+    customRateNormalized !== "" &&
+    /^\d*\.?\d*$/.test(customRateNormalized) &&
+    Number.isFinite(customRate) &&
+    customRate > 0 &&
+    customRate <= 100;
+  const customRateInvalid = customRateNormalized !== "" && !customRateValid;
+  const hasCustom = customRateValid;
   const bankRate = effectiveRate?.rate;
   const annualRate = hasCustom ? customRate : bankRate ?? 0;
   // Kỳ hạn dùng để tính lãi: ưu tiên kỳ hạn người dùng chọn; nếu ngân hàng không có,
@@ -167,6 +179,9 @@ export function SavingsCalculator({ items }: Props) {
               placeholder="VD: 100.000.000"
               className="h-11 text-base font-semibold tabular-nums"
             />
+            {amountStr.trim() !== "" && amount <= 0 && (
+              <p className="mt-1 text-xs text-destructive">Số tiền phải lớn hơn 0.</p>
+            )}
           </div>
 
           <div className="border-t border-border/60 pt-5">
@@ -213,13 +228,24 @@ export function SavingsCalculator({ items }: Props) {
                   id="rate"
                   inputMode="decimal"
                   value={customRateStr}
-                  onChange={(e) => setCustomRateStr(e.target.value)}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "" || /^\d{0,3}([.,]\d{0,2})?$/.test(v)) {
+                      setCustomRateStr(v);
+                    }
+                  }}
                   placeholder={bankRate ? bankRate.toFixed(2) : "—"}
-                  className="h-8 w-20 border-0 bg-transparent p-0 text-right text-xl font-bold tabular-nums text-[var(--gold)] shadow-none focus-visible:ring-0"
+                  className={cn(
+                    "h-8 w-20 border-0 bg-transparent p-0 text-right text-xl font-bold tabular-nums text-[var(--gold)] shadow-none focus-visible:ring-0",
+                    customRateInvalid && "text-destructive",
+                  )}
                 />
                 <span className="text-xs font-semibold text-[var(--gold)]">%/năm</span>
               </div>
             </div>
+            {customRateInvalid && (
+              <p className="mt-1 text-xs text-destructive">Lãi suất phải trong khoảng 0–100%.</p>
+            )}
           </div>
 
           <div className="grid gap-4 border-t border-border/60 pt-5 sm:grid-cols-2">
@@ -250,6 +276,12 @@ export function SavingsCalculator({ items }: Props) {
                   ))}
                 </div>
               </div>
+              {periodCount.trim() !== "" && periods <= 0 && (
+                <p className="mt-1 text-xs text-destructive">Thời gian phải lớn hơn 0.</p>
+              )}
+              {periodsRaw > PERIOD_MAX[period] && (
+                <p className="mt-1 text-xs text-destructive">Tối đa {PERIOD_MAX[period]} {PERIOD_LABEL[period].toLowerCase()}.</p>
+              )}
             </div>
             <div>
               <FieldLabel>Hình thức</FieldLabel>
