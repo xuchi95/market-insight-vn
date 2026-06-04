@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as React from "react";
+import { createElement } from "react";
 import {
   Outlet,
   Link,
@@ -288,14 +289,14 @@ function parseHeadSnippets(html: string): React.ReactNode[] {
     const inner = m[3];
     if (tag === "script" || tag === "style" || tag === "noscript") {
       nodes.push(
-        React.createElement(tag, {
+        createElement(tag, {
           key: `inj-${key++}`,
           ...attrs,
           dangerouslySetInnerHTML: inner ? { __html: inner } : undefined,
         }),
       );
     } else {
-      nodes.push(React.createElement(tag, { key: `inj-${key++}`, ...attrs }));
+      nodes.push(createElement(tag, { key: `inj-${key++}`, ...attrs }));
     }
   }
   return nodes;
