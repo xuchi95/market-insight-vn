@@ -66,10 +66,10 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
               </div>
             ) : null}
             <h2 className="font-display text-[38px] xl:text-[46px] leading-[1.05] tracking-tight">
-              Đọc thị trường <span className="text-gold italic">như một biên tập viên</span>, hành động như một trader.
+              Theo dõi thị trường <span className="text-gold italic">gọn trong một chỗ</span>, đỡ phải mở chục tab.
             </h2>
             <p className="mt-4 text-[15px] text-muted-foreground max-w-md">
-              Bản tin sáng, cảnh báo giá realtime và bảng dữ liệu chuyên sâu — tất cả trong một tài khoản MarketWatch.
+              Giá vàng, tỷ giá, crypto, lãi suất ngân hàng — cập nhật liên tục. Đặt cảnh báo khi giá chạm ngưỡng, nhận bản tin sáng qua email.
             </p>
           </div>
 
