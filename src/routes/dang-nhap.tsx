@@ -115,7 +115,6 @@ function LoginPage() {
 
   return (
     <AuthShell
-      eyebrow="Tài khoản MarketWatch"
       title={<>Chào mừng <span className="italic text-gold">trở lại</span>.</>}
       subtitle="Đăng nhập để tiếp tục theo dõi cảnh báo giá và bản tin cá nhân hóa của bạn."
       footer={<>Chưa có tài khoản?{" "}<Link to="/dang-ky" className="font-medium text-foreground underline-offset-4 hover:underline">Tạo tài khoản miễn phí</Link></>}
