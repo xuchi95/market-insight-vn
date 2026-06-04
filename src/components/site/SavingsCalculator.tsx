@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, Wallet, Landmark, CalendarRange, Repeat } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -57,28 +56,14 @@ interface Props {
   items: SavingsRate[];
 }
 
-function FieldHead({
-  icon,
-  title,
-  hint,
-  htmlFor,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  hint?: string;
-  htmlFor?: string;
-}) {
+function FieldLabel({ htmlFor, children }: { htmlFor?: string; children: React.ReactNode }) {
   return (
-    <div className="mb-2 flex items-baseline justify-between gap-3">
-      <Label
-        htmlFor={htmlFor}
-        className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
-      >
-        <span className="text-[var(--gold)]/80">{icon}</span>
-        {title}
-      </Label>
-      {hint && <span className="text-[11px] text-muted-foreground/70">{hint}</span>}
-    </div>
+    <Label
+      htmlFor={htmlFor}
+      className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+    >
+      {children}
+    </Label>
   );
 }
 
@@ -168,71 +153,26 @@ export function SavingsCalculator({ items }: Props) {
       <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[var(--gold)]/10 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[var(--gold)]/[0.07] blur-3xl" />
 
-      {/* Header */}
-      <div className="relative flex items-center gap-3 border-b border-[var(--gold)]/20 bg-gradient-to-r from-[var(--gold)]/10 to-transparent px-5 py-4">
-        <div className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--gold)]/15 text-[var(--gold)] ring-1 ring-[var(--gold)]/30">
-          <Calculator className="h-5 w-5" />
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold tracking-tight md:text-lg">Công cụ tính lãi tiết kiệm</h3>
-            <span className="hidden items-center gap-1 rounded-full bg-[var(--gold)]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--gold)] md:inline-flex">
-              Lãi suất thật
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Ước tính tiền lãi theo {items.length} ngân hàng — chọn ngân hàng, kỳ hạn và số tiền gửi.
-          </p>
-        </div>
-      </div>
-
       <div className="relative grid gap-6 p-4 lg:p-6 lg:grid-cols-[1.1fr_1fr]">
         {/* Form nhập — bố cục field chuyên nghiệp */}
         <div className="space-y-5 rounded-xl border border-border/60 bg-card/40 p-4 lg:p-5">
           {/* Số tiền gửi */}
           <div>
-            <FieldHead
-              htmlFor="amount"
-              icon={<Wallet className="h-3.5 w-3.5" />}
-              title="Số tiền gửi"
-              hint="VND"
+            <FieldLabel htmlFor="amount">Số tiền gửi</FieldLabel>
+            <Input
+              id="amount"
+              inputMode="numeric"
+              value={amount > 0 ? new Intl.NumberFormat("vi-VN").format(amount) : ""}
+              onChange={(e) => setAmountStr(e.target.value)}
+              placeholder="VD: 100.000.000"
+              className="h-11 text-base font-semibold tabular-nums"
             />
-            <div className="relative">
-              <Input
-                id="amount"
-                inputMode="numeric"
-                value={amount > 0 ? new Intl.NumberFormat("vi-VN").format(amount) : ""}
-                onChange={(e) => setAmountStr(e.target.value)}
-                placeholder="VD: 100.000.000"
-                className="h-11 pr-14 text-base font-semibold tabular-nums"
-              />
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border/60 bg-muted/60 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground">
-                VND
-              </span>
-            </div>
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              {[10_000_000, 50_000_000, 100_000_000, 500_000_000, 1_000_000_000].map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => setAmountStr(String(v))}
-                  className={cn(
-                    "rounded-md border px-2 py-0.5 text-xs tabular-nums transition-colors",
-                    amount === v
-                      ? "border-[var(--gold)]/60 bg-[var(--gold)]/10 text-foreground"
-                      : "border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground",
-                  )}
-                >
-                  {v >= 1_000_000_000 ? `${v / 1_000_000_000} tỷ` : `${v / 1_000_000} triệu`}
-                </button>
-              ))}
-            </div>
           </div>
 
           <div className="border-t border-border/60 pt-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <FieldHead htmlFor="bank" icon={<Landmark className="h-3.5 w-3.5" />} title="Ngân hàng" />
+                <FieldLabel htmlFor="bank">Ngân hàng</FieldLabel>
                 <Select
                   value={bankShort}
                   onValueChange={(v) => { setBankShort(v); setCustomRateStr(""); }}
@@ -248,12 +188,7 @@ export function SavingsCalculator({ items }: Props) {
                 </Select>
               </div>
               <div>
-                <FieldHead
-                  htmlFor="tenor"
-                  icon={<CalendarRange className="h-3.5 w-3.5" />}
-                  title="Kỳ hạn"
-                  hint={selectedBank && typeof selectedBank.rates[tenor] === "number" ? `${selectedBank.rates[tenor]!.toFixed(2)}%` : undefined}
-                />
+                <FieldLabel htmlFor="tenor">Kỳ hạn</FieldLabel>
                 <Select value={tenor} onValueChange={(v) => setTenor(v as TenorKey)}>
                   <SelectTrigger id="tenor" className="h-11">
                     <SelectValue />
@@ -262,9 +197,6 @@ export function SavingsCalculator({ items }: Props) {
                     {TENORS.map((t) => (
                       <SelectItem key={t.key} value={t.key}>
                         {t.label}
-                        {selectedBank && typeof selectedBank.rates[t.key] === "number"
-                          ? ` · ${selectedBank.rates[t.key]!.toFixed(2)}%`
-                          : " · gần nhất"}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -273,16 +205,9 @@ export function SavingsCalculator({ items }: Props) {
             </div>
 
             <div className="mt-3 flex items-center justify-between rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3 py-2">
-              <div className="flex flex-col">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Lãi suất áp dụng
-                </span>
-                {effectiveRate?.isFallback && !hasCustom && (
-                  <span className="text-[10px] text-amber-400">
-                    dùng kỳ hạn {TENORS.find((t) => t.key === effectiveRate.key)?.label}
-                  </span>
-                )}
-              </div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Lãi suất
+              </span>
               <div className="flex items-baseline gap-1.5">
                 <Input
                   id="rate"
@@ -299,7 +224,7 @@ export function SavingsCalculator({ items }: Props) {
 
           <div className="grid gap-4 border-t border-border/60 pt-5 sm:grid-cols-2">
             <div>
-              <FieldHead icon={<CalendarRange className="h-3.5 w-3.5" />} title="Thời gian gửi" />
+              <FieldLabel>Thời gian gửi</FieldLabel>
               <div className="flex gap-1.5">
                 <Input
                   inputMode="numeric"
@@ -327,7 +252,7 @@ export function SavingsCalculator({ items }: Props) {
               </div>
             </div>
             <div>
-              <FieldHead icon={<Repeat className="h-3.5 w-3.5" />} title="Hình thức gửi" />
+              <FieldLabel>Hình thức</FieldLabel>
               <div className="grid h-11 grid-cols-2 gap-1 rounded-md border border-input p-1">
                 <button
                   type="button"
