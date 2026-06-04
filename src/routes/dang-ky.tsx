@@ -84,7 +84,6 @@ function SignupPage() {
 
   return (
     <AuthShell
-      eyebrow="Miễn phí · 60 giây"
       title={<>Tạo tài khoản <span className="italic text-gold">MarketWatch</span>.</>}
       subtitle="Mở khóa cảnh báo giá vàng, crypto, tỷ giá qua email — và bản tin sáng cá nhân hóa."
       footer={<>Đã có tài khoản?{" "}<Link to="/dang-nhap" className="font-medium text-foreground underline-offset-4 hover:underline">Đăng nhập</Link></>}
