@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   Bitcoin,
@@ -8,19 +8,17 @@ import {
   BarChart3,
   ArrowDownNarrowWide,
   ArrowUpNarrowWide,
-  Loader2,
-  CheckCircle2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
-import { fmtCompactUSD, fmtTime, fmtUSD, fmtVND, fmtSmartVND } from "@/lib/format";
+import { fmtCompactUSD, fmtUSD, fmtVND, fmtSmartVND } from "@/lib/format";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { ChangeBadge } from "./ChangeBadge";
 import { Sparkline } from "./Sparkline";
-import { SectionCard, LiveDot } from "./SectionCard";
+import { SectionCard } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -50,7 +48,7 @@ const SORT_LABELS: Record<SortKey, string> = {
 };
 
 export function CryptoPriceTable({ search }: { search?: string }) {
-  const { data, isLoading, refetch, isFetching, dataUpdatedAt, isError, error } = useQuery({
+  const { data, isLoading, refetch, isFetching, isError, error } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
     refetchInterval: 10_000,
@@ -61,20 +59,6 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
-
-  // Smooth status pill: "Đang cập nhật…" while fetching, then briefly show
-  // a success tick after a successful refresh before settling on the timestamp.
-  const [justUpdated, setJustUpdated] = useState(false);
-  const prevFetchingRef = useRef(false);
-  useEffect(() => {
-    const wasFetching = prevFetchingRef.current;
-    prevFetchingRef.current = isFetching;
-    if (wasFetching && !isFetching && !isError) {
-      setJustUpdated(true);
-      const t = setTimeout(() => setJustUpdated(false), 1400);
-      return () => clearTimeout(t);
-    }
-  }, [isFetching, isError]);
 
   // Realtime price overlay via Binance WS (throttled to ~10s in the hook)
   const ids = useMemo(() => (data ?? []).map((c) => c.id), [data]);
@@ -150,36 +134,6 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       icon={<Bitcoin className="h-4 w-4" />}
       title="Bảng giá crypto"
       description="Giá thị trường realtime • cập nhật mỗi 10s"
-      meta={
-        <span className="inline-flex items-center gap-2 transition-opacity duration-300">
-          <LiveDot />
-          <span
-            key={isFetching ? "fetching" : isError ? "error" : justUpdated ? "ok" : "idle"}
-            className="inline-flex items-center gap-1.5 animate-fade-in"
-          >
-            {isFetching ? (
-              <>
-                <Loader2 className="h-3 w-3 animate-spin text-[var(--up)]" />
-                <span className="text-[var(--up)]">Đang cập nhật…</span>
-              </>
-            ) : isError ? (
-              <>
-                <AlertTriangle className="h-3 w-3 text-[var(--down)]" />
-                <span className="text-[var(--down)]">
-                  Cập nhật lỗi{dataUpdatedAt ? ` • ${fmtTime(dataUpdatedAt)}` : ""}
-                </span>
-              </>
-            ) : justUpdated ? (
-              <>
-                <CheckCircle2 className="h-3 w-3 text-[var(--up)]" />
-                <span className="text-[var(--up)]">Đã cập nhật</span>
-              </>
-            ) : (
-              <span>Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</span>
-            )}
-          </span>
-        </span>
-      }
       action={
         <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} />
@@ -265,16 +219,16 @@ export function CryptoPriceTable({ search }: { search?: string }) {
           <table className="w-full table-fixed text-sm sm:text-base">
             <thead className="text-xs uppercase text-muted-foreground">
               <tr>
-                <th className={`${stickyThClass} text-left px-3 sm:px-4 py-3 font-semibold w-10`}>
+                <th className={`${stickyThClass} text-left px-2 sm:px-4 py-3 font-semibold w-8 sm:w-10`}>
                   #
                 </th>
                 <th
-                  className={`${stickyThClass} text-left px-3 sm:px-4 py-3 font-semibold w-[38%] sm:w-auto`}
+                  className={`${stickyThClass} text-left px-2 sm:px-4 py-3 font-semibold w-[40%] sm:w-auto`}
                 >
                   Coin
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-3 sm:px-4 py-3 font-semibold w-[32%] sm:w-auto`}
+                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[34%] sm:w-auto`}
                 >
                   <SortBtn k="priceUsd" />
                 </th>
@@ -284,7 +238,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   <SortBtn k="priceVnd" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-3 sm:px-4 py-3 font-semibold w-[22%] sm:w-auto`}
+                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[22%] sm:w-auto`}
                 >
                   <SortBtn k="change24h" shortLabel="24h" />
                 </th>
@@ -316,31 +270,30 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                 ))}
               {rows.map((c, i) => (
                 <tr key={c.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-muted-foreground tabular-nums">{i + 1}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 sm:px-4 py-3 text-muted-foreground tabular-nums text-xs sm:text-sm">{i + 1}</td>
+                  <td className="px-2 sm:px-4 py-3">
                     <Link
                       to="/tai-san/$symbol"
                       params={{ symbol: c.symbol.toLowerCase() }}
-                      className="flex items-center gap-3 group"
+                      className="flex items-center gap-2 sm:gap-3 group min-w-0"
                     >
                       <img
                         src={c.image}
                         alt={c.name}
-                        className="h-7 w-7 rounded-full"
+                        className="h-7 w-7 rounded-full shrink-0"
                         loading="lazy"
                       />
-                      <div>
-                        <div className="font-semibold group-hover:text-gold transition-colors">
+                      <div className="min-w-0">
+                        <div className="font-semibold group-hover:text-gold transition-colors truncate">
                           {c.name}
                         </div>
-                        <div className="text-sm text-muted-foreground">{c.symbol}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground truncate">{c.symbol}</div>
                       </div>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold">
+                  <td className="px-2 sm:px-4 py-3 text-right font-semibold whitespace-nowrap text-sm sm:text-base">
                     <AnimatedNumber
                       value={c.priceUsd}
-                      minChars={10}
                       format={(v) => fmtUSD(v, c.priceUsd < 1 ? 4 : 2)}
                     />
                   </td>
@@ -352,7 +305,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       format={(v) => fmtSmartVND(v, compact)}
                     />
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap">
                     <ChangeBadge value={c.change24h} />
                   </td>
                   <td className="px-4 py-3 text-right text-muted-foreground hidden lg:table-cell">
