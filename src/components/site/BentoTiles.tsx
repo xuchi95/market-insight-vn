@@ -40,7 +40,7 @@ function ChangePill({ value }: { value: number }) {
   return (
     <span className={`tabular text-xs font-medium inline-flex items-center gap-1 ${up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
       <span aria-hidden className="text-[0.7em] leading-none">{up ? "▲" : "▼"}</span>
-      {Math.abs(value).toFixed(2)}%
+      <AnimatedNumber value={Math.abs(value)} format={(v) => `${v.toFixed(2)}%`} minChars={5} noFlash />
     </span>
   );
 }
@@ -84,19 +84,44 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const cryptoLoading = crypto === null;
   const fxLoading = fx === null;
   const sjc = gold?.find((g) => g.id === "sjc-1l") ?? gold?.[0];
+  const doji = gold?.find((g) => g.id === "doji");
+  const pnj = gold?.find((g) => g.id === "pnj");
+  const xau = gold?.find((g) => g.id === "xauusd");
   const btc = crypto?.find((c) => c.symbol === "BTC");
   const eth = crypto?.find((c) => c.symbol === "ETH");
+  const moreCoins = ["BNB", "SOL", "XRP", "DOGE"]
+    .map((sym) => crypto?.find((c) => c.symbol === sym))
+    .filter((c): c is CryptoCoin => Boolean(c));
   const usd = fx?.find((r) => r.code === "USD");
   const eur = fx?.find((r) => r.code === "EUR");
   const jpy = fx?.find((r) => r.code === "JPY");
   const cny = fx?.find((r) => r.code === "CNY");
+  const gbp = fx?.find((r) => r.code === "GBP");
+  const aud = fx?.find((r) => r.code === "AUD");
+  const sgd = fx?.find((r) => r.code === "SGD");
+  const krw = fx?.find((r) => r.code === "KRW");
 
-  // Live BTC/ETH price (WS Binance, flush ~10s) — y chang trang chi tiết coin.
-  const liveTicks = useBinanceTickers(["bitcoin", "ethereum"]);
+  // Live price (WS Binance, flush ~10s) cho mọi coin hiển thị — y chang trang chi tiết coin.
+  const liveTicks = useBinanceTickers([
+    "bitcoin",
+    "ethereum",
+    "binancecoin",
+    "solana",
+    "ripple",
+    "dogecoin",
+  ]);
   const btcPrice = liveTicks.bitcoin?.priceUsd ?? btc?.priceUsd ?? 0;
   const btcChange = liveTicks.bitcoin?.change24h ?? btc?.change24h ?? 0;
+  const btcVol = liveTicks.bitcoin?.volume24h ?? btc?.volume24h ?? 0;
   const ethPrice = liveTicks.ethereum?.priceUsd ?? eth?.priceUsd ?? 0;
   const ethChange = liveTicks.ethereum?.change24h ?? eth?.change24h ?? 0;
+  const ethVol = liveTicks.ethereum?.volume24h ?? eth?.volume24h ?? 0;
+  const coinIdMap: Record<string, string> = {
+    BNB: "binancecoin",
+    SOL: "solana",
+    XRP: "ripple",
+    DOGE: "dogecoin",
+  };
 
   // Synthetic high/low for gold (no live history); compute from sell ± small range
   const goldHigh = sjc ? Math.round(sjc.sell * 1.004) : 0;
@@ -128,9 +153,16 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           </div>
 
           <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
-            <Stat label="Mua" value={sjc ? `${fmtTrieu(sjc.buy)} tr` : goldLoading ? "Đang cập nhật" : "—"} />
-            <Stat label="Cao" value={sjc ? `${fmtTrieu(goldHigh)} tr` : goldLoading ? "Đang cập nhật" : "—"} accent />
-            <Stat label="Thấp" value={sjc ? `${fmtTrieu(goldLow)} tr` : goldLoading ? "Đang cập nhật" : "—"} />
+            <Stat label="Mua" num={sjc?.buy} loading={goldLoading} />
+            <Stat label="Cao" num={sjc ? goldHigh : undefined} loading={goldLoading} accent />
+            <Stat label="Thấp" num={sjc ? goldLow : undefined} loading={goldLoading} />
+          </div>
+
+          {/* Vàng khác — DOJI / PNJ / XAU realtime */}
+          <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
+            <GoldMini label="DOJI" gold={doji} loading={goldLoading} />
+            <GoldMini label="PNJ" gold={pnj} loading={goldLoading} />
+            <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd />
           </div>
 
           <div className="flex items-end gap-1 h-12 md:h-20 lg:h-28">
@@ -173,7 +205,11 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           </div>
           <div className="mt-3 flex justify-between eyebrow opacity-60">
             <span>Vol</span>
-            <span className="tabular normal-case tracking-normal text-foreground/80">{btc ? `$${fmt(btc.volume24h / 1_000_000_000, 1)}B` : cryptoLoading ? "Đang cập nhật" : "—"}</span>
+            <span className="tabular normal-case tracking-normal text-foreground/80">
+              {btc ? (
+                <AnimatedNumber value={btcVol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={6} />
+              ) : cryptoLoading ? "Đang cập nhật" : "—"}
+            </span>
           </div>
         </Link>
       </TileFrame>
@@ -197,7 +233,36 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           </div>
           <div className="mt-3 flex justify-between eyebrow opacity-60">
             <span>Vol</span>
-            <span className="tabular normal-case tracking-normal text-foreground/80">{eth ? `$${fmt(eth.volume24h / 1_000_000_000, 1)}B` : cryptoLoading ? "Đang cập nhật" : "—"}</span>
+            <span className="tabular normal-case tracking-normal text-foreground/80">
+              {eth ? (
+                <AnimatedNumber value={ethVol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={6} />
+              ) : cryptoLoading ? "Đang cập nhật" : "—"}
+            </span>
+          </div>
+        </Link>
+      </TileFrame>
+
+      {/* Top crypto khác — BNB / SOL / XRP / DOGE */}
+      <TileFrame className="col-span-2 md:col-span-6">
+        <Link to="/tien-dien-tu" className="block">
+          <div className="flex items-baseline justify-between mb-4">
+            <div className="eyebrow">Top crypto khác</div>
+            <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
+            {(["BNB", "SOL", "XRP", "DOGE"] as const).map((sym) => {
+              const c = moreCoins.find((x) => x.symbol === sym);
+              const live = liveTicks[coinIdMap[sym]];
+              return (
+                <CoinCell
+                  key={sym}
+                  symbol={sym}
+                  price={live?.priceUsd ?? c?.priceUsd}
+                  change={live?.change24h ?? c?.change24h}
+                  loading={cryptoLoading}
+                />
+              );
+            })}
           </div>
         </Link>
       </TileFrame>
@@ -212,8 +277,12 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
             <FxCell rate={usd} loading={fxLoading} code="USD" />
             <FxCell rate={eur} loading={fxLoading} code="EUR" />
+            <FxCell rate={gbp} loading={fxLoading} code="GBP" />
             <FxCell rate={jpy} loading={fxLoading} code="JPY" digits={2} />
             <FxCell rate={cny} loading={fxLoading} code="CNY" />
+            <FxCell rate={aud} loading={fxLoading} code="AUD" />
+            <FxCell rate={sgd} loading={fxLoading} code="SGD" />
+            <FxCell rate={krw} loading={fxLoading} code="KRW" digits={2} />
           </div>
         </Link>
       </TileFrame>
@@ -233,11 +302,77 @@ function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
   );
 }
 
-function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+function Stat({ label, num, loading, accent }: { label: string; num?: number; loading?: boolean; accent?: boolean }) {
   return (
     <div className="bg-card p-3">
       <div className="eyebrow opacity-70">{label}</div>
-      <div className={`tabular text-sm md:text-base leading-tight mt-1 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>{value}</div>
+      <div className={`tabular text-sm md:text-base leading-tight mt-1 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>
+        {typeof num === "number" ? (
+          <AnimatedNumber value={num} format={(v) => `${fmtTrieu(v)} tr`} minChars={6} />
+        ) : loading ? (
+          <span className="text-muted-foreground/80 animate-pulse">Đang cập nhật</span>
+        ) : "—"}
+      </div>
+    </div>
+  );
+}
+
+function GoldMini({ label, gold, loading, usd }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean }) {
+  return (
+    <div className="bg-card p-3">
+      <div className="eyebrow opacity-70">{label}</div>
+      {gold ? (
+        <>
+          <div className="tabular text-sm md:text-base leading-tight text-foreground mt-1">
+            {usd ? (
+              <AnimatedNumber value={gold.sell} format={(v) => `$${fmt(v, 0)}`} minChars={6} />
+            ) : (
+              <AnimatedNumber value={gold.sell} format={(v) => `${fmtTrieu(v)} tr`} minChars={6} />
+            )}
+          </div>
+          <div className={`text-[11px] tabular mt-0.5 ${gold.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+            <AnimatedNumber
+              value={gold.changePct}
+              format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
+              minChars={6}
+              noFlash
+            />
+          </div>
+        </>
+      ) : (
+        <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
+          {loading ? "Đang cập nhật giá…" : "—"}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CoinCell({ symbol, price, change, loading }: { symbol: string; price?: number; change?: number; loading?: boolean }) {
+  if (typeof price !== "number") {
+    return (
+      <div className="bg-card p-3 h-[68px]">
+        <div className="eyebrow opacity-70">{symbol}</div>
+        <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
+          {loading ? "Đang cập nhật giá…" : "—"}
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="bg-card p-3">
+      <div className="eyebrow opacity-70">{symbol}</div>
+      <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1">
+        $<AnimatedNumber value={price} format={(v) => fmt(v, price >= 100 ? 0 : price >= 1 ? 2 : 4)} minChars={5} />
+      </div>
+      <div className={`text-xs tabular mt-1 ${(change ?? 0) >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+        <AnimatedNumber
+          value={change ?? 0}
+          format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
+          minChars={6}
+          noFlash
+        />
+      </div>
     </div>
   );
 }
@@ -260,7 +395,12 @@ function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?
         <AnimatedNumber value={rate.mid} format={(v) => fmt(v, digits)} minChars={6} />
       </div>
       <div className={`text-xs tabular mt-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
-        {rate.changePct >= 0 ? "+" : ""}{rate.changePct.toFixed(2)}%
+        <AnimatedNumber
+          value={rate.changePct}
+          format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
+          minChars={6}
+          noFlash
+        />
       </div>
     </div>
   );
