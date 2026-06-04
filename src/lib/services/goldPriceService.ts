@@ -98,8 +98,10 @@ async function fetchXauRow(): Promise<GoldPrice | null> {
     };
     const price = Number(j?.price);
     if (!Number.isFinite(price) || price <= 0) return null;
-    const buy = Number.isFinite(Number(j?.bid)) ? Number(j!.bid) : price;
-    const sell = Number.isFinite(Number(j?.ask)) ? Number(j!.ask) : price;
+    const bidNum = j?.bid != null ? Number(j.bid) : NaN;
+    const askNum = j?.ask != null ? Number(j.ask) : NaN;
+    const buy = Number.isFinite(bidNum) && bidNum > 0 ? bidNum : price;
+    const sell = Number.isFinite(askNum) && askNum > 0 ? askNum : price;
     return {
       id: "xauusd",
       brand: "Vàng thế giới",
