@@ -159,12 +159,14 @@ const SEARCH_SUGGESTIONS: SearchSuggestion[] = [
 ];
 
 function useClock() {
-  const [now, setNow] = useState(() => new Date());
+  // Start as null so SSR and first client render match; populate after mount.
+  const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
+    setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(t);
   }, []);
-  return now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  return now ? now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "";
 }
 
 export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
