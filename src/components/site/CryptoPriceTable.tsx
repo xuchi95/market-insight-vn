@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, Bitcoin, RefreshCw, ArrowUpDown, Trophy, BarChart3, ArrowDownNarrowWide, ArrowUpNarrowWide } from "lucide-react";
+import { AlertTriangle, Bitcoin, RefreshCw, ArrowUpDown, Trophy, BarChart3, ArrowDownNarrowWide, ArrowUpNarrowWide, Loader2, CheckCircle2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -20,7 +20,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
-import { Loader2, CheckCircle2 } from "lucide-react";
 
 type SortKey = "marketCap" | "priceUsd" | "priceVnd" | "change24h" | "volume24h";
 type Category = "all" | "top-mcap" | "top-volume";
@@ -103,12 +102,22 @@ export function CryptoPriceTable({ search }: { search?: string }) {
     else { setSort(k); setDir("desc"); }
   };
 
-  const SortBtn = ({ k, align = "right" }: { k: SortKey; align?: "left" | "right" }) => (
+  const stickyThClass = "sticky top-[6.5rem] md:top-[7.25rem] z-30 bg-muted/95 backdrop-blur-md border-b border-border";
+
+  const SortBtn = ({ k, align = "right", shortLabel }: { k: SortKey; align?: "left" | "right"; shortLabel?: string }) => (
     <button
       onClick={() => toggleSort(k)}
-      className={`inline-flex items-center gap-1 hover:text-foreground ${align === "right" ? "ml-auto" : ""} ${sort === k ? "text-foreground font-semibold" : "text-muted-foreground"}`}
+      className={`inline-flex items-center gap-1 whitespace-nowrap hover:text-foreground ${align === "right" ? "ml-auto" : ""} ${sort === k ? "text-foreground font-semibold" : "text-muted-foreground"}`}
     >
-      {SORT_LABELS[k]} <ArrowUpDown className={`h-3 w-3 ${sort === k ? "text-primary" : ""}`} />
+      {shortLabel ? (
+        <>
+          <span className="sm:hidden">{shortLabel}</span>
+          <span className="hidden sm:inline">{SORT_LABELS[k]}</span>
+        </>
+      ) : (
+        SORT_LABELS[k]
+      )}{" "}
+      <ArrowUpDown className={`h-3 w-3 shrink-0 ${sort === k ? "text-primary" : ""}`} />
     </button>
   );
 
@@ -208,7 +217,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
           )}
         </div>
 
-        <div className="rounded-lg border border-border overflow-x-auto md:overflow-x-visible">
+        <div className="rounded-lg border border-border overflow-visible">
           {isError && (data?.length ?? 0) > 0 && (
             <div className="flex items-start gap-2 px-4 py-2.5 text-xs bg-[var(--down)]/10 text-[var(--down)] border-b border-border">
               <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
@@ -218,17 +227,17 @@ export function CryptoPriceTable({ search }: { search?: string }) {
               </span>
             </div>
           )}
-          <table className="w-full text-base">
-            <thead className="bg-muted/95 backdrop-blur-md text-xs uppercase text-muted-foreground sticky top-[6.5rem] md:top-[7.25rem] z-30 shadow-[0_1px_0_0_hsl(var(--border))]">
+          <table className="w-full table-fixed text-sm sm:text-base">
+            <thead className="text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="text-left px-4 py-3 font-semibold w-10">#</th>
-                <th className="text-left px-4 py-3 font-semibold">Coin</th>
-                <th className="text-right px-4 py-3 font-semibold"><SortBtn k="priceUsd" /></th>
-                <th className="text-right px-4 py-3 font-semibold hidden md:table-cell"><SortBtn k="priceVnd" /></th>
-                <th className="text-right px-4 py-3 font-semibold"><SortBtn k="change24h" /></th>
-                <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell"><SortBtn k="marketCap" /></th>
-                <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell"><SortBtn k="volume24h" /></th>
-                <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">7d</th>
+                <th className={`${stickyThClass} text-left px-3 sm:px-4 py-3 font-semibold w-10`}>#</th>
+                <th className={`${stickyThClass} text-left px-3 sm:px-4 py-3 font-semibold w-[38%] sm:w-auto`}>Coin</th>
+                <th className={`${stickyThClass} text-right px-3 sm:px-4 py-3 font-semibold w-[32%] sm:w-auto`}><SortBtn k="priceUsd" /></th>
+                <th className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden md:table-cell`}><SortBtn k="priceVnd" /></th>
+                <th className={`${stickyThClass} text-right px-3 sm:px-4 py-3 font-semibold w-[22%] sm:w-auto`}><SortBtn k="change24h" shortLabel="24h" /></th>
+                <th className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden lg:table-cell`}><SortBtn k="marketCap" /></th>
+                <th className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden lg:table-cell`}><SortBtn k="volume24h" /></th>
+                <th className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden md:table-cell`}>7d</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
