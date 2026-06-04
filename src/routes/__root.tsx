@@ -267,11 +267,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  const loaderData = Route.useLoaderData();
+  const headInjections = ((loaderData?.injections ?? []) as PublicInjection[]).filter(
+    (i) => i.location === "head",
+  );
+  const headHtml = headInjections.map((i) => i.code).join("\n");
   return (
     <html lang="vi" className="dark">
       <head>
         <style>{`html.dark{--background:#0d0d0d;--foreground:#f5f0df;--card:#1a1a1a;--border:#4c463a;--gold:#c9a84c;--gold-light:#f0d78c;--gold-foreground:#0d0d0d;--muted-foreground:#c8b98f;--down:#e85d3a;color-scheme:dark}html.light{--background:#f3eee4;--foreground:#2a241b;--card:#fbf7ee;--border:#d6cdb8;--gold:#8a6a1f;--gold-light:#b5904a;--gold-foreground:#fbf7ee;--muted-foreground:#5b5240;--down:#c0432a;color-scheme:light}html{background:var(--background)}body{margin:0;background:var(--background);color:var(--foreground);font-family:"Be Vietnam Pro",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}`}</style>
         <HeadContent />
+        {headHtml ? (
+          <script
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{
+              __html: `/* mw-head-inject */</script>${headHtml}<script>/* */`,
+            }}
+          />
+        ) : null}
       </head>
       <body>
         {children}
