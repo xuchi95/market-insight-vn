@@ -255,10 +255,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           },
         }),
       },
-      // Admin-injected snippets cho <head> (Google Analytics, AdSense, Tag Manager, verify…).
-      ...((loaderData?.injections ?? [])
-        .filter((i: PublicInjection) => i.location === "head")
-        .map((i: PublicInjection) => ({ children: i.code }))),
+      // NOTE: Snippet admin chèn vào <head> được render trong RootShell qua
+      // dangerouslySetInnerHTML để giữ nguyên các thẻ <meta>, <link>, <script>
+      // — không thể đẩy vào head().scripts vì sẽ bị bọc trong <script>.
     ],
   }),
   shellComponent: RootShell,
