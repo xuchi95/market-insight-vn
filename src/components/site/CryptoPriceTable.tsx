@@ -107,8 +107,8 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
       <div className="flex flex-col gap-4 p-4 lg:p-5">
-        {/* Category filter */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Category filter — sticky to viewport under the site header */}
+        <div className="sticky top-14 z-30 -mx-4 lg:-mx-5 px-4 lg:px-5 py-2 flex flex-wrap items-center gap-2 bg-card/85 backdrop-blur-md border-b border-border/60">
           {/* Category segmented chips */}
           <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card/60 p-1">
             {(["all", "top-mcap", "top-volume"] as Category[]).map((cat) => (
@@ -164,7 +164,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
           )}
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="rounded-lg border border-border overflow-x-auto md:overflow-x-visible">
           {isError && (data?.length ?? 0) > 0 && (
             <div className="flex items-start gap-2 px-4 py-2.5 text-xs bg-[var(--down)]/10 text-[var(--down)] border-b border-border">
               <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
@@ -175,7 +175,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
             </div>
           )}
           <table className="w-full text-base">
-            <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
+            <thead className="bg-muted/95 backdrop-blur-md text-xs uppercase text-muted-foreground sticky top-[7.25rem] z-20 shadow-[0_1px_0_0_hsl(var(--border))]">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold w-10">#</th>
                 <th className="text-left px-4 py-3 font-semibold">Coin</th>
