@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, Sparkles } from "lucide-react";
+import { Calculator } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TENORS, type SavingsRate } from "@/lib/data/savingsRates";
 import { cn } from "@/lib/utils";
@@ -161,7 +161,7 @@ export function SavingsCalculator({ items }: Props) {
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold tracking-tight md:text-lg">Công cụ tính lãi tiết kiệm</h3>
             <span className="hidden items-center gap-1 rounded-full bg-[var(--gold)]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--gold)] md:inline-flex">
-              <Sparkles className="h-3 w-3" /> Lãi suất thật
+              Lãi suất thật
             </span>
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground">
