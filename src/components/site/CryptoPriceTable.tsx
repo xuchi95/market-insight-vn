@@ -108,7 +108,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
     >
       <div className="flex flex-col gap-4 p-4 lg:p-5">
         {/* Category filter — sticky to viewport under the site header */}
-        <div className="sticky top-12 md:top-14 z-30 -mx-4 lg:-mx-5 px-4 lg:px-5 py-2 flex flex-wrap items-center gap-2 bg-card/90 backdrop-blur-md border-b border-border/60">
+        <div className="sticky top-12 md:top-14 z-40 -mx-4 lg:-mx-5 px-4 lg:px-5 py-2 flex flex-wrap items-center gap-2 bg-card/95 backdrop-blur-md border-b border-border/60 shadow-[0_4px_12px_-8px_rgba(0,0,0,0.4)]">
           {/* Category segmented chips */}
           <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card/60 p-1">
             {(["all", "top-mcap", "top-volume"] as Category[]).map((cat) => (
@@ -175,7 +175,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
             </div>
           )}
           <table className="w-full text-base">
-            <thead className="bg-muted/95 backdrop-blur-md text-xs uppercase text-muted-foreground sticky top-[6.5rem] md:top-[7.25rem] z-20 shadow-[0_1px_0_0_hsl(var(--border))]">
+            <thead className="bg-muted/95 backdrop-blur-md text-xs uppercase text-muted-foreground sticky top-[6.5rem] md:top-[7.25rem] z-30 shadow-[0_1px_0_0_hsl(var(--border))]">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold w-10">#</th>
                 <th className="text-left px-4 py-3 font-semibold">Coin</th>
