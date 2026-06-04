@@ -50,13 +50,24 @@ function fmtCompact(n: number): string {
 export function Ticker() {
   // Đồng hồ độc lập đặt ở đầu thanh ticker — tách khỏi header để gọn gàng.
   const [now, setNow] = useState<Date | null>(null);
+  const [tz, setTz] = useState<"VN" | "UTC">(() => {
+    if (typeof window === "undefined") return "VN";
+    return (localStorage.getItem("mw:clock-tz") as "VN" | "UTC") || "VN";
+  });
   useEffect(() => {
     setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(t);
   }, []);
+  useEffect(() => {
+    try { localStorage.setItem("mw:clock-tz", tz); } catch { /* ignore */ }
+  }, [tz]);
   const timeStr = now
-    ? now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+    ? now.toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: tz === "VN" ? "Asia/Ho_Chi_Minh" : "UTC",
+      })
     : "";
   // Mỗi nguồn dữ liệu được lưu riêng để render tăng dần — không phải chờ
   // nguồn chậm nhất (giá vàng cold-start có thể mất 5–7s) thì mới hiện ticker.
@@ -265,11 +276,30 @@ export function Ticker() {
       <div className="ticker-marquee group relative flex items-stretch overflow-hidden border-y border-border bg-card/60">
         {/* Đồng hồ độc lập — không cuộn cùng marquee */}
         <div
-          className="relative z-10 flex shrink-0 items-center gap-1.5 border-r border-border bg-card/80 px-3 py-2.5 text-[11px] font-medium tabular text-muted-foreground"
+          className="relative z-10 flex shrink-0 items-center gap-2 border-r border-border bg-card/80 px-3 py-2.5 text-[11px] font-medium tabular text-muted-foreground"
           aria-label="Giờ hiện tại"
         >
           <Clock className="h-3 w-3 text-[var(--gold)]/80" aria-hidden />
           <span className="min-w-[2.6rem] tracking-wider">{timeStr || "--:--"}</span>
+          <div className="flex items-center rounded-sm border border-border/70 bg-background/40 p-0.5" role="group" aria-label="Chọn múi giờ">
+            {(["VN", "UTC"] as const).map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setTz(opt)}
+                aria-pressed={tz === opt}
+                title={opt === "VN" ? "Giờ Việt Nam (UTC+7)" : "Giờ UTC"}
+                className={
+                  "rounded-[2px] px-1.5 py-0.5 text-[10px] font-semibold tracking-wider transition-colors " +
+                  (tz === opt
+                    ? "bg-[var(--gold)]/20 text-[var(--gold)]"
+                    : "text-muted-foreground/70 hover:text-foreground")
+                }
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="relative flex-1 overflow-hidden py-2.5">
           <div className="animate-marquee whitespace-nowrap">
