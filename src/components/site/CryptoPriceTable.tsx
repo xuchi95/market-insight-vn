@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   Bitcoin,
@@ -8,19 +8,17 @@ import {
   BarChart3,
   ArrowDownNarrowWide,
   ArrowUpNarrowWide,
-  Loader2,
-  CheckCircle2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
-import { fmtCompactUSD, fmtTime, fmtUSD, fmtVND, fmtSmartVND } from "@/lib/format";
+import { fmtCompactUSD, fmtUSD, fmtVND, fmtSmartVND } from "@/lib/format";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { ChangeBadge } from "./ChangeBadge";
 import { Sparkline } from "./Sparkline";
-import { SectionCard, LiveDot } from "./SectionCard";
+import { SectionCard } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -50,7 +48,7 @@ const SORT_LABELS: Record<SortKey, string> = {
 };
 
 export function CryptoPriceTable({ search }: { search?: string }) {
-  const { data, isLoading, refetch, isFetching, dataUpdatedAt, isError, error } = useQuery({
+  const { data, isLoading, refetch, isFetching, isError, error } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
     refetchInterval: 10_000,
@@ -61,20 +59,6 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
-
-  // Smooth status pill: "Đang cập nhật…" while fetching, then briefly show
-  // a success tick after a successful refresh before settling on the timestamp.
-  const [justUpdated, setJustUpdated] = useState(false);
-  const prevFetchingRef = useRef(false);
-  useEffect(() => {
-    const wasFetching = prevFetchingRef.current;
-    prevFetchingRef.current = isFetching;
-    if (wasFetching && !isFetching && !isError) {
-      setJustUpdated(true);
-      const t = setTimeout(() => setJustUpdated(false), 1400);
-      return () => clearTimeout(t);
-    }
-  }, [isFetching, isError]);
 
   // Realtime price overlay via Binance WS (throttled to ~10s in the hook)
   const ids = useMemo(() => (data ?? []).map((c) => c.id), [data]);
