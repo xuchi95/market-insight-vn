@@ -18,7 +18,7 @@ import type { ReactNode } from "react";
 interface Props {
   eyebrow?: string;
   title: ReactNode;
-  subtitle: string;
+  subtitle?: string;
   footer: ReactNode;
   children: ReactNode;
 }
@@ -125,7 +125,7 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
             <div className="mb-8">
               {eyebrow ? <div className="eyebrow mb-3">{eyebrow}</div> : null}
               <h1 className="font-display text-4xl leading-tight tracking-tight">{title}</h1>
-              <p className="mt-3 text-sm text-muted-foreground">{subtitle}</p>
+              {subtitle ? <p className="mt-3 text-sm text-muted-foreground">{subtitle}</p> : null}
             </div>
 
             <div className="relative rounded-2xl border border-border bg-card/80 p-6 sm:p-8 shadow-[0_24px_60px_-30px_color-mix(in_oklab,var(--gold)_30%,transparent)] backdrop-blur-sm">

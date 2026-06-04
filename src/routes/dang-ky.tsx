@@ -85,7 +85,6 @@ function SignupPage() {
   return (
     <AuthShell
       title={<>Tạo tài khoản <span className="italic text-gold">MarketWatch</span>.</>}
-      subtitle="Mở khóa cảnh báo giá vàng, crypto, tỷ giá qua email — và bản tin sáng cá nhân hóa."
       footer={<>Đã có tài khoản?{" "}<Link to="/dang-nhap" className="font-medium text-foreground underline-offset-4 hover:underline">Đăng nhập</Link></>}
     >
       <GoogleButton onClick={onGoogle} disabled={loading} loading={loading} label="Đăng ký với Google" />
@@ -124,7 +123,7 @@ function SignupPage() {
           )}
         </div>
         <Button type="submit" disabled={loading} className="h-11 w-full bg-gold-gradient text-[var(--gold-foreground)] font-medium tracking-wide shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] hover:opacity-95">
-          {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang tạo…</>) : "Tạo tài khoản miễn phí"}
+          {loading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang tạo…</>) : "Tạo tài khoản"}
         </Button>
       </form>
     </AuthShell>
