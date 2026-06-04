@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useMotionPref } from "@/hooks/useMotionPref";
 
@@ -37,33 +37,62 @@ export function AnimatedNumber({
   const { animate } = useMotionPref();
   const effDuration = animate ? duration : 0;
   const effNoFlash = noFlash || !animate;
-  const [display, setDisplay] = useState(value);
+  const elRef = useRef<HTMLSpanElement | null>(null);
   const fromRef = useRef(value);
   const rafRef = useRef<number | null>(null);
-  const [flash, setFlash] = useState<"up" | "down" | null>(null);
+  const flashTimerRef = useRef<number | null>(null);
+  // Skip flash/tween on the very first real value (e.g. when data resolves
+  // from a skeleton). Without this every cell flashes on initial paint.
+  const initializedRef = useRef(false);
+
+  // Paint the initial value synchronously before the browser shows the cell.
+  useLayoutEffect(() => {
+    if (elRef.current) elRef.current.textContent = format(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
+    const el = elRef.current;
+    if (!el) return;
+
     const from = fromRef.current;
     const to = value;
-    if (from === to) return;
 
-    let flashTimer: number | null = null;
-    if (!effNoFlash) {
-      setFlash(to > from ? "up" : "down");
-      flashTimer = window.setTimeout(() => setFlash(null), 900);
-    }
-
-    if (effDuration <= 0 || !Number.isFinite(from) || !Number.isFinite(to)) {
+    // First settle: just write the value, no flash, no tween.
+    if (!initializedRef.current) {
+      initializedRef.current = true;
       fromRef.current = to;
-      setDisplay(to);
+      el.textContent = format(to);
       return;
     }
 
+    if (from === to) return;
+
+    // Subtle color flash via CSS class (compositor-friendly).
+    if (!effNoFlash) {
+      el.classList.remove("price-flash-up", "price-flash-down");
+      // Force reflow so the animation restarts on rapid consecutive changes.
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      el.offsetWidth;
+      el.classList.add(to > from ? "price-flash-up" : "price-flash-down");
+      if (flashTimerRef.current != null) clearTimeout(flashTimerRef.current);
+      flashTimerRef.current = window.setTimeout(() => {
+        el.classList.remove("price-flash-up", "price-flash-down");
+      }, 750);
+    }
+
+    // Tween the number via direct DOM writes (no React re-render per frame).
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    if (effDuration <= 0 || !Number.isFinite(from) || !Number.isFinite(to)) {
+      fromRef.current = to;
+      el.textContent = format(to);
+      return;
+    }
     const start = performance.now();
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / effDuration);
       const v = from + (to - from) * easeOutCubic(t);
-      setDisplay(v);
+      el.textContent = format(v);
       if (t < 1) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
@@ -75,22 +104,23 @@ export function AnimatedNumber({
 
     return () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-      if (flashTimer != null) clearTimeout(flashTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, effDuration, effNoFlash]);
 
+  // Unmount cleanup
+  useEffect(() => () => {
+    if (flashTimerRef.current != null) clearTimeout(flashTimerRef.current);
+  }, []);
+
   return (
     <span
+      ref={elRef}
       className={cn(
-        "tabular inline-block -mx-1 rounded-md px-1 text-right transition-colors duration-300 will-change-transform",
-        flash === "up" && "price-flash-up text-[var(--up)]",
-        flash === "down" && "price-flash-down text-[var(--down)]",
+        "tabular inline-block -mx-1 rounded-md px-1 text-right",
         className,
       )}
       style={minChars ? { minWidth: `${minChars}ch` } : undefined}
-    >
-      {format(display)}
-    </span>
+    />
   );
 }

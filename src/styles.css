@@ -176,26 +176,30 @@
   .hairline { background-color: color-mix(in oklab, var(--gold) 20%, transparent); height: 1px; }
 }
 
+/* Compositor-only flash: animates background-color (cheap paint) — no
+ * box-shadow or scale to keep mobile GPUs jank-free. */
 @keyframes price-flash-up {
-  0% { background-color: color-mix(in oklab, var(--up) 36%, transparent); box-shadow: 0 0 0 0 color-mix(in oklab, var(--up) 34%, transparent); transform: translateY(0) scale(1); }
-  18% { background-color: color-mix(in oklab, var(--up) 24%, transparent); box-shadow: 0 0 18px -6px color-mix(in oklab, var(--up) 70%, transparent); transform: translateY(-2px) scale(1.035); }
-  100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; transform: translateY(0) scale(1); }
+  0%   { background-color: color-mix(in oklab, var(--up) 30%, transparent); }
+  100% { background-color: transparent; }
 }
 @keyframes price-flash-down {
-  0% { background-color: color-mix(in oklab, var(--down) 36%, transparent); box-shadow: 0 0 0 0 color-mix(in oklab, var(--down) 34%, transparent); transform: translateY(0) scale(1); }
-  18% { background-color: color-mix(in oklab, var(--down) 24%, transparent); box-shadow: 0 0 18px -6px color-mix(in oklab, var(--down) 70%, transparent); transform: translateY(2px) scale(1.035); }
-  100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; transform: translateY(0) scale(1); }
+  0%   { background-color: color-mix(in oklab, var(--down) 30%, transparent); }
+  100% { background-color: transparent; }
 }
-.price-flash-up { animation: price-flash-up 900ms ease-out; }
-.price-flash-down { animation: price-flash-down 900ms ease-out; }
-.flash-up { animation: price-flash-up 1s ease-out; }
-.flash-down { animation: price-flash-down 1s ease-out; }
+.price-flash-up   { animation: price-flash-up   700ms ease-out both; }
+.price-flash-down { animation: price-flash-down 700ms ease-out both; }
+.flash-up   { animation: price-flash-up   700ms ease-out both; }
+.flash-down { animation: price-flash-down 700ms ease-out both; }
+
+/* Shorter + lighter on touch devices to avoid long-running paints. */
+@media (hover: none) and (pointer: coarse) {
+  .price-flash-up, .price-flash-down,
+  .flash-up, .flash-down { animation-duration: 500ms; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .price-flash-up,
-  .price-flash-down,
-  .flash-up,
-  .flash-down { animation: none; }
+  .price-flash-up, .price-flash-down,
+  .flash-up, .flash-down { animation: none; }
 }
 
 .bg-gold-gradient {
