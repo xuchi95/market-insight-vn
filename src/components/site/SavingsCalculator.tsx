@@ -372,23 +372,10 @@ export function SavingsCalculator({ items }: Props) {
                 Ngân hàng này chưa công bố lãi suất nào. Vui lòng nhập lãi suất tùy chỉnh ở mục bên trên.
               </div>
             )}
-            <div className="relative mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <div className="text-xs text-muted-foreground">Tổng nhận về</div>
-                <div className="font-semibold tabular-nums">{fmtVnd(result.total)}</div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Trung bình / tháng</div>
-                <div className="font-semibold tabular-nums">{fmtVnd(totalMonths > 0 ? result.interest / totalMonths : 0)}</div>
-              </div>
+            <div className="relative mt-4 flex items-baseline justify-between border-t border-[var(--gold)]/15 pt-3 text-sm">
+              <span className="text-xs text-muted-foreground">Tổng nhận về</span>
+              <span className="font-semibold tabular-nums">{fmtVnd(result.total)}</span>
             </div>
-            {mode === "compound" && annualRate > 0 && totalMonths > 0 && (
-              <div className="relative mt-3 rounded-md border border-[var(--gold)]/20 bg-background/40 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
-                Tái tục <span className="font-semibold text-foreground">{result.cycles}</span> chu kỳ × {tenorMonths} tháng
-                {result.leftover > 0 && <> + <span className="font-semibold text-foreground">{result.leftover}</span> tháng lẻ (tính lãi đơn)</>}.
-                {" "}Kỳ hạn ngắn hơn → lãi nhập gốc nhiều lần hơn → tổng thường cao hơn dù cùng %/năm.
-              </div>
-            )}
           </div>
 
           {compareRows.length > 0 && (
