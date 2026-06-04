@@ -17,6 +17,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 import { CookieConsent } from "@/components/site/CookieConsent";
+import { getActiveCodeInjections, type PublicInjection } from "@/lib/admin/code-injections.functions";
 
 function NotFoundComponent() {
   const path = typeof window !== "undefined" ? window.location.pathname : "/";
@@ -190,7 +191,15 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  loader: async () => {
+    try {
+      const { items } = await getActiveCodeInjections();
+      return { injections: items };
+    } catch {
+      return { injections: [] as PublicInjection[] };
+    }
+  },
+  head: ({ loaderData }) => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -246,6 +255,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           },
         }),
       },
+      // Admin-injected snippets cho <head> (Google Analytics, AdSense, Tag Manager, verify…).
+      ...((loaderData?.injections ?? [])
+        .filter((i: PublicInjection) => i.location === "head")
+        .map((i: PublicInjection) => ({ children: i.code }))),
     ],
   }),
   shellComponent: RootShell,
@@ -271,6 +284,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const loaderData = Route.useLoaderData();
+  const injections = (loaderData?.injections ?? []) as PublicInjection[];
+  const bodyStart = injections.filter((i) => i.location === "body_start");
+  const bodyEnd = injections.filter((i) => i.location === "body_end");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -278,11 +295,17 @@ function RootComponent() {
         <AuthProvider>
           <NumberFormatProvider>
             <MotionPrefProvider>
+              {bodyStart.map((i: PublicInjection, idx: number) => (
+                <div key={`bs-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
+              ))}
               <Outlet />
               <Toaster position="top-right" richColors />
               <NewsletterPopup />
               <AuthWelcomeBanner />
               <CookieConsent />
+              {bodyEnd.map((i: PublicInjection, idx: number) => (
+                <div key={`be-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
+              ))}
             </MotionPrefProvider>
           </NumberFormatProvider>
         </AuthProvider>

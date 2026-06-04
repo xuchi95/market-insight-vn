@@ -97,6 +97,7 @@ import { Route as AdminMwAdminPopupsRouteImport } from './routes/_admin/mw-admin
 import { Route as AdminMwAdminNewsletterRouteImport } from './routes/_admin/mw-admin.newsletter'
 import { Route as AdminMwAdminFuelPricesRouteImport } from './routes/_admin/mw-admin.fuel-prices'
 import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admin.contact'
+import { Route as AdminMwAdminCodeInjectionRouteImport } from './routes/_admin/mw-admin.code-injection'
 import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -552,6 +553,12 @@ const AdminMwAdminContactRoute = AdminMwAdminContactRouteImport.update({
   path: '/mw-admin/contact',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminCodeInjectionRoute =
+  AdminMwAdminCodeInjectionRouteImport.update({
+    id: '/mw-admin/code-injection',
+    path: '/mw-admin/code-injection',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminMwAdminBroadcastsRoute = AdminMwAdminBroadcastsRouteImport.update({
   id: '/mw-admin/broadcasts',
   path: '/mw-admin/broadcasts',
@@ -641,6 +648,7 @@ export interface FileRoutesByFullPath {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
+  '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
   '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
@@ -737,6 +745,7 @@ export interface FileRoutesByTo {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat': typeof CaiDatIndexRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
+  '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
   '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
@@ -835,6 +844,7 @@ export interface FileRoutesById {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
+  '/_admin/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/_admin/mw-admin/contact': typeof AdminMwAdminContactRoute
   '/_admin/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/_admin/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
@@ -933,6 +943,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/cai-dat/'
     | '/mw-admin/broadcasts'
+    | '/mw-admin/code-injection'
     | '/mw-admin/contact'
     | '/mw-admin/fuel-prices'
     | '/mw-admin/newsletter'
@@ -1029,6 +1040,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/cai-dat'
     | '/mw-admin/broadcasts'
+    | '/mw-admin/code-injection'
     | '/mw-admin/contact'
     | '/mw-admin/fuel-prices'
     | '/mw-admin/newsletter'
@@ -1126,6 +1138,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/cai-dat/'
     | '/_admin/mw-admin/broadcasts'
+    | '/_admin/mw-admin/code-injection'
     | '/_admin/mw-admin/contact'
     | '/_admin/mw-admin/fuel-prices'
     | '/_admin/mw-admin/newsletter'
@@ -1879,6 +1892,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminContactRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/code-injection': {
+      id: '/_admin/mw-admin/code-injection'
+      path: '/mw-admin/code-injection'
+      fullPath: '/mw-admin/code-injection'
+      preLoaderRoute: typeof AdminMwAdminCodeInjectionRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/broadcasts': {
       id: '/_admin/mw-admin/broadcasts'
       path: '/mw-admin/broadcasts'
@@ -1947,6 +1967,7 @@ const AdminMwAdminFuelPricesRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
+  AdminMwAdminCodeInjectionRoute: typeof AdminMwAdminCodeInjectionRoute
   AdminMwAdminContactRoute: typeof AdminMwAdminContactRoute
   AdminMwAdminFuelPricesRoute: typeof AdminMwAdminFuelPricesRouteWithChildren
   AdminMwAdminNewsletterRoute: typeof AdminMwAdminNewsletterRoute
@@ -1959,6 +1980,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
+  AdminMwAdminCodeInjectionRoute: AdminMwAdminCodeInjectionRoute,
   AdminMwAdminContactRoute: AdminMwAdminContactRoute,
   AdminMwAdminFuelPricesRoute: AdminMwAdminFuelPricesRouteWithChildren,
   AdminMwAdminNewsletterRoute: AdminMwAdminNewsletterRoute,

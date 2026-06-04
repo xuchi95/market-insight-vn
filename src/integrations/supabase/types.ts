@@ -589,6 +589,45 @@ export type Database = {
           },
         ]
       }
+      site_code_injections: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          enabled: boolean
+          id: string
+          location: Database["public"]["Enums"]["code_injection_location"]
+          name: string
+          notes: string | null
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          id?: string
+          location: Database["public"]["Enums"]["code_injection_location"]
+          name: string
+          notes?: string | null
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          id?: string
+          location?: Database["public"]["Enums"]["code_injection_location"]
+          name?: string
+          notes?: string | null
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -979,6 +1018,7 @@ export type Database = {
       alert_asset_type: "crypto" | "gold"
       alert_direction: "above" | "below"
       app_role: "admin" | "user"
+      code_injection_location: "head" | "body_start" | "body_end"
       holding_asset_type: "crypto" | "gold"
       transaction_side: "buy" | "sell"
     }
@@ -1111,6 +1151,7 @@ export const Constants = {
       alert_asset_type: ["crypto", "gold"],
       alert_direction: ["above", "below"],
       app_role: ["admin", "user"],
+      code_injection_location: ["head", "body_start", "body_end"],
       holding_asset_type: ["crypto", "gold"],
       transaction_side: ["buy", "sell"],
     },
