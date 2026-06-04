@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const CACHE_MS = 60_000;
+/** Khoảng cách mẫu để tính % 24h. */
+const WINDOW_MS = 24 * 60 * 60 * 1000;
+/** Cho phép lệch ±2h khi không có mẫu chính xác 24h trước. */
+const WINDOW_TOLERANCE_MS = 2 * 60 * 60 * 1000;
+/** Chỉ ghi 1 snapshot / 5 phút để không phình bảng. */
+const SNAPSHOT_MIN_INTERVAL_MS = 5 * 60 * 1000;
+const SYMBOL = "XAUUSD";
 
 /** Đơn vị giá vàng thế giới: USD trên một troy ounce (1 oz = 31.1035 g). */
 const UNIT = "USD/oz" as const;
@@ -20,12 +28,47 @@ interface XauPayload {
 }
 
 let cache: { at: number; payload: XauPayload } | null = null;
-let prevPrice: number | null = null;
+let lastSnapshotAt = 0;
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
+
+/** Tìm giá XAU cách ~24h trong DB để tính % thay đổi thật. */
+async function fetchPrice24hAgo(): Promise<number | null> {
+  try {
+    const target = new Date(Date.now() - WINDOW_MS);
+    const lo = new Date(target.getTime() - WINDOW_TOLERANCE_MS).toISOString();
+    const hi = new Date(target.getTime() + WINDOW_TOLERANCE_MS).toISOString();
+    // Lấy mẫu gần nhất TRƯỚC mốc 24h (fallback: mẫu cũ nhất trong cửa sổ).
+    const { data } = await supabaseAdmin
+      .from("price_history")
+      .select("price, captured_at")
+      .eq("symbol", SYMBOL)
+      .gte("captured_at", lo)
+      .lte("captured_at", hi)
+      .order("captured_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!data) return null;
+    const p = Number(data.price);
+    return Number.isFinite(p) && p > 0 ? p : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Ghi snapshot mới (throttle để không spam DB). Fire-and-forget. */
+function recordSnapshot(price: number) {
+  const now = Date.now();
+  if (now - lastSnapshotAt < SNAPSHOT_MIN_INTERVAL_MS) return;
+  lastSnapshotAt = now;
+  void supabaseAdmin
+    .from("price_history")
+    .insert({ symbol: SYMBOL, price })
+    .then(() => undefined, () => undefined);
+}
 
 async function fetchXau(): Promise<XauPayload> {
   const ctrl = new AbortController();
@@ -50,8 +93,11 @@ async function fetchXau(): Promise<XauPayload> {
     const ask = Number.isFinite(Number(j?.ask)) ? Number(j!.ask) : null;
     const upstreamTs = j?.updatedAt ? Date.parse(j.updatedAt) : NaN;
     const updatedAt = Number.isFinite(upstreamTs) ? upstreamTs : Date.now();
-    const changePct = prevPrice && prevPrice > 0 ? ((price - prevPrice) / prevPrice) * 100 : 0;
-    prevPrice = price;
+    // % 24h thật: so với mẫu gần ~24h trước trong DB. Nếu chưa có lịch sử
+    // (lần chạy đầu / mới deploy), trả 0 — sẽ chính xác sau 24h.
+    const prev = await fetchPrice24hAgo();
+    const changePct = prev && prev > 0 ? ((price - prev) / prev) * 100 : 0;
+    recordSnapshot(price);
     return {
       price,
       bid,
