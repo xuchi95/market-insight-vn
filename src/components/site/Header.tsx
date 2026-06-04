@@ -687,6 +687,16 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </div>
             ))}
             <div className="pt-3 mt-1 border-t border-border">
+              {/* Giao diện sáng/tối — đặt trong menu để không chiếm chỗ header */}
+              <div className="mb-3 flex items-center justify-between rounded-xl border border-border bg-card/60 px-3 py-2">
+                <div className="min-w-0">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
+                    Giao diện
+                  </div>
+                  <div className="text-sm text-foreground">Sáng / Tối</div>
+                </div>
+                <ThemeToggle />
+              </div>
               {user ? (
                 <div className="space-y-2">
                   <div className="rounded-xl border border-border bg-card/80 p-2.5 flex items-center gap-2.5">
