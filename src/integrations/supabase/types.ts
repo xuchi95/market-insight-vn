@@ -418,6 +418,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          clock_timezone: string
           created_at: string
           email: string | null
           full_name: string | null
@@ -431,6 +432,7 @@ export type Database = {
           welcome_email_sent_at: string | null
         }
         Insert: {
+          clock_timezone?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -444,6 +446,7 @@ export type Database = {
           welcome_email_sent_at?: string | null
         }
         Update: {
+          clock_timezone?: string
           created_at?: string
           email?: string | null
           full_name?: string | null

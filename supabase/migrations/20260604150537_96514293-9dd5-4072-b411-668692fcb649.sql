@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS clock_timezone text NOT NULL DEFAULT 'VN' CHECK (clock_timezone IN ('VN','UTC'));
