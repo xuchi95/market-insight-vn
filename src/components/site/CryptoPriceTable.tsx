@@ -134,36 +134,6 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       icon={<Bitcoin className="h-4 w-4" />}
       title="Bảng giá crypto"
       description="Giá thị trường realtime • cập nhật mỗi 10s"
-      meta={
-        <span className="inline-flex items-center gap-2 transition-opacity duration-300">
-          <LiveDot />
-          <span
-            key={isFetching ? "fetching" : isError ? "error" : justUpdated ? "ok" : "idle"}
-            className="inline-flex items-center gap-1.5 animate-fade-in"
-          >
-            {isFetching ? (
-              <>
-                <Loader2 className="h-3 w-3 animate-spin text-[var(--up)]" />
-                <span className="text-[var(--up)]">Đang cập nhật…</span>
-              </>
-            ) : isError ? (
-              <>
-                <AlertTriangle className="h-3 w-3 text-[var(--down)]" />
-                <span className="text-[var(--down)]">
-                  Cập nhật lỗi{dataUpdatedAt ? ` • ${fmtTime(dataUpdatedAt)}` : ""}
-                </span>
-              </>
-            ) : justUpdated ? (
-              <>
-                <CheckCircle2 className="h-3 w-3 text-[var(--up)]" />
-                <span className="text-[var(--up)]">Đã cập nhật</span>
-              </>
-            ) : (
-              <span>Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</span>
-            )}
-          </span>
-        </span>
-      }
       action={
         <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} />
