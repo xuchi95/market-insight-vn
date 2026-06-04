@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
+import { Loader2, CheckCircle2 } from "lucide-react";
 
 type SortKey = "marketCap" | "priceUsd" | "priceVnd" | "change24h" | "volume24h";
 type Category = "all" | "top-mcap" | "top-volume";
@@ -50,6 +51,20 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
+
+  // Smooth status pill: "Đang cập nhật…" while fetching, then briefly show
+  // a success tick after a successful refresh before settling on the timestamp.
+  const [justUpdated, setJustUpdated] = useState(false);
+  const prevFetchingRef = useRef(false);
+  useEffect(() => {
+    const wasFetching = prevFetchingRef.current;
+    prevFetchingRef.current = isFetching;
+    if (wasFetching && !isFetching && !isError) {
+      setJustUpdated(true);
+      const t = setTimeout(() => setJustUpdated(false), 1400);
+      return () => clearTimeout(t);
+    }
+  }, [isFetching, isError]);
 
   // Realtime price overlay via Binance WS (throttled to ~10s in the hook)
   const ids = useMemo(() => (data ?? []).map((c) => c.id), [data]);
@@ -103,7 +118,36 @@ export function CryptoPriceTable({ search }: { search?: string }) {
       icon={<Bitcoin className="h-4 w-4" />}
       title="Bảng giá crypto"
       description="Giá thị trường realtime • cập nhật mỗi 10s"
-      meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
+      meta={
+        <span className="inline-flex items-center gap-2 transition-opacity duration-300">
+          <LiveDot />
+          <span
+            key={isFetching ? "fetching" : isError ? "error" : justUpdated ? "ok" : "idle"}
+            className="inline-flex items-center gap-1.5 animate-fade-in"
+          >
+            {isFetching ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin text-[var(--up)]" />
+                <span className="text-[var(--up)]">Đang cập nhật…</span>
+              </>
+            ) : isError ? (
+              <>
+                <AlertTriangle className="h-3 w-3 text-[var(--down)]" />
+                <span className="text-[var(--down)]">
+                  Cập nhật lỗi{dataUpdatedAt ? ` • ${fmtTime(dataUpdatedAt)}` : ""}
+                </span>
+              </>
+            ) : justUpdated ? (
+              <>
+                <CheckCircle2 className="h-3 w-3 text-[var(--up)]" />
+                <span className="text-[var(--up)]">Đã cập nhật</span>
+              </>
+            ) : (
+              <span>Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</span>
+            )}
+          </span>
+        </span>
+      }
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
       <div className="flex flex-col gap-4 p-4 lg:p-5">
