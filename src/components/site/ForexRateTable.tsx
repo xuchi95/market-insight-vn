@@ -46,15 +46,15 @@ export function ForexRateTable({ search }: { search?: string }) {
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full text-base">
+        <table className="w-full text-sm sm:text-base">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="text-left px-4 py-3 font-semibold">Mã</th>
-              <th className="text-left px-4 py-3 font-semibold">Tiền tệ</th>
-              <th className="text-right px-4 py-3 font-semibold">Mua</th>
-              <th className="text-right px-4 py-3 font-semibold">Bán</th>
+              <th className="text-left px-2 sm:px-4 py-3 font-semibold">Mã</th>
+              <th className="text-left px-2 sm:px-4 py-3 font-semibold hidden sm:table-cell">Tiền tệ</th>
+              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Mua</th>
+              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Bán</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Trung bình</th>
-              <th className="text-right px-4 py-3 font-semibold">Thay đổi</th>
+              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Δ</th>
               <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell">Cập nhật</th>
             </tr>
           </thead>
@@ -64,20 +64,21 @@ export function ForexRateTable({ search }: { search?: string }) {
             ))}
             {rows.map((r) => (
               <tr key={r.code} className="hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3 font-bold">
-                  <Link to="/tai-san/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline">
+                <td className="px-2 sm:px-4 py-3 font-bold min-w-0">
+                  <Link to="/tai-san/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline block truncate">
                     {r.code}
                   </Link>
+                  <span className="block text-xs font-normal text-muted-foreground truncate sm:hidden">{r.name}</span>
                 </td>
-                <td className="px-4 py-3 text-muted-foreground">
+                <td className="px-2 sm:px-4 py-3 text-muted-foreground hidden sm:table-cell">
                   <Link to="/tai-san/$symbol" params={{ symbol: r.code.toLowerCase() }} className="hover:text-foreground">
                     {r.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-right"><AnimatedNumber value={r.buy} format={(v) => fmtNum(v, 2)} minChars={9} /></td>
-                <td className="px-4 py-3 text-right font-semibold"><AnimatedNumber value={r.sell} format={(v) => fmtNum(v, 2)} minChars={9} /></td>
+                <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap"><AnimatedNumber value={r.buy} format={(v) => fmtNum(v, 2)} /></td>
+                <td className="px-2 sm:px-4 py-3 text-right font-semibold whitespace-nowrap"><AnimatedNumber value={r.sell} format={(v) => fmtNum(v, 2)} /></td>
                 <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={r.mid} format={(v) => fmtNum(v, 2)} noFlash minChars={9} /></td>
-                <td className="px-4 py-3 text-right"><ChangeBadge value={r.changePct} /></td>
+                <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap"><ChangeBadge value={r.changePct} /></td>
                 <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(r.updatedAt)}</td>
               </tr>
             ))}
