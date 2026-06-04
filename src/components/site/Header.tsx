@@ -170,7 +170,6 @@ function useClock() {
 }
 
 export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
-  const time = useClock();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
