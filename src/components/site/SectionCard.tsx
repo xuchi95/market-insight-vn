@@ -15,7 +15,7 @@ interface Props {
 export function SectionCard({ id, title, description, icon, action, meta, children, className }: Props) {
   return (
     <section id={id} className={cn("scroll-mt-20", className)}>
-      <div className="rounded-2xl border border-border bg-card [overflow:clip]">
+      <div className="rounded-2xl border border-border bg-card [overflow:clip] isolate">
         <div className="flex flex-wrap items-center gap-3 p-4 lg:p-5 border-b border-border">
           {icon && <div className="grid h-9 w-9 place-items-center rounded-lg bg-gold/15 text-gold">{icon}</div>}
           <div className="min-w-0">
