@@ -6,6 +6,8 @@ import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
 import { fmtTrieu } from "@/lib/format";
+import { AnimatedNumber } from "./AnimatedNumber";
+import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 
 interface InitialPrices {
   gold: GoldPrice[] | null;
@@ -73,7 +75,8 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
       fetchForexRates().then((v) => alive && setFx(v)).catch(() => alive && setFx([]));
     };
     load();
-    const t = setInterval(load, 30_000);
+    // Poll mỗi 10s để bảng giá nhảy số tương tự trang chi tiết coin.
+    const t = setInterval(load, 10_000);
     return () => { alive = false; clearInterval(t); };
   }, []);
 
@@ -87,6 +90,13 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const eur = fx?.find((r) => r.code === "EUR");
   const jpy = fx?.find((r) => r.code === "JPY");
   const cny = fx?.find((r) => r.code === "CNY");
+
+  // Live BTC/ETH price (WS Binance, flush ~10s) — y chang trang chi tiết coin.
+  const liveTicks = useBinanceTickers(["bitcoin", "ethereum"]);
+  const btcPrice = liveTicks.bitcoin?.priceUsd ?? btc?.priceUsd ?? 0;
+  const btcChange = liveTicks.bitcoin?.change24h ?? btc?.change24h ?? 0;
+  const ethPrice = liveTicks.ethereum?.priceUsd ?? eth?.priceUsd ?? 0;
+  const ethChange = liveTicks.ethereum?.change24h ?? eth?.change24h ?? 0;
 
   // Synthetic high/low for gold (no live history); compute from sell ± small range
   const goldHigh = sjc ? Math.round(sjc.sell * 1.004) : 0;
@@ -102,7 +112,7 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
               <div className="eyebrow mb-2">Vàng miếng SJC</div>
               {sjc ? (
                 <div className="font-display text-3xl md:text-5xl leading-tight text-foreground">
-                  {fmtTrieu(sjc.sell)}
+                  <AnimatedNumber value={sjc.sell} format={(v) => fmtTrieu(v)} minChars={5} />
                   <span className="ml-1.5 text-sm md:text-base text-muted-foreground">tr/chỉ</span>
                 </div>
               ) : goldLoading ? (
@@ -150,14 +160,14 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           <div className="eyebrow mb-2">Bitcoin</div>
           {btc ? (
             <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
-              ${fmt(btc.priceUsd, 0)}
+              $<AnimatedNumber value={btcPrice} format={(v) => fmt(v, 0)} minChars={6} />
             </div>
           ) : cryptoLoading ? (
             <LoadingLine />
           ) : (
             <div className="font-display text-2xl md:text-3xl leading-tight text-muted-foreground">—</div>
           )}
-          <div className="mt-1.5">{btc && <ChangePill value={btc.change24h} />}</div>
+          <div className="mt-1.5">{btc && <ChangePill value={btcChange} />}</div>
           <div className="mt-4">
             {btc && <Spark data={btc.sparkline} color={btc.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
           </div>
@@ -174,14 +184,14 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           <div className="eyebrow mb-2">Ethereum</div>
           {eth ? (
             <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
-              ${fmt(eth.priceUsd, 0)}
+              $<AnimatedNumber value={ethPrice} format={(v) => fmt(v, 0)} minChars={5} />
             </div>
           ) : cryptoLoading ? (
             <LoadingLine />
           ) : (
             <div className="font-display text-2xl md:text-3xl leading-tight text-muted-foreground">—</div>
           )}
-          <div className="mt-1.5">{eth && <ChangePill value={eth.change24h} />}</div>
+          <div className="mt-1.5">{eth && <ChangePill value={ethChange} />}</div>
           <div className="mt-4">
             {eth && <Spark data={eth.sparkline} color={eth.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
           </div>
@@ -246,7 +256,9 @@ function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?
   return (
     <div className="bg-card p-3">
       <div className="eyebrow opacity-70">{rate.code}/VND</div>
-      <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1">{fmt(rate.mid, digits)}</div>
+      <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1">
+        <AnimatedNumber value={rate.mid} format={(v) => fmt(v, digits)} minChars={6} />
+      </div>
       <div className={`text-xs tabular mt-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
         {rate.changePct >= 0 ? "+" : ""}{rate.changePct.toFixed(2)}%
       </div>
