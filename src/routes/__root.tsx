@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import * as React from "react";
 import {
   Outlet,
   Link,
@@ -255,10 +256,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           },
         }),
       },
-      // Admin-injected snippets cho <head> (Google Analytics, AdSense, Tag Manager, verify…).
-      ...((loaderData?.injections ?? [])
-        .filter((i: PublicInjection) => i.location === "head")
-        .map((i: PublicInjection) => ({ children: i.code }))),
+      // NOTE: Snippet admin chèn vào <head> được render trong RootShell qua
+      // dangerouslySetInnerHTML để giữ nguyên các thẻ <meta>, <link>, <script>
+      // — không thể đẩy vào head().scripts vì sẽ bị bọc trong <script>.
     ],
   }),
   shellComponent: RootShell,
@@ -267,12 +267,51 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+function parseHeadSnippets(html: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = [];
+  // Match self-closing/void tags (<meta>, <link>) and paired tags (<script>, <style>, <noscript>)
+  const re =
+    /<(script|style|noscript)\b([^>]*)>([\s\S]*?)<\/\1\s*>|<(meta|link)\b([^>]*?)\/?\s*>/gi;
+  let m: RegExpExecArray | null;
+  let key = 0;
+  while ((m = re.exec(html)) !== null) {
+    const attrs: Record<string, string | boolean> = {};
+    const attrStr = m[2] ?? m[5] ?? "";
+    const attrRe = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
+    let am: RegExpExecArray | null;
+    while ((am = attrRe.exec(attrStr)) !== null) {
+      const name = am[1];
+      const val = am[2] ?? am[3] ?? am[4];
+      attrs[name] = val ?? true;
+    }
+    const tag = (m[1] ?? m[4]).toLowerCase();
+    const inner = m[3];
+    if (tag === "script" || tag === "style" || tag === "noscript") {
+      nodes.push(
+        React.createElement(tag, {
+          key: `inj-${key++}`,
+          ...attrs,
+          dangerouslySetInnerHTML: inner ? { __html: inner } : undefined,
+        }),
+      );
+    } else {
+      nodes.push(React.createElement(tag, { key: `inj-${key++}`, ...attrs }));
+    }
+  }
+  return nodes;
+}
+
 function RootShell({ children }: { children: React.ReactNode }) {
+  const loaderData = Route.useLoaderData();
+  const headInjections = ((loaderData?.injections ?? []) as PublicInjection[])
+    .filter((i) => i.location === "head")
+    .flatMap((i) => parseHeadSnippets(i.code));
   return (
     <html lang="vi" className="dark">
       <head>
         <style>{`html.dark{--background:#0d0d0d;--foreground:#f5f0df;--card:#1a1a1a;--border:#4c463a;--gold:#c9a84c;--gold-light:#f0d78c;--gold-foreground:#0d0d0d;--muted-foreground:#c8b98f;--down:#e85d3a;color-scheme:dark}html.light{--background:#f3eee4;--foreground:#2a241b;--card:#fbf7ee;--border:#d6cdb8;--gold:#8a6a1f;--gold-light:#b5904a;--gold-foreground:#fbf7ee;--muted-foreground:#5b5240;--down:#c0432a;color-scheme:light}html{background:var(--background)}body{margin:0;background:var(--background);color:var(--foreground);font-family:"Be Vietnam Pro",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}`}</style>
         <HeadContent />
+        {headInjections}
       </head>
       <body>
         {children}
