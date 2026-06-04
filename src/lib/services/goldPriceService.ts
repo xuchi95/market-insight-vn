@@ -4,6 +4,7 @@ import { midOf } from "@/lib/gold-units";
 // Bổ sung các thương hiệu chưa có trong feed PNJ — jitter giả lập quanh giá gần đây.
 // XAU/USD KHÔNG nằm đây nữa: lấy realtime từ `/api/public/xau` (xem `fetchXauRow`).
 const SUPPLEMENTAL: Omit<GoldPrice, "changePct" | "updatedAt">[] = [
+  { id: "doji", brand: "DOJI", type: "Vàng miếng 9999", buy: 15_750_000, sell: 15_950_000, unit: "VND/chỉ" },
   { id: "mihong-9999", brand: "Mi Hồng", type: "Vàng miếng 9999", buy: 15_780_000, sell: 16_080_000, unit: "VND/chỉ" },
   { id: "18k", brand: "Vàng 18K", type: "Vàng trang sức 18K", buy: 11_800_000, sell: 12_100_000, unit: "VND/chỉ" },
 ];
