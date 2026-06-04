@@ -219,16 +219,16 @@ export function CryptoPriceTable({ search }: { search?: string }) {
           <table className="w-full table-fixed text-sm sm:text-base">
             <thead className="text-xs uppercase text-muted-foreground">
               <tr>
-                <th className={`${stickyThClass} text-left px-3 sm:px-4 py-3 font-semibold w-10`}>
+                <th className={`${stickyThClass} text-left px-2 sm:px-4 py-3 font-semibold w-8 sm:w-10`}>
                   #
                 </th>
                 <th
-                  className={`${stickyThClass} text-left px-3 sm:px-4 py-3 font-semibold w-[38%] sm:w-auto`}
+                  className={`${stickyThClass} text-left px-2 sm:px-4 py-3 font-semibold w-[40%] sm:w-auto`}
                 >
                   Coin
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-3 sm:px-4 py-3 font-semibold w-[32%] sm:w-auto`}
+                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[34%] sm:w-auto`}
                 >
                   <SortBtn k="priceUsd" />
                 </th>
@@ -238,7 +238,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   <SortBtn k="priceVnd" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-3 sm:px-4 py-3 font-semibold w-[22%] sm:w-auto`}
+                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[22%] sm:w-auto`}
                 >
                   <SortBtn k="change24h" shortLabel="24h" />
                 </th>
@@ -270,31 +270,30 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                 ))}
               {rows.map((c, i) => (
                 <tr key={c.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-muted-foreground tabular-nums">{i + 1}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 sm:px-4 py-3 text-muted-foreground tabular-nums text-xs sm:text-sm">{i + 1}</td>
+                  <td className="px-2 sm:px-4 py-3">
                     <Link
                       to="/tai-san/$symbol"
                       params={{ symbol: c.symbol.toLowerCase() }}
-                      className="flex items-center gap-3 group"
+                      className="flex items-center gap-2 sm:gap-3 group min-w-0"
                     >
                       <img
                         src={c.image}
                         alt={c.name}
-                        className="h-7 w-7 rounded-full"
+                        className="h-7 w-7 rounded-full shrink-0"
                         loading="lazy"
                       />
-                      <div>
-                        <div className="font-semibold group-hover:text-gold transition-colors">
+                      <div className="min-w-0">
+                        <div className="font-semibold group-hover:text-gold transition-colors truncate">
                           {c.name}
                         </div>
-                        <div className="text-sm text-muted-foreground">{c.symbol}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground truncate">{c.symbol}</div>
                       </div>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold">
+                  <td className="px-2 sm:px-4 py-3 text-right font-semibold whitespace-nowrap text-sm sm:text-base">
                     <AnimatedNumber
                       value={c.priceUsd}
-                      minChars={10}
                       format={(v) => fmtUSD(v, c.priceUsd < 1 ? 4 : 2)}
                     />
                   </td>
@@ -306,7 +305,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       format={(v) => fmtSmartVND(v, compact)}
                     />
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap">
                     <ChangeBadge value={c.change24h} />
                   </td>
                   <td className="px-4 py-3 text-right text-muted-foreground hidden lg:table-cell">
