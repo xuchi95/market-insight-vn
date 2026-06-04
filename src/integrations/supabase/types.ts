@@ -416,6 +416,27 @@ export type Database = {
         }
         Relationships: []
       }
+      price_history: {
+        Row: {
+          captured_at: string
+          id: number
+          price: number
+          symbol: string
+        }
+        Insert: {
+          captured_at?: string
+          id?: number
+          price: number
+          symbol: string
+        }
+        Update: {
+          captured_at?: string
+          id?: number
+          price?: number
+          symbol?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           clock_timezone: string
