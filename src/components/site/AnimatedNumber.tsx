@@ -117,7 +117,7 @@ export function AnimatedNumber({
     <span
       ref={elRef}
       className={cn(
-        "tabular inline-block -mx-1 rounded-md px-1 text-right",
+        "tabular inline-block -mx-1 rounded-md px-1 text-left",
         className,
       )}
       style={minChars ? { minWidth: `${minChars}ch` } : undefined}
