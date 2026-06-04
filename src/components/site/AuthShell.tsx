@@ -59,10 +59,12 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
           </header>
 
           <div className="my-10 max-w-xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-3 py-1 text-xs font-medium text-gold">
-              <Sparkles className="h-3.5 w-3.5" />
-              {eyebrow}
-            </div>
+            {eyebrow ? (
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] px-3 py-1 text-xs font-medium text-gold">
+                <Sparkles className="h-3.5 w-3.5" />
+                {eyebrow}
+              </div>
+            ) : null}
             <h2 className="font-display text-[38px] xl:text-[46px] leading-[1.05] tracking-tight">
               Đọc thị trường <span className="text-gold italic">như một biên tập viên</span>, hành động như một trader.
             </h2>
@@ -121,7 +123,7 @@ export function AuthShell({ eyebrow, title, subtitle, footer, children }: Props)
             </div>
 
             <div className="mb-8">
-              <div className="eyebrow mb-3">{eyebrow}</div>
+              {eyebrow ? <div className="eyebrow mb-3">{eyebrow}</div> : null}
               <h1 className="font-display text-4xl leading-tight tracking-tight">{title}</h1>
               <p className="mt-3 text-sm text-muted-foreground">{subtitle}</p>
             </div>
