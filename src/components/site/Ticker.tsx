@@ -6,6 +6,8 @@ import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fmtTrieu } from "@/lib/format";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 async function fetchXau(): Promise<{ price: number; changePct: number } | null> {
   try {
@@ -54,6 +56,23 @@ export function Ticker() {
     if (typeof window === "undefined") return "VN";
     return (localStorage.getItem("mw:clock-tz") as "VN" | "UTC") || "VN";
   });
+  const { user } = useAuth();
+  // Khi đăng nhập: nạp lựa chọn múi giờ từ hồ sơ để đồng bộ giữa thiết bị.
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    supabase
+      .from("profiles")
+      .select("clock_timezone")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!alive) return;
+        const remote = (data?.clock_timezone as "VN" | "UTC" | undefined);
+        if (remote === "VN" || remote === "UTC") setTz(remote);
+      });
+    return () => { alive = false; };
+  }, [user]);
   useEffect(() => {
     setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 30_000);
@@ -61,7 +80,11 @@ export function Ticker() {
   }, []);
   useEffect(() => {
     try { localStorage.setItem("mw:clock-tz", tz); } catch { /* ignore */ }
-  }, [tz]);
+    // Đồng bộ lên hồ sơ tài khoản khi đã đăng nhập (fire-and-forget).
+    if (user) {
+      supabase.from("profiles").update({ clock_timezone: tz }).eq("id", user.id).then(() => {});
+    }
+  }, [tz, user]);
   const timeStr = now
     ? now.toLocaleTimeString("vi-VN", {
         hour: "2-digit",
