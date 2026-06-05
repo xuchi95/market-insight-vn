@@ -141,24 +141,33 @@ export function CryptoPriceTable({ search }: { search?: string }) {
     >
       <div className="flex flex-col gap-4 p-4 lg:p-5">
         {/* Category filter — sticky to viewport under the site header */}
-        <div className="sticky top-12 md:top-14 z-40 -mx-4 lg:-mx-5 px-4 lg:px-5 py-2 flex flex-wrap items-center gap-2 bg-card/95 backdrop-blur-md border-b border-border/60 shadow-[0_4px_12px_-8px_rgba(0,0,0,0.4)]">
+        <div className="sticky top-12 md:top-14 z-40 -mx-4 lg:-mx-5 px-4 lg:px-5 py-2.5 flex flex-wrap items-center gap-3 bg-card/95 backdrop-blur-md border-b border-border/60 shadow-[0_4px_12px_-8px_rgba(0,0,0,0.4)]">
           {/* Category segmented chips */}
-          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card/60 p-1">
-            {(["all", "top-mcap", "top-volume"] as Category[]).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  category === cat
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {cat === "top-mcap" && <Trophy className="h-3 w-3" />}
-                {cat === "top-volume" && <BarChart3 className="h-3 w-3" />}
-                {CATEGORY_LABELS[cat]}
-              </button>
-            ))}
+          <div
+            role="tablist"
+            aria-label="Lọc danh mục crypto"
+            className="inline-flex items-stretch rounded-full border border-border bg-muted/40 p-1 shadow-inner"
+          >
+            {(["all", "top-mcap", "top-volume"] as Category[]).map((cat) => {
+              const active = category === cat;
+              return (
+                <button
+                  key={cat}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setCategory(cat)}
+                  className={`inline-flex items-center justify-center gap-1.5 rounded-full h-8 px-4 text-xs font-medium leading-none transition-all duration-200 ${
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+                  }`}
+                >
+                  {cat === "top-mcap" && <Trophy className="h-3.5 w-3.5" />}
+                  {cat === "top-volume" && <BarChart3 className="h-3.5 w-3.5" />}
+                  <span>{CATEGORY_LABELS[cat]}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Sort dropdown + direction toggle (only when not using category presets) */}
