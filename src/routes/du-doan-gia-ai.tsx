@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
@@ -43,6 +44,19 @@ const DESC =
   "AI dự đoán giá vàng SJC, vàng nhẫn 9999, Bitcoin (BTC), Ethereum, xăng RON 95, dầu Brent/WTI và USD/VND cho 24h, 7 ngày, 30 ngày tới. Miễn phí, dữ liệu thời gian thực.";
 
 export const Route = createFileRoute("/du-doan-gia-ai")({
+  // Page is fully gated — client-rendered only, redirect to login when
+  // session is missing. SSR is disabled because Supabase sessions live in
+  // localStorage and cannot be read on the server.
+  ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
+      throw redirect({
+        to: "/dang-nhap",
+        search: { redirect: "/du-doan-gia-ai" } as never,
+      });
+    }
+  },
   head: () => ({
     meta: [
       { title: TITLE },
@@ -60,7 +74,7 @@ export const Route = createFileRoute("/du-doan-gia-ai")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESC },
-      { name: "robots", content: "index, follow, max-image-preview:large" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
     links: [{ rel: "canonical", href: URL }],
     scripts: [
