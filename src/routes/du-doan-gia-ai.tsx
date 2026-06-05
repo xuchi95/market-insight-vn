@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
@@ -24,7 +25,9 @@ import {
   ShieldAlert,
   CheckCircle2,
   ChevronDown,
+  Lock,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   predictAssetPrice,
   PREDICTABLE_ASSETS,
@@ -193,6 +196,8 @@ function AiPredictPage() {
   );
   const [horizon, setHorizon] = useState<"24h" | "7d" | "30d">("24h");
   const [result, setResult] = useState<PredictionResult | null>(null);
+  const { user, loading: authLoading } = useAuth();
+  const isAuthed = !!user;
 
   const assetsInCategory = useMemo(
     () => PREDICTABLE_ASSETS.filter((a) => a.category === category),
@@ -210,7 +215,10 @@ function AiPredictPage() {
     onSuccess: (data) => setResult(data),
   });
 
-  const onPredict = () => mutation.mutate({ asset, horizon });
+  const onPredict = () => {
+    if (!isAuthed) return;
+    mutation.mutate({ asset, horizon });
+  };
 
   const horizonLabel = HORIZONS.find((h) => h.value === horizon)!.label;
 
@@ -336,10 +344,20 @@ function AiPredictPage() {
                   </span>
                 </div>
               </div>
+              {!isAuthed && !authLoading ? (
+                <Link
+                  to="/dang-nhap"
+                  search={{ redirect: "/du-doan-gia-ai" } as never}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-6 py-3 text-sm font-semibold tracking-wide uppercase shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--gold)_60%,transparent)] hover:opacity-90 transition-opacity shrink-0"
+                >
+                  <Lock className="h-4 w-4" />
+                  Đăng nhập để dùng AI
+                </Link>
+              ) : (
               <button
                 type="button"
                 onClick={onPredict}
-                disabled={mutation.isPending}
+                disabled={mutation.isPending || authLoading}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-6 py-3 text-sm font-semibold tracking-wide uppercase shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--gold)_60%,transparent)] hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
               >
                 {mutation.isPending ? (
@@ -359,7 +377,25 @@ function AiPredictPage() {
                   </>
                 )}
               </button>
+              )}
             </div>
+            {!isAuthed && !authLoading && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Tính năng AI yêu cầu tài khoản miễn phí để chống lạm dụng.{" "}
+                <Link to="/dang-ky" className="text-[var(--gold)] underline-offset-2 hover:underline">
+                  Đăng ký nhanh
+                </Link>{" "}
+                hoặc{" "}
+                <Link
+                  to="/dang-nhap"
+                  search={{ redirect: "/du-doan-gia-ai" } as never}
+                  className="text-[var(--gold)] underline-offset-2 hover:underline"
+                >
+                  đăng nhập
+                </Link>
+                .
+              </p>
+            )}
           </div>
 
           {mutation.isError && (
