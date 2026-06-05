@@ -475,7 +475,7 @@ function StepHeader({ n, title, hint }: { n: number; title: string; hint?: strin
   );
 }
 
-function ResultPanel({ result, modelLabel }: { result: PredictionResult; modelLabel: string }) {
+function ResultPanel({ result }: { result: PredictionResult }) {
   const meta = PREDICTABLE_ASSETS.find((a) => a.slug === result.asset)!;
   const horizonLabel = HORIZONS.find((h) => h.value === result.horizon)!.label;
   const low = result.expected_change_pct_low;
@@ -493,7 +493,7 @@ function ResultPanel({ result, modelLabel }: { result: PredictionResult; modelLa
               {meta.label}
             </h2>
             <div className="text-xs text-muted-foreground mt-1">
-              {new Date(result.generated_at).toLocaleString("vi-VN")} · {modelLabel}
+              {new Date(result.generated_at).toLocaleString("vi-VN")}
             </div>
           </div>
           <div className="flex items-center gap-5 shrink-0">
