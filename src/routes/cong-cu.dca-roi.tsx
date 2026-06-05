@@ -27,6 +27,34 @@ export const Route = createFileRoute("/cong-cu/dca-roi")({
       { property: "og:type", content: "website" },
     ],
     links: [{ rel: "canonical", href: URL }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE + "/" },
+            { "@type": "ListItem", position: 2, name: "Công cụ", item: SITE + "/cong-cu/dca-roi" },
+            { "@type": "ListItem", position: 3, name: "DCA & ROI", item: URL },
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          name: "Máy tính DCA & ROI — MarketWatch",
+          url: URL,
+          applicationCategory: "FinanceApplication",
+          operatingSystem: "Web",
+          inLanguage: "vi-VN",
+          description: DESC,
+          offers: { "@type": "Offer", price: "0", priceCurrency: "VND" },
+        }),
+      },
+    ],
   }),
   component: DcaRoiPage,
 });

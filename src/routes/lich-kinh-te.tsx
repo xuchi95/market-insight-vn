@@ -26,6 +26,30 @@ export const Route = createFileRoute("/lich-kinh-te")({
       { property: "og:type", content: "website" },
     ],
     links: [{ rel: "canonical", href: URL }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE + "/" },
+            { "@type": "ListItem", position: 2, name: "Lịch kinh tế", item: URL },
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: TITLE,
+          description: DESC,
+          url: URL,
+          inLanguage: "vi-VN",
+        }),
+      },
+    ],
   }),
   component: EconomicCalendarPage,
 });
