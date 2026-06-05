@@ -651,6 +651,10 @@ function PopupCard({ form }: { form: PopupForm }) {
     down: "var(--down)",
   } as const;
   const accent = accentMap[form.theme.accent];
+  const accentFg =
+    form.theme.accent === "primary" ? "var(--primary-foreground)" :
+    form.theme.accent === "gold" ? "var(--gold-foreground)" :
+    "var(--background)";
   const width =
     form.theme.layout === "bottom" ? "w-[min(420px,90%)]" : form.theme.layout === "side" ? "w-[280px]" : "w-[320px]";
 
@@ -689,7 +693,7 @@ function PopupCard({ form }: { form: PopupForm }) {
         </span>
         <span
           className="absolute -bottom-1 -right-1 inline-flex h-4 w-4 items-center justify-center rounded-full border-2 border-card"
-          style={{ background: accent, color: "var(--background)" }}
+          style={{ background: accent, color: accentFg }}
         >
           <Bell className="h-2 w-2" strokeWidth={2.5} />
         </span>
@@ -711,7 +715,7 @@ function PopupCard({ form }: { form: PopupForm }) {
       <button
         type="button"
         className="mt-2 h-9 w-full rounded-md text-xs font-semibold"
-        style={{ background: accent, color: "var(--background)" }}
+        style={{ background: accent, color: accentFg }}
       >
         {form.cta_label || "Đăng ký ngay"}
       </button>

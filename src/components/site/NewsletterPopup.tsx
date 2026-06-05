@@ -136,6 +136,10 @@ export function NewsletterPopup() {
     popup.theme.accent === "up" ? "var(--up)" :
     popup.theme.accent === "down" ? "var(--down)" :
     "var(--gold)";
+  const accentFg =
+    popup.theme.accent === "primary" ? "var(--primary-foreground)" :
+    popup.theme.accent === "gold" ? "var(--gold-foreground)" :
+    "var(--background)";
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="border-[var(--gold)]/30 bg-card/95 backdrop-blur-xl sm:max-w-md overflow-hidden p-0 gap-0 shadow-2xl shadow-[var(--gold)]/10 rounded-2xl">
@@ -164,7 +168,7 @@ export function NewsletterPopup() {
             </span>
             <span
               className="absolute -bottom-1 -right-1 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-card"
-              style={{ background: accentVar, color: "var(--background)" }}
+              style={{ background: accentVar, color: accentFg }}
             >
               <Bell className="h-3 w-3" strokeWidth={2.5} />
             </span>
@@ -178,7 +182,7 @@ export function NewsletterPopup() {
           </DialogDescription>
 
           <div className="mt-6 animate-scale-in">
-            <PopupSubscribeForm popup={popup} accentVar={accentVar} />
+            <PopupSubscribeForm popup={popup} accentVar={accentVar} accentFg={accentFg} />
           </div>
         </div>
       </DialogContent>
@@ -186,7 +190,7 @@ export function NewsletterPopup() {
   );
 }
 
-function PopupSubscribeForm({ popup, accentVar }: { popup: ActivePopup; accentVar: string }) {
+function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup; accentVar: string; accentFg: string }) {
   const [email, setEmail] = useState("");
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -236,7 +240,7 @@ function PopupSubscribeForm({ popup, accentVar }: { popup: ActivePopup; accentVa
         type="submit"
         disabled={loading}
         className="w-full h-12 text-base font-semibold"
-        style={{ background: accentVar, color: "var(--background)" }}
+        style={{ background: accentVar, color: accentFg }}
       >
         {loading ? "Đang gửi…" : "Đăng ký ngay"}
       </Button>
