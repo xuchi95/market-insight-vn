@@ -21,7 +21,6 @@ import {
   Bitcoin,
   Banknote,
   Clock,
-  Cpu,
   ShieldAlert,
   CheckCircle2,
   ChevronDown,
@@ -30,10 +29,7 @@ import {
   predictAssetPrice,
   PREDICTABLE_ASSETS,
   HORIZONS,
-  OPENROUTER_MODELS,
-  DEFAULT_MODEL,
   type AssetSlug,
-  type OpenRouterModelId,
   type PredictionResult,
 } from "@/lib/ai-predict.functions";
 
@@ -183,20 +179,6 @@ function AiPredictPage() {
   );
   const [horizon, setHorizon] = useState<"24h" | "7d" | "30d">("24h");
   const [result, setResult] = useState<PredictionResult | null>(null);
-  const [advOpen, setAdvOpen] = useState(false);
-  const [model, setModel] = useState<OpenRouterModelId>(() => {
-    if (typeof window === "undefined") return DEFAULT_MODEL;
-    const saved = window.localStorage.getItem("mw_openrouter_model");
-    const exists = OPENROUTER_MODELS.find((m) => m.id === saved);
-    return (exists?.id as OpenRouterModelId) ?? DEFAULT_MODEL;
-  });
-
-  const handleModelChange = (id: OpenRouterModelId) => {
-    setModel(id);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("mw_openrouter_model", id);
-    }
-  };
 
   const assetsInCategory = useMemo(
     () => PREDICTABLE_ASSETS.filter((a) => a.category === category),
@@ -209,15 +191,13 @@ function AiPredictPage() {
     mutationFn: (vars: {
       asset: AssetSlug;
       horizon: "24h" | "7d" | "30d";
-      model: OpenRouterModelId;
     }) =>
       callPredict({ data: vars }),
     onSuccess: (data) => setResult(data),
   });
 
-  const onPredict = () => mutation.mutate({ asset, horizon, model });
+  const onPredict = () => mutation.mutate({ asset, horizon });
 
-  const activeModel = OPENROUTER_MODELS.find((m) => m.id === model) ?? OPENROUTER_MODELS[0];
   const horizonLabel = HORIZONS.find((h) => h.value === horizon)!.label;
 
   return (
@@ -330,73 +310,6 @@ function AiPredictPage() {
             </div>
           </section>
 
-          {/* Step 3 — Advanced (model) */}
-          <section className="mb-10">
-            <button
-              type="button"
-              onClick={() => setAdvOpen((v) => !v)}
-              className="flex items-center justify-between w-full text-left group"
-              aria-expanded={advOpen}
-            >
-              <div className="flex items-center gap-3">
-                <span className="eyebrow text-muted-foreground/70">Nâng cao</span>
-                <span className="text-sm text-muted-foreground">
-                  Mô hình AI ·{" "}
-                  <span className="text-foreground font-medium">{activeModel.label}</span>
-                </span>
-              </div>
-              <ChevronDown
-                className={`h-4 w-4 text-muted-foreground transition-transform ${
-                  advOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            <div className="hairline mt-3" />
-            {advOpen && (
-              <div className="mt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm text-muted-foreground">
-                    Chọn nhà cung cấp & mô hình qua OpenRouter — lựa chọn tự động lưu cho lần sau.
-                  </p>
-                  <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                    <Cpu className="h-3 w-3" />
-                    OpenRouter
-                  </span>
-                </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {OPENROUTER_MODELS.map((m) => {
-                    const active = model === m.id;
-                    return (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => handleModelChange(m.id)}
-                        className={`text-left rounded-xl border p-3.5 transition-all ${
-                          active
-                            ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_8%,var(--background))]"
-                            : "border-border hover:border-[var(--gold)]/40 hover:bg-card/50"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="font-medium text-sm leading-tight">{m.label}</div>
-                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-border text-muted-foreground shrink-0">
-                            {m.badge}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1.5 leading-snug">
-                          {m.description}
-                        </div>
-                        <div className="text-[10px] font-mono text-muted-foreground/60 mt-2 truncate">
-                          {m.id}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </section>
-
           {/* Sticky-feeling action bar */}
           <div className="mb-10 rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 sm:p-5">
             <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
@@ -405,7 +318,7 @@ function AiPredictPage() {
                 <div className="text-base font-medium truncate">
                   {activeMeta.label}{" "}
                   <span className="text-muted-foreground font-normal">
-                    · {horizonLabel} · {activeModel.label}
+                    · {horizonLabel}
                   </span>
                 </div>
               </div>
@@ -454,7 +367,7 @@ function AiPredictPage() {
           )}
 
           {result && !mutation.isPending && (
-            <ResultPanel result={result} modelLabel={activeModel.label} />
+            <ResultPanel result={result} />
           )}
 
           {/* Disclaimer */}
@@ -562,7 +475,7 @@ function StepHeader({ n, title, hint }: { n: number; title: string; hint?: strin
   );
 }
 
-function ResultPanel({ result, modelLabel }: { result: PredictionResult; modelLabel: string }) {
+function ResultPanel({ result }: { result: PredictionResult }) {
   const meta = PREDICTABLE_ASSETS.find((a) => a.slug === result.asset)!;
   const horizonLabel = HORIZONS.find((h) => h.value === result.horizon)!.label;
   const low = result.expected_change_pct_low;
@@ -580,7 +493,7 @@ function ResultPanel({ result, modelLabel }: { result: PredictionResult; modelLa
               {meta.label}
             </h2>
             <div className="text-xs text-muted-foreground mt-1">
-              {new Date(result.generated_at).toLocaleString("vi-VN")} · {modelLabel}
+              {new Date(result.generated_at).toLocaleString("vi-VN")}
             </div>
           </div>
           <div className="flex items-center gap-5 shrink-0">

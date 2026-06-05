@@ -203,6 +203,24 @@ export type Database = {
         }
         Relationships: []
       }
+      app_ai_settings: {
+        Row: {
+          id: number
+          predict_model: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          predict_model?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          predict_model?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
