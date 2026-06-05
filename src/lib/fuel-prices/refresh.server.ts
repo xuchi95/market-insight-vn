@@ -47,8 +47,17 @@ export async function findLatestPetrolimexRelease(): Promise<{
   if (releaseLinks.length === 0) {
     throw new Error("Không tìm thấy thông cáo điều chỉnh giá mới trên trang chủ Petrolimex.");
   }
-  releaseLinks.sort().reverse();
-  const pageUrl = releaseLinks[0];
+  // URL dạng: ...ngay-DD-M-YYYY.html (vd ngay-04-6-2026 hoặc ngay-28-5-2026).
+  // Sort theo ngày thực, KHÔNG sort theo chuỗi (chuỗi "28-5" > "04-6" alphabetically → chọn sai).
+  const dated = releaseLinks
+    .map((u) => {
+      const m = u.match(/ngay-(\d{1,2})-(\d{1,2})-(\d{4})\.html$/i);
+      if (!m) return { u, t: 0 };
+      const [, d, mo, y] = m;
+      return { u, t: Date.UTC(Number(y), Number(mo) - 1, Number(d)) };
+    })
+    .sort((a, b) => b.t - a.t);
+  const pageUrl = dated[0].u;
 
   const pageRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
     method: "POST",
