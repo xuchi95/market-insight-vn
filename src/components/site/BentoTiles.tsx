@@ -9,6 +9,7 @@ import { fmtTrieu } from "@/lib/format";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { FormattedNumber } from "./FormattedNumber";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
+import { useNumberFormat } from "@/hooks/useNumberFormat";
 
 interface InitialPrices {
   gold: GoldPrice[] | null;
@@ -18,6 +19,11 @@ interface InitialPrices {
 
 function fmt(n: number, digits = 0) {
   return n.toLocaleString("vi-VN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
+}
+
+/** Full VND integer (no symbol): 15.380.000 */
+function fmtVndFull(n: number) {
+  return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(Math.round(n));
 }
 
 function Spark({ data, color }: { data: number[]; color: string }) {
@@ -60,6 +66,7 @@ function TileFrame({ children, className = "" }: { children: React.ReactNode; cl
 }
 
 export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
+  const { compact } = useNumberFormat();
   // null = chưa fetch xong (hiển thị "Đang cập nhật giá")
   // []   = đã fetch nhưng rỗng (hiển thị "—")
   const [gold, setGold] = useState<GoldPrice[] | null>(initial?.gold ?? null);
