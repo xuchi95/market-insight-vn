@@ -1,18 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { getPriceChangeConfig } from "@/lib/price-change-config.server";
 
 const CACHE_MS = 60_000;
 /** Khoảng cách mẫu để tính % 24h. */
 const WINDOW_MS = 24 * 60 * 60 * 1000;
-/** Cho phép lệch ±Nh khi không có mẫu chính xác 24h trước. Cấu hình qua env. */
-const WINDOW_TOLERANCE_MS =
-  (Number(process.env.PRICE_WINDOW_TOLERANCE_HOURS) || 2) * 60 * 60 * 1000;
-/** Ngưỡng tối thiểu (giờ) lệch khỏi mốc 24h để mẫu được chấp nhận tính %. Mặc định = tolerance. */
-const MIN_SAMPLE_AGE_MS =
-  (Number(process.env.PRICE_MIN_SAMPLE_AGE_HOURS) || 0) * 60 * 60 * 1000;
-/** Chỉ ghi 1 snapshot / N phút để không phình bảng. */
-const SNAPSHOT_MIN_INTERVAL_MS =
-  (Number(process.env.PRICE_SNAPSHOT_MIN_INTERVAL_MINUTES) || 5) * 60 * 1000;
 const SYMBOL = "XAUUSD";
 
 /** Đơn vị giá vàng thế giới: USD trên một troy ounce (1 oz = 31.1035 g). */
@@ -43,9 +35,11 @@ const CORS = {
 /** Tìm giá XAU cách ~24h trong DB để tính % thay đổi thật. */
 async function fetchPrice24hAgo(): Promise<number | null> {
   try {
+    const cfg = await getPriceChangeConfig();
+    if (!cfg.enabled) return null;
     const target = new Date(Date.now() - WINDOW_MS);
-    const lo = new Date(target.getTime() - WINDOW_TOLERANCE_MS).toISOString();
-    const hi = new Date(target.getTime() + WINDOW_TOLERANCE_MS).toISOString();
+    const lo = new Date(target.getTime() - cfg.windowToleranceMs).toISOString();
+    const hi = new Date(target.getTime() + cfg.windowToleranceMs).toISOString();
     // Lấy mẫu gần nhất TRƯỚC mốc 24h (fallback: mẫu cũ nhất trong cửa sổ).
     const { data } = await supabaseAdmin
       .from("price_history")
@@ -57,10 +51,9 @@ async function fetchPrice24hAgo(): Promise<number | null> {
       .limit(1)
       .maybeSingle();
     if (!data) return null;
-    // Reject mẫu quá gần hiện tại (chưa đủ "tuổi") nếu cấu hình MIN_SAMPLE_AGE_MS.
-    if (MIN_SAMPLE_AGE_MS > 0) {
+    if (cfg.minSampleAgeMs > 0) {
       const age = Date.now() - new Date(data.captured_at as string).getTime();
-      if (age < MIN_SAMPLE_AGE_MS) return null;
+      if (age < cfg.minSampleAgeMs) return null;
     }
     const p = Number(data.price);
     return Number.isFinite(p) && p > 0 ? p : null;
@@ -70,9 +63,10 @@ async function fetchPrice24hAgo(): Promise<number | null> {
 }
 
 /** Ghi snapshot mới (throttle để không spam DB). Fire-and-forget. */
-function recordSnapshot(price: number) {
+async function recordSnapshot(price: number) {
+  const cfg = await getPriceChangeConfig();
   const now = Date.now();
-  if (now - lastSnapshotAt < SNAPSHOT_MIN_INTERVAL_MS) return;
+  if (now - lastSnapshotAt < cfg.snapshotMinIntervalMs) return;
   lastSnapshotAt = now;
   void supabaseAdmin
     .from("price_history")
@@ -107,7 +101,7 @@ async function fetchXau(): Promise<XauPayload> {
     // (lần chạy đầu / mới deploy), trả 0 — sẽ chính xác sau 24h.
     const prev = await fetchPrice24hAgo();
     const changePct = prev && prev > 0 ? ((price - prev) / prev) * 100 : 0;
-    recordSnapshot(price);
+    void recordSnapshot(price);
     return {
       price,
       bid,

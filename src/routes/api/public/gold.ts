@@ -7,6 +7,7 @@ import {
 } from "@/lib/gold-units";
 import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { getPriceChangeConfig } from "@/lib/price-change-config.server";
 
 // In-memory state for change computation between fetches
 let cache: { at: number; data: MappedItem[] } | null = null;
@@ -20,17 +21,6 @@ const CACHE_SWR_MS = 5 * 60_000; // serve stale, refresh in background
 const UPSTREAM_TIMEOUT_MS = 4_000;
 // 24h delta config — mirrors xau.ts
 const WINDOW_MS = 24 * 60 * 60 * 1000;
-/** Cho phép lệch ±Nh quanh mốc 24h (env: PRICE_WINDOW_TOLERANCE_HOURS). */
-const WINDOW_TOLERANCE_MS =
-  (Number(process.env.PRICE_WINDOW_TOLERANCE_HOURS) || 2) * 60 * 60 * 1000;
-/** Tuổi mẫu tối thiểu (env: PRICE_MIN_SAMPLE_AGE_HOURS). 0 = tắt. */
-const MIN_SAMPLE_AGE_MS =
-  (Number(process.env.PRICE_MIN_SAMPLE_AGE_HOURS) || 0) * 60 * 60 * 1000;
-/** Số mẫu tối thiểu trong cửa sổ để chấp nhận baseline (env: PRICE_MIN_SAMPLES). */
-const MIN_SAMPLES_PER_SYMBOL =
-  Number(process.env.PRICE_MIN_SAMPLES) || 1;
-const SNAPSHOT_MIN_INTERVAL_MS =
-  (Number(process.env.PRICE_SNAPSHOT_MIN_INTERVAL_MINUTES) || 5) * 60 * 1000;
 /** symbol prefix in price_history → tránh trùng với XAUUSD và các nguồn khác. */
 const SYMBOL_PREFIX = "GOLD:";
 let lastSnapshotAt = 0;
@@ -351,9 +341,11 @@ async function fetch24hAgoMids(ids: string[]): Promise<Record<string, number>> {
   if (ids.length === 0) return {};
   const out: Record<string, number> = {};
   try {
+    const cfg = await getPriceChangeConfig();
+    if (!cfg.enabled) return out;
     const now = Date.now();
-    const lo = new Date(now - WINDOW_MS - WINDOW_TOLERANCE_MS).toISOString();
-    const hi = new Date(now - WINDOW_MS + WINDOW_TOLERANCE_MS).toISOString();
+    const lo = new Date(now - WINDOW_MS - cfg.windowToleranceMs).toISOString();
+    const hi = new Date(now - WINDOW_MS + cfg.windowToleranceMs).toISOString();
     const symbols = ids.map((id) => `${SYMBOL_PREFIX}${id}`);
     // Lấy tất cả mẫu trong cửa sổ ±2h quanh mốc 24h; chọn mẫu gần mốc nhất cho mỗi symbol.
     const { data } = await supabaseAdmin
@@ -374,14 +366,14 @@ async function fetch24hAgoMids(ids: string[]): Promise<Record<string, number>> {
       const p = Number(r.price);
       if (!Number.isFinite(p) || p <= 0) continue;
       const t = new Date(r.captured_at as string).getTime();
-      if (MIN_SAMPLE_AGE_MS > 0 && now - t < MIN_SAMPLE_AGE_MS) continue;
+      if (cfg.minSampleAgeMs > 0 && now - t < cfg.minSampleAgeMs) continue;
       const dist = Math.abs(t - target);
       const cur = best[id];
       if (!cur || dist < cur.dist) best[id] = { dist, price: p };
       counts[id] = (counts[id] ?? 0) + 1;
     }
     for (const id of ids) {
-      if (best[id] && (counts[id] ?? 0) >= MIN_SAMPLES_PER_SYMBOL) {
+      if (best[id] && (counts[id] ?? 0) >= cfg.minSamples) {
         out[id] = best[id].price;
       }
     }
@@ -392,9 +384,10 @@ async function fetch24hAgoMids(ids: string[]): Promise<Record<string, number>> {
 }
 
 /** Ghi snapshot cho tất cả items (throttle 5 phút). Fire-and-forget. */
-function recordSnapshots(items: MappedItem[]) {
+async function recordSnapshots(items: MappedItem[]) {
+  const cfg = await getPriceChangeConfig();
   const now = Date.now();
-  if (now - lastSnapshotAt < SNAPSHOT_MIN_INTERVAL_MS) return;
+  if (now - lastSnapshotAt < cfg.snapshotMinIntervalMs) return;
   lastSnapshotAt = now;
   const rows = items
     .filter((it) => Number.isFinite(it.mid) && it.mid > 0)
@@ -468,7 +461,7 @@ export const Route = createFileRoute("/api/public/gold")({
           // luôn có sẵn sau 24h. Fallback: baseline PNJ history (đóng cửa hôm qua).
           // PNJ history hiện thường trả rỗng nên DB là nguồn chính.
           const dbMids = await fetch24hAgoMids(items.map((i) => i.id));
-          recordSnapshots(items);
+          void recordSnapshots(items);
           const fallback = baseline?.mids ?? {};
           const out = items.map((g) => {
             const todayMid = g.mid;
