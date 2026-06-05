@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireAdmin, logAudit } from "./middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { OPENROUTER_MODELS, DEFAULT_MODEL } from "@/lib/ai-predict.functions";
+
+const MODEL_IDS = OPENROUTER_MODELS.map((m) => m.id) as [string, ...string[]];
 
 /**
  * Quản trị cấu hình hệ thống email (email_send_state) và danh sách suppression.
@@ -102,4 +105,41 @@ export const recentAuditLog = createServerFn({ method: "GET" })
       .limit(100);
     if (error) throw new Error(error.message);
     return { entries: data ?? [] };
+  });
+
+export const getAiPredictSettings = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(async () => {
+    const { data, error } = await supabaseAdmin
+      .from("app_ai_settings")
+      .select("predict_model, updated_at")
+      .eq("id", 1)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return {
+      predict_model: (data?.predict_model as string) ?? DEFAULT_MODEL,
+      updated_at: data?.updated_at ?? null,
+      models: OPENROUTER_MODELS.map((m) => ({
+        id: m.id,
+        label: m.label,
+        description: m.description,
+        badge: m.badge,
+      })),
+    };
+  });
+
+export const updateAiPredictSettings = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((input) =>
+    z.object({ predict_model: z.enum(MODEL_IDS) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await supabaseAdmin
+      .from("app_ai_settings")
+      .upsert({ id: 1, predict_model: data.predict_model, updated_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+    await logAudit(context.userId, "ai_settings.update", "app_ai_settings", "1", {
+      predict_model: data.predict_model,
+    });
+    return { ok: true };
   });
