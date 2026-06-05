@@ -17,6 +17,28 @@ const AiExtractSchema = z.object({
 export type ExtractedSnapshot = z.infer<typeof AiExtractSchema>;
 
 /**
+ * Parse ngày từ chuỗi dạng "HH:MM — DD/MM/YYYY" (hoặc chỉ "DD/MM/YYYY")
+ * thành UTC timestamp (ms). Trả về null nếu không parse được.
+ */
+function parseEffectiveFromDate(s: string | null | undefined): number | null {
+  if (!s) return null;
+  const m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (!m) return null;
+  const [, d, mo, y] = m;
+  const dd = Number(d), mm = Number(mo), yy = Number(y);
+  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
+  return Date.UTC(yy, mm - 1, dd);
+}
+
+/** Parse ngày từ URL Petrolimex dạng ...ngay-DD-M-YYYY.html → UTC ms */
+function parseUrlDate(url: string): number | null {
+  const m = url.match(/ngay-(\d{1,2})-(\d{1,2})-(\d{4})\.html$/i);
+  if (!m) return null;
+  const [, d, mo, y] = m;
+  return Date.UTC(Number(y), Number(mo) - 1, Number(d));
+}
+
+/**
  * Tìm thông cáo điều chỉnh giá mới nhất trên petrolimex.com.vn và
  * lấy URL ảnh JPG bảng giá đính kèm. Dùng Firecrawl vì homepage được
  * render dynamic.
@@ -192,6 +214,28 @@ export async function refreshFuelPricesFromPetrolimex(opts: {
   const { pageUrl, imageUrl, markdown } = await findLatestPetrolimexRelease();
   const extracted = await aiExtract(imageUrl, markdown);
 
+  // === Safeguard: đảm bảo chọn ĐÚNG kỳ theo NGÀY THỰC, không phụ thuộc string sort ===
+  const urlDate = parseUrlDate(pageUrl);
+  const extractedDate = parseEffectiveFromDate(extracted.effective_from);
+  if (!extractedDate) {
+    throw new Error(
+      `effective_from không parse được ngày: "${extracted.effective_from}". Hủy ghi snapshot.`,
+    );
+  }
+  // Ngày trong URL và ngày AI đọc được phải khớp (lệch tối đa 1 ngày phòng OCR sai chữ số nhỏ).
+  if (urlDate && Math.abs(urlDate - extractedDate) > 24 * 60 * 60 * 1000) {
+    throw new Error(
+      `Ngày trong URL (${new Date(urlDate).toISOString().slice(0, 10)}) khác ngày AI OCR (${new Date(extractedDate).toISOString().slice(0, 10)}). Hủy để tránh ghi sai kỳ.`,
+    );
+  }
+  // Không cho phép kỳ trong tương lai quá 2 ngày (chống dữ liệu rác / hallucination).
+  const now = Date.now();
+  if (extractedDate - now > 2 * 24 * 60 * 60 * 1000) {
+    throw new Error(
+      `Kỳ điều chỉnh ở tương lai (${new Date(extractedDate).toISOString().slice(0, 10)}). Hủy ghi snapshot.`,
+    );
+  }
+
   const { data: existing } = await supabaseAdmin
     .from("vn_fuel_prices_snapshot")
     .select("effective_from")
@@ -208,6 +252,14 @@ export async function refreshFuelPricesFromPetrolimex(opts: {
       source_url: pageUrl,
       rows: extracted.rows,
     };
+  }
+
+  // CHỈ ghi nếu kỳ mới >= kỳ hiện tại (không cho phép "lùi" về kỳ cũ hơn).
+  const previousDate = parseEffectiveFromDate(previous);
+  if (previousDate && extractedDate < previousDate) {
+    throw new Error(
+      `Kỳ mới (${extracted.effective_from}) CŨ HƠN kỳ hiện tại trong DB (${previous}). Hủy để không ghi đè bằng dữ liệu cũ.`,
+    );
   }
 
   const { error } = await supabaseAdmin.from("vn_fuel_prices_snapshot").upsert({
