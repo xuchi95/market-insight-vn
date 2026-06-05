@@ -100,3 +100,31 @@ The publish script always runs in this order and aborts on first failure:
 6. Check version not already on npm
 7. `npm pack --dry-run` preview
 8. `npm publish --access public`
+
+## Build targets
+
+The package ships multiple formats so it works in every modern toolchain:
+
+| Target          | File                                            | When used                                     |
+| --------------- | ----------------------------------------------- | --------------------------------------------- |
+| ESM (bundler)   | `dist/index.js`                                 | Vite, Webpack 5, Rollup, Next.js, Bun, Deno   |
+| CJS (Node)      | `dist/index.cjs`                                | `require()` in Node CommonJS projects         |
+| Types           | `dist/index.d.ts` / `dist/index.d.cts`          | TypeScript (ESM + CJS resolution)             |
+| Browser IIFE    | `dist/browser/marketwatch.min.global.js`        | `<script>` tag, exposes `window.MarketWatch`  |
+
+### Vite / Webpack / Next.js
+
+```ts
+import { createMarketWatchClient } from "@marketwatch/sdk";
+```
+No extra config — bundlers pick the ESM build via the `exports` field automatically and tree-shake unused code (`sideEffects: false`).
+
+### Plain HTML via CDN
+
+```html
+<script src="https://unpkg.com/@marketwatch/sdk/dist/browser/marketwatch.min.global.js"></script>
+<script>
+  const mw = MarketWatch.createMarketWatchClient({ apiKey: "mw_live_xxx" });
+  mw.stream({ scopes: ["gold"], onSnapshot: (s) => console.log(s) });
+</script>
+```
