@@ -165,7 +165,7 @@ export type PredictionResult = z.infer<typeof ResponseSchema> & {
 export const predictAssetPrice = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<PredictionResult> => {
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) throw new Error("Tính năng AI tạm thời không khả dụng (thiếu cấu hình).");
 
     const meta = PREDICTABLE_ASSETS.find((a) => a.slug === data.asset)!;
@@ -194,11 +194,13 @@ Yêu cầu:
 - risks: 2–4 rủi ro có thể đảo chiều dự báo.
 - scenarios: 1 câu cho mỗi kịch bản bullish / base / bearish.`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": SITE,
+        "X-Title": "MarketWatch Vietnam",
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
@@ -250,10 +252,10 @@ Yêu cầu:
     });
 
     if (res.status === 429) throw new Error("Đã đạt giới hạn truy vấn AI, vui lòng thử lại sau ít phút.");
-    if (res.status === 402) throw new Error("Hết hạn mức AI Gateway, liên hệ quản trị viên để nạp thêm.");
+    if (res.status === 402) throw new Error("Hết hạn mức OpenRouter, vui lòng nạp thêm credit.");
     if (!res.ok) {
       const txt = await res.text().catch(() => "");
-      console.error("AI gateway error", res.status, txt);
+      console.error("OpenRouter error", res.status, txt);
       throw new Error("Không kết nối được dịch vụ AI, vui lòng thử lại.");
     }
     const json: any = await res.json();
