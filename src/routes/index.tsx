@@ -72,7 +72,7 @@ function Index() {
               </div>
               <div className="md:col-span-5 md:pl-8 md:border-l md:border-border">
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed text-pretty">
-                  Một bản tin số liệu súc tích cho nhà đầu tư Việt — SJC, DOJI, BTC, ETH, USD/VND và hơn thế, cập nhật tức thì từ các sàn lớn.
+                  Công cụ theo dõi dữ liệu tài chính của Việt Nam; Giá vàng, tiền số và ngoại tệ.... cập nhật theo từng phút.
                 </p>
                 <div className="mt-5 eyebrow opacity-60">Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường</div>
               </div>

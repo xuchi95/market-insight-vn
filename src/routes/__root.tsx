@@ -205,8 +205,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MarketWatch — Giá vàng, crypto & ngoại tệ realtime" },
-      { name: "description", content: "Dashboard tài chính realtime: giá vàng SJC, DOJI, BTC, ETH, USD và tỷ giá ngoại tệ." },
+      { title: "MarketWatch — Công cụ theo dõi dữ liệu tài chính Việt Nam" },
+      { name: "description", content: "Công cụ theo dõi dữ liệu tài chính của Việt Nam; Giá vàng, tiền số và ngoại tệ.... cập nhật theo từng phút." },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "MarketWatch" },
       { property: "og:locale", content: "vi_VN" },
