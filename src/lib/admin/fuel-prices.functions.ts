@@ -271,36 +271,21 @@ export const refreshFuelFromPetrolimex = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
   .handler(async ({ context }) => {
     const { userId } = context as { userId: string };
-    const { pageUrl, imageUrl, markdown } = await findLatestPetrolimexRelease();
-    const extracted = await aiExtract(imageUrl, markdown);
-
-    const { error } = await supabaseAdmin.from("vn_fuel_prices_snapshot").upsert({
-      id: "latest",
-      effective_from: extracted.effective_from,
-      source_url: pageUrl,
-      rows: extracted.rows as unknown as never,
-      updated_at: new Date().toISOString(),
-      updated_by: userId,
-    });
-    if (error) throw new Error(`DB upsert lỗi: ${error.message}`);
-    await supabaseAdmin.from("vn_fuel_prices_history").insert({
-      effective_from: extracted.effective_from,
-      source_url: pageUrl,
-      rows: extracted.rows as unknown as never,
-      source: "auto",
-      created_by: userId,
-    });
+    const result = await refreshFuelPricesFromPetrolimex({ source: "auto", userId });
     await logAudit(userId, "fuel_prices.auto_refresh", "vn_fuel_prices_snapshot", "latest", {
-      rowCount: extracted.rows.length,
-      effective_from: extracted.effective_from,
-      source_url: pageUrl,
+      rowCount: result.rowCount,
+      effective_from: result.effective_from,
+      source_url: result.source_url,
+      updated: result.updated,
     });
     return {
       ok: true,
-      effective_from: extracted.effective_from,
-      rows: extracted.rows,
-      rowCount: extracted.rows.length,
-      source_url: pageUrl,
+      updated: result.updated,
+      effective_from: result.effective_from,
+      previous_effective_from: result.previous_effective_from,
+      rows: result.rows,
+      rowCount: result.rowCount,
+      source_url: result.source_url,
     };
   });
 
