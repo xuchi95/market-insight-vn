@@ -3,6 +3,7 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireAdmin } from "@/lib/admin/middleware.server";
 
 const SITE = "https://marketwatch.vn";
 
@@ -128,7 +129,9 @@ function modelNeedsProxyForRegion(modelId: string, region: string | null): boole
   return REGION_RESTRICTED_PROVIDERS.some((p) => modelId.startsWith(p));
 }
 
-export const detectAiRegion = createServerFn({ method: "GET" }).handler(async () => {
+export const detectAiRegion = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .handler(async () => {
   const region = await detectRegionFromCloudflare();
   const { data: settings } = await supabaseAdmin
     .from("app_ai_settings")
