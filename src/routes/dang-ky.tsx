@@ -15,6 +15,11 @@ const DESC = "Tạo tài khoản MarketWatch miễn phí để đặt cảnh bá
 const URL = "https://marketwatch.vn/dang-ky";
 
 export const Route = createFileRoute("/dang-ky")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = typeof search.redirect === "string" ? search.redirect : "";
+    const redirect = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/";
+    return { redirect };
+  },
   head: () => ({
     meta: [
       { title: TITLE },
@@ -31,6 +36,7 @@ export const Route = createFileRoute("/dang-ky")({
 
 function SignupPage() {
   const navigate = useNavigate();
+  const { redirect: redirectTo } = Route.useSearch();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,7 +52,7 @@ function SignupPage() {
           email: email.trim(),
           password,
           fullName: fullName.trim() || null,
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}${redirectTo}`,
         },
       });
       setLoading(false);
@@ -64,13 +70,15 @@ function SignupPage() {
 
   async function onGoogle() {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}${redirectTo}`,
+    });
     if (result.error) {
       setLoading(false);
       toast.error("Đăng ký Google thất bại", { description: String(result.error?.message ?? result.error) });
       return;
     }
-    if (!result.redirected) navigate({ to: "/" });
+    if (!result.redirected) navigate({ to: redirectTo as never });
   }
 
   const pwScore = (() => {

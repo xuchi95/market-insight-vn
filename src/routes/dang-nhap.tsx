@@ -18,6 +18,12 @@ const DESC = "Đăng nhập MarketWatch để đặt cảnh báo giá và nhận
 const URL = "https://marketwatch.vn/dang-nhap";
 
 export const Route = createFileRoute("/dang-nhap")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = typeof search.redirect === "string" ? search.redirect : "";
+    // Only allow same-origin relative paths to prevent open-redirect.
+    const redirect = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/";
+    return { redirect };
+  },
   head: () => ({
     meta: [
       { title: TITLE },
@@ -34,6 +40,7 @@ export const Route = createFileRoute("/dang-nhap")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { redirect: redirectTo } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -64,7 +71,7 @@ function LoginPage() {
           // Device was previously trusted — skip 2FA challenge.
           markMfaVerified();
         } else {
-          navigate({ to: "/xac-thuc-2fa", replace: true });
+          navigate({ to: "/xac-thuc-2fa", search: { redirect: redirectTo } as never, replace: true });
           return;
         }
       }
@@ -72,20 +79,22 @@ function LoginPage() {
       setLoading(false);
     }
     signalAuthWelcome({ kind: "login", email: email.trim() });
-    navigate({ to: "/" });
+    navigate({ to: redirectTo as never });
   }
 
   async function onGoogle() {
     setLoading(true);
     clearMfaVerified();
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}${redirectTo}`,
+    });
     if (result.error) {
       setLoading(false);
       toast.error("Đăng nhập Google thất bại", { description: String(result.error?.message ?? result.error) });
       return;
     }
     if (!result.redirected) {
-      navigate({ to: "/" });
+      navigate({ to: redirectTo as never });
     }
   }
 
@@ -101,7 +110,7 @@ function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email: target,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: `${window.location.origin}${redirectTo}`,
         shouldCreateUser: false,
       },
     });

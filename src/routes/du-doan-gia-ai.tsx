@@ -382,7 +382,11 @@ function AiPredictPage() {
             {!isAuthed && !authLoading && (
               <p className="mt-3 text-xs text-muted-foreground">
                 Tính năng AI yêu cầu tài khoản miễn phí để chống lạm dụng.{" "}
-                <Link to="/dang-ky" className="text-[var(--gold)] underline-offset-2 hover:underline">
+                <Link
+                  to="/dang-ky"
+                  search={{ redirect: "/du-doan-gia-ai" } as never}
+                  className="text-[var(--gold)] underline-offset-2 hover:underline"
+                >
                   Đăng ký nhanh
                 </Link>{" "}
                 hoặc{" "}
@@ -412,7 +416,11 @@ function AiPredictPage() {
                   Đăng nhập
                 </Link>{" "}
                 hoặc{" "}
-                <Link to="/dang-ky" className="text-[var(--gold)] font-medium underline-offset-2 hover:underline">
+                <Link
+                  to="/dang-ky"
+                  search={{ redirect: "/du-doan-gia-ai" } as never}
+                  className="text-[var(--gold)] font-medium underline-offset-2 hover:underline"
+                >
                   đăng ký nhanh
                 </Link>{" "}
                 để tiếp tục.
