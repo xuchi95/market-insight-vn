@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
@@ -90,6 +91,63 @@ export type OpenRouterModelId = (typeof OPENROUTER_MODELS)[number]["id"];
 const MODEL_IDS = OPENROUTER_MODELS.map((m) => m.id) as [OpenRouterModelId, ...OpenRouterModelId[]];
 export const DEFAULT_MODEL: OpenRouterModelId = "google/gemini-2.5-flash";
 export const DEFAULT_API_BASE_URL = "https://openrouter.ai/api/v1";
+
+// Vùng bị OpenAI/Anthropic chặn (qua OpenRouter) — hay gặp nhất.
+const RESTRICTED_REGIONS = new Set([
+  "VN", "CN", "HK", "RU", "IR", "KP", "CU", "SY", "BY", "MM",
+]);
+const REGION_RESTRICTED_PROVIDERS = ["openai/", "anthropic/"];
+
+async function detectRegionFromCloudflare(): Promise<string | null> {
+  // Ưu tiên header CF gắn sẵn ở edge (cf-ipcountry / x-vercel-ip-country).
+  try {
+    const h =
+      getRequestHeader("cf-ipcountry") ??
+      getRequestHeader("x-vercel-ip-country") ??
+      getRequestHeader("x-country-code");
+    if (h && h !== "XX" && h !== "T1") return h.toUpperCase();
+  } catch {}
+  // Fallback: hỏi Cloudflare trace từ chính server.
+  try {
+    const r = await fetch("https://cloudflare.com/cdn-cgi/trace", {
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!r.ok) return null;
+    const txt = await r.text();
+    const m = txt.match(/^loc=([A-Z]{2})/m);
+    return m?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function modelNeedsProxyForRegion(modelId: string, region: string | null): boolean {
+  if (!region) return false;
+  if (!RESTRICTED_REGIONS.has(region)) return false;
+  return REGION_RESTRICTED_PROVIDERS.some((p) => modelId.startsWith(p));
+}
+
+export const detectAiRegion = createServerFn({ method: "GET" }).handler(async () => {
+  const region = await detectRegionFromCloudflare();
+  const { data: settings } = await supabaseAdmin
+    .from("app_ai_settings")
+    .select("predict_model, api_base_url")
+    .eq("id", 1)
+    .maybeSingle();
+  const model = (settings?.predict_model as string | undefined) ?? DEFAULT_MODEL;
+  const hasProxy = !!(settings?.api_base_url as string | undefined)?.trim();
+  const needsProxy = modelNeedsProxyForRegion(model, region);
+  return {
+    region,
+    region_blocked_providers: Array.from(RESTRICTED_REGIONS),
+    current_model: model,
+    has_custom_proxy: hasProxy,
+    needs_proxy_for_current_model: needsProxy,
+    suggestion: needsProxy && !hasProxy
+      ? `Máy chủ đang ở khu vực ${region} — mô hình ${model} có khả năng cao bị OpenRouter chặn (403). Hãy cấu hình proxy US/EU OpenAI-compatible, hoặc đổi sang Gemini/DeepSeek/Llama.`
+      : null,
+  };
+});
 
 const InputSchema = z.object({
   asset: z.enum(PREDICTABLE_ASSETS.map((a) => a.slug) as [AssetSlug, ...AssetSlug[]]),
@@ -231,6 +289,7 @@ export const predictAssetPrice = createServerFn({ method: "POST" })
     // Mô hình AI do admin cấu hình trong dashboard — người dùng không tự chọn.
     let model: OpenRouterModelId = DEFAULT_MODEL;
     let baseUrl: string = DEFAULT_API_BASE_URL;
+    let hasCustomProxy = false;
     try {
       const { data: settings } = await supabaseAdmin
         .from("app_ai_settings")
@@ -240,7 +299,10 @@ export const predictAssetPrice = createServerFn({ method: "POST" })
       const saved = settings?.predict_model as OpenRouterModelId | undefined;
       if (saved && MODEL_IDS.includes(saved)) model = saved;
       const savedUrl = (settings?.api_base_url as string | undefined)?.trim();
-      if (savedUrl) baseUrl = savedUrl.replace(/\/+$/, "");
+      if (savedUrl) {
+        baseUrl = savedUrl.replace(/\/+$/, "");
+        hasCustomProxy = true;
+      }
     } catch {
       // giữ DEFAULT_MODEL
     }
@@ -335,11 +397,25 @@ Yêu cầu:
         detail = j?.error?.message ?? "";
       } catch {}
       if (res.status === 403) {
-        throw new Error(
-          `Mô hình AI hiện tại không khả dụng ở khu vực của máy chủ${
-            detail ? ` (${detail})` : ""
-          }. Vui lòng đổi mô hình khác trong cấu hình admin.`,
+        const region = await detectRegionFromCloudflare();
+        const parts: string[] = [];
+        parts.push(
+          `Mô hình ${model} không khả dụng ở khu vực máy chủ${region ? ` (${region})` : ""}${
+            detail ? `: ${detail}` : ""
+          }.`,
         );
+        if (modelNeedsProxyForRegion(model, region) && !hasCustomProxy) {
+          parts.push(
+            "Đề xuất: vào /mw-admin/settings → mục \"Endpoint API (proxy theo khu vực)\" và đặt URL proxy OpenAI-compatible đặt ở Mỹ/EU, hoặc đổi sang Gemini 2.5 Flash / DeepSeek / Llama.",
+          );
+        } else if (hasCustomProxy) {
+          parts.push(
+            `Proxy hiện tại (${baseUrl}) cũng bị chặn — kiểm tra lại vùng đặt proxy hoặc đổi mô hình.`,
+          );
+        } else {
+          parts.push("Hãy đổi sang mô hình khác trong /mw-admin/settings.");
+        }
+        throw new Error(parts.join(" "));
       }
       if (res.status === 401) {
         throw new Error("OpenRouter từ chối API key (401). Kiểm tra lại OPENROUTER_API_KEY.");
