@@ -289,13 +289,17 @@ function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
   );
 }
 
-function Stat({ label, num, loading, accent }: { label: string; num?: number; loading?: boolean; accent?: boolean }) {
+function Stat({ label, num, loading, accent, compact = true }: { label: string; num?: number; loading?: boolean; accent?: boolean; compact?: boolean }) {
   return (
     <div className="bg-card p-3">
       <div className="eyebrow opacity-70">{label}</div>
       <div className={`tabular text-sm md:text-base leading-tight mt-1 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>
         {typeof num === "number" ? (
-          <AnimatedNumber value={num} format={(v) => `${fmtTrieu(v)} tr`} minChars={6} />
+          <AnimatedNumber
+            value={num}
+            format={(v) => (compact ? `${fmtTrieu(v)} tr` : `${fmtVndFull(v)} đ`)}
+            minChars={compact ? 6 : 10}
+          />
         ) : loading ? (
           <span className="text-muted-foreground/80 animate-pulse">Đang cập nhật</span>
         ) : "—"}
@@ -304,7 +308,7 @@ function Stat({ label, num, loading, accent }: { label: string; num?: number; lo
   );
 }
 
-function GoldMini({ label, gold, loading, usd }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean }) {
+function GoldMini({ label, gold, loading, usd, compact = true }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean; compact?: boolean }) {
   return (
     <div className="bg-card p-3">
       <div className="eyebrow opacity-70">{label}</div>
@@ -314,7 +318,11 @@ function GoldMini({ label, gold, loading, usd }: { label: string; gold?: GoldPri
             {usd ? (
               <AnimatedNumber value={gold.sell} format={(v) => `$${fmt(v, 0)}`} minChars={6} />
             ) : (
-              <AnimatedNumber value={gold.sell} format={(v) => `${fmtTrieu(v)} tr`} minChars={6} />
+              <AnimatedNumber
+                value={gold.sell}
+                format={(v) => (compact ? `${fmtTrieu(v)} tr` : `${fmtVndFull(v)} đ`)}
+                minChars={compact ? 6 : 10}
+              />
             )}
           </div>
           <div className={`text-[11px] tabular mt-0.5 ${gold.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
