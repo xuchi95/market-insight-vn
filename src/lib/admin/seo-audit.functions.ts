@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireAdmin } from "./middleware";
+import { requireAdmin } from "./middleware.server";
 import { runFullAudit } from "@/lib/seo-audit.server";
 
 export const getSeoAuditOverview = createServerFn({ method: "GET" })

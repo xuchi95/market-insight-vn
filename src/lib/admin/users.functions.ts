@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireAdmin, logAudit } from "./middleware";
+import { requireAdmin, logAudit } from "./middleware.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendRecoveryEmailFor } from "@/lib/email/password-recovery.server";
 
