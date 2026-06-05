@@ -139,6 +139,16 @@ export function FormattedNumber({
     if (flashTimerRef.current != null) clearTimeout(flashTimerRef.current);
   }, []);
 
+  // Re-render the formatted text when the `format` function changes
+  // (e.g. user toggles compact ↔ full). Skip while a tween is in-flight
+  // so we don't fight the animation.
+  useEffect(() => {
+    if (!initializedRef.current) return;
+    if (rafRef.current != null) return;
+    write(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [format, unit, decimalSep]);
+
   // Width reservation for fractional column so the decimal point aligns
   // across rows even when the number of decimals is 0/1/2.
   const fracWidth = decimals && decimals > 0 ? `${decimals}ch` : undefined;
