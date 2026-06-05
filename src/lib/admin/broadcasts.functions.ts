@@ -92,6 +92,16 @@ function renderBroadcastEmail(subject: string, bodyHtml: string): string {
   </body></html>`;
 }
 
+async function createEmailUnsubscribeToken(email: string): Promise<string> {
+  const token = crypto.randomUUID();
+  const { error } = await supabaseAdmin.from("email_unsubscribe_tokens").insert({
+    token,
+    email: email.toLowerCase(),
+  });
+  if (error) throw new Error(error.message);
+  return token;
+}
+
 const BroadcastUpsertSchema = z.object({
   id: z.string().uuid().optional(),
   subject: z.string().trim().min(1).max(200),
@@ -170,6 +180,7 @@ export const sendTestBroadcast = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const html = renderBroadcastEmail(data.subject, mdToHtml(data.body_md));
     const messageId = crypto.randomUUID();
+    const unsubscribeToken = await createEmailUnsubscribeToken(data.toEmail);
     const { error } = await supabaseAdmin.rpc("enqueue_email", {
       queue_name: "transactional_emails",
       payload: {
@@ -183,6 +194,7 @@ export const sendTestBroadcast = createServerFn({ method: "POST" })
         text: data.body_md,
         purpose: "transactional",
         label: "admin_broadcast_test",
+        unsubscribe_token: unsubscribeToken,
         metadata: { test: true, requested_by: context.userId },
       } as never,
     });
@@ -220,6 +232,7 @@ export const sendBroadcast = createServerFn({ method: "POST" })
     let failed = 0;
     for (const email of recipients) {
       const messageId = crypto.randomUUID();
+      const unsubscribeToken = await createEmailUnsubscribeToken(email);
       const { error: enqErr } = await supabaseAdmin.rpc("enqueue_email", {
         queue_name: "transactional_emails",
         payload: {
@@ -233,6 +246,7 @@ export const sendBroadcast = createServerFn({ method: "POST" })
           text: row.body_md,
           purpose: "transactional",
           label: "admin_broadcast",
+          unsubscribe_token: unsubscribeToken,
           metadata: { broadcast_id: data.id },
         } as never,
       });

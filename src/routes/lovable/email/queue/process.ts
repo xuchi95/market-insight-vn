@@ -7,6 +7,41 @@ const DEFAULT_BATCH_SIZE = 10
 const DEFAULT_SEND_DELAY_MS = 200
 const DEFAULT_AUTH_TTL_MINUTES = 15
 const DEFAULT_TRANSACTIONAL_TTL_MINUTES = 60
+const DEFAULT_SENDER_DOMAIN = 'notify.marketwatch.vn'
+const DEFAULT_FROM = 'MarketWatch <noreply@marketwatch.vn>'
+
+function normalizeEmailPayload(
+  queue: string,
+  msg: { msg_id: number; message: Record<string, unknown> }
+): Record<string, unknown> {
+  const payload = { ...msg.message }
+  const metadata =
+    payload.metadata && typeof payload.metadata === 'object'
+      ? (payload.metadata as Record<string, unknown>)
+      : {}
+  const label = typeof payload.label === 'string' ? payload.label : typeof payload.template_name === 'string' ? payload.template_name : queue
+  const messageId = typeof payload.message_id === 'string' && payload.message_id ? payload.message_id : `${queue}-${msg.msg_id}`
+
+  return {
+    ...payload,
+    message_id: messageId,
+    idempotency_key:
+      typeof payload.idempotency_key === 'string' && payload.idempotency_key
+        ? payload.idempotency_key
+        : `email-${messageId}`,
+    from: typeof payload.from === 'string' && payload.from ? payload.from : DEFAULT_FROM,
+    sender_domain:
+      typeof payload.sender_domain === 'string' && payload.sender_domain ? payload.sender_domain : DEFAULT_SENDER_DOMAIN,
+    text: typeof payload.text === 'string' && payload.text ? payload.text : stripHtml(String(payload.html ?? '')),
+    purpose: typeof payload.purpose === 'string' && payload.purpose ? payload.purpose : 'transactional',
+    label,
+    metadata,
+  }
+}
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
 
 // Check if an error is a rate-limit (429) response.
 // Uses EmailAPIError.status when available (email-js >=0.x with structured errors),
@@ -162,7 +197,7 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
 
           for (let i = 0; i < messages.length; i++) {
             const msg = messages[i]
-            const payload = msg.message
+            const payload = normalizeEmailPayload(queue, msg)
             const failedAttempts =
               payload?.message_id && typeof payload.message_id === 'string'
                 ? (failedAttemptsByMessageId.get(payload.message_id) ?? 0)
@@ -222,18 +257,18 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
             try {
               await sendLovableEmail(
                 {
-                  run_id: payload.run_id,
-                  to: payload.to,
-                  from: payload.from,
-                  sender_domain: payload.sender_domain,
-                  subject: payload.subject,
-                  html: payload.html,
-                  text: payload.text,
-                  purpose: payload.purpose,
-                  label: payload.label,
-                  idempotency_key: payload.idempotency_key,
-                  unsubscribe_token: payload.unsubscribe_token,
-                  message_id: payload.message_id,
+                  run_id: payload.run_id as string | undefined,
+                  to: payload.to as string,
+                  from: payload.from as string,
+                  sender_domain: payload.sender_domain as string,
+                  subject: payload.subject as string,
+                  html: payload.html as string,
+                  text: payload.text as string,
+                  purpose: payload.purpose as string,
+                  label: payload.label as string,
+                  idempotency_key: payload.idempotency_key as string,
+                  unsubscribe_token: payload.unsubscribe_token as string | undefined,
+                  message_id: payload.message_id as string,
                 },
                 { apiKey, sendUrl: process.env.LOVABLE_SEND_URL }
               )
