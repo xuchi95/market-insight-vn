@@ -128,7 +128,9 @@ function modelNeedsProxyForRegion(modelId: string, region: string | null): boole
   return REGION_RESTRICTED_PROVIDERS.some((p) => modelId.startsWith(p));
 }
 
-export const detectAiRegion = createServerFn({ method: "GET" }).handler(async () => {
+export const detectAiRegion = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .handler(async () => {
   const region = await detectRegionFromCloudflare();
   const { data: settings } = await supabaseAdmin
     .from("app_ai_settings")
