@@ -57,7 +57,7 @@ async function fetchCryptoRows(): Promise<CoinDigestRow[]> {
     const url = new URL("https://api.coingecko.com/api/v3/coins/markets");
     url.searchParams.set("vs_currency", "usd");
     url.searchParams.set("order", "market_cap_desc");
-    url.searchParams.set("per_page", "5");
+    url.searchParams.set("per_page", "10");
     url.searchParams.set("page", "1");
     url.searchParams.set("price_change_percentage", "24h");
     const headers: Record<string, string> = { accept: "application/json" };
@@ -90,6 +90,10 @@ async function fetchFxRows(): Promise<FxDigestRow[]> {
     { symbol: "EURVND", pair: "EUR/VND" },
     { symbol: "JPYVND", pair: "JPY/VND" },
     { symbol: "GBPVND", pair: "GBP/VND" },
+    { symbol: "CNYVND", pair: "CNY/VND" },
+    { symbol: "AUDVND", pair: "AUD/VND" },
+    { symbol: "KRWVND", pair: "KRW/VND" },
+    { symbol: "SGDVND", pair: "SGD/VND" },
   ];
   const quotes = await Promise.all(pairs.map((p) => fetchFmpQuote(p.symbol)));
   const rows: FxDigestRow[] = [];
