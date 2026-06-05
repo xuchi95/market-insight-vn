@@ -155,6 +155,17 @@ export const Route = createFileRoute("/vi-mo-viet-nam")({
           inLanguage: "vi-VN",
         }),
       },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE + "/" },
+            { "@type": "ListItem", position: 2, name: "Kinh tế vĩ mô Việt Nam", item: URL },
+          ],
+        }),
+      },
     ],
   }),
   component: MacroPage,

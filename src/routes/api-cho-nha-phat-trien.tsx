@@ -22,6 +22,34 @@ export const Route = createFileRoute("/api-cho-nha-phat-trien")({
     links: [
       { rel: "canonical", href: "https://marketwatch.vn/api-cho-nha-phat-trien" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Trang chủ", item: "https://marketwatch.vn/" },
+            { "@type": "ListItem", position: 2, name: "API cho nhà phát triển", item: "https://marketwatch.vn/api-cho-nha-phat-trien" },
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "TechArticle",
+          headline: "API & SDK realtime cho nhà phát triển — MarketWatch",
+          description:
+            "Tài liệu tích hợp REST snapshot, SSE realtime và SDK @marketwatch/sdk cho dữ liệu giá vàng, crypto, xăng dầu và chứng khoán Việt Nam.",
+          inLanguage: "vi-VN",
+          url: "https://marketwatch.vn/api-cho-nha-phat-trien",
+          author: { "@type": "Organization", name: "MarketWatch", url: "https://marketwatch.vn" },
+          publisher: { "@type": "Organization", name: "MarketWatch", url: "https://marketwatch.vn" },
+          proficiencyLevel: "Beginner",
+        }),
+      },
+    ],
   }),
   component: DeveloperApiPage,
 });
