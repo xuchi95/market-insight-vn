@@ -195,39 +195,75 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      abortRef.current?.abort();
+    };
+  }, []);
+
+  // Auto-dismiss error after 6s so it doesn't linger across new attempts.
+  useEffect(() => {
+    if (!error) return;
+    const t = setTimeout(() => {
+      if (mountedRef.current) setError(null);
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [error]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return; // guard double submit
     setError(null);
     const value = email.trim();
     if (!value) {
       setError("Vui lòng nhập email.");
       return;
     }
-    if (!agree) {
-      setError("Vui lòng đồng ý nhận email và chính sách bảo mật.");
-      toast.error("Vui lòng đồng ý nhận email và chính sách bảo mật.");
+    // basic email shape check before flipping loading on
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setError("Email không hợp lệ.");
       return;
     }
+    if (!agree) {
+      setError("Vui lòng đồng ý nhận email và chính sách bảo mật.");
+      return;
+    }
+    // Cancel any in-flight previous request before starting a new one.
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setLoading(true);
     try {
       const res = await fetch("/api/newsletter/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: value, source: `popup:${popup.slug}`, topics: popup.topics }),
+        signal: controller.signal,
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j?.error || `HTTP ${res.status}`);
       }
+      if (!mountedRef.current) return;
+      setError(null);
       toast.success(popup.success_message || "Đăng ký thành công");
       try { window.dispatchEvent(new CustomEvent("newsletter:subscribed")); } catch {}
     } catch (err) {
-      const msg = (err as Error).message;
+      if ((err as DOMException)?.name === "AbortError") return;
+      if (!mountedRef.current) return;
+      const msg = (err as Error).message || "Có lỗi xảy ra, vui lòng thử lại.";
       setError(msg);
       toast.error(msg);
     } finally {
-      setLoading(false);
+      if (mountedRef.current && abortRef.current === controller) {
+        setLoading(false);
+        abortRef.current = null;
+      }
     }
   }
 
