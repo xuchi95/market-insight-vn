@@ -222,6 +222,104 @@ function AiPredictPage() {
 
   const horizonLabel = HORIZONS.find((h) => h.value === horizon)!.label;
 
+  // Full-page lock: when the user is not authenticated, gate the entire
+  // experience behind a single CTA. We still render the page shell + masthead
+  // so SEO/meta and brand chrome stay intact.
+  if (!authLoading && !isAuthed) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1">
+          <div className="mx-auto max-w-5xl px-5 pt-6 pb-16">
+            <Breadcrumbs />
+            <header className="mt-6 mb-10 border-b border-border pb-8">
+              <div className="eyebrow text-[var(--gold)] mb-3 inline-flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Trí tuệ nhân tạo · Tham khảo</span>
+              </div>
+              <h1 className="font-display text-[2rem] sm:text-4xl md:text-5xl leading-[1.1] tracking-tight text-balance">
+                AI dự đoán giá{" "}
+                <em className="not-italic font-display italic text-[var(--gold)]">vàng</em>, xăng dầu,{" "}
+                <span className="text-[var(--gold)]">Bitcoin</span> &amp; ngoại tệ
+              </h1>
+              <p className="mt-4 text-base text-muted-foreground max-w-2xl leading-relaxed text-pretty">
+                Chọn tài sản và khung thời gian, AI sẽ phân tích dữ liệu thị trường thời gian thực để
+                đưa ra ước lượng xu hướng, biên độ % thay đổi và 3 kịch bản tham khảo. Kết quả{" "}
+                <strong className="text-foreground">không phải lời khuyên đầu tư.</strong>
+              </p>
+            </header>
+
+            <section
+              aria-labelledby="auth-gate-title"
+              className="relative overflow-hidden rounded-2xl border border-[var(--gold)]/30 bg-[color-mix(in_oklab,var(--gold)_6%,var(--card))] p-8 sm:p-12 text-center shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--gold)_50%,transparent)]"
+            >
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_60%)]"
+              />
+              <div className="relative">
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_15%,transparent)]">
+                  <Lock className="h-6 w-6 text-[var(--gold)]" />
+                </div>
+                <h2
+                  id="auth-gate-title"
+                  className="font-display text-2xl sm:text-3xl tracking-tight text-foreground"
+                >
+                  Đăng nhập để mở khóa <span className="italic text-[var(--gold)]">Dự đoán giá AI</span>
+                </h2>
+                <p className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  Tính năng AI yêu cầu tài khoản miễn phí để bảo vệ hạn mức và chống lạm dụng.
+                  Đăng nhập hoặc tạo tài khoản chỉ mất 30 giây — sau đó bạn có thể dự đoán giá
+                  vàng SJC, Bitcoin, xăng dầu và ngoại tệ cho 24h, 7 ngày, 30 ngày tới.
+                </p>
+
+                <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link
+                    to="/dang-nhap"
+                    search={{ redirect: "/du-doan-gia-ai" } as never}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-7 py-3 text-sm font-semibold tracking-wide uppercase shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--gold)_60%,transparent)] hover:opacity-90 transition-opacity"
+                  >
+                    <Lock className="h-4 w-4" />
+                    Đăng nhập
+                  </Link>
+                  <Link
+                    to="/dang-ky"
+                    search={{ redirect: "/du-doan-gia-ai" } as never}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/50 text-[var(--gold)] px-7 py-3 text-sm font-semibold tracking-wide uppercase hover:bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] transition-colors"
+                  >
+                    Tạo tài khoản miễn phí
+                  </Link>
+                </div>
+
+                <ul className="mx-auto mt-8 grid max-w-2xl grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                  <li className="flex items-start gap-2 rounded-lg border border-border/60 bg-card/40 p-3">
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-[var(--gold)]" />
+                    <span className="text-xs text-muted-foreground">
+                      Dữ liệu thị trường <span className="text-foreground">thời gian thực</span>
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2 rounded-lg border border-border/60 bg-card/40 p-3">
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-[var(--gold)]" />
+                    <span className="text-xs text-muted-foreground">
+                      18 tài sản · 3 kịch bản tham khảo
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2 rounded-lg border border-border/60 bg-card/40 p-3">
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-[var(--gold)]" />
+                    <span className="text-xs text-muted-foreground">
+                      Miễn phí · Không lưu lịch sử cá nhân
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </section>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
