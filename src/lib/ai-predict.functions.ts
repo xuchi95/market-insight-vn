@@ -60,18 +60,6 @@ export const OPENROUTER_MODELS = [
     description: "Miễn phí — có giới hạn tốc độ, có thể không hỗ trợ JSON schema.",
     badge: "Miễn phí",
   },
-  {
-    id: "openai/gpt-4o-mini",
-    label: "GPT-4o mini",
-    description: "OpenAI, ổn định, JSON schema chuẩn — đắt hơn DeepSeek.",
-    badge: "Chất lượng",
-  },
-  {
-    id: "anthropic/claude-3.5-haiku",
-    label: "Claude 3.5 Haiku",
-    description: "Nhanh, lập luận tốt cho phân tích thị trường.",
-    badge: "Nhanh",
-  },
 ] as const;
 
 export type OpenRouterModelId = (typeof OPENROUTER_MODELS)[number]["id"];
