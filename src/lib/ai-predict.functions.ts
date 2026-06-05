@@ -279,6 +279,7 @@ export type PredictionResult = z.infer<typeof ResponseSchema> & {
 };
 
 export const predictAssetPrice = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<PredictionResult> => {
     const apiKey = process.env.OPENROUTER_API_KEY;
