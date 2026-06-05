@@ -41,9 +41,11 @@ function SettingsPage() {
   const [newEmail, setNewEmail] = useState("");
   const [newReason, setNewReason] = useState("manual");
   const [aiModel, setAiModel] = useState<string>("");
+  const [aiBaseUrl, setAiBaseUrl] = useState<string>("");
 
   useEffect(() => {
     if (ai?.predict_model) setAiModel(ai.predict_model);
+    setAiBaseUrl(ai?.api_base_url ?? "");
   }, [ai?.predict_model]);
 
   useEffect(() => {
@@ -112,14 +114,24 @@ function SettingsPage() {
             onClick={async () => {
               if (!aiModel) return;
               try {
-                await updateAiFn({ data: { predict_model: aiModel } });
+                const trimmed = aiBaseUrl.trim();
+                await updateAiFn({
+                  data: {
+                    predict_model: aiModel,
+                    api_base_url: trimmed.length > 0 ? trimmed : null,
+                  },
+                });
                 toast.success("Đã lưu mô hình AI");
                 qc.invalidateQueries({ queryKey: ["admin", "ai-predict"] });
               } catch (e) {
                 toast.error((e as Error).message);
               }
             }}
-            disabled={!aiModel || aiModel === ai?.predict_model}
+            disabled={
+              !aiModel ||
+              (aiModel === ai?.predict_model &&
+                (aiBaseUrl.trim() || null) === (ai?.api_base_url ?? null))
+            }
           >
             Lưu mô hình AI
           </Button>
@@ -128,6 +140,22 @@ function SettingsPage() {
               Cập nhật: {new Date(ai.updated_at).toLocaleString("vi-VN")}
             </span>
           )}
+        </div>
+        <div className="mt-6 border-t border-border pt-4">
+          <Label className="text-sm">Endpoint API (proxy theo khu vực)</Label>
+          <Input
+            value={aiBaseUrl}
+            onChange={(e) => setAiBaseUrl(e.target.value)}
+            placeholder={ai?.default_api_base_url ?? "https://openrouter.ai/api/v1"}
+            className="mt-1 font-mono text-xs"
+          />
+          <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+            Để trống nếu dùng OpenRouter mặc định ({ai?.default_api_base_url ?? "https://openrouter.ai/api/v1"}).
+            Một số mô hình (GPT, Claude) bị chặn theo khu vực — nếu muốn dùng, hãy đặt
+            URL của proxy OpenAI-compatible đặt tại Mỹ/EU (ví dụ:{" "}
+            <code className="text-foreground">https://your-proxy.example.com/v1</code>).
+            URL không có dấu <code>/</code> ở cuối, và endpoint <code>/chat/completions</code> sẽ được thêm tự động.
+          </p>
         </div>
       </section>
 
