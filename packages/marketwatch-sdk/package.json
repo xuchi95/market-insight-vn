@@ -1,0 +1,24 @@
+{
+  "name": "@marketwatch/sdk",
+  "version": "0.1.0",
+  "description": "Client SDK cho MarketWatch realtime API (vàng, tiền điện tử, xăng dầu, chứng khoán VN).",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "keywords": ["marketwatch", "gold", "crypto", "sse", "realtime", "vietnam"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}
