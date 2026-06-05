@@ -35,9 +35,9 @@ import {
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/du-doan-gia-ai`;
-const TITLE = "AI Dự Đoán Giá Vàng, Xăng Dầu, Bitcoin & Ngoại Tệ — MarketWatch";
+const TITLE = "Dự đoán giá vàng SJC, Bitcoin, xăng dầu bằng AI | MarketWatch";
 const DESC =
-  "Công cụ AI dự đoán xu hướng giá vàng SJC, vàng nhẫn, xăng RON 95, dầu Brent/WTI, Bitcoin, Ethereum, USD/VND và nhiều tài sản khác trong 24h, 7 ngày và 30 ngày tới — dựa trên dữ liệu thị trường thời gian thực.";
+  "AI dự đoán giá vàng SJC, vàng nhẫn 9999, Bitcoin (BTC), Ethereum, xăng RON 95, dầu Brent/WTI và USD/VND cho 24h, 7 ngày, 30 ngày tới. Miễn phí, dữ liệu thời gian thực.";
 
 export const Route = createFileRoute("/du-doan-gia-ai")({
   head: () => ({
@@ -94,26 +94,26 @@ export const Route = createFileRoute("/du-doan-gia-ai")({
           mainEntity: [
             {
               "@type": "Question",
-              name: "AI dự đoán giá có chính xác 100% không?",
+              name: "Dự đoán giá vàng SJC hôm nay bằng AI có chính xác không?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "Không. AI chỉ đưa ra ước lượng xác suất dựa trên dữ liệu thị trường và bối cảnh hiện tại. Mọi dự đoán đều chỉ mang tính tham khảo, không phải lời khuyên đầu tư.",
+                text: "AI dự đoán giá vàng SJC dựa trên dữ liệu mua–bán hiện hành, giá vàng thế giới XAU/USD và bối cảnh vĩ mô. Đây là ước lượng xác suất, chỉ mang tính tham khảo, không phải lời khuyên đầu tư.",
               },
             },
             {
               "@type": "Question",
-              name: "Công cụ AI có hỗ trợ dự đoán vàng SJC và xăng dầu Việt Nam không?",
+              name: "Có thể dự đoán giá Bitcoin (BTC) trong 24h, 7 ngày, 30 ngày tới không?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "Có. Công cụ hỗ trợ dự đoán vàng SJC, vàng nhẫn 9999, xăng RON 95-III, E5 RON 92, dầu Diesel cùng với các tài sản quốc tế như Bitcoin, Ethereum, dầu Brent/WTI và tỷ giá USD/VND.",
+                text: "Có. Công cụ AI đoán giá BTC, ETH, SOL, BNB, XRP cho khung thời gian 24 giờ, 7 ngày hoặc 30 ngày tới, kèm 3 kịch bản lạc quan / cơ sở / bi quan và các động lực thúc đẩy giá.",
               },
             },
             {
               "@type": "Question",
-              name: "Khung thời gian dự đoán là bao lâu?",
+              name: "AI dự đoán giá xăng dầu Việt Nam và dầu Brent/WTI thế nào?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "Bạn có thể chọn dự đoán cho 24 giờ, 7 ngày hoặc 30 ngày tới.",
+                text: "AI tham khảo bảng giá Petrolimex hiện hành (RON 95-III, E5 RON 92-II, Diesel 0,05S-II) cùng giá dầu Brent và WTI để dự đoán xu hướng giá xăng dầu cho kỳ điều hành sắp tới.",
               },
             },
             {
@@ -121,9 +121,23 @@ export const Route = createFileRoute("/du-doan-gia-ai")({
               name: "Tính năng AI dự đoán giá có miễn phí không?",
               acceptedAnswer: {
                 "@type": "Answer",
-                text: "Có. Tính năng hoàn toàn miễn phí cho người dùng MarketWatch.vn.",
+                text: "Có, công cụ AI dự đoán giá vàng, Bitcoin, xăng dầu và ngoại tệ trên MarketWatch.vn hoàn toàn miễn phí, không yêu cầu đăng ký.",
               },
             },
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          name: "Cách dùng AI dự đoán giá vàng, Bitcoin, xăng dầu",
+          inLanguage: "vi-VN",
+          step: [
+            { "@type": "HowToStep", position: 1, name: "Chọn loại tài sản", text: "Chọn nhóm tài sản: vàng SJC, vàng nhẫn 9999, Bitcoin, Ethereum, xăng RON 95, dầu Brent/WTI hoặc USD/VND." },
+            { "@type": "HowToStep", position: 2, name: "Chọn khung thời gian", text: "Chọn dự đoán cho 24 giờ, 7 ngày hoặc 30 ngày tới." },
+            { "@type": "HowToStep", position: 3, name: "Nhận dự đoán AI", text: "Bấm 'Dự đoán bằng AI' để xem hướng giá, biên độ % thay đổi, động lực, rủi ro và 3 kịch bản tham khảo." },
           ],
         }),
       },
@@ -452,6 +466,48 @@ function AiPredictPage() {
                   <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{it.a}</p>
                 </details>
               ))}
+            </div>
+          </section>
+
+          {/* Per-asset SEO content — long-tail keywords */}
+          <section className="mt-16">
+            <div className="eyebrow text-[var(--gold)] mb-3">Dự đoán theo tài sản</div>
+            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6">
+              AI dự đoán giá từng loại tài sản
+            </h2>
+            <div className="grid md:grid-cols-2 gap-5">
+              <article className="rounded-xl border border-border p-5">
+                <h3 className="font-display text-lg mb-2">Dự đoán giá vàng SJC & vàng nhẫn 9999</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  AI dự đoán giá vàng SJC và vàng nhẫn 9999 dựa trên giá mua–bán hiện hành trong nước,
+                  giá vàng thế giới <a href="/gia-vang" className="underline hover:text-[var(--gold)]">XAU/USD</a>,
+                  tỷ giá USD/VND và bối cảnh vĩ mô (lãi suất Fed, lạm phát, dòng tiền trú ẩn).
+                </p>
+              </article>
+              <article className="rounded-xl border border-border p-5">
+                <h3 className="font-display text-lg mb-2">Dự đoán giá Bitcoin (BTC) & Ethereum</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Đoán giá BTC, ETH, SOL, BNB, XRP theo dữ liệu từ{" "}
+                  <a href="/tien-dien-tu" className="underline hover:text-[var(--gold)]">thị trường crypto</a>{" "}
+                  thời gian thực, chỉ số Fear &amp; Greed, vốn hóa và biến động 24h. Khung thời gian 24h / 7 ngày / 30 ngày.
+                </p>
+              </article>
+              <article className="rounded-xl border border-border p-5">
+                <h3 className="font-display text-lg mb-2">Dự đoán giá xăng dầu Việt Nam</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Dự báo xu hướng{" "}
+                  <a href="/gia-xang-dau" className="underline hover:text-[var(--gold)]">giá xăng RON 95-III, E5 RON 92-II và dầu Diesel</a>{" "}
+                  cho kỳ điều hành sắp tới, tham chiếu giá dầu Brent &amp; WTI cùng tỷ giá USD/VND.
+                </p>
+              </article>
+              <article className="rounded-xl border border-border p-5">
+                <h3 className="font-display text-lg mb-2">Dự đoán tỷ giá USD/VND, EUR/VND</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  AI ước lượng biến động{" "}
+                  <a href="/ty-gia-ngoai-te" className="underline hover:text-[var(--gold)]">tỷ giá ngoại tệ USD/VND, EUR/VND, JPY/VND</a>{" "}
+                  cho ngắn hạn, dựa trên chỉ số DXY, chính sách của SBV và dòng vốn FDI.
+                </p>
+              </article>
             </div>
           </section>
         </div>
