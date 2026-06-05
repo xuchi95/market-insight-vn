@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireAdmin, logAudit } from "./middleware";
+import { requireAdmin, logAudit } from "./middleware.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { OPENROUTER_MODELS, DEFAULT_MODEL, DEFAULT_API_BASE_URL } from "@/lib/ai-predict.functions";
 

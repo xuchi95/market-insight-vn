@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "check:leak": "bash scripts/check-service-role-leak.sh",
+    "check:leak:full": "vite build && bash scripts/check-service-role-leak.sh"
   },
   "dependencies": {
     "@authsignal/browser": "^1.17.0",

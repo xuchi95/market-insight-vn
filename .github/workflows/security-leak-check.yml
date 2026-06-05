@@ -1,0 +1,36 @@
+name: Security – Service Role Leak Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  leak-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Source-only leak check (fast)
+        run: bash scripts/check-service-role-leak.sh
+
+      - name: Build client bundle
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'placeholder' }}
+        run: bun run build
+
+      - name: Bundle leak check (scans dist/ for service-role exposure)
+        env:
+          # Pass the real key so the script can grep the bundle for its literal
+          # value. If not configured the script falls back to pattern-only.
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: bash scripts/check-service-role-leak.sh
