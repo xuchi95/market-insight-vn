@@ -21,7 +21,6 @@ import {
   Bitcoin,
   Banknote,
   Clock,
-  Cpu,
   ShieldAlert,
   CheckCircle2,
   ChevronDown,
@@ -30,10 +29,7 @@ import {
   predictAssetPrice,
   PREDICTABLE_ASSETS,
   HORIZONS,
-  OPENROUTER_MODELS,
-  DEFAULT_MODEL,
   type AssetSlug,
-  type OpenRouterModelId,
   type PredictionResult,
 } from "@/lib/ai-predict.functions";
 
@@ -183,20 +179,6 @@ function AiPredictPage() {
   );
   const [horizon, setHorizon] = useState<"24h" | "7d" | "30d">("24h");
   const [result, setResult] = useState<PredictionResult | null>(null);
-  const [advOpen, setAdvOpen] = useState(false);
-  const [model, setModel] = useState<OpenRouterModelId>(() => {
-    if (typeof window === "undefined") return DEFAULT_MODEL;
-    const saved = window.localStorage.getItem("mw_openrouter_model");
-    const exists = OPENROUTER_MODELS.find((m) => m.id === saved);
-    return (exists?.id as OpenRouterModelId) ?? DEFAULT_MODEL;
-  });
-
-  const handleModelChange = (id: OpenRouterModelId) => {
-    setModel(id);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("mw_openrouter_model", id);
-    }
-  };
 
   const assetsInCategory = useMemo(
     () => PREDICTABLE_ASSETS.filter((a) => a.category === category),
@@ -209,15 +191,13 @@ function AiPredictPage() {
     mutationFn: (vars: {
       asset: AssetSlug;
       horizon: "24h" | "7d" | "30d";
-      model: OpenRouterModelId;
     }) =>
       callPredict({ data: vars }),
     onSuccess: (data) => setResult(data),
   });
 
-  const onPredict = () => mutation.mutate({ asset, horizon, model });
+  const onPredict = () => mutation.mutate({ asset, horizon });
 
-  const activeModel = OPENROUTER_MODELS.find((m) => m.id === model) ?? OPENROUTER_MODELS[0];
   const horizonLabel = HORIZONS.find((h) => h.value === horizon)!.label;
 
   return (
