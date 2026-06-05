@@ -93,13 +93,24 @@ function renderBroadcastEmail(subject: string, bodyHtml: string): string {
 }
 
 async function createEmailUnsubscribeToken(email: string): Promise<string> {
+  const normalized = email.toLowerCase();
+  // Reuse existing token if one already exists for this email (unique constraint on email).
+  const { data: existing, error: selectError } = await supabaseAdmin
+    .from("email_unsubscribe_tokens")
+    .select("token")
+    .eq("email", normalized)
+    .maybeSingle();
+  if (selectError) throw new Error(selectError.message);
+  if (existing?.token) return existing.token;
+
   const token = crypto.randomUUID();
-  const { error } = await supabaseAdmin.from("email_unsubscribe_tokens").insert({
-    token,
-    email: email.toLowerCase(),
-  });
-  if (error) throw new Error(error.message);
-  return token;
+  const { data: upserted, error: upsertError } = await supabaseAdmin
+    .from("email_unsubscribe_tokens")
+    .upsert({ token, email: normalized }, { onConflict: "email", ignoreDuplicates: false })
+    .select("token")
+    .single();
+  if (upsertError) throw new Error(upsertError.message);
+  return upserted?.token ?? token;
 }
 
 const BroadcastUpsertSchema = z.object({
