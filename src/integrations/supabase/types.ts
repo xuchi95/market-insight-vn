@@ -416,6 +416,36 @@ export type Database = {
         }
         Relationships: []
       }
+      price_change_settings: {
+        Row: {
+          enabled: boolean
+          id: number
+          min_sample_age_hours: number
+          min_samples: number
+          snapshot_min_interval_minutes: number
+          updated_at: string
+          window_tolerance_hours: number
+        }
+        Insert: {
+          enabled?: boolean
+          id?: number
+          min_sample_age_hours?: number
+          min_samples?: number
+          snapshot_min_interval_minutes?: number
+          updated_at?: string
+          window_tolerance_hours?: number
+        }
+        Update: {
+          enabled?: boolean
+          id?: number
+          min_sample_age_hours?: number
+          min_samples?: number
+          snapshot_min_interval_minutes?: number
+          updated_at?: string
+          window_tolerance_hours?: number
+        }
+        Relationships: []
+      }
       price_history: {
         Row: {
           captured_at: string
