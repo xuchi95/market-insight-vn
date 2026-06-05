@@ -9,8 +9,20 @@ import {
   contactConfirmEmail,
   contactForwardEmail,
   priceAlertEmail,
+  goldDigestEmail,
+  cryptoDigestEmail,
+  fxDigestEmail,
 } from "@/lib/email/templates.server";
 import { buildDigestEmail, fetchDigestData, type DigestTopic } from "@/lib/email/digest.server";
+import {
+  fetchDailyGoldRows,
+  fetchDailyCryptoRows,
+  fetchDailyFxRows,
+  sampleGoldRows,
+  sampleCryptoRows,
+  sampleFxRows,
+  todayLabel,
+} from "@/lib/email/daily-digest.server";
 
 export const EMAIL_TEMPLATES = [
   { id: "welcome", label: "Chào mừng đăng ký" },
@@ -18,6 +30,12 @@ export const EMAIL_TEMPLATES = [
   { id: "contact-confirm", label: "Xác nhận liên hệ (gửi khách)" },
   { id: "contact-forward", label: "Chuyển tiếp liên hệ (nội bộ)" },
   { id: "price-alert", label: "Cảnh báo giá" },
+  { id: "daily-gold-digest", label: "Nhật báo giá vàng (mẫu)" },
+  { id: "daily-gold-digest-live", label: "Nhật báo giá vàng — dữ liệu thực" },
+  { id: "daily-crypto-digest", label: "Nhật báo Crypto (mẫu)" },
+  { id: "daily-crypto-digest-live", label: "Nhật báo Crypto — dữ liệu thực" },
+  { id: "daily-fx-digest", label: "Nhật báo tỷ giá (mẫu)" },
+  { id: "daily-fx-digest-live", label: "Nhật báo tỷ giá — dữ liệu thực" },
   { id: "weekly-digest", label: "Bản tin tuần (vàng + BTC + USD)" },
   { id: "weekly-digest-live", label: "Bản tin tuần — dùng dữ liệu thực" },
 ] as const;
@@ -45,6 +63,12 @@ export const SAMPLE_DATA: Record<EmailTemplateId, Record<string, unknown>> = {
     threshold: 100000,
     currentPrice: 101234.56,
   },
+  "daily-gold-digest": {},
+  "daily-gold-digest-live": {},
+  "daily-crypto-digest": {},
+  "daily-crypto-digest-live": {},
+  "daily-fx-digest": {},
+  "daily-fx-digest-live": {},
   "weekly-digest": {
     topics: ["gold", "btc", "usd"],
   },
@@ -80,6 +104,12 @@ const PreviewSchema = z.object({
 
 async function renderTemplate(template: string, data: Record<string, any>): Promise<{ subject: string; html: string }> {
   const VALID_TOPICS: DigestTopic[] = ["gold", "btc", "usd"];
+  const unsubUrl = "https://marketwatch.vn/huy-ban-tin?token=preview";
+  const dateLabel = todayLabel();
+  const emptyLive = (label: string) => ({
+    subject: `(Không có dữ liệu thực cho ${label} — thử lại sau)`,
+    html: `<p style='font-family:sans-serif;padding:24px;color:#666;'>Không lấy được dữ liệu thực cho ${label}. Kiểm tra <code>FMP_API_KEY</code> / <code>COINGECKO_API_KEY</code>, hoặc chọn template (mẫu) để xem bố cục.</p>`,
+  });
   switch (template) {
     case "welcome":
       return welcomeEmail({ name: data.name ?? null });
@@ -106,11 +136,32 @@ async function renderTemplate(template: string, data: Record<string, any>): Prom
         threshold: Number(data.threshold ?? 100000),
         currentPrice: Number(data.currentPrice ?? 100000),
       });
+    case "daily-gold-digest":
+      return goldDigestEmail({ dateLabel, rows: sampleGoldRows(), unsubUrl });
+    case "daily-gold-digest-live": {
+      const rows = await fetchDailyGoldRows();
+      if (!rows.length) return emptyLive("giá vàng");
+      return goldDigestEmail({ dateLabel, rows, unsubUrl });
+    }
+    case "daily-crypto-digest":
+      return cryptoDigestEmail({ dateLabel, rows: sampleCryptoRows(), unsubUrl });
+    case "daily-crypto-digest-live": {
+      const rows = await fetchDailyCryptoRows();
+      if (!rows.length) return emptyLive("crypto");
+      return cryptoDigestEmail({ dateLabel, rows, unsubUrl });
+    }
+    case "daily-fx-digest":
+      return fxDigestEmail({ dateLabel, rows: sampleFxRows(), unsubUrl });
+    case "daily-fx-digest-live": {
+      const rows = await fetchDailyFxRows();
+      if (!rows.length) return emptyLive("tỷ giá");
+      return fxDigestEmail({ dateLabel, rows, unsubUrl });
+    }
     case "weekly-digest": {
       const topics = (Array.isArray(data.topics) ? data.topics : VALID_TOPICS)
         .filter((t: any): t is DigestTopic => (VALID_TOPICS as string[]).includes(t));
       const series = (topics.length ? topics : VALID_TOPICS).map(mockDigestSeries);
-      return buildDigestEmail({ series, unsubUrl: "https://marketwatch.vn/huy-ban-tin?token=preview" });
+      return buildDigestEmail({ series, unsubUrl });
     }
     case "weekly-digest-live": {
       const topics = (Array.isArray(data.topics) ? data.topics : VALID_TOPICS)
@@ -122,7 +173,7 @@ async function renderTemplate(template: string, data: Record<string, any>): Prom
           html: "<p style='font-family:sans-serif;padding:24px;color:#666;'>Không lấy được dữ liệu thực từ nhà cung cấp. Hãy thử lại sau hoặc dùng template 'weekly-digest' với dữ liệu mẫu.</p>",
         };
       }
-      return buildDigestEmail({ series, unsubUrl: "https://marketwatch.vn/huy-ban-tin?token=preview" });
+      return buildDigestEmail({ series, unsubUrl });
     }
     default:
       throw new Error(`Unknown template: ${template}`);
