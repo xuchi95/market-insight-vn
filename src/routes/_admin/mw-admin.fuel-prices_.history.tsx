@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, History, Sparkles, User } from "lucide-react";
 import { listFuelHistory } from "@/lib/admin/fuel-prices.functions";
 
-export const Route = createFileRoute("/_admin/mw-admin/fuel-prices/history")({
+export const Route = createFileRoute("/_admin/mw-admin/fuel-prices_/history")({
   component: AdminFuelHistoryPage,
 });
 
