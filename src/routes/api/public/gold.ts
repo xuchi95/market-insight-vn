@@ -20,8 +20,17 @@ const CACHE_SWR_MS = 5 * 60_000; // serve stale, refresh in background
 const UPSTREAM_TIMEOUT_MS = 4_000;
 // 24h delta config — mirrors xau.ts
 const WINDOW_MS = 24 * 60 * 60 * 1000;
-const WINDOW_TOLERANCE_MS = 2 * 60 * 60 * 1000;
-const SNAPSHOT_MIN_INTERVAL_MS = 5 * 60 * 1000;
+/** Cho phép lệch ±Nh quanh mốc 24h (env: PRICE_WINDOW_TOLERANCE_HOURS). */
+const WINDOW_TOLERANCE_MS =
+  (Number(process.env.PRICE_WINDOW_TOLERANCE_HOURS) || 2) * 60 * 60 * 1000;
+/** Tuổi mẫu tối thiểu (env: PRICE_MIN_SAMPLE_AGE_HOURS). 0 = tắt. */
+const MIN_SAMPLE_AGE_MS =
+  (Number(process.env.PRICE_MIN_SAMPLE_AGE_HOURS) || 0) * 60 * 60 * 1000;
+/** Số mẫu tối thiểu trong cửa sổ để chấp nhận baseline (env: PRICE_MIN_SAMPLES). */
+const MIN_SAMPLES_PER_SYMBOL =
+  Number(process.env.PRICE_MIN_SAMPLES) || 1;
+const SNAPSHOT_MIN_INTERVAL_MS =
+  (Number(process.env.PRICE_SNAPSHOT_MIN_INTERVAL_MINUTES) || 5) * 60 * 1000;
 /** symbol prefix in price_history → tránh trùng với XAUUSD và các nguồn khác. */
 const SYMBOL_PREFIX = "GOLD:";
 let lastSnapshotAt = 0;
@@ -358,17 +367,24 @@ async function fetch24hAgoMids(ids: string[]): Promise<Record<string, number>> {
     if (!data) return out;
     const target = now - WINDOW_MS;
     const best: Record<string, { dist: number; price: number }> = {};
+    const counts: Record<string, number> = {};
     for (const r of data) {
       const sym = String(r.symbol);
       const id = sym.startsWith(SYMBOL_PREFIX) ? sym.slice(SYMBOL_PREFIX.length) : sym;
       const p = Number(r.price);
       if (!Number.isFinite(p) || p <= 0) continue;
       const t = new Date(r.captured_at as string).getTime();
+      if (MIN_SAMPLE_AGE_MS > 0 && now - t < MIN_SAMPLE_AGE_MS) continue;
       const dist = Math.abs(t - target);
       const cur = best[id];
       if (!cur || dist < cur.dist) best[id] = { dist, price: p };
+      counts[id] = (counts[id] ?? 0) + 1;
     }
-    for (const id of ids) if (best[id]) out[id] = best[id].price;
+    for (const id of ids) {
+      if (best[id] && (counts[id] ?? 0) >= MIN_SAMPLES_PER_SYMBOL) {
+        out[id] = best[id].price;
+      }
+    }
     return out;
   } catch {
     return out;
