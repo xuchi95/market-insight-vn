@@ -214,6 +214,28 @@ export async function refreshFuelPricesFromPetrolimex(opts: {
   const { pageUrl, imageUrl, markdown } = await findLatestPetrolimexRelease();
   const extracted = await aiExtract(imageUrl, markdown);
 
+  // === Safeguard: đảm bảo chọn ĐÚNG kỳ theo NGÀY THỰC, không phụ thuộc string sort ===
+  const urlDate = parseUrlDate(pageUrl);
+  const extractedDate = parseEffectiveFromDate(extracted.effective_from);
+  if (!extractedDate) {
+    throw new Error(
+      `effective_from không parse được ngày: "${extracted.effective_from}". Hủy ghi snapshot.`,
+    );
+  }
+  // Ngày trong URL và ngày AI đọc được phải khớp (lệch tối đa 1 ngày phòng OCR sai chữ số nhỏ).
+  if (urlDate && Math.abs(urlDate - extractedDate) > 24 * 60 * 60 * 1000) {
+    throw new Error(
+      `Ngày trong URL (${new Date(urlDate).toISOString().slice(0, 10)}) khác ngày AI OCR (${new Date(extractedDate).toISOString().slice(0, 10)}). Hủy để tránh ghi sai kỳ.`,
+    );
+  }
+  // Không cho phép kỳ trong tương lai quá 2 ngày (chống dữ liệu rác / hallucination).
+  const now = Date.now();
+  if (extractedDate - now > 2 * 24 * 60 * 60 * 1000) {
+    throw new Error(
+      `Kỳ điều chỉnh ở tương lai (${new Date(extractedDate).toISOString().slice(0, 10)}). Hủy ghi snapshot.`,
+    );
+  }
+
   const { data: existing } = await supabaseAdmin
     .from("vn_fuel_prices_snapshot")
     .select("effective_from")
@@ -230,6 +252,14 @@ export async function refreshFuelPricesFromPetrolimex(opts: {
       source_url: pageUrl,
       rows: extracted.rows,
     };
+  }
+
+  // CHỈ ghi nếu kỳ mới >= kỳ hiện tại (không cho phép "lùi" về kỳ cũ hơn).
+  const previousDate = parseEffectiveFromDate(previous);
+  if (previousDate && extractedDate < previousDate) {
+    throw new Error(
+      `Kỳ mới (${extracted.effective_from}) CŨ HƠN kỳ hiện tại trong DB (${previous}). Hủy để không ghi đè bằng dữ liệu cũ.`,
+    );
   }
 
   const { error } = await supabaseAdmin.from("vn_fuel_prices_snapshot").upsert({
