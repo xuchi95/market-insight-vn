@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Mail } from "lucide-react";
-import { NewsletterForm } from "./NewsletterForm";
+import { Mail, Bell } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useServerFn } from "@tanstack/react-start";
 import { getActivePopups } from "@/lib/admin/popups.functions";
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, Link } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 const KEY_SUBSCRIBED = "mw_nl_subscribed";
