@@ -87,7 +87,7 @@ function TermsPage() {
 
             <h2 className="text-xl font-semibold text-foreground">3. Bản chất và mục đích của Website</h2>
             <p>
-              MarketWatch là <strong>trang thông tin điện tử cung cấp dịch vụ chuyên ngành về dữ liệu thị trường tài chính</strong> (giá vàng, tỷ giá ngoại tệ, lãi suất, giá tài sản mã hoá, chỉ số chứng khoán, giá nhiên liệu) phục vụ mục đích tra cứu, tham khảo phi thương mại. Website <strong>KHÔNG</strong>:
+              MarketWatch là <strong>công cụ phần mềm phân tích và trực quan hoá số liệu thị trường tài chính theo thời gian thực</strong> (giá vàng, tỷ giá ngoại tệ, lãi suất, giá tài sản mã hoá, chỉ số chứng khoán, giá nhiên liệu) được truy xuất tự động qua API công khai của bên thứ ba, phục vụ mục đích tra cứu, tham khảo phi thương mại. Website hoạt động tương tự một bảng giá điện tử / máy tính tài chính và <strong>KHÔNG</strong>:
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Cung cấp dịch vụ môi giới, tư vấn đầu tư, quản lý danh mục, ủy thác đầu tư theo Luật Chứng khoán 2019.</li>
@@ -95,10 +95,12 @@ function TermsPage() {
               <li>Tổ chức mua bán vàng miếng, ngoại tệ; không phải tổ chức tín dụng theo Luật Các tổ chức tín dụng 2024.</li>
               <li>Cung cấp dịch vụ thông tin tín dụng theo Nghị định 58/2021/NĐ-CP.</li>
               <li>Phát hành báo chí, không thuộc đối tượng điều chỉnh của Luật Báo chí 2016.</li>
-              <li><strong>Không phải trang thông tin điện tử tổng hợp</strong>: Website chỉ trích xuất và hiển thị các chỉ số, số liệu chuyên ngành tài chính từ nguồn công khai, không sao chép, biên tập lại tin tức, bài viết của cơ quan báo chí hay nguồn thông tin khác. Do đó Website không thuộc diện phải xin cấp phép trang thông tin điện tử tổng hợp theo Điều 30 Nghị định 147/2024/NĐ-CP.</li>
+              <li><strong>Không phải trang thông tin điện tử tổng hợp</strong> theo Điều 25, Điều 30 Nghị định 147/2024/NĐ-CP: Website chỉ hiển thị số liệu thị trường truy xuất tự động qua API, không sao chép, không biên tập lại tin tức, bài viết của cơ quan báo chí hay nguồn thông tin chính thức khác.</li>
+              <li><strong>Không phải mạng xã hội</strong> theo Điều 26 Nghị định 147/2024/NĐ-CP: Website không có chức năng cho phép Người dùng tạo trang/hồ sơ cá nhân công khai, đăng tải, chia sẻ, bình luận hoặc tương tác nội dung công khai với người dùng khác. Tài khoản (nếu có) chỉ phục vụ cá nhân hoá cảnh báo giá, danh mục theo dõi và nhận bản tin email riêng tư.</li>
+              <li><strong>Không phải trang thông tin điện tử cung cấp dịch vụ chuyên ngành</strong> thuộc các lĩnh vực kinh doanh có điều kiện: Website không cung cấp dịch vụ tài chính, ngân hàng, chứng khoán, viễn thông, y tế, giáo dục… cần giấy phép chuyên ngành.</li>
             </ul>
             <p>
-              Website được phân loại là <strong>trang thông tin điện tử cung cấp dịch vụ chuyên ngành</strong> theo Điều 26, Điều 30 Nghị định 147/2024/NĐ-CP, hoạt động trong phạm vi dữ liệu thị trường tài chính công khai và chỉ phục vụ nhu cầu tra cứu của Người dùng. Trường hợp cơ quan nhà nước có thẩm quyền yêu cầu phân loại lại hoặc bổ sung thủ tục cấp phép, Chúng tôi sẽ thực hiện đầy đủ theo quy định.
+              Website là <strong>ứng dụng/công cụ phần mềm hiển thị số liệu</strong> hoạt động trong phạm vi dữ liệu thị trường tài chính công khai và chỉ phục vụ nhu cầu tra cứu, phân tích cá nhân của Người dùng, do đó <strong>không thuộc diện phải xin Giấy phép thiết lập trang thông tin điện tử tổng hợp, giấy phép mạng xã hội, giấy phép báo chí</strong> hoặc các giấy phép kinh doanh có điều kiện liên quan. Trường hợp cơ quan nhà nước có thẩm quyền yêu cầu phân loại lại hoặc bổ sung thủ tục cấp phép, Chúng tôi sẽ thực hiện đầy đủ theo quy định.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground">4. Tài khoản người dùng</h2>
