@@ -16,6 +16,11 @@ export const Route = createFileRoute("/api-cho-nha-phat-trien")({
         content:
           "REST snapshot, SSE stream và SDK @marketwatch/sdk để tích hợp dữ liệu thị trường Việt Nam vào website của bạn.",
       },
+      { property: "og:url", content: "https://marketwatch.vn/api-cho-nha-phat-trien" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://marketwatch.vn/api-cho-nha-phat-trien" },
     ],
   }),
   component: DeveloperApiPage,

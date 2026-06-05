@@ -81,8 +81,8 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-          <div className="eyebrow opacity-50">© {new Date().getFullYear()} MarketWatch · Mọi quyền được bảo lưu</div>
-          <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70 sm:text-right">Dữ liệu tham khảo · Không phải khuyến nghị đầu tư</div>
+          <div className="eyebrow text-muted-foreground">© {new Date().getFullYear()} MarketWatch · Mọi quyền được bảo lưu</div>
+          <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground sm:text-right">Dữ liệu tham khảo · Không phải khuyến nghị đầu tư</div>
         </div>
       </div>
     </footer>

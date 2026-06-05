@@ -23,14 +23,14 @@ const STATIC_ENTRIES: SitemapEntry[] = [
   { path: "/cong-cu/dca-roi", changefreq: "monthly", priority: "0.7" },
   { path: "/tai-san/oil-brent", changefreq: "hourly", priority: "0.8" },
   { path: "/tai-san/oil-wti", changefreq: "hourly", priority: "0.8" },
+  { path: "/gia-xang-dau", changefreq: "daily", priority: "0.85" },
+  { path: "/lich-kinh-te", changefreq: "daily", priority: "0.75" },
+  { path: "/api-cho-nha-phat-trien", changefreq: "monthly", priority: "0.6" },
   { path: "/lien-he", changefreq: "weekly", priority: "0.6" },
   { path: "/chinh-sach-bao-mat", changefreq: "monthly", priority: "0.4" },
   { path: "/dieu-khoan-su-dung", changefreq: "monthly", priority: "0.4" },
   { path: "/mien-tru-trach-nhiem", changefreq: "monthly", priority: "0.4" },
-  { path: "/contact", changefreq: "weekly", priority: "0.5" },
-  { path: "/privacy", changefreq: "monthly", priority: "0.3" },
-  { path: "/terms", changefreq: "monthly", priority: "0.3" },
-  { path: "/disclaimer", changefreq: "monthly", priority: "0.3" },
+  { path: "/chinh-sach-cookie", changefreq: "monthly", priority: "0.3" },
 ];
 
 // Cổ phiếu VN phổ biến (HOSE/HNX) — index trực tiếp trang chi tiết.
@@ -55,7 +55,6 @@ async function fetchAssetEntries(): Promise<SitemapEntry[]> {
     for (const c of j.coins) {
       const sym = String(c.symbol).toLowerCase();
       entries.push({ path: `/tai-san/${sym}`, changefreq: "hourly", priority: "0.7" });
-      entries.push({ path: `/asset/${sym}`, changefreq: "hourly", priority: "0.6" });
     }
     return entries;
   } catch {
