@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, Navigate } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, Users, Megaphone, Mail, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp, KeyRound } from "lucide-react";
+import { LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp, KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/_admin")({
   component: AdminGate,
@@ -43,6 +43,7 @@ const NAV = [
   { to: "/mw-admin/users", label: "Người dùng", icon: Users },
   { to: "/mw-admin/popups", label: "Popup", icon: Layers },
   { to: "/mw-admin/broadcasts", label: "Email broadcast", icon: Megaphone },
+  { to: "/mw-admin/email-preview", label: "Preview email", icon: MailOpen },
   { to: "/mw-admin/newsletter", label: "Bản tin", icon: Mail },
   { to: "/mw-admin/contact", label: "Liên hệ", icon: MessageSquare },
   { to: "/mw-admin/seo", label: "SEO Audit", icon: Search },

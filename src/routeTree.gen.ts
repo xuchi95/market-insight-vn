@@ -58,7 +58,6 @@ import { Route as CaiDatCanhBaoRouteImport } from './routes/cai-dat.canh-bao'
 import { Route as CaiDatBaoMatRouteImport } from './routes/cai-dat.bao-mat'
 import { Route as CaiDatBanTinRouteImport } from './routes/cai-dat.ban-tin'
 import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
-import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-preview'
 import { Route as AdminMwAdminIndexRouteImport } from './routes/_admin/mw-admin.index'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
 import { Route as ApiPublicWatchlistAlertsCronRouteImport } from './routes/api/public/watchlist-alerts-cron'
@@ -98,6 +97,7 @@ import { Route as AdminMwAdminPriceSettingsRouteImport } from './routes/_admin/m
 import { Route as AdminMwAdminPopupsRouteImport } from './routes/_admin/mw-admin.popups'
 import { Route as AdminMwAdminNewsletterRouteImport } from './routes/_admin/mw-admin.newsletter'
 import { Route as AdminMwAdminFuelPricesRouteImport } from './routes/_admin/mw-admin.fuel-prices'
+import { Route as AdminMwAdminEmailPreviewRouteImport } from './routes/_admin/mw-admin.email-preview'
 import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admin.contact'
 import { Route as AdminMwAdminCodeInjectionRouteImport } from './routes/_admin/mw-admin.code-injection'
 import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
@@ -355,11 +355,6 @@ const AssetSymbolRoute = AssetSymbolRouteImport.update({
   path: '/asset/$symbol',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminEmailPreviewRoute = AdminEmailPreviewRouteImport.update({
-  id: '/admin/email-preview',
-  path: '/admin/email-preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminMwAdminIndexRoute = AdminMwAdminIndexRouteImport.update({
   id: '/mw-admin/',
   path: '/mw-admin/',
@@ -564,6 +559,12 @@ const AdminMwAdminFuelPricesRoute = AdminMwAdminFuelPricesRouteImport.update({
   path: '/mw-admin/fuel-prices',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminEmailPreviewRoute =
+  AdminMwAdminEmailPreviewRouteImport.update({
+    id: '/mw-admin/email-preview',
+    path: '/mw-admin/email-preview',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminMwAdminContactRoute = AdminMwAdminContactRouteImport.update({
   id: '/mw-admin/contact',
   path: '/mw-admin/contact',
@@ -667,7 +668,6 @@ export interface FileRoutesByFullPath {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
-  '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
@@ -683,6 +683,7 @@ export interface FileRoutesByFullPath {
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
@@ -769,7 +770,6 @@ export interface FileRoutesByTo {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
-  '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
@@ -785,6 +785,7 @@ export interface FileRoutesByTo {
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
@@ -873,7 +874,6 @@ export interface FileRoutesById {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
-  '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
   '/cai-dat/bao-mat': typeof CaiDatBaoMatRoute
@@ -889,6 +889,7 @@ export interface FileRoutesById {
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/_admin/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/_admin/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/_admin/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/_admin/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRouteWithChildren
   '/_admin/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/_admin/mw-admin/popups': typeof AdminMwAdminPopupsRoute
@@ -977,7 +978,6 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
-    | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
@@ -993,6 +993,7 @@ export interface FileRouteTypes {
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
+    | '/mw-admin/email-preview'
     | '/mw-admin/fuel-prices'
     | '/mw-admin/newsletter'
     | '/mw-admin/popups'
@@ -1079,7 +1080,6 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
-    | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
@@ -1095,6 +1095,7 @@ export interface FileRouteTypes {
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
+    | '/mw-admin/email-preview'
     | '/mw-admin/fuel-prices'
     | '/mw-admin/newsletter'
     | '/mw-admin/popups'
@@ -1182,7 +1183,6 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
-    | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
     | '/cai-dat/bao-mat'
@@ -1198,6 +1198,7 @@ export interface FileRouteTypes {
     | '/_admin/mw-admin/broadcasts'
     | '/_admin/mw-admin/code-injection'
     | '/_admin/mw-admin/contact'
+    | '/_admin/mw-admin/email-preview'
     | '/_admin/mw-admin/fuel-prices'
     | '/_admin/mw-admin/newsletter'
     | '/_admin/mw-admin/popups'
@@ -1286,7 +1287,6 @@ export interface RootRouteChildren {
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   ViMoVietNamRoute: typeof ViMoVietNamRoute
   XacThuc2faRoute: typeof XacThuc2faRoute
-  AdminEmailPreviewRoute: typeof AdminEmailPreviewRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
   CaiDatBaoMatRoute: typeof CaiDatBaoMatRoute
@@ -1683,13 +1683,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssetSymbolRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/email-preview': {
-      id: '/admin/email-preview'
-      path: '/admin/email-preview'
-      fullPath: '/admin/email-preview'
-      preLoaderRoute: typeof AdminEmailPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_admin/mw-admin/': {
       id: '/_admin/mw-admin/'
       path: '/mw-admin'
@@ -1963,6 +1956,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminFuelPricesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/email-preview': {
+      id: '/_admin/mw-admin/email-preview'
+      path: '/mw-admin/email-preview'
+      fullPath: '/mw-admin/email-preview'
+      preLoaderRoute: typeof AdminMwAdminEmailPreviewRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/contact': {
       id: '/_admin/mw-admin/contact'
       path: '/mw-admin/contact'
@@ -2069,6 +2069,7 @@ interface AdminRouteChildren {
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
   AdminMwAdminCodeInjectionRoute: typeof AdminMwAdminCodeInjectionRoute
   AdminMwAdminContactRoute: typeof AdminMwAdminContactRoute
+  AdminMwAdminEmailPreviewRoute: typeof AdminMwAdminEmailPreviewRoute
   AdminMwAdminFuelPricesRoute: typeof AdminMwAdminFuelPricesRouteWithChildren
   AdminMwAdminNewsletterRoute: typeof AdminMwAdminNewsletterRoute
   AdminMwAdminPopupsRoute: typeof AdminMwAdminPopupsRoute
@@ -2084,6 +2085,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
   AdminMwAdminCodeInjectionRoute: AdminMwAdminCodeInjectionRoute,
   AdminMwAdminContactRoute: AdminMwAdminContactRoute,
+  AdminMwAdminEmailPreviewRoute: AdminMwAdminEmailPreviewRoute,
   AdminMwAdminFuelPricesRoute: AdminMwAdminFuelPricesRouteWithChildren,
   AdminMwAdminNewsletterRoute: AdminMwAdminNewsletterRoute,
   AdminMwAdminPopupsRoute: AdminMwAdminPopupsRoute,
@@ -2135,7 +2137,6 @@ const rootRouteChildren: RootRouteChildren = {
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   ViMoVietNamRoute: ViMoVietNamRoute,
   XacThuc2faRoute: XacThuc2faRoute,
-  AdminEmailPreviewRoute: AdminEmailPreviewRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
   CaiDatBaoMatRoute: CaiDatBaoMatRoute,
