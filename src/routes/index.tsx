@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Ticker } from "@/components/site/Ticker";
@@ -85,6 +85,33 @@ function Index() {
               <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Bảng giá thị trường</h2>
             </div>
             <BentoTiles initial={initialPrices} />
+          </section>
+
+          {/* AI dự đoán giá — CTA */}
+          <section className="pb-10 md:pb-14">
+            <Link
+              to="/du-doan-gia-ai"
+              className="group block rounded-2xl border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,var(--background))] p-6 md:p-8 transition-colors hover:bg-[color-mix(in_oklab,var(--gold)_14%,var(--background))]"
+            >
+              <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
+                <div className="flex-1">
+                  <div className="eyebrow text-[var(--gold)] mb-2">✨ Mới · Trí tuệ nhân tạo</div>
+                  <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">
+                    AI dự đoán giá vàng, xăng dầu, Bitcoin &amp; ngoại tệ
+                  </h2>
+                  <p className="mt-2 text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
+                    Chọn tài sản và khung thời gian (24h / 7 ngày / 30 ngày). AI phân tích dữ liệu
+                    thị trường thời gian thực để đưa ra xu hướng, biên độ % và 3 kịch bản tham
+                    khảo — hoàn toàn miễn phí.
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-background px-5 py-2.5 text-sm font-semibold group-hover:opacity-90 transition-opacity">
+                    Thử ngay →
+                  </span>
+                </div>
+              </div>
+            </Link>
           </section>
 
           {user && (
