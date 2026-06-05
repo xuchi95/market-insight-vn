@@ -105,19 +105,163 @@ function DeveloperApiPage() {
         </div>
 
         <div className="rounded-lg border border-border bg-card p-5">
-          <div className="text-sm font-medium text-foreground">SSE — Stream realtime</div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Push snapshot mỗi <code>interval</code> giây (5–60). Trình duyệt dùng trực
-            tiếp với <code>EventSource</code>.
+          <div className="text-sm font-medium text-foreground">Realtime stream (SSE)</div>
+          <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+            MarketWatch dùng <strong className="text-foreground">Server-Sent Events</strong> (HTTP/1.1 streaming)
+            thay cho WebSocket — nhẹ hơn, đi qua mọi proxy/CDN và dùng được trực tiếp
+            với <code>EventSource</code> trên trình duyệt mà không cần thư viện. Server
+            tự reconnect, tự đóng sau ~30 phút để client mở lại.
           </p>
-          <div className="mt-3">
-            <CodeBlock>{`const ev = new EventSource(
-  "${origin}/api/public/v1/stream?api_key=YOUR_KEY&scopes=gold,crypto&interval=10"
-);
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80">Endpoint</div>
+              <CodeBlock>{`GET ${origin}/api/public/v1/stream`}</CodeBlock>
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80">Content-Type</div>
+              <CodeBlock>{`text/event-stream; charset=utf-8`}</CodeBlock>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80 mb-2">
+              Query parameters (request)
+            </div>
+            <div className="overflow-x-auto rounded-md border border-border">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/40 text-left">
+                  <tr>
+                    <th className="px-3 py-2 font-medium">Tham số</th>
+                    <th className="px-3 py-2 font-medium">Bắt buộc</th>
+                    <th className="px-3 py-2 font-medium">Mặc định</th>
+                    <th className="px-3 py-2 font-medium">Mô tả</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border text-muted-foreground">
+                  <tr>
+                    <td className="px-3 py-2 font-mono text-foreground">api_key</td>
+                    <td className="px-3 py-2">có</td>
+                    <td className="px-3 py-2">—</td>
+                    <td className="px-3 py-2">
+                      Khoá API. EventSource không cho custom header → truyền qua query.
+                      Server đồng thời chấp nhận header <code>x-api-key</code> hoặc
+                      <code> Authorization: Bearer</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-mono text-foreground">scopes</td>
+                    <td className="px-3 py-2">không</td>
+                    <td className="px-3 py-2">tất cả</td>
+                    <td className="px-3 py-2">
+                      CSV của <code>gold,crypto,fuel,stocks</code>. Bị giới hạn theo
+                      quyền của key.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-mono text-foreground">interval</td>
+                    <td className="px-3 py-2">không</td>
+                    <td className="px-3 py-2">10</td>
+                    <td className="px-3 py-2">Chu kỳ push (giây), khoảng <code>5–60</code>.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80 mb-2">
+              Event map (server → client)
+            </div>
+            <div className="overflow-x-auto rounded-md border border-border">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/40 text-left">
+                  <tr>
+                    <th className="px-3 py-2 font-medium">Event</th>
+                    <th className="px-3 py-2 font-medium">Khi nào</th>
+                    <th className="px-3 py-2 font-medium">Payload</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border text-muted-foreground">
+                  <tr>
+                    <td className="px-3 py-2 font-mono text-[var(--gold)]">hello</td>
+                    <td className="px-3 py-2">Ngay khi kết nối</td>
+                    <td className="px-3 py-2"><code>{`{ ok, interval, scopes, key: { id, name } }`}</code></td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-mono text-[var(--gold)]">snapshot</td>
+                    <td className="px-3 py-2">Mỗi <code>interval</code> giây</td>
+                    <td className="px-3 py-2"><code>{`{ generatedAt, scopes, data: { gold?, crypto?, fuel?, stocks? } }`}</code></td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-mono text-[var(--gold)]">error</td>
+                    <td className="px-3 py-2">Lỗi upstream khi lấy 1 scope</td>
+                    <td className="px-3 py-2"><code>{`{ message: string }`}</code></td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-mono text-[var(--gold)]">close</td>
+                    <td className="px-3 py-2">Trước khi server đóng (sau ~30 phút)</td>
+                    <td className="px-3 py-2"><code>{`{ reason: "max_duration" }`}</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80 mb-2">
+              Format raw trên dây (SSE wire)
+            </div>
+            <CodeBlock>{`event: hello
+data: {"ok":true,"interval":10,"scopes":["gold","crypto"],"key":{"id":"…","name":"site abc.vn"}}
+
+event: snapshot
+data: {"generatedAt":1733400000000,"scopes":["gold","crypto"],"data":{"gold":{…},"crypto":[…]}}
+
+event: close
+data: {"reason":"max_duration"}`}</CodeBlock>
+          </div>
+
+          <div className="mt-5">
+            <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80 mb-2">
+              Ví dụ kết nối từ trình duyệt
+            </div>
+            <CodeBlock>{`const url = new URL("${origin}/api/public/v1/stream");
+url.searchParams.set("api_key", "YOUR_KEY");
+url.searchParams.set("scopes", "gold,crypto");
+url.searchParams.set("interval", "10");
+
+const ev = new EventSource(url.toString());
+
+ev.addEventListener("hello", (e) => {
+  console.log("connected", JSON.parse(e.data));
+});
+
 ev.addEventListener("snapshot", (e) => {
-  const payload = JSON.parse(e.data);
-  console.log(payload.data.gold, payload.data.crypto);
-});`}</CodeBlock>
+  const { generatedAt, data } = JSON.parse(e.data);
+  console.log(new Date(generatedAt), data.gold, data.crypto);
+});
+
+ev.addEventListener("error", (e) => {
+  // Lỗi nghiệp vụ từ server (1 scope upstream fail)
+  try { console.warn("scope error:", JSON.parse((e as MessageEvent).data)); } catch {}
+});
+
+ev.addEventListener("close", (e) => {
+  console.log("server closing:", JSON.parse(e.data));
+  ev.close(); // trình duyệt sẽ KHÔNG tự reconnect khi bạn close() chủ động
+});
+
+// Khi rời trang
+window.addEventListener("beforeunload", () => ev.close());`}</CodeBlock>
+          </div>
+
+          <div className="mt-5 rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-3 text-xs text-muted-foreground">
+            <strong className="text-foreground">Lưu ý:</strong> kết nối auto-close sau
+            ~30 phút (event <code>close</code> với <code>reason: "max_duration"</code>) —
+            <code>EventSource</code> mặc định sẽ tự reconnect sau vài giây nếu bạn không
+            gọi <code>ev.close()</code>. Với Node.js dùng package
+            <code> eventsource </code> hoặc gói <code>@marketwatch/sdk</code> bên dưới.
           </div>
         </div>
       </section>
