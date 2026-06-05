@@ -656,45 +656,70 @@ function PopupCard({ form }: { form: PopupForm }) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-lg border border-border bg-background p-4 shadow-xl ${width}`}
-      style={{ boxShadow: `0 20px 60px -20px color-mix(in oklab, ${accent} 40%, transparent)` }}
+      className={`relative overflow-hidden rounded-2xl border border-border bg-card/95 backdrop-blur-xl p-5 text-center shadow-xl ${width}`}
+      style={{
+        borderColor: `color-mix(in oklab, ${accent} 30%, var(--border))`,
+        boxShadow: `0 20px 60px -20px color-mix(in oklab, ${accent} 40%, transparent)`,
+      }}
     >
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em]" style={{ color: accent }}>
-        <span>{form.theme.icon ? `${form.theme.icon} · ` : ""}MarketWatch</span>
-        <X className="h-3 w-3 opacity-50" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -top-px h-px"
+        style={{ background: `linear-gradient(to right, transparent, ${accent}, transparent)` }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full blur-3xl"
+        style={{ background: `color-mix(in oklab, ${accent} 18%, transparent)` }}
+      />
+      <button type="button" className="absolute top-2 right-2 opacity-50">
+        <X className="h-3 w-3" />
+      </button>
+
+      <div className="relative mx-auto mb-3 inline-flex">
+        <span
+          className="inline-flex h-12 w-12 items-center justify-center rounded-xl border"
+          style={{
+            borderColor: `color-mix(in oklab, ${accent} 40%, transparent)`,
+            color: accent,
+            background: `color-mix(in oklab, ${accent} 8%, transparent)`,
+          }}
+        >
+          <Mail className="h-5 w-5" strokeWidth={1.5} />
+        </span>
+        <span
+          className="absolute -bottom-1 -right-1 inline-flex h-4 w-4 items-center justify-center rounded-full border-2 border-card"
+          style={{ background: accent, color: "var(--background)" }}
+        >
+          <Bell className="h-2 w-2" strokeWidth={2.5} />
+        </span>
       </div>
-      <div className="mt-1.5 font-display text-base leading-snug">{form.title || "—"}</div>
-      {form.subtitle && <div className="mt-0.5 text-xs text-muted-foreground">{form.subtitle}</div>}
-      {form.body_md && <div className="mt-2 whitespace-pre-wrap text-[11px] text-foreground/80">{form.body_md}</div>}
-      <div className="mt-2.5 space-y-1.5">
-        {form.fields.map((fld, i) =>
-          fld.type === "select" ? (
-            <select key={i} className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs">
-              <option>{fld.placeholder ?? fld.label}</option>
-              {(fld.options ?? []).map((o) => (
-                <option key={o}>{o}</option>
-              ))}
-            </select>
-          ) : (
-            <input
-              key={i}
-              type={fld.type === "email" ? "email" : "text"}
-              placeholder={fld.placeholder ?? fld.label}
-              className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
-              readOnly
-            />
-          ),
-        )}
+
+      <div className="font-display text-base leading-tight">{form.title || "—"}</div>
+      {form.subtitle && <div className="mt-1 text-[11px] text-muted-foreground">{form.subtitle}</div>}
+      {form.body_md && <div className="mt-1.5 whitespace-pre-wrap text-[10px] text-foreground/70">{form.body_md}</div>}
+
+      <div className="relative mt-3 text-left">
+        <Mail aria-hidden className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <input
+          type="email"
+          placeholder="Nhập email của bạn"
+          readOnly
+          className="h-9 w-full rounded-md border-2 border-border bg-background/60 pl-8 pr-2 text-xs"
+        />
       </div>
       <button
         type="button"
-        className="mt-2.5 h-8 w-full rounded-md text-xs font-semibold"
+        className="mt-2 h-9 w-full rounded-md text-xs font-semibold"
         style={{ background: accent, color: "var(--background)" }}
       >
-        {form.cta_label || "Đăng ký"}
+        {form.cta_label || "Đăng ký ngay"}
       </button>
+      <p className="mt-2 text-[10px] font-medium" style={{ color: accent }}>
+        Miễn phí • Có thể hủy bất kỳ lúc nào
+      </p>
       {form.topics.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1">
+        <div className="mt-2 flex flex-wrap justify-center gap-1">
           {form.topics.slice(0, 6).map((t) => (
             <span key={t} className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] text-muted-foreground">
               #{t}
