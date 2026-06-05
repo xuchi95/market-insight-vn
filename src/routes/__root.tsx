@@ -241,7 +241,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           url: "https://marketwatch.vn",
           inLanguage: "vi-VN",
           description:
-            "Dashboard tài chính tiếng Việt: giá vàng SJC, DOJI, PNJ, Bitcoin, Ethereum, USDT, tỷ giá USD/VND, EUR, JPY, CNY realtime.",
+            "Công cụ theo dõi dữ liệu tài chính Việt Nam: giá vàng SJC, DOJI, PNJ, Bitcoin, Ethereum, USDT, tỷ giá USD/VND, EUR, JPY, CNY cập nhật realtime theo từng phút.",
           logo: {
             "@type": "ImageObject",
             url: "https://marketwatch.vn/favicon.png",
@@ -286,7 +286,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           url: "https://marketwatch.vn",
           inLanguage: "vi-VN",
           description:
-            "Dashboard tài chính realtime: giá vàng, crypto, ngoại tệ, chứng khoán, lãi suất và xăng dầu Việt Nam.",
+            "Công cụ theo dõi dữ liệu tài chính realtime: giá vàng, crypto, ngoại tệ, chứng khoán, lãi suất và xăng dầu Việt Nam — cập nhật theo từng phút.",
           publisher: { "@id": "https://marketwatch.vn/#organization" },
           potentialAction: {
             "@type": "SearchAction",

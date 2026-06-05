@@ -7,7 +7,7 @@ import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/mien-tru-trach-nhiem`;
 const TITLE = "Tuyên bố miễn trừ trách nhiệm — MarketWatch";
-const DESC = "MarketWatch là kênh thông tin tham khảo. Dữ liệu giá vàng, tiền mã hoá, ngoại tệ chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.";
+const DESC = "MarketWatch là công cụ phần mềm theo dõi và trực quan hoá dữ liệu thị trường tài chính. Số liệu giá vàng, tiền mã hoá, ngoại tệ chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.";
 
 export const Route = createFileRoute("/mien-tru-trach-nhiem")({
   head: () => ({
