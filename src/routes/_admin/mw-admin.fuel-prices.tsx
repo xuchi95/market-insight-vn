@@ -105,11 +105,17 @@ function AdminFuelPricesPage() {
     setRefreshing(true);
     try {
       const res = await refresh({});
+      const nextSnapshot: Snapshot = {
+        effective_from: res.effective_from,
+        source_url: res.source_url,
+        rows: res.rows,
+        updated_at: new Date().toISOString(),
+      };
       toast.success(
         `Đã cập nhật ${res.rowCount} mặt hàng từ Petrolimex (${res.effective_from})`,
       );
-      // Reset form to refetch from server
-      setForm(null);
+      setForm(nextSnapshot);
+      qc.setQueryData(["admin", "fuel-prices"], nextSnapshot);
       qc.invalidateQueries({ queryKey: ["admin", "fuel-prices"] });
       qc.invalidateQueries({ queryKey: ["public", "vn-fuel-prices"] });
     } catch (e) {
