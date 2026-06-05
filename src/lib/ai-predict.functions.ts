@@ -60,11 +60,36 @@ export const OPENROUTER_MODELS = [
     description: "Miễn phí — có giới hạn tốc độ, có thể không hỗ trợ JSON schema.",
     badge: "Miễn phí",
   },
+  {
+    id: "openai/gpt-4o-mini",
+    label: "GPT-4o mini",
+    description: "Chỉ chạy được khi cấu hình proxy/endpoint vùng US hoặc EU.",
+    badge: "Cần proxy",
+  },
+  {
+    id: "openai/gpt-4o",
+    label: "GPT-4o",
+    description: "Chỉ chạy được khi cấu hình proxy/endpoint vùng US hoặc EU.",
+    badge: "Cần proxy",
+  },
+  {
+    id: "anthropic/claude-3.5-haiku",
+    label: "Claude 3.5 Haiku",
+    description: "Chỉ chạy được khi cấu hình proxy/endpoint vùng US hoặc EU.",
+    badge: "Cần proxy",
+  },
+  {
+    id: "anthropic/claude-3.5-sonnet",
+    label: "Claude 3.5 Sonnet",
+    description: "Chỉ chạy được khi cấu hình proxy/endpoint vùng US hoặc EU.",
+    badge: "Cần proxy",
+  },
 ] as const;
 
 export type OpenRouterModelId = (typeof OPENROUTER_MODELS)[number]["id"];
 const MODEL_IDS = OPENROUTER_MODELS.map((m) => m.id) as [OpenRouterModelId, ...OpenRouterModelId[]];
 export const DEFAULT_MODEL: OpenRouterModelId = "google/gemini-2.5-flash";
+export const DEFAULT_API_BASE_URL = "https://openrouter.ai/api/v1";
 
 const InputSchema = z.object({
   asset: z.enum(PREDICTABLE_ASSETS.map((a) => a.slug) as [AssetSlug, ...AssetSlug[]]),
@@ -205,14 +230,17 @@ export const predictAssetPrice = createServerFn({ method: "POST" })
     const ctx = await buildContext(data.asset);
     // Mô hình AI do admin cấu hình trong dashboard — người dùng không tự chọn.
     let model: OpenRouterModelId = DEFAULT_MODEL;
+    let baseUrl: string = DEFAULT_API_BASE_URL;
     try {
       const { data: settings } = await supabaseAdmin
         .from("app_ai_settings")
-        .select("predict_model")
+        .select("predict_model, api_base_url")
         .eq("id", 1)
         .maybeSingle();
       const saved = settings?.predict_model as OpenRouterModelId | undefined;
       if (saved && MODEL_IDS.includes(saved)) model = saved;
+      const savedUrl = (settings?.api_base_url as string | undefined)?.trim();
+      if (savedUrl) baseUrl = savedUrl.replace(/\/+$/, "");
     } catch {
       // giữ DEFAULT_MODEL
     }
@@ -239,7 +267,7 @@ Yêu cầu:
 - risks: 2–4 rủi ro có thể đảo chiều dự báo.
 - scenarios: 1 câu cho mỗi kịch bản bullish / base / bearish.`;
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,

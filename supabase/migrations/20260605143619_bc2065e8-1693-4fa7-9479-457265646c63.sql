@@ -1,0 +1,1 @@
+ALTER TABLE public.app_ai_settings ADD COLUMN IF NOT EXISTS api_base_url text;

@@ -205,16 +205,19 @@ export type Database = {
       }
       app_ai_settings: {
         Row: {
+          api_base_url: string | null
           id: number
           predict_model: string
           updated_at: string
         }
         Insert: {
+          api_base_url?: string | null
           id?: number
           predict_model?: string
           updated_at?: string
         }
         Update: {
+          api_base_url?: string | null
           id?: number
           predict_model?: string
           updated_at?: string
