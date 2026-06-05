@@ -111,6 +111,7 @@ import { Route as ApiPublicV1StreamRouteImport } from './routes/api/public/v1/st
 import { Route as ApiPublicV1SnapshotRouteImport } from './routes/api/public/v1/snapshot'
 import { Route as ApiPublicHooksSeoAuditRouteImport } from './routes/api/public/hooks/seo-audit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
+import { Route as ApiPublicHooksRefreshFuelPricesRouteImport } from './routes/api/public/hooks/refresh-fuel-prices'
 import { Route as AdminMwAdminFuelPricesHistoryRouteImport } from './routes/_admin/mw-admin.fuel-prices.history'
 
 const XacThuc2faRoute = XacThuc2faRouteImport.update({
@@ -635,6 +636,12 @@ const ApiPublicHooksRefreshSavingsRatesRoute =
     path: '/api/public/hooks/refresh-savings-rates',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRefreshFuelPricesRoute =
+  ApiPublicHooksRefreshFuelPricesRouteImport.update({
+    id: '/api/public/hooks/refresh-fuel-prices',
+    path: '/api/public/hooks/refresh-fuel-prices',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminMwAdminFuelPricesHistoryRoute =
   AdminMwAdminFuelPricesHistoryRouteImport.update({
     id: '/history',
@@ -738,6 +745,7 @@ export interface FileRoutesByFullPath {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
   '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
+  '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
@@ -842,6 +850,7 @@ export interface FileRoutesByTo {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
   '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
+  '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
@@ -948,6 +957,7 @@ export interface FileRoutesById {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
   '/_admin/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
+  '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
   '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
@@ -1054,6 +1064,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/mw-admin/'
     | '/mw-admin/fuel-prices/history'
+    | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
     | '/api/public/v1/snapshot'
@@ -1158,6 +1169,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/mw-admin'
     | '/mw-admin/fuel-prices/history'
+    | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
     | '/api/public/v1/snapshot'
@@ -1263,6 +1275,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/_admin/mw-admin/'
     | '/_admin/mw-admin/fuel-prices/history'
+    | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
     | '/api/public/v1/snapshot'
@@ -1355,6 +1368,7 @@ export interface RootRouteChildren {
   ApiPublicVnStockChartRoute: typeof ApiPublicVnStockChartRoute
   ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
+  ApiPublicHooksRefreshFuelPricesRoute: typeof ApiPublicHooksRefreshFuelPricesRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
   ApiPublicHooksSeoAuditRoute: typeof ApiPublicHooksSeoAuditRoute
   ApiPublicV1SnapshotRoute: typeof ApiPublicV1SnapshotRoute
@@ -2080,6 +2094,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRefreshSavingsRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/refresh-fuel-prices': {
+      id: '/api/public/hooks/refresh-fuel-prices'
+      path: '/api/public/hooks/refresh-fuel-prices'
+      fullPath: '/api/public/hooks/refresh-fuel-prices'
+      preLoaderRoute: typeof ApiPublicHooksRefreshFuelPricesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_admin/mw-admin/fuel-prices/history': {
       id: '/_admin/mw-admin/fuel-prices/history'
       path: '/history'
@@ -2221,6 +2242,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicVnStockChartRoute: ApiPublicVnStockChartRoute,
   ApiPublicWatchlistAlertsCronRoute: ApiPublicWatchlistAlertsCronRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
+  ApiPublicHooksRefreshFuelPricesRoute: ApiPublicHooksRefreshFuelPricesRoute,
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
   ApiPublicHooksSeoAuditRoute: ApiPublicHooksSeoAuditRoute,
