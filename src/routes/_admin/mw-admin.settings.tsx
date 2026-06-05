@@ -12,6 +12,7 @@ import {
   getAiPredictSettings,
   updateAiPredictSettings,
 } from "@/lib/admin/settings.functions";
+import { detectAiRegion } from "@/lib/ai-predict.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +34,11 @@ function SettingsPage() {
   const { data } = useQuery({ queryKey: ["admin", "settings"], queryFn: () => getFn() });
   const { data: audit } = useQuery({ queryKey: ["admin", "audit"], queryFn: () => auditFn() });
   const { data: ai } = useQuery({ queryKey: ["admin", "ai-predict"], queryFn: () => getAiFn() });
+  const detectFn = useServerFn(detectAiRegion);
+  const { data: region, refetch: refetchRegion, isFetching: detecting } = useQuery({
+    queryKey: ["admin", "ai-region"],
+    queryFn: () => detectFn(),
+  });
 
   const [batch, setBatch] = useState(10);
   const [delay, setDelay] = useState(200);
@@ -143,6 +149,26 @@ function SettingsPage() {
         </div>
         <div className="mt-6 border-t border-border pt-4">
           <Label className="text-sm">Endpoint API (proxy theo khu vực)</Label>
+          <div className="mb-3 mt-1 flex flex-wrap items-center gap-2 text-xs">
+            <Button size="sm" variant="outline" onClick={() => refetchRegion()} disabled={detecting}>
+              {detecting ? "Đang kiểm tra…" : "Phát hiện vùng máy chủ"}
+            </Button>
+            {region?.region && (
+              <span className="rounded border border-border px-2 py-0.5 font-mono">
+                Vùng: {region.region}
+              </span>
+            )}
+            {region?.has_custom_proxy && (
+              <span className="rounded border border-border px-2 py-0.5 text-muted-foreground">
+                Đang dùng proxy tuỳ chỉnh
+              </span>
+            )}
+          </div>
+          {region?.suggestion && (
+            <div className="mb-3 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs text-destructive">
+              ⚠ {region.suggestion}
+            </div>
+          )}
           <Input
             value={aiBaseUrl}
             onChange={(e) => setAiBaseUrl(e.target.value)}
