@@ -20,6 +20,15 @@ import {
   Loader2,
   RefreshCw,
   Info,
+  Gem,
+  Flame,
+  Bitcoin,
+  Banknote,
+  Clock,
+  Cpu,
+  ShieldAlert,
+  CheckCircle2,
+  ChevronDown,
 } from "lucide-react";
 import {
   predictAssetPrice,
