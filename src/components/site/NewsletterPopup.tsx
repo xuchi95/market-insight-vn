@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Mail, Bell } from "lucide-react";
+import { Mail, Bell, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useServerFn } from "@tanstack/react-start";
 import { getActivePopups } from "@/lib/admin/popups.functions";
@@ -155,9 +155,9 @@ export function NewsletterPopup() {
         />
 
         <div className="relative px-7 pt-8 pb-7 text-center">
-          <div className="mx-auto mb-5 relative inline-flex animate-fade-in">
+          <div className="mx-auto mb-5 relative inline-flex animate-fade-in group">
             <span
-              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border transition-colors duration-300"
+              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border transition-colors duration-300 group-hover:scale-[1.03] motion-safe:transition-transform"
               style={{
                 borderColor: `color-mix(in oklab, ${accentVar} 40%, transparent)`,
                 color: accentVar,
@@ -194,12 +194,18 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
   const [email, setEmail] = useState("");
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     const value = email.trim();
-    if (!value) return;
+    if (!value) {
+      setError("Vui lòng nhập email.");
+      return;
+    }
     if (!agree) {
+      setError("Vui lòng đồng ý nhận email và chính sách bảo mật.");
       toast.error("Vui lòng đồng ý nhận email và chính sách bảo mật.");
       return;
     }
@@ -217,7 +223,9 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
       toast.success(popup.success_message || "Đăng ký thành công");
       try { window.dispatchEvent(new CustomEvent("newsletter:subscribed")); } catch {}
     } catch (err) {
-      toast.error((err as Error).message);
+      const msg = (err as Error).message;
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -225,33 +233,57 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 text-left">
-      <div className="relative">
-        <Mail aria-hidden className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="relative group">
+        <Mail
+          aria-hidden
+          className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors duration-200 ${
+            error ? "text-destructive" : "text-muted-foreground group-focus-within:text-[var(--ring)]"
+          }`}
+          style={!error ? { color: undefined } : undefined}
+        />
         <Input
           type="email"
           required
           placeholder="Nhập email của bạn"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="h-12 pl-10 border-2 border-border bg-background/60 focus-visible:border-[var(--gold)] focus-visible:ring-2 focus-visible:ring-[var(--gold)]/30 transition-colors duration-300"
+          onChange={(e) => { setEmail(e.target.value); if (error) setError(null); }}
+          aria-invalid={!!error}
+          className={`h-12 pl-10 border-2 bg-background/60 transition-colors duration-300 focus-visible:ring-2 ${
+            error
+              ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/30"
+              : "border-border focus-visible:border-[var(--ring)] focus-visible:ring-[var(--ring)]/30"
+          }`}
         />
+        {error && (
+          <p className="mt-1.5 flex items-center gap-1 text-xs text-destructive animate-fade-in">
+            <AlertCircle className="h-3.5 w-3.5" />
+            <span>{error}</span>
+          </p>
+        )}
       </div>
       <Button
         type="submit"
         disabled={loading}
-        className="w-full h-12 text-base font-semibold transition-colors duration-300"
+        className="w-full h-12 text-base font-semibold transition-[filter,background,color] duration-200 hover:brightness-110 active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed"
         style={{ background: accentVar, color: accentFg }}
       >
-        {loading ? "Đang gửi…" : "Đăng ký ngay"}
+        {loading ? (
+          <span className="inline-flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Đang gửi…
+          </span>
+        ) : (
+          "Đăng ký ngay"
+        )}
       </Button>
       <p className="text-center text-xs font-medium transition-colors duration-300" style={{ color: accentVar }}>
         Miễn phí • Có thể hủy bất kỳ lúc nào
       </p>
-      <label className="flex items-start justify-center gap-2 text-xs text-muted-foreground cursor-pointer transition-colors duration-300">
+      <label className="flex items-start justify-center gap-2 text-xs text-muted-foreground cursor-pointer transition-colors duration-300 hover:text-foreground">
         <Checkbox checked={agree} onCheckedChange={(v) => setAgree(v === true)} className="mt-0.5" />
         <span>
           Tôi đồng ý nhận email cập nhật và chấp nhận{" "}
-          <Link to="/chinh-sach-bao-mat" className="underline transition-colors duration-300" style={{ color: accentVar }}>
+          <Link to="/chinh-sach-bao-mat" className="underline underline-offset-2 transition-opacity duration-200 hover:opacity-80" style={{ color: accentVar }}>
             Chính sách bảo mật
           </Link>
           .
