@@ -44,6 +44,7 @@ import { Route as ChungKhoanRouteImport } from './routes/chung-khoan'
 import { Route as ChinhSachCookieRouteImport } from './routes/chinh-sach-cookie'
 import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat'
 import { Route as BankRatesRouteImport } from './routes/bank-rates'
+import { Route as ApiChoNhaPhatTrienRouteImport } from './routes/api-cho-nha-phat-trien'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
@@ -283,6 +284,11 @@ const ChinhSachBaoMatRoute = ChinhSachBaoMatRouteImport.update({
 const BankRatesRoute = BankRatesRouteImport.update({
   id: '/bank-rates',
   path: '/bank-rates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChoNhaPhatTrienRoute = ApiChoNhaPhatTrienRouteImport.update({
+  id: '/api-cho-nha-phat-trien',
+  path: '/api-cho-nha-phat-trien',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -625,6 +631,7 @@ const AdminMwAdminFuelPricesHistoryRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api-cho-nha-phat-trien': typeof ApiChoNhaPhatTrienRoute
   '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/chinh-sach-cookie': typeof ChinhSachCookieRoute
@@ -726,6 +733,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api-cho-nha-phat-trien': typeof ApiChoNhaPhatTrienRoute
   '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/chinh-sach-cookie': typeof ChinhSachCookieRoute
@@ -829,6 +837,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteWithChildren
+  '/api-cho-nha-phat-trien': typeof ApiChoNhaPhatTrienRoute
   '/bank-rates': typeof BankRatesRoute
   '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/chinh-sach-cookie': typeof ChinhSachCookieRoute
@@ -932,6 +941,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api-cho-nha-phat-trien'
     | '/bank-rates'
     | '/chinh-sach-bao-mat'
     | '/chinh-sach-cookie'
@@ -1033,6 +1043,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api-cho-nha-phat-trien'
     | '/bank-rates'
     | '/chinh-sach-bao-mat'
     | '/chinh-sach-cookie'
@@ -1135,6 +1146,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_admin'
+    | '/api-cho-nha-phat-trien'
     | '/bank-rates'
     | '/chinh-sach-bao-mat'
     | '/chinh-sach-cookie'
@@ -1238,6 +1250,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  ApiChoNhaPhatTrienRoute: typeof ApiChoNhaPhatTrienRoute
   BankRatesRoute: typeof BankRatesRoute
   ChinhSachBaoMatRoute: typeof ChinhSachBaoMatRoute
   ChinhSachCookieRoute: typeof ChinhSachCookieRoute
@@ -1570,6 +1583,13 @@ declare module '@tanstack/react-router' {
       path: '/bank-rates'
       fullPath: '/bank-rates'
       preLoaderRoute: typeof BankRatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-cho-nha-phat-trien': {
+      id: '/api-cho-nha-phat-trien'
+      path: '/api-cho-nha-phat-trien'
+      fullPath: '/api-cho-nha-phat-trien'
+      preLoaderRoute: typeof ApiChoNhaPhatTrienRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin': {
@@ -2079,6 +2099,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  ApiChoNhaPhatTrienRoute: ApiChoNhaPhatTrienRoute,
   BankRatesRoute: BankRatesRoute,
   ChinhSachBaoMatRoute: ChinhSachBaoMatRoute,
   ChinhSachCookieRoute: ChinhSachCookieRoute,
