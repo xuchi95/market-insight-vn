@@ -9,101 +9,13 @@ import {
   type CoinDigestRow,
   type FxDigestRow,
 } from "@/lib/email/templates.server";
+import {
+  fetchDailyGoldRows,
+  fetchDailyCryptoRows,
+  fetchDailyFxRows,
+} from "@/lib/email/daily-digest.server";
 
 const SITE = "https://marketwatch.vn";
-const OZ_PER_LUONG = 1.20556;
-
-// --- Data fetchers (best-effort; null on failure) ---
-
-async function fetchFmpQuote(symbol: string): Promise<{ price: number; changePct: number | null } | null> {
-  const key = process.env.FMP_API_KEY;
-  if (!key) return null;
-  try {
-    const url = `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${key}`;
-    const res = await fetch(url, { headers: { accept: "application/json" } });
-    if (!res.ok) return null;
-    const arr = (await res.json()) as Array<{ price?: number; changesPercentage?: number }>;
-    const row = arr?.[0];
-    if (!row || typeof row.price !== "number") return null;
-    return {
-      price: row.price,
-      changePct: typeof row.changesPercentage === "number" ? row.changesPercentage : null,
-    };
-  } catch {
-    return null;
-  }
-}
-
-async function fetchGoldRows(): Promise<GoldDigestRow[]> {
-  const [xau, usdvnd] = await Promise.all([fetchFmpQuote("XAUUSD"), fetchFmpQuote("USDVND")]);
-  if (!xau || !usdvnd) return [];
-  const vndPerLuong = xau.price * usdvnd.price * OZ_PER_LUONG;
-  // Approximate spread (~0.5%) since FMP only gives a single spot price.
-  const sell = Math.round(vndPerLuong / 1000) * 1000;
-  const buy = Math.round((vndPerLuong * 0.995) / 1000) * 1000;
-  return [
-    { label: "Vàng SJC (ước tính)", buy, sell, changePct: xau.changePct },
-    {
-      label: "XAU/USD",
-      buy: null,
-      sell: Math.round(xau.price),
-      changePct: xau.changePct,
-    },
-  ];
-}
-
-async function fetchCryptoRows(): Promise<CoinDigestRow[]> {
-  try {
-    const url = new URL("https://api.coingecko.com/api/v3/coins/markets");
-    url.searchParams.set("vs_currency", "usd");
-    url.searchParams.set("order", "market_cap_desc");
-    url.searchParams.set("per_page", "10");
-    url.searchParams.set("page", "1");
-    url.searchParams.set("price_change_percentage", "24h");
-    const headers: Record<string, string> = { accept: "application/json" };
-    const key = process.env.COINGECKO_API_KEY;
-    if (key) headers["x-cg-demo-api-key"] = key;
-    const res = await fetch(url, { headers });
-    if (!res.ok) return [];
-    const arr = (await res.json()) as Array<{
-      symbol: string;
-      name: string;
-      current_price: number;
-      price_change_percentage_24h: number | null;
-    }>;
-    return arr
-      .filter((c) => typeof c.current_price === "number")
-      .map((c) => ({
-        symbol: c.symbol,
-        name: c.name,
-        price: c.current_price,
-        changePct: typeof c.price_change_percentage_24h === "number" ? c.price_change_percentage_24h : 0,
-      }));
-  } catch {
-    return [];
-  }
-}
-
-async function fetchFxRows(): Promise<FxDigestRow[]> {
-  const pairs: Array<{ symbol: string; pair: string }> = [
-    { symbol: "USDVND", pair: "USD/VND" },
-    { symbol: "EURVND", pair: "EUR/VND" },
-    { symbol: "JPYVND", pair: "JPY/VND" },
-    { symbol: "GBPVND", pair: "GBP/VND" },
-    { symbol: "CNYVND", pair: "CNY/VND" },
-    { symbol: "AUDVND", pair: "AUD/VND" },
-    { symbol: "KRWVND", pair: "KRW/VND" },
-    { symbol: "SGDVND", pair: "SGD/VND" },
-  ];
-  const quotes = await Promise.all(pairs.map((p) => fetchFmpQuote(p.symbol)));
-  const rows: FxDigestRow[] = [];
-  pairs.forEach((p, i) => {
-    const q = quotes[i];
-    if (!q) return;
-    rows.push({ pair: p.pair, rate: q.price, changePct: q.changePct });
-  });
-  return rows;
-}
 
 // --- Route ---
 
@@ -130,9 +42,9 @@ export const Route = createFileRoute("/api/public/daily-market-digest")({
         for (const s of subs ?? []) for (const t of s.topics ?? []) wanted.add(String(t));
 
         const [goldRows, cryptoRows, fxRows] = await Promise.all([
-          wanted.has("gold") ? fetchGoldRows() : Promise.resolve([] as GoldDigestRow[]),
-          wanted.has("btc") ? fetchCryptoRows() : Promise.resolve([] as CoinDigestRow[]),
-          wanted.has("usd") ? fetchFxRows() : Promise.resolve([] as FxDigestRow[]),
+          wanted.has("gold") ? fetchDailyGoldRows() : Promise.resolve([] as GoldDigestRow[]),
+          wanted.has("btc") ? fetchDailyCryptoRows() : Promise.resolve([] as CoinDigestRow[]),
+          wanted.has("usd") ? fetchDailyFxRows() : Promise.resolve([] as FxDigestRow[]),
         ]);
 
         const dateLabel = new Date().toLocaleDateString("vi-VN", {
