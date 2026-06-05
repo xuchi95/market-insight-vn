@@ -9,6 +9,8 @@ import {
   addSuppressedEmail,
   removeSuppressedEmail,
   recentAuditLog,
+  getAiPredictSettings,
+  updateAiPredictSettings,
 } from "@/lib/admin/settings.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,10 +26,13 @@ function SettingsPage() {
   const addFn = useServerFn(addSuppressedEmail);
   const removeFn = useServerFn(removeSuppressedEmail);
   const auditFn = useServerFn(recentAuditLog);
+  const getAiFn = useServerFn(getAiPredictSettings);
+  const updateAiFn = useServerFn(updateAiPredictSettings);
   const qc = useQueryClient();
 
   const { data } = useQuery({ queryKey: ["admin", "settings"], queryFn: () => getFn() });
   const { data: audit } = useQuery({ queryKey: ["admin", "audit"], queryFn: () => auditFn() });
+  const { data: ai } = useQuery({ queryKey: ["admin", "ai-predict"], queryFn: () => getAiFn() });
 
   const [batch, setBatch] = useState(10);
   const [delay, setDelay] = useState(200);
@@ -35,6 +40,11 @@ function SettingsPage() {
   const [txTtl, setTxTtl] = useState(60);
   const [newEmail, setNewEmail] = useState("");
   const [newReason, setNewReason] = useState("manual");
+  const [aiModel, setAiModel] = useState<string>("");
+
+  useEffect(() => {
+    if (ai?.predict_model) setAiModel(ai.predict_model);
+  }, [ai?.predict_model]);
 
   useEffect(() => {
     if (data?.state) {
@@ -59,6 +69,67 @@ function SettingsPage() {
         <h1 className="font-display text-2xl">Cấu hình hệ thống</h1>
         <p className="text-sm text-muted-foreground">Tham số email worker và suppression list.</p>
       </div>
+
+      <section className="rounded-lg border border-border bg-card p-5">
+        <h2 className="mb-1 font-display text-lg">AI dự đoán giá</h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Chọn mô hình OpenRouter dùng cho công cụ <code>/du-doan-gia-ai</code>. Người dùng không thấy lựa chọn này.
+        </p>
+        <div className="space-y-2">
+          {ai?.models.map((m) => {
+            const active = aiModel === m.id;
+            return (
+              <label
+                key={m.id}
+                className={`flex items-start gap-3 rounded-md border p-3 cursor-pointer transition-colors ${
+                  active ? "border-primary bg-primary/5" : "border-border hover:bg-muted/30"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="ai-model"
+                  value={m.id}
+                  checked={active}
+                  onChange={() => setAiModel(m.id)}
+                  className="mt-1"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm">{m.label}</span>
+                    <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border border-border text-muted-foreground">
+                      {m.badge}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{m.description}</div>
+                  <div className="text-[10px] font-mono text-muted-foreground/70 mt-1">{m.id}</div>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <Button
+            onClick={async () => {
+              if (!aiModel) return;
+              try {
+                await updateAiFn({ data: { predict_model: aiModel } });
+                toast.success("Đã lưu mô hình AI");
+                qc.invalidateQueries({ queryKey: ["admin", "ai-predict"] });
+              } catch (e) {
+                toast.error((e as Error).message);
+              }
+            }}
+            disabled={!aiModel || aiModel === ai?.predict_model}
+          >
+            Lưu mô hình AI
+          </Button>
+          {ai?.updated_at && (
+            <span className="text-xs text-muted-foreground">
+              Cập nhật: {new Date(ai.updated_at).toLocaleString("vi-VN")}
+            </span>
+          )}
+        </div>
+      </section>
 
       <section className="rounded-lg border border-border bg-card p-5">
         <h2 className="mb-4 font-display text-lg">Email worker</h2>
