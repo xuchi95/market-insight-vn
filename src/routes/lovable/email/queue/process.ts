@@ -197,7 +197,7 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
 
           for (let i = 0; i < messages.length; i++) {
             const msg = messages[i]
-            const payload = msg.message
+            const payload = normalizeEmailPayload(queue, msg)
             const failedAttempts =
               payload?.message_id && typeof payload.message_id === 'string'
                 ? (failedAttemptsByMessageId.get(payload.message_id) ?? 0)
@@ -257,18 +257,18 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
             try {
               await sendLovableEmail(
                 {
-                  run_id: payload.run_id,
-                  to: payload.to,
-                  from: payload.from,
-                  sender_domain: payload.sender_domain,
-                  subject: payload.subject,
-                  html: payload.html,
-                  text: payload.text,
-                  purpose: payload.purpose,
-                  label: payload.label,
-                  idempotency_key: payload.idempotency_key,
-                  unsubscribe_token: payload.unsubscribe_token,
-                  message_id: payload.message_id,
+                  run_id: payload.run_id as string | undefined,
+                  to: payload.to as string,
+                  from: payload.from as string,
+                  sender_domain: payload.sender_domain as string,
+                  subject: payload.subject as string,
+                  html: payload.html as string,
+                  text: payload.text as string,
+                  purpose: payload.purpose as string,
+                  label: payload.label as string,
+                  idempotency_key: payload.idempotency_key as string,
+                  unsubscribe_token: payload.unsubscribe_token as string | undefined,
+                  message_id: payload.message_id as string,
                 },
                 { apiKey, sendUrl: process.env.LOVABLE_SEND_URL }
               )
