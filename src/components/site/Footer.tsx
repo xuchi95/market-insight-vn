@@ -14,7 +14,7 @@ export function Footer() {
               </div>
             </div>
             <p className="mt-4 text-base text-muted-foreground max-w-sm leading-relaxed">
-              Nhật báo dữ liệu tài chính của Việt Nam — vàng, tiền số và ngoại tệ, cập nhật theo từng phút.
+              Công cụ theo dõi dữ liệu tài chính của Việt Nam; Giá vàng, tiền số và ngoại tệ.... cập nhật theo từng phút.
             </p>
             <div className="mt-6 eyebrow opacity-60">Phát hành tại Đà Nẵng · {new Date().getFullYear()}</div>
           </div>
