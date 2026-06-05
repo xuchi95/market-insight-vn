@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
@@ -24,7 +25,9 @@ import {
   ShieldAlert,
   CheckCircle2,
   ChevronDown,
+  Lock,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   predictAssetPrice,
   PREDICTABLE_ASSETS,
