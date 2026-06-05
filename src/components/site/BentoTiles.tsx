@@ -136,9 +136,9 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
             <div>
               <div className="eyebrow mb-2">Vàng miếng SJC</div>
               {sjc ? (
-                <div className="font-display text-3xl md:text-5xl leading-tight text-foreground">
-                  <AnimatedNumber value={sjc.sell} format={(v) => fmtTrieu(v)} minChars={5} />
-                  <span className="ml-1.5 text-sm md:text-base text-muted-foreground">tr/chỉ</span>
+                <div className="font-display text-3xl md:text-5xl leading-tight text-foreground flex items-baseline gap-1.5">
+                  <AnimatedNumber value={sjc.sell} format={(v) => fmtTrieu(v)} />
+                  <span className="text-sm md:text-base text-muted-foreground">tr/chỉ</span>
                 </div>
               ) : goldLoading ? (
                 <LoadingLine size="lg" />
