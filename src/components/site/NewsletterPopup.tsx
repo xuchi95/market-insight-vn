@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Mail, Bell, Loader2, AlertCircle } from "lucide-react";
+import { Mail, Bell, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useServerFn } from "@tanstack/react-start";
 import { getActivePopups } from "@/lib/admin/popups.functions";
@@ -195,6 +195,7 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [succeeded, setSucceeded] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
 
@@ -251,8 +252,14 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
       }
       if (!mountedRef.current) return;
       setError(null);
+      setSucceeded(true);
       toast.success(popup.success_message || "Đăng ký thành công");
       try { window.dispatchEvent(new CustomEvent("newsletter:subscribed")); } catch {}
+      // Auto-close after a beat so the user sees confirmation.
+      setTimeout(() => {
+        if (!mountedRef.current) return;
+        try { window.dispatchEvent(new CustomEvent("newsletter:subscribed")); } catch {}
+      }, 2200);
     } catch (err) {
       if ((err as DOMException)?.name === "AbortError") return;
       if (!mountedRef.current) return;
@@ -265,6 +272,29 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
         abortRef.current = null;
       }
     }
+  }
+
+  if (succeeded) {
+    return (
+      <div className="space-y-3 text-center animate-fade-in" role="status" aria-live="polite">
+        <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full border-2 transition-colors duration-300"
+          style={{
+            borderColor: `color-mix(in oklab, ${accentVar} 45%, transparent)`,
+            background: `color-mix(in oklab, ${accentVar} 12%, transparent)`,
+            color: accentVar,
+          }}
+        >
+          <CheckCircle2 className="h-8 w-8 animate-scale-in" strokeWidth={2} />
+        </div>
+        <div className="font-display text-lg">Đăng ký thành công!</div>
+        <p className="text-sm text-muted-foreground">
+          {popup.success_message || `Cảm ơn bạn — bản tin sẽ được gửi tới ${email}.`}
+        </p>
+        <p className="text-[11px] text-muted-foreground">
+          Hãy kiểm tra hộp thư (kể cả mục Spam) để xác nhận đăng ký.
+        </p>
+      </div>
+    );
   }
 
   return (
