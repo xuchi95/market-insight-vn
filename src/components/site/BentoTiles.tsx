@@ -146,9 +146,9 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
               {sjc ? (
                 <FormattedNumber
                   value={sjc.sell}
-                  format={(v) => fmtTrieu(v)}
-                  unit="tr/chỉ"
-                  decimals={2}
+                  format={(v) => (compact ? fmtTrieu(v) : fmtVndFull(v))}
+                  unit={compact ? "tr/chỉ" : "đ/chỉ"}
+                  decimals={compact ? 2 : 0}
                   className="font-display text-3xl md:text-5xl leading-tight text-foreground"
                   unitClassName="text-sm md:text-base text-muted-foreground"
                 />
@@ -165,16 +165,16 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           </div>
 
           <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
-            <Stat label="Mua" num={sjc?.buy} loading={goldLoading} />
-            <Stat label="Cao" num={sjc ? goldHigh : undefined} loading={goldLoading} accent />
-            <Stat label="Thấp" num={sjc ? goldLow : undefined} loading={goldLoading} />
+            <Stat label="Mua" num={sjc?.buy} loading={goldLoading} compact={compact} />
+            <Stat label="Cao" num={sjc ? goldHigh : undefined} loading={goldLoading} accent compact={compact} />
+            <Stat label="Thấp" num={sjc ? goldLow : undefined} loading={goldLoading} compact={compact} />
           </div>
 
           {/* Vàng khác — DOJI / PNJ / XAU realtime */}
           <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
-            <GoldMini label="DOJI" gold={doji} loading={goldLoading} />
-            <GoldMini label="PNJ" gold={pnj} loading={goldLoading} />
-            <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd />
+            <GoldMini label="DOJI" gold={doji} loading={goldLoading} compact={compact} />
+            <GoldMini label="PNJ" gold={pnj} loading={goldLoading} compact={compact} />
+            <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd compact={compact} />
           </div>
 
           <div className="flex items-end gap-1 h-12 md:h-20 lg:h-28">
