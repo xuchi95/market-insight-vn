@@ -142,22 +142,22 @@ export function NewsletterPopup() {
     "var(--background)";
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="border-[var(--gold)]/30 bg-card/95 backdrop-blur-xl sm:max-w-md overflow-hidden p-0 gap-0 shadow-2xl shadow-[var(--gold)]/10 rounded-2xl">
+      <DialogContent className="border-[var(--gold)]/30 bg-card/95 backdrop-blur-xl sm:max-w-md overflow-hidden p-0 gap-0 shadow-2xl shadow-[var(--gold)]/10 rounded-2xl transition-colors duration-300">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-px h-px"
+          className="pointer-events-none absolute inset-x-0 -top-px h-px transition-[background] duration-300"
           style={{ background: `linear-gradient(to right, transparent, ${accentVar}, transparent)` }}
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full blur-3xl"
+          className="pointer-events-none absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full blur-3xl transition-[background] duration-300"
           style={{ background: `color-mix(in oklab, ${accentVar} 18%, transparent)` }}
         />
 
         <div className="relative px-7 pt-8 pb-7 text-center">
           <div className="mx-auto mb-5 relative inline-flex animate-fade-in">
             <span
-              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border"
+              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border transition-colors duration-300"
               style={{
                 borderColor: `color-mix(in oklab, ${accentVar} 40%, transparent)`,
                 color: accentVar,
@@ -167,17 +167,17 @@ export function NewsletterPopup() {
               <Mail className="h-7 w-7" strokeWidth={1.5} />
             </span>
             <span
-              className="absolute -bottom-1 -right-1 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-card"
+              className="absolute -bottom-1 -right-1 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-card transition-colors duration-300"
               style={{ background: accentVar, color: accentFg }}
             >
               <Bell className="h-3 w-3" strokeWidth={2.5} />
             </span>
           </div>
 
-          <DialogTitle className="font-display text-2xl leading-tight animate-fade-in">
+          <DialogTitle className="font-display text-2xl leading-tight animate-fade-in transition-colors duration-300">
             Đăng ký nhận bản tin
           </DialogTitle>
-          <DialogDescription className="mt-2 text-sm text-muted-foreground animate-fade-in max-w-xs mx-auto">
+          <DialogDescription className="mt-2 text-sm text-muted-foreground animate-fade-in max-w-xs mx-auto transition-colors duration-300">
             Nhận cập nhật giá vàng, crypto, tỷ giá và tin tức tài chính nổi bật mỗi ngày.
           </DialogDescription>
 
@@ -233,25 +233,25 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
           placeholder="Nhập email của bạn"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="h-12 pl-10 border-2 border-border bg-background/60 focus-visible:border-[var(--gold)] focus-visible:ring-2 focus-visible:ring-[var(--gold)]/30"
+          className="h-12 pl-10 border-2 border-border bg-background/60 focus-visible:border-[var(--gold)] focus-visible:ring-2 focus-visible:ring-[var(--gold)]/30 transition-colors duration-300"
         />
       </div>
       <Button
         type="submit"
         disabled={loading}
-        className="w-full h-12 text-base font-semibold"
+        className="w-full h-12 text-base font-semibold transition-colors duration-300"
         style={{ background: accentVar, color: accentFg }}
       >
         {loading ? "Đang gửi…" : "Đăng ký ngay"}
       </Button>
-      <p className="text-center text-xs font-medium" style={{ color: accentVar }}>
+      <p className="text-center text-xs font-medium transition-colors duration-300" style={{ color: accentVar }}>
         Miễn phí • Có thể hủy bất kỳ lúc nào
       </p>
-      <label className="flex items-start justify-center gap-2 text-xs text-muted-foreground cursor-pointer">
+      <label className="flex items-start justify-center gap-2 text-xs text-muted-foreground cursor-pointer transition-colors duration-300">
         <Checkbox checked={agree} onCheckedChange={(v) => setAgree(v === true)} className="mt-0.5" />
         <span>
           Tôi đồng ý nhận email cập nhật và chấp nhận{" "}
-          <Link to="/chinh-sach-bao-mat" className="underline" style={{ color: accentVar }}>
+          <Link to="/chinh-sach-bao-mat" className="underline transition-colors duration-300" style={{ color: accentVar }}>
             Chính sách bảo mật
           </Link>
           .
