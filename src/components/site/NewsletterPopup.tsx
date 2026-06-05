@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Mail, Bell, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
