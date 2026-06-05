@@ -28,6 +28,7 @@ export function Footer() {
               <li><Link to="/ty-gia-ngoai-te" className="hover:text-foreground">Ngoại tệ</Link></li>
               <li><Link to="/ty-gia-ngan-hang" className="hover:text-foreground">Tỷ giá ngân hàng</Link></li>
               <li><Link to="/quy-doi-tien-te" className="hover:text-foreground">Đổi ngoại tệ</Link></li>
+              <li><Link to="/du-doan-gia-ai" className="hover:text-foreground">AI dự đoán giá</Link></li>
             </ul>
           </div>
           <div className="md:col-span-3">
