@@ -9,6 +9,7 @@ import { fmtTrieu } from "@/lib/format";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { FormattedNumber } from "./FormattedNumber";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
+import { useNumberFormat } from "@/hooks/useNumberFormat";
 
 interface InitialPrices {
   gold: GoldPrice[] | null;
@@ -18,6 +19,11 @@ interface InitialPrices {
 
 function fmt(n: number, digits = 0) {
   return n.toLocaleString("vi-VN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
+}
+
+/** Full VND integer (no symbol): 15.380.000 */
+function fmtVndFull(n: number) {
+  return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(Math.round(n));
 }
 
 function Spark({ data, color }: { data: number[]; color: string }) {
@@ -60,6 +66,7 @@ function TileFrame({ children, className = "" }: { children: React.ReactNode; cl
 }
 
 export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
+  const { compact } = useNumberFormat();
   // null = chưa fetch xong (hiển thị "Đang cập nhật giá")
   // []   = đã fetch nhưng rỗng (hiển thị "—")
   const [gold, setGold] = useState<GoldPrice[] | null>(initial?.gold ?? null);
@@ -139,9 +146,9 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
               {sjc ? (
                 <FormattedNumber
                   value={sjc.sell}
-                  format={(v) => fmtTrieu(v)}
-                  unit="tr/chỉ"
-                  decimals={2}
+                  format={(v) => (compact ? fmtTrieu(v) : fmtVndFull(v))}
+                  unit={compact ? "tr/chỉ" : "đ/chỉ"}
+                  decimals={compact ? 2 : 0}
                   className="font-display text-3xl md:text-5xl leading-tight text-foreground"
                   unitClassName="text-sm md:text-base text-muted-foreground"
                 />
@@ -158,16 +165,16 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           </div>
 
           <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
-            <Stat label="Mua" num={sjc?.buy} loading={goldLoading} />
-            <Stat label="Cao" num={sjc ? goldHigh : undefined} loading={goldLoading} accent />
-            <Stat label="Thấp" num={sjc ? goldLow : undefined} loading={goldLoading} />
+            <Stat label="Mua" num={sjc?.buy} loading={goldLoading} compact={compact} />
+            <Stat label="Cao" num={sjc ? goldHigh : undefined} loading={goldLoading} accent compact={compact} />
+            <Stat label="Thấp" num={sjc ? goldLow : undefined} loading={goldLoading} compact={compact} />
           </div>
 
           {/* Vàng khác — DOJI / PNJ / XAU realtime */}
           <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
-            <GoldMini label="DOJI" gold={doji} loading={goldLoading} />
-            <GoldMini label="PNJ" gold={pnj} loading={goldLoading} />
-            <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd />
+            <GoldMini label="DOJI" gold={doji} loading={goldLoading} compact={compact} />
+            <GoldMini label="PNJ" gold={pnj} loading={goldLoading} compact={compact} />
+            <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd compact={compact} />
           </div>
 
           <div className="flex items-end gap-1 h-12 md:h-20 lg:h-28">
@@ -282,13 +289,17 @@ function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
   );
 }
 
-function Stat({ label, num, loading, accent }: { label: string; num?: number; loading?: boolean; accent?: boolean }) {
+function Stat({ label, num, loading, accent, compact = true }: { label: string; num?: number; loading?: boolean; accent?: boolean; compact?: boolean }) {
   return (
     <div className="bg-card p-3">
       <div className="eyebrow opacity-70">{label}</div>
       <div className={`tabular text-sm md:text-base leading-tight mt-1 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>
         {typeof num === "number" ? (
-          <AnimatedNumber value={num} format={(v) => `${fmtTrieu(v)} tr`} minChars={6} />
+          <AnimatedNumber
+            value={num}
+            format={(v) => (compact ? `${fmtTrieu(v)} tr` : `${fmtVndFull(v)} đ`)}
+            minChars={compact ? 6 : 10}
+          />
         ) : loading ? (
           <span className="text-muted-foreground/80 animate-pulse">Đang cập nhật</span>
         ) : "—"}
@@ -297,7 +308,7 @@ function Stat({ label, num, loading, accent }: { label: string; num?: number; lo
   );
 }
 
-function GoldMini({ label, gold, loading, usd }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean }) {
+function GoldMini({ label, gold, loading, usd, compact = true }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean; compact?: boolean }) {
   return (
     <div className="bg-card p-3">
       <div className="eyebrow opacity-70">{label}</div>
@@ -307,7 +318,11 @@ function GoldMini({ label, gold, loading, usd }: { label: string; gold?: GoldPri
             {usd ? (
               <AnimatedNumber value={gold.sell} format={(v) => `$${fmt(v, 0)}`} minChars={6} />
             ) : (
-              <AnimatedNumber value={gold.sell} format={(v) => `${fmtTrieu(v)} tr`} minChars={6} />
+              <AnimatedNumber
+                value={gold.sell}
+                format={(v) => (compact ? `${fmtTrieu(v)} tr` : `${fmtVndFull(v)} đ`)}
+                minChars={compact ? 6 : 10}
+              />
             )}
           </div>
           <div className={`text-[11px] tabular mt-0.5 ${gold.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
