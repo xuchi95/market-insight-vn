@@ -100,6 +100,7 @@ import { Route as AdminMwAdminFuelPricesRouteImport } from './routes/_admin/mw-a
 import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admin.contact'
 import { Route as AdminMwAdminCodeInjectionRouteImport } from './routes/_admin/mw-admin.code-injection'
 import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
+import { Route as AdminMwAdminApiKeysRouteImport } from './routes/_admin/mw-admin.api-keys'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -573,6 +574,11 @@ const AdminMwAdminBroadcastsRoute = AdminMwAdminBroadcastsRouteImport.update({
   path: '/mw-admin/broadcasts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminApiKeysRoute = AdminMwAdminApiKeysRouteImport.update({
+  id: '/mw-admin/api-keys',
+  path: '/mw-admin/api-keys',
+  getParentRoute: () => AdminRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -666,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -766,6 +773,7 @@ export interface FileRoutesByTo {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat': typeof CaiDatIndexRoute
+  '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -868,6 +876,7 @@ export interface FileRoutesById {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/_admin/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/_admin/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/_admin/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -970,6 +979,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
+    | '/mw-admin/api-keys'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
@@ -1070,6 +1080,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat'
+    | '/mw-admin/api-keys'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
@@ -1171,6 +1182,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
+    | '/_admin/mw-admin/api-keys'
     | '/_admin/mw-admin/broadcasts'
     | '/_admin/mw-admin/code-injection'
     | '/_admin/mw-admin/contact'
@@ -1952,6 +1964,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminBroadcastsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/api-keys': {
+      id: '/_admin/mw-admin/api-keys'
+      path: '/mw-admin/api-keys'
+      fullPath: '/mw-admin/api-keys'
+      preLoaderRoute: typeof AdminMwAdminApiKeysRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -2026,6 +2045,7 @@ const AdminMwAdminFuelPricesRouteWithChildren =
   )
 
 interface AdminRouteChildren {
+  AdminMwAdminApiKeysRoute: typeof AdminMwAdminApiKeysRoute
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
   AdminMwAdminCodeInjectionRoute: typeof AdminMwAdminCodeInjectionRoute
   AdminMwAdminContactRoute: typeof AdminMwAdminContactRoute
@@ -2040,6 +2060,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminMwAdminApiKeysRoute: AdminMwAdminApiKeysRoute,
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
   AdminMwAdminCodeInjectionRoute: AdminMwAdminCodeInjectionRoute,
   AdminMwAdminContactRoute: AdminMwAdminContactRoute,

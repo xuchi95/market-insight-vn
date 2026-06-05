@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, Navigate } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, Users, Megaphone, Mail, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Users, Megaphone, Mail, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp, KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/_admin")({
   component: AdminGate,
@@ -50,6 +50,7 @@ const NAV = [
   { to: "/mw-admin/fuel-prices/history", label: "Lịch sử giá xăng", icon: Fuel },
   { to: "/mw-admin/code-injection", label: "Chèn mã HTML", icon: Code2 },
   { to: "/mw-admin/price-settings", label: "Cấu hình % giá", icon: TrendingUp },
+  { to: "/mw-admin/api-keys", label: "API Keys", icon: KeyRound },
   { to: "/mw-admin/settings", label: "Cấu hình", icon: Settings },
 ] as const;
 
