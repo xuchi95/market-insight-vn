@@ -25,6 +25,7 @@ export const Route = createFileRoute("/dang-nhap")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
       { property: "og:url", content: URL },
+      { name: "robots", content: "noindex,follow" },
     ],
     links: [{ rel: "canonical", href: URL }],
   }),
