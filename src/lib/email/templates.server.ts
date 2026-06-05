@@ -229,20 +229,46 @@ export function goldDigestEmail(opts: { dateLabel: string; rows: GoldDigestRow[]
       <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:${chColor};font-weight:600;">${chText}</td>
     </tr>`;
   }).join("");
+  const lead = opts.rows[0];
+  const leadCh = lead && typeof lead.changePct === "number" ? lead.changePct : null;
+  const leadDir = leadCh === null ? "đi ngang" : leadCh >= 0 ? "tăng" : "giảm";
+  const leadColor = leadCh === null ? "#666" : leadCh >= 0 ? "#0a8f4a" : "#c8312f";
+  const leadPct = leadCh === null ? "" : ` ${leadCh >= 0 ? "+" : ""}${leadCh.toFixed(2)}%`;
+  const summary = lead
+    ? `Phiên giao dịch ngày ${escape(opts.dateLabel)} ghi nhận <strong>${escape(lead.label)}</strong> ${leadDir}<span style="color:${leadColor};font-weight:600;">${leadPct}</span> so với phiên liền trước, niêm yết ở mức <strong>${fmtVnd(lead.sell)} VNĐ/lượng</strong> (giá bán ra). Mức chênh lệch mua – bán phản ánh thanh khoản thị trường vật chất và biên độ rủi ro mà doanh nghiệp kinh doanh vàng đang áp dụng trong ngày.`
+    : `Dữ liệu giá vàng ngày ${escape(opts.dateLabel)} hiện chưa đầy đủ. Quý độc giả có thể truy cập MarketWatch để xem cập nhật theo thời gian thực.`;
   const html = shell(`Bản tin giá vàng • ${opts.dateLabel}`, `
-    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Bản tin giá vàng</div>
-    <h1 style="font-size:22px;margin:0 0 6px;color:#111;">Giá vàng ${escape(opts.dateLabel)}</h1>
-    <p style="margin:0 0 14px;color:#666;font-size:13px;">Đơn vị: VNĐ/lượng. Dữ liệu cập nhật tự động từ MarketWatch.</p>
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Nhật báo giá vàng</div>
+    <h1 style="font-size:24px;margin:0 0 4px;color:#111;line-height:1.25;">Thị trường vàng ${escape(opts.dateLabel)}</h1>
+    <p style="margin:0 0 18px;color:#888;font-size:12px;letter-spacing:0.04em;">Bản tin nội bộ MarketWatch · Cập nhật vào lúc bản tin được phát hành</p>
+
+    <h2 style="font-size:14px;margin:18px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Tóm tắt phiên</h2>
+    <p style="margin:0 0 16px;line-height:1.7;color:#333;font-size:14px;">${summary}</p>
+
+    <h2 style="font-size:14px;margin:22px 0 10px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Bảng giá tham chiếu</h2>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #ececec;border-radius:8px;overflow:hidden;">
       <thead><tr style="background:#fafafa;">
-        <th align="left" style="padding:10px 12px;color:#888;font-weight:500;">Loại vàng</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Mua</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Bán</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">24h</th>
+        <th align="left" style="padding:11px 12px;color:#666;font-weight:600;">Sản phẩm</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Mua vào</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Bán ra</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Biến động 24h</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    ${button(SITE + "/gia-vang", "Xem biểu đồ chi tiết")}
+    <p style="margin:8px 0 0;color:#999;font-size:11px;line-height:1.6;">Đơn vị: VNĐ/lượng đối với vàng miếng trong nước; USD/oz đối với XAU quốc tế. Tỷ giá quy đổi tham chiếu USD/VND của ngày phát hành.</p>
+
+    <h2 style="font-size:14px;margin:26px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Bối cảnh thị trường</h2>
+    <p style="margin:0 0 12px;line-height:1.7;color:#333;font-size:14px;">Giá vàng trong nước thường phản ánh đồng thời ba yếu tố chính: diễn biến của vàng quốc tế (XAU/USD), tỷ giá USD/VND và chênh lệch cung – cầu của thị trường vật chất Việt Nam. Khi một trong các yếu tố này dịch chuyển mạnh, giá niêm yết của các thương hiệu lớn (SJC, DOJI, PNJ) có thể giãn rộng biên độ mua – bán nhằm quản trị rủi ro tồn kho.</p>
+    <p style="margin:0 0 16px;line-height:1.7;color:#333;font-size:14px;">Nhà đầu tư được khuyến nghị theo dõi đồng thời chỉ số DXY, lợi suất trái phiếu kho bạc Hoa Kỳ kỳ hạn 10 năm và động thái của các ngân hàng trung ương lớn để có khung tham chiếu đầy đủ trước khi ra quyết định.</p>
+
+    ${button(SITE + "/gia-vang", "Xem biểu đồ và lịch sử giá")}
+
+    <p style="margin:20px 0 0;padding:14px 16px;background:#fafafa;border-left:3px solid ${GOLD};color:#555;font-size:12px;line-height:1.7;">
+      <strong style="color:#333;">Nguồn dữ liệu &amp; phương pháp:</strong> Giá tham chiếu được tổng hợp tự động từ các nguồn niêm yết công khai của các doanh nghiệp kinh doanh vàng, dữ liệu thị trường quốc tế (XAU/USD) và tỷ giá USD/VND tại thời điểm phát hành. Số liệu mang tính tham khảo, không phản ánh giá giao dịch tức thời tại quầy.
+    </p>
+    <p style="margin:10px 0 0;color:#999;font-size:11px;line-height:1.6;">
+      <strong style="color:#777;">Lưu ý:</strong> Bản tin này không phải là khuyến nghị đầu tư, chào bán hoặc tư vấn tài chính cá nhân. Quý độc giả tự chịu trách nhiệm về các quyết định giao dịch của mình.
+    </p>
   `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/ban-tin`, unsubLabel: "bản tin vàng" });
   return { subject: `Giá vàng ${opts.dateLabel} — MarketWatch`, html };
 }
