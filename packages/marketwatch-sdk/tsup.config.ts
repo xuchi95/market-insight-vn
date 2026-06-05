@@ -25,5 +25,13 @@ export default defineConfig([
     platform: "browser",
     outDir: "dist/browser",
     dts: false,
+    treeshake: true,
+    splitting: false,
+    esbuildOptions(options) {
+      options.legalComments = "none";
+      options.drop = ["console", "debugger"];
+      options.charset = "utf8";
+      options.mangleProps = /^_/;
+    },
   },
 ]);
