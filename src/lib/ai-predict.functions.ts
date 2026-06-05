@@ -35,9 +35,53 @@ export const HORIZONS = [
 
 type Horizon = (typeof HORIZONS)[number]["value"];
 
+export const OPENROUTER_MODELS = [
+  {
+    id: "google/gemini-2.5-flash",
+    label: "Gemini 2.5 Flash",
+    description: "Cân bằng tốc độ & chất lượng (mặc định, rẻ).",
+    badge: "Mặc định",
+  },
+  {
+    id: "deepseek/deepseek-chat",
+    label: "DeepSeek Chat",
+    description: "Rất rẻ (~1/10 OpenAI), chất lượng phân tích tốt.",
+    badge: "Tiết kiệm",
+  },
+  {
+    id: "meta-llama/llama-3.3-70b-instruct",
+    label: "Llama 3.3 70B",
+    description: "Mô hình mã nguồn mở của Meta, giá rẻ.",
+    badge: "Mở",
+  },
+  {
+    id: "meta-llama/llama-3.3-70b-instruct:free",
+    label: "Llama 3.3 70B (Free)",
+    description: "Miễn phí — có giới hạn tốc độ, có thể không hỗ trợ JSON schema.",
+    badge: "Miễn phí",
+  },
+  {
+    id: "openai/gpt-4o-mini",
+    label: "GPT-4o mini",
+    description: "OpenAI, ổn định, JSON schema chuẩn — đắt hơn DeepSeek.",
+    badge: "Chất lượng",
+  },
+  {
+    id: "anthropic/claude-3.5-haiku",
+    label: "Claude 3.5 Haiku",
+    description: "Nhanh, lập luận tốt cho phân tích thị trường.",
+    badge: "Nhanh",
+  },
+] as const;
+
+export type OpenRouterModelId = (typeof OPENROUTER_MODELS)[number]["id"];
+const MODEL_IDS = OPENROUTER_MODELS.map((m) => m.id) as [OpenRouterModelId, ...OpenRouterModelId[]];
+export const DEFAULT_MODEL: OpenRouterModelId = "google/gemini-2.5-flash";
+
 const InputSchema = z.object({
   asset: z.enum(PREDICTABLE_ASSETS.map((a) => a.slug) as [AssetSlug, ...AssetSlug[]]),
   horizon: z.enum(["24h", "7d", "30d"]),
+  model: z.enum(MODEL_IDS).optional(),
 });
 
 interface PriceContext {
@@ -160,6 +204,7 @@ export type PredictionResult = z.infer<typeof ResponseSchema> & {
   horizon: Horizon;
   generated_at: string;
   context: string;
+  model: string;
 };
 
 export const predictAssetPrice = createServerFn({ method: "POST" })
@@ -171,6 +216,7 @@ export const predictAssetPrice = createServerFn({ method: "POST" })
     const meta = PREDICTABLE_ASSETS.find((a) => a.slug === data.asset)!;
     const horizonLabel = HORIZONS.find((h) => h.value === data.horizon)!.label;
     const ctx = await buildContext(data.asset);
+    const model: OpenRouterModelId = data.model ?? DEFAULT_MODEL;
 
     const system = [
       "Bạn là chuyên gia phân tích thị trường tài chính nói tiếng Việt, làm việc cho MarketWatch Việt Nam.",
@@ -203,7 +249,7 @@ Yêu cầu:
         "X-Title": "MarketWatch Vietnam",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model,
         messages: [
           { role: "system", content: system },
           { role: "user", content: user },
@@ -274,5 +320,6 @@ Yêu cầu:
       horizon: data.horizon,
       generated_at: new Date().toISOString(),
       context: ctx.current,
+      model,
     };
   });

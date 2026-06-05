@@ -25,7 +25,10 @@ import {
   predictAssetPrice,
   PREDICTABLE_ASSETS,
   HORIZONS,
+  OPENROUTER_MODELS,
+  DEFAULT_MODEL,
   type AssetSlug,
+  type OpenRouterModelId,
   type PredictionResult,
 } from "@/lib/ai-predict.functions";
 
@@ -153,6 +156,19 @@ function AiPredictPage() {
   );
   const [horizon, setHorizon] = useState<"24h" | "7d" | "30d">("24h");
   const [result, setResult] = useState<PredictionResult | null>(null);
+  const [model, setModel] = useState<OpenRouterModelId>(() => {
+    if (typeof window === "undefined") return DEFAULT_MODEL;
+    const saved = window.localStorage.getItem("mw_openrouter_model");
+    const exists = OPENROUTER_MODELS.find((m) => m.id === saved);
+    return (exists?.id as OpenRouterModelId) ?? DEFAULT_MODEL;
+  });
+
+  const handleModelChange = (id: OpenRouterModelId) => {
+    setModel(id);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("mw_openrouter_model", id);
+    }
+  };
 
   const assetsInCategory = useMemo(
     () => PREDICTABLE_ASSETS.filter((a) => a.category === category),
@@ -162,12 +178,18 @@ function AiPredictPage() {
 
   const callPredict = useServerFn(predictAssetPrice);
   const mutation = useMutation({
-    mutationFn: (vars: { asset: AssetSlug; horizon: "24h" | "7d" | "30d" }) =>
+    mutationFn: (vars: {
+      asset: AssetSlug;
+      horizon: "24h" | "7d" | "30d";
+      model: OpenRouterModelId;
+    }) =>
       callPredict({ data: vars }),
     onSuccess: (data) => setResult(data),
   });
 
-  const onPredict = () => mutation.mutate({ asset, horizon });
+  const onPredict = () => mutation.mutate({ asset, horizon, model });
+
+  const activeModel = OPENROUTER_MODELS.find((m) => m.id === model) ?? OPENROUTER_MODELS[0];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -254,13 +276,49 @@ function AiPredictPage() {
                 </div>
               </div>
 
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium">Mô hình AI (OpenRouter)</div>
+                  <span className="text-xs text-muted-foreground">
+                    Lưu tự động cho lần sau
+                  </span>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {OPENROUTER_MODELS.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => handleModelChange(m.id)}
+                      className={`text-left rounded-lg border p-3 transition-colors hover:bg-accent ${
+                        model === m.id
+                          ? "border-primary bg-primary/5 ring-1 ring-primary"
+                          : "border-border"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="font-medium text-sm">{m.label}</div>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          {m.badge}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">{m.description}</div>
+                      <div className="text-[10px] font-mono text-muted-foreground/70 mt-1 truncate">
+                        {m.id}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-2 border-t">
                 <div className="text-sm text-muted-foreground">
                   Đã chọn:{" "}
                   <span className="font-medium text-foreground">{activeMeta.label}</span> · khung{" "}
                   <span className="font-medium text-foreground">
                     {HORIZONS.find((h) => h.value === horizon)!.label}
-                  </span>
+                  </span>{" "}
+                  · model{" "}
+                  <span className="font-medium text-foreground">{activeModel.label}</span>
                 </div>
                 <Button onClick={onPredict} disabled={mutation.isPending} size="lg">
                   {mutation.isPending ? (
