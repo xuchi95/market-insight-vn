@@ -30,6 +30,14 @@ export function Footer() {
               <li><Link to="/quy-doi-tien-te" className="hover:text-foreground">Đổi ngoại tệ</Link></li>
             </ul>
           </div>
+          <div className="md:col-span-3">
+            <h4 className="eyebrow mb-4">Nhà phát triển</h4>
+            <ul className="space-y-2.5 text-base text-muted-foreground">
+              <li><Link to="/api-cho-nha-phat-trien" className="hover:text-foreground">API &amp; SDK realtime</Link></li>
+              <li><a href="/api/public/v1/snapshot" className="hover:text-foreground" target="_blank" rel="noreferrer">REST snapshot</a></li>
+              <li><a href="https://www.npmjs.com/package/@marketwatch/sdk" className="hover:text-foreground" target="_blank" rel="noreferrer">SDK trên npm</a></li>
+            </ul>
+          </div>
           <div className="md:col-span-2">
             <h4 className="eyebrow mb-4">Pháp lý</h4>
             <ul className="space-y-2.5 text-base text-muted-foreground">
