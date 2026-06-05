@@ -72,6 +72,12 @@ const NAV_GROUPS: NavGroup[] = [
           { label: "API cho nhà phát triển", to: "/api-cho-nha-phat-trien", hint: "REST · SSE · SDK realtime" },
         ],
       },
+      {
+        heading: "Trí tuệ nhân tạo",
+        items: [
+          { label: "AI dự đoán giá", to: "/du-doan-gia-ai", hint: "Vàng, dầu, BTC, ngoại tệ" },
+        ],
+      },
     ],
   },
 ];
