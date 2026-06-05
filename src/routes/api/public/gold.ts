@@ -6,6 +6,7 @@ import {
   vndPerChiFromNganLuong,
 } from "@/lib/gold-units";
 import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 // In-memory state for change computation between fetches
 let cache: { at: number; data: MappedItem[] } | null = null;
@@ -17,6 +18,13 @@ let baselineInflight: Promise<void> | null = null;
 const CACHE_FRESH_MS = 20_000; // serve cache without refetch (~20s realtime cadence)
 const CACHE_SWR_MS = 5 * 60_000; // serve stale, refresh in background
 const UPSTREAM_TIMEOUT_MS = 4_000;
+// 24h delta config — mirrors xau.ts
+const WINDOW_MS = 24 * 60 * 60 * 1000;
+const WINDOW_TOLERANCE_MS = 2 * 60 * 60 * 1000;
+const SNAPSHOT_MIN_INTERVAL_MS = 5 * 60 * 1000;
+/** symbol prefix in price_history → tránh trùng với XAUUSD và các nguồn khác. */
+const SYMBOL_PREFIX = "GOLD:";
+let lastSnapshotAt = 0;
 
 interface PnjRow {
   masp: string;
@@ -329,6 +337,59 @@ async function fetchAllSources(): Promise<MappedItem[]> {
   return Array.from(byId.values());
 }
 
+/** Lấy giá ~24h trước cho danh sách id từ DB. Trả về map id → price (mid). */
+async function fetch24hAgoMids(ids: string[]): Promise<Record<string, number>> {
+  if (ids.length === 0) return {};
+  const out: Record<string, number> = {};
+  try {
+    const now = Date.now();
+    const lo = new Date(now - WINDOW_MS - WINDOW_TOLERANCE_MS).toISOString();
+    const hi = new Date(now - WINDOW_MS + WINDOW_TOLERANCE_MS).toISOString();
+    const symbols = ids.map((id) => `${SYMBOL_PREFIX}${id}`);
+    // Lấy tất cả mẫu trong cửa sổ ±2h quanh mốc 24h; chọn mẫu gần mốc nhất cho mỗi symbol.
+    const { data } = await supabaseAdmin
+      .from("price_history")
+      .select("symbol, price, captured_at")
+      .in("symbol", symbols)
+      .gte("captured_at", lo)
+      .lte("captured_at", hi)
+      .order("captured_at", { ascending: false })
+      .limit(2000);
+    if (!data) return out;
+    const target = now - WINDOW_MS;
+    const best: Record<string, { dist: number; price: number }> = {};
+    for (const r of data) {
+      const sym = String(r.symbol);
+      const id = sym.startsWith(SYMBOL_PREFIX) ? sym.slice(SYMBOL_PREFIX.length) : sym;
+      const p = Number(r.price);
+      if (!Number.isFinite(p) || p <= 0) continue;
+      const t = new Date(r.captured_at as string).getTime();
+      const dist = Math.abs(t - target);
+      const cur = best[id];
+      if (!cur || dist < cur.dist) best[id] = { dist, price: p };
+    }
+    for (const id of ids) if (best[id]) out[id] = best[id].price;
+    return out;
+  } catch {
+    return out;
+  }
+}
+
+/** Ghi snapshot cho tất cả items (throttle 5 phút). Fire-and-forget. */
+function recordSnapshots(items: MappedItem[]) {
+  const now = Date.now();
+  if (now - lastSnapshotAt < SNAPSHOT_MIN_INTERVAL_MS) return;
+  lastSnapshotAt = now;
+  const rows = items
+    .filter((it) => Number.isFinite(it.mid) && it.mid > 0)
+    .map((it) => ({ symbol: `${SYMBOL_PREFIX}${it.id}`, price: it.mid }));
+  if (rows.length === 0) return;
+  void supabaseAdmin
+    .from("price_history")
+    .insert(rows)
+    .then(() => undefined, () => undefined);
+}
+
 function refreshInBackground() {
   if (inflight) return inflight;
   inflight = fetchAllSources()
@@ -387,11 +448,15 @@ export const Route = createFileRoute("/api/public/gold")({
             ensureBaseline().catch(() => {});
           }
 
-          const mids = baseline?.mids ?? {};
+          // Nguồn % 24h: ưu tiên mẫu DB (price_history) — chính xác per-id và
+          // luôn có sẵn sau 24h. Fallback: baseline PNJ history (đóng cửa hôm qua).
+          // PNJ history hiện thường trả rỗng nên DB là nguồn chính.
+          const dbMids = await fetch24hAgoMids(items.map((i) => i.id));
+          recordSnapshots(items);
+          const fallback = baseline?.mids ?? {};
           const out = items.map((g) => {
-            const todayMid = g.mid; // đã ở đơn vị VND/chỉ
-            const key = baselineKeyFor(g);
-            const prev = mids[key] ?? 0;
+            const todayMid = g.mid;
+            const prev = dbMids[g.id] ?? fallback[baselineKeyFor(g)] ?? 0;
             const changePct =
               prev > 0 ? ((todayMid - prev) / prev) * 100 : 0;
             return { ...g, changePct };
