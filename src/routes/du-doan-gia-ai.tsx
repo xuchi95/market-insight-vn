@@ -196,6 +196,8 @@ function AiPredictPage() {
   );
   const [horizon, setHorizon] = useState<"24h" | "7d" | "30d">("24h");
   const [result, setResult] = useState<PredictionResult | null>(null);
+  const { user, loading: authLoading } = useAuth();
+  const isAuthed = !!user;
 
   const assetsInCategory = useMemo(
     () => PREDICTABLE_ASSETS.filter((a) => a.category === category),
@@ -213,7 +215,10 @@ function AiPredictPage() {
     onSuccess: (data) => setResult(data),
   });
 
-  const onPredict = () => mutation.mutate({ asset, horizon });
+  const onPredict = () => {
+    if (!isAuthed) return;
+    mutation.mutate({ asset, horizon });
+  };
 
   const horizonLabel = HORIZONS.find((h) => h.value === horizon)!.label;
 
