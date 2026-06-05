@@ -74,7 +74,7 @@ export const Route = createFileRoute("/du-doan-gia-ai")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESC },
-      { name: "robots", content: "index, follow, max-image-preview:large" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
     links: [{ rel: "canonical", href: URL }],
     scripts: [
