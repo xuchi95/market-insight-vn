@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Bell, Mail, Plus, Trash2, X } from "lucide-react";
 import { listPopups, upsertPopup, deletePopup, togglePopup } from "@/lib/admin/popups.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
