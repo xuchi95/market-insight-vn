@@ -136,45 +136,49 @@ export function NewsletterPopup() {
     popup.theme.accent === "up" ? "var(--up)" :
     popup.theme.accent === "down" ? "var(--down)" :
     "var(--gold)";
-  const onlyEmail = popup.fields.length === 1 && popup.fields[0].type === "email";
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="border-[var(--gold)]/25 bg-card/95 backdrop-blur-xl sm:max-w-sm overflow-hidden p-0 gap-0 shadow-2xl shadow-[var(--gold)]/10">
-        {/* Gold accent glow */}
+      <DialogContent className="border-[var(--gold)]/30 bg-card/95 backdrop-blur-xl sm:max-w-md overflow-hidden p-0 gap-0 shadow-2xl shadow-[var(--gold)]/10 rounded-2xl">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent"
+          className="pointer-events-none absolute inset-x-0 -top-px h-px"
           style={{ background: `linear-gradient(to right, transparent, ${accentVar}, transparent)` }}
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-[var(--gold)]/10 blur-3xl"
+          className="pointer-events-none absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full blur-3xl"
           style={{ background: `color-mix(in oklab, ${accentVar} 18%, transparent)` }}
         />
 
-        <div className="relative p-6 sm:p-7">
-          <div className="flex items-center gap-2 mb-5 animate-fade-in">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border bg-card" style={{ borderColor: `color-mix(in oklab, ${accentVar} 30%, transparent)`, color: accentVar }}>
-              <Mail className="h-4 w-4" />
+        <div className="relative px-7 pt-8 pb-7 text-center">
+          <div className="mx-auto mb-5 relative inline-flex animate-fade-in">
+            <span
+              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border"
+              style={{
+                borderColor: `color-mix(in oklab, ${accentVar} 40%, transparent)`,
+                color: accentVar,
+                background: `color-mix(in oklab, ${accentVar} 8%, transparent)`,
+              }}
+            >
+              <Mail className="h-7 w-7" strokeWidth={1.5} />
             </span>
-            <span className="text-[10px] uppercase tracking-[0.22em]" style={{ color: accentVar }}>
-              MarketWatch
+            <span
+              className="absolute -bottom-1 -right-1 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-card"
+              style={{ background: accentVar, color: "var(--background)" }}
+            >
+              <Bell className="h-3 w-3" strokeWidth={2.5} />
             </span>
           </div>
 
           <DialogTitle className="font-display text-2xl leading-tight animate-fade-in">
-            {popup.title}
+            Đăng ký nhận bản tin
           </DialogTitle>
-          {popup.subtitle && (
-            <DialogDescription className="mt-1.5 text-sm text-muted-foreground animate-fade-in">
-              {popup.subtitle}
-            </DialogDescription>
-          )}
-          {popup.body_md && <div className="mt-3 whitespace-pre-wrap text-sm">{popup.body_md}</div>}
+          <DialogDescription className="mt-2 text-sm text-muted-foreground animate-fade-in max-w-xs mx-auto">
+            Nhận cập nhật giá vàng, crypto, tỷ giá và tin tức tài chính nổi bật mỗi ngày.
+          </DialogDescription>
 
-          <div className="mt-5 animate-scale-in">
-            {onlyEmail ? <NewsletterForm /> : <CustomPopupForm popup={popup} />}
+          <div className="mt-6 animate-scale-in">
+            <PopupSubscribeForm popup={popup} accentVar={accentVar} />
           </div>
         </div>
       </DialogContent>
@@ -182,26 +186,31 @@ export function NewsletterPopup() {
   );
 }
 
-function CustomPopupForm({ popup }: { popup: ActivePopup }) {
-  const [values, setValues] = useState<Record<string, string>>({});
+function PopupSubscribeForm({ popup, accentVar }: { popup: ActivePopup; accentVar: string }) {
+  const [email, setEmail] = useState("");
+  const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const email = values.email?.trim();
-    if (!email) return;
+    const value = email.trim();
+    if (!value) return;
+    if (!agree) {
+      toast.error("Vui lòng đồng ý nhận email và chính sách bảo mật.");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/newsletter/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: `popup:${popup.slug}`, topics: popup.topics, metadata: values }),
+        body: JSON.stringify({ email: value, source: `popup:${popup.slug}`, topics: popup.topics }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j?.error || `HTTP ${res.status}`);
       }
-      toast.success(popup.success_message);
+      toast.success(popup.success_message || "Đăng ký thành công");
       try { window.dispatchEvent(new CustomEvent("newsletter:subscribed")); } catch {}
     } catch (err) {
       toast.error((err as Error).message);
@@ -211,19 +220,39 @@ function CustomPopupForm({ popup }: { popup: ActivePopup }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-2">
-      {popup.fields.map((f) => (
+    <form onSubmit={onSubmit} className="space-y-4 text-left">
+      <div className="relative">
+        <Mail aria-hidden className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          key={f.name}
-          type={f.type === "email" ? "email" : "text"}
-          required={f.required}
-          placeholder={f.placeholder ?? f.label}
-          value={values[f.name] ?? ""}
-          onChange={(e) => setValues((p) => ({ ...p, [f.name]: e.target.value }))}
-          className="h-11 border-2 border-border bg-background focus-visible:border-[var(--gold)] focus-visible:ring-2 focus-visible:ring-[var(--gold)]/30"
+          type="email"
+          required
+          placeholder="Nhập email của bạn"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="h-12 pl-10 border-2 border-border bg-background/60 focus-visible:border-[var(--gold)] focus-visible:ring-2 focus-visible:ring-[var(--gold)]/30"
         />
-      ))}
-      <Button type="submit" className="w-full" disabled={loading}>{loading ? "…" : popup.cta_label}</Button>
+      </div>
+      <Button
+        type="submit"
+        disabled={loading}
+        className="w-full h-12 text-base font-semibold"
+        style={{ background: accentVar, color: "var(--background)" }}
+      >
+        {loading ? "Đang gửi…" : "Đăng ký ngay"}
+      </Button>
+      <p className="text-center text-xs font-medium" style={{ color: accentVar }}>
+        Miễn phí • Có thể hủy bất kỳ lúc nào
+      </p>
+      <label className="flex items-start justify-center gap-2 text-xs text-muted-foreground cursor-pointer">
+        <Checkbox checked={agree} onCheckedChange={(v) => setAgree(v === true)} className="mt-0.5" />
+        <span>
+          Tôi đồng ý nhận email cập nhật và chấp nhận{" "}
+          <Link to="/chinh-sach-bao-mat" className="underline" style={{ color: accentVar }}>
+            Chính sách bảo mật
+          </Link>
+          .
+        </span>
+      </label>
     </form>
   );
 }
