@@ -19,11 +19,29 @@ export default defineConfig([
     entry: { "marketwatch.min": "src/index.ts" },
     format: ["iife"],
     globalName: "MarketWatch",
-    minify: true,
+    minify: "terser",
     sourcemap: true,
     target: "es2018",
     platform: "browser",
     outDir: "dist/browser",
     dts: false,
+    treeshake: true,
+    splitting: false,
+    legacyOutput: false,
+    esbuildOptions(options) {
+      options.legalComments = "none";
+      options.drop = ["console", "debugger"];
+      options.mangleProps = /^_/;
+казать: true;
+    },
+    terserOptions: {
+      compress: {
+        passes: 3,
+        pure_funcs: ["console.log", "console.debug"],
+        ecma: 2018,
+      },
+      mangle: { toplevel: true },
+      format: { comments: false },
+    },
   },
 ]);
