@@ -100,9 +100,12 @@ import { Route as AdminMwAdminFuelPricesRouteImport } from './routes/_admin/mw-a
 import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admin.contact'
 import { Route as AdminMwAdminCodeInjectionRouteImport } from './routes/_admin/mw-admin.code-injection'
 import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
+import { Route as AdminMwAdminApiKeysRouteImport } from './routes/_admin/mw-admin.api-keys'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicV1StreamRouteImport } from './routes/api/public/v1/stream'
+import { Route as ApiPublicV1SnapshotRouteImport } from './routes/api/public/v1/snapshot'
 import { Route as ApiPublicHooksSeoAuditRouteImport } from './routes/api/public/hooks/seo-audit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 import { Route as AdminMwAdminFuelPricesHistoryRouteImport } from './routes/_admin/mw-admin.fuel-prices.history'
@@ -571,6 +574,11 @@ const AdminMwAdminBroadcastsRoute = AdminMwAdminBroadcastsRouteImport.update({
   path: '/mw-admin/broadcasts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminApiKeysRoute = AdminMwAdminApiKeysRouteImport.update({
+  id: '/mw-admin/api-keys',
+  path: '/mw-admin/api-keys',
+  getParentRoute: () => AdminRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -585,6 +593,16 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1StreamRoute = ApiPublicV1StreamRouteImport.update({
+  id: '/api/public/v1/stream',
+  path: '/api/public/v1/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SnapshotRoute = ApiPublicV1SnapshotRouteImport.update({
+  id: '/api/public/v1/snapshot',
+  path: '/api/public/v1/snapshot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHooksSeoAuditRoute = ApiPublicHooksSeoAuditRouteImport.update({
@@ -654,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -699,6 +718,8 @@ export interface FileRoutesByFullPath {
   '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
+  '/api/public/v1/stream': typeof ApiPublicV1StreamRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -752,6 +773,7 @@ export interface FileRoutesByTo {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat': typeof CaiDatIndexRoute
+  '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -797,6 +819,8 @@ export interface FileRoutesByTo {
   '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
+  '/api/public/v1/stream': typeof ApiPublicV1StreamRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -852,6 +876,7 @@ export interface FileRoutesById {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/_admin/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/_admin/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/_admin/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -897,6 +922,8 @@ export interface FileRoutesById {
   '/_admin/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
+  '/api/public/v1/stream': typeof ApiPublicV1StreamRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -952,6 +979,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
+    | '/mw-admin/api-keys'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
@@ -997,6 +1025,8 @@ export interface FileRouteTypes {
     | '/mw-admin/fuel-prices/history'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/v1/snapshot'
+    | '/api/public/v1/stream'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1050,6 +1080,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat'
+    | '/mw-admin/api-keys'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
@@ -1095,6 +1126,8 @@ export interface FileRouteTypes {
     | '/mw-admin/fuel-prices/history'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/v1/snapshot'
+    | '/api/public/v1/stream'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1149,6 +1182,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
+    | '/_admin/mw-admin/api-keys'
     | '/_admin/mw-admin/broadcasts'
     | '/_admin/mw-admin/code-injection'
     | '/_admin/mw-admin/contact'
@@ -1194,6 +1228,8 @@ export interface FileRouteTypes {
     | '/_admin/mw-admin/fuel-prices/history'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/v1/snapshot'
+    | '/api/public/v1/stream'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -1282,6 +1318,8 @@ export interface RootRouteChildren {
   ApiPublicXauRoute: typeof ApiPublicXauRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
   ApiPublicHooksSeoAuditRoute: typeof ApiPublicHooksSeoAuditRoute
+  ApiPublicV1SnapshotRoute: typeof ApiPublicV1SnapshotRoute
+  ApiPublicV1StreamRoute: typeof ApiPublicV1StreamRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -1926,6 +1964,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminBroadcastsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/api-keys': {
+      id: '/_admin/mw-admin/api-keys'
+      path: '/mw-admin/api-keys'
+      fullPath: '/mw-admin/api-keys'
+      preLoaderRoute: typeof AdminMwAdminApiKeysRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -1945,6 +1990,20 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/auth/preview'
       fullPath: '/lovable/email/auth/preview'
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/stream': {
+      id: '/api/public/v1/stream'
+      path: '/api/public/v1/stream'
+      fullPath: '/api/public/v1/stream'
+      preLoaderRoute: typeof ApiPublicV1StreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/snapshot': {
+      id: '/api/public/v1/snapshot'
+      path: '/api/public/v1/snapshot'
+      fullPath: '/api/public/v1/snapshot'
+      preLoaderRoute: typeof ApiPublicV1SnapshotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/seo-audit': {
@@ -1986,6 +2045,7 @@ const AdminMwAdminFuelPricesRouteWithChildren =
   )
 
 interface AdminRouteChildren {
+  AdminMwAdminApiKeysRoute: typeof AdminMwAdminApiKeysRoute
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
   AdminMwAdminCodeInjectionRoute: typeof AdminMwAdminCodeInjectionRoute
   AdminMwAdminContactRoute: typeof AdminMwAdminContactRoute
@@ -2000,6 +2060,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminMwAdminApiKeysRoute: AdminMwAdminApiKeysRoute,
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
   AdminMwAdminCodeInjectionRoute: AdminMwAdminCodeInjectionRoute,
   AdminMwAdminContactRoute: AdminMwAdminContactRoute,
@@ -2099,6 +2160,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
   ApiPublicHooksSeoAuditRoute: ApiPublicHooksSeoAuditRoute,
+  ApiPublicV1SnapshotRoute: ApiPublicV1SnapshotRoute,
+  ApiPublicV1StreamRoute: ApiPublicV1StreamRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
@@ -2106,13 +2169,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
