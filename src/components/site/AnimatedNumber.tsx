@@ -113,6 +113,15 @@ export function AnimatedNumber({
     if (flashTimerRef.current != null) clearTimeout(flashTimerRef.current);
   }, []);
 
+  // Re-render when the `format` function changes (e.g. user toggles
+  // compact ↔ full). Skip while a tween is in-flight.
+  useEffect(() => {
+    if (!initializedRef.current) return;
+    if (rafRef.current != null) return;
+    if (elRef.current) elRef.current.textContent = format(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [format]);
+
   return (
     <span
       ref={elRef}
