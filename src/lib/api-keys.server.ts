@@ -49,13 +49,16 @@ export async function verifyApiKey(request: Request): Promise<ApiKeyRecord | nul
     .eq("key_hash", hash)
     .maybeSingle();
   if (!data || !data.active) return null;
-  // Fire-and-forget usage tracking.
-  void supabaseAdmin.rpc as never; // noop reference to keep tree-shake stable
-  void supabaseAdmin
-    .from("api_keys")
-    .update({ last_used_at: new Date().toISOString(), request_count: (await currentCount(data.id)) + 1 })
-    .eq("id", data.id)
-    .then(() => undefined, () => undefined);
+  // Fire-and-forget usage tracking (non-blocking; ignore errors).
+  void (async () => {
+    try {
+      const next = (await currentCount(data.id as string)) + 1;
+      await supabaseAdmin
+        .from("api_keys")
+        .update({ last_used_at: new Date().toISOString(), request_count: next })
+        .eq("id", data.id as string);
+    } catch { /* ignore */ }
+  })();
   return {
     id: data.id as string,
     name: data.name as string,
