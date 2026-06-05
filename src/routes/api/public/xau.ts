@@ -4,10 +4,15 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 const CACHE_MS = 60_000;
 /** Khoảng cách mẫu để tính % 24h. */
 const WINDOW_MS = 24 * 60 * 60 * 1000;
-/** Cho phép lệch ±2h khi không có mẫu chính xác 24h trước. */
-const WINDOW_TOLERANCE_MS = 2 * 60 * 60 * 1000;
-/** Chỉ ghi 1 snapshot / 5 phút để không phình bảng. */
-const SNAPSHOT_MIN_INTERVAL_MS = 5 * 60 * 1000;
+/** Cho phép lệch ±Nh khi không có mẫu chính xác 24h trước. Cấu hình qua env. */
+const WINDOW_TOLERANCE_MS =
+  (Number(process.env.PRICE_WINDOW_TOLERANCE_HOURS) || 2) * 60 * 60 * 1000;
+/** Ngưỡng tối thiểu (giờ) lệch khỏi mốc 24h để mẫu được chấp nhận tính %. Mặc định = tolerance. */
+const MIN_SAMPLE_AGE_MS =
+  (Number(process.env.PRICE_MIN_SAMPLE_AGE_HOURS) || 0) * 60 * 60 * 1000;
+/** Chỉ ghi 1 snapshot / N phút để không phình bảng. */
+const SNAPSHOT_MIN_INTERVAL_MS =
+  (Number(process.env.PRICE_SNAPSHOT_MIN_INTERVAL_MINUTES) || 5) * 60 * 1000;
 const SYMBOL = "XAUUSD";
 
 /** Đơn vị giá vàng thế giới: USD trên một troy ounce (1 oz = 31.1035 g). */
@@ -52,6 +57,11 @@ async function fetchPrice24hAgo(): Promise<number | null> {
       .limit(1)
       .maybeSingle();
     if (!data) return null;
+    // Reject mẫu quá gần hiện tại (chưa đủ "tuổi") nếu cấu hình MIN_SAMPLE_AGE_MS.
+    if (MIN_SAMPLE_AGE_MS > 0) {
+      const age = Date.now() - new Date(data.captured_at as string).getTime();
+      if (age < MIN_SAMPLE_AGE_MS) return null;
+    }
     const p = Number(data.price);
     return Number.isFinite(p) && p > 0 ? p : null;
   } catch {
