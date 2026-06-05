@@ -297,7 +297,6 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
           Đổi ý?{" "}
           <Link
             to="/huy-ban-tin"
-            search={{ email }}
             className="underline underline-offset-2 transition-opacity duration-200 hover:opacity-80"
             style={{ color: accentVar }}
           >
