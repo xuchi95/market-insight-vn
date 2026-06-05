@@ -4,6 +4,9 @@ import { requireAdmin, logAudit } from "./middleware.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 type Audience = "all_users" | "newsletter" | "admins" | "custom_emails";
+const SENDER_DOMAIN = "notify.marketwatch.vn";
+const FROM_DOMAIN = "marketwatch.vn";
+const FROM_EMAIL = `MarketWatch <noreply@${FROM_DOMAIN}>`;
 
 async function resolveRecipients(
   audience: Audience,
@@ -166,13 +169,20 @@ export const sendTestBroadcast = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const html = renderBroadcastEmail(data.subject, mdToHtml(data.body_md));
+    const messageId = crypto.randomUUID();
     const { error } = await supabaseAdmin.rpc("enqueue_email", {
       queue_name: "transactional_emails",
       payload: {
+        message_id: messageId,
+        idempotency_key: `admin-broadcast-test-${messageId}`,
         to: data.toEmail,
+        from: FROM_EMAIL,
+        sender_domain: SENDER_DOMAIN,
         subject: "[Test] " + data.subject,
         html,
-        template_name: "admin_broadcast_test",
+        text: data.body_md,
+        purpose: "transactional",
+        label: "admin_broadcast_test",
         metadata: { test: true, requested_by: context.userId },
       } as never,
     });
@@ -209,13 +219,20 @@ export const sendBroadcast = createServerFn({ method: "POST" })
     let sent = 0;
     let failed = 0;
     for (const email of recipients) {
+      const messageId = crypto.randomUUID();
       const { error: enqErr } = await supabaseAdmin.rpc("enqueue_email", {
         queue_name: "transactional_emails",
         payload: {
+          message_id: messageId,
+          idempotency_key: `admin-broadcast-${data.id}-${email}`,
           to: email,
+          from: FROM_EMAIL,
+          sender_domain: SENDER_DOMAIN,
           subject: row.subject,
           html,
-          template_name: "admin_broadcast",
+          text: row.body_md,
+          purpose: "transactional",
+          label: "admin_broadcast",
           metadata: { broadcast_id: data.id },
         } as never,
       });
