@@ -229,20 +229,46 @@ export function goldDigestEmail(opts: { dateLabel: string; rows: GoldDigestRow[]
       <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:${chColor};font-weight:600;">${chText}</td>
     </tr>`;
   }).join("");
+  const lead = opts.rows[0];
+  const leadCh = lead && typeof lead.changePct === "number" ? lead.changePct : null;
+  const leadDir = leadCh === null ? "đi ngang" : leadCh >= 0 ? "tăng" : "giảm";
+  const leadColor = leadCh === null ? "#666" : leadCh >= 0 ? "#0a8f4a" : "#c8312f";
+  const leadPct = leadCh === null ? "" : ` ${leadCh >= 0 ? "+" : ""}${leadCh.toFixed(2)}%`;
+  const summary = lead
+    ? `Phiên giao dịch ngày ${escape(opts.dateLabel)} ghi nhận <strong>${escape(lead.label)}</strong> ${leadDir}<span style="color:${leadColor};font-weight:600;">${leadPct}</span> so với phiên liền trước, niêm yết ở mức <strong>${fmtVnd(lead.sell)} VNĐ/lượng</strong> (giá bán ra). Mức chênh lệch mua – bán phản ánh thanh khoản thị trường vật chất và biên độ rủi ro mà doanh nghiệp kinh doanh vàng đang áp dụng trong ngày.`
+    : `Dữ liệu giá vàng ngày ${escape(opts.dateLabel)} hiện chưa đầy đủ. Quý độc giả có thể truy cập MarketWatch để xem cập nhật theo thời gian thực.`;
   const html = shell(`Bản tin giá vàng • ${opts.dateLabel}`, `
-    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Bản tin giá vàng</div>
-    <h1 style="font-size:22px;margin:0 0 6px;color:#111;">Giá vàng ${escape(opts.dateLabel)}</h1>
-    <p style="margin:0 0 14px;color:#666;font-size:13px;">Đơn vị: VNĐ/lượng. Dữ liệu cập nhật tự động từ MarketWatch.</p>
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Nhật báo giá vàng</div>
+    <h1 style="font-size:24px;margin:0 0 4px;color:#111;line-height:1.25;">Thị trường vàng ${escape(opts.dateLabel)}</h1>
+    <p style="margin:0 0 18px;color:#888;font-size:12px;letter-spacing:0.04em;">Bản tin nội bộ MarketWatch · Cập nhật vào lúc bản tin được phát hành</p>
+
+    <h2 style="font-size:14px;margin:18px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Tóm tắt phiên</h2>
+    <p style="margin:0 0 16px;line-height:1.7;color:#333;font-size:14px;">${summary}</p>
+
+    <h2 style="font-size:14px;margin:22px 0 10px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Bảng giá tham chiếu</h2>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #ececec;border-radius:8px;overflow:hidden;">
       <thead><tr style="background:#fafafa;">
-        <th align="left" style="padding:10px 12px;color:#888;font-weight:500;">Loại vàng</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Mua</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Bán</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">24h</th>
+        <th align="left" style="padding:11px 12px;color:#666;font-weight:600;">Sản phẩm</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Mua vào</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Bán ra</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Biến động 24h</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    ${button(SITE + "/gia-vang", "Xem biểu đồ chi tiết")}
+    <p style="margin:8px 0 0;color:#999;font-size:11px;line-height:1.6;">Đơn vị: VNĐ/lượng đối với vàng miếng trong nước; USD/oz đối với XAU quốc tế. Tỷ giá quy đổi tham chiếu USD/VND của ngày phát hành.</p>
+
+    <h2 style="font-size:14px;margin:26px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Bối cảnh thị trường</h2>
+    <p style="margin:0 0 12px;line-height:1.7;color:#333;font-size:14px;">Giá vàng trong nước thường phản ánh đồng thời ba yếu tố chính: diễn biến của vàng quốc tế (XAU/USD), tỷ giá USD/VND và chênh lệch cung – cầu của thị trường vật chất Việt Nam. Khi một trong các yếu tố này dịch chuyển mạnh, giá niêm yết của các thương hiệu lớn (SJC, DOJI, PNJ) có thể giãn rộng biên độ mua – bán nhằm quản trị rủi ro tồn kho.</p>
+    <p style="margin:0 0 16px;line-height:1.7;color:#333;font-size:14px;">Nhà đầu tư được khuyến nghị theo dõi đồng thời chỉ số DXY, lợi suất trái phiếu kho bạc Hoa Kỳ kỳ hạn 10 năm và động thái của các ngân hàng trung ương lớn để có khung tham chiếu đầy đủ trước khi ra quyết định.</p>
+
+    ${button(SITE + "/gia-vang", "Xem biểu đồ và lịch sử giá")}
+
+    <p style="margin:20px 0 0;padding:14px 16px;background:#fafafa;border-left:3px solid ${GOLD};color:#555;font-size:12px;line-height:1.7;">
+      <strong style="color:#333;">Nguồn dữ liệu &amp; phương pháp:</strong> Giá tham chiếu được tổng hợp tự động từ các nguồn niêm yết công khai của các doanh nghiệp kinh doanh vàng, dữ liệu thị trường quốc tế (XAU/USD) và tỷ giá USD/VND tại thời điểm phát hành. Số liệu mang tính tham khảo, không phản ánh giá giao dịch tức thời tại quầy.
+    </p>
+    <p style="margin:10px 0 0;color:#999;font-size:11px;line-height:1.6;">
+      <strong style="color:#777;">Lưu ý:</strong> Bản tin này không phải là khuyến nghị đầu tư, chào bán hoặc tư vấn tài chính cá nhân. Quý độc giả tự chịu trách nhiệm về các quyết định giao dịch của mình.
+    </p>
   `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/ban-tin`, unsubLabel: "bản tin vàng" });
   return { subject: `Giá vàng ${opts.dateLabel} — MarketWatch`, html };
 }
@@ -266,20 +292,53 @@ export function cryptoDigestEmail(opts: { dateLabel: string; rows: CoinDigestRow
       <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:${color};font-weight:600;">${arrow} ${up ? "+" : ""}${r.changePct.toFixed(2)}%</td>
     </tr>`;
   }).join("");
+  const ranked = [...opts.rows].sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct));
+  const topGain = [...opts.rows].sort((a, b) => b.changePct - a.changePct)[0];
+  const topLoss = [...opts.rows].sort((a, b) => a.changePct - b.changePct)[0];
+  const avg = opts.rows.length ? opts.rows.reduce((s, r) => s + r.changePct, 0) / opts.rows.length : 0;
+  const breadthUp = opts.rows.filter((r) => r.changePct > 0).length;
+  const breadthDn = opts.rows.filter((r) => r.changePct < 0).length;
+  const sentiment = avg > 1 ? "tích cực" : avg < -1 ? "tiêu cực" : "trung tính";
+  const sentimentColor = avg > 1 ? "#0a8f4a" : avg < -1 ? "#c8312f" : "#666";
+  const summary = opts.rows.length
+    ? `Phiên ngày ${escape(opts.dateLabel)} ghi nhận tâm lý thị trường <strong style="color:${sentimentColor};">${sentiment}</strong> với mức thay đổi trung bình <strong>${avg >= 0 ? "+" : ""}${avg.toFixed(2)}%</strong> trên rổ vốn hoá lớn. Trong số ${opts.rows.length} đồng được theo dõi, có ${breadthUp} mã tăng giá và ${breadthDn} mã giảm giá, phản ánh sự phân hoá tiếp tục diễn ra giữa các nhóm tài sản số.`
+    : `Dữ liệu thị trường tiền điện tử ngày ${escape(opts.dateLabel)} hiện chưa được cập nhật. Vui lòng truy cập MarketWatch để xem bảng giá thời gian thực.`;
+  const highlights = topGain && topLoss && topGain.symbol !== topLoss.symbol
+    ? `<p style="margin:0 0 14px;line-height:1.7;color:#333;font-size:14px;">Đáng chú ý, <strong>${escape(topGain.symbol.toUpperCase())}</strong>${topGain.name ? ` (${escape(topGain.name)})` : ""} dẫn đầu nhịp tăng với mức <strong style="color:#0a8f4a;">+${topGain.changePct.toFixed(2)}%</strong>, trong khi <strong>${escape(topLoss.symbol.toUpperCase())}</strong>${topLoss.name ? ` (${escape(topLoss.name)})` : ""} là mã điều chỉnh sâu nhất ở mức <strong style="color:#c8312f;">${topLoss.changePct.toFixed(2)}%</strong>. Mức độ biến động chênh lệch giữa hai cực này cho thấy dòng tiền đang luân chuyển có chọn lọc, thay vì xu hướng đồng pha trên toàn rổ.</p>`
+    : "";
   const html = shell(`Bản tin Crypto • ${opts.dateLabel}`, `
-    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Bản tin tiền điện tử</div>
-    <h1 style="font-size:22px;margin:0 0 6px;color:#111;">Top biến động ${escape(opts.dateLabel)}</h1>
-    <p style="margin:0 0 14px;color:#666;font-size:13px;">Giá USD cập nhật theo dữ liệu thị trường gần nhất.</p>
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Nhật báo tiền điện tử</div>
+    <h1 style="font-size:24px;margin:0 0 4px;color:#111;line-height:1.25;">Thị trường Crypto ${escape(opts.dateLabel)}</h1>
+    <p style="margin:0 0 18px;color:#888;font-size:12px;letter-spacing:0.04em;">Bản tin nội bộ MarketWatch · Dữ liệu USD theo phiên gần nhất</p>
+
+    <h2 style="font-size:14px;margin:18px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Tóm tắt phiên</h2>
+    <p style="margin:0 0 12px;line-height:1.7;color:#333;font-size:14px;">${summary}</p>
+    ${highlights}
+
+    <h2 style="font-size:14px;margin:22px 0 10px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Top biến động theo vốn hoá</h2>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #ececec;border-radius:8px;overflow:hidden;">
       <thead><tr style="background:#fafafa;">
-        <th align="left" style="padding:10px 12px;color:#888;font-weight:500;">Coin</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Giá</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">24h</th>
+        <th align="left" style="padding:11px 12px;color:#666;font-weight:600;">Tài sản</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Giá tham chiếu (USD)</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Biến động 24h</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    ${button(SITE + "/crypto", "Mở bảng giá Crypto")}
+
+    <h2 style="font-size:14px;margin:26px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Bối cảnh thị trường</h2>
+    <p style="margin:0 0 12px;line-height:1.7;color:#333;font-size:14px;">Thị trường tài sản số tiếp tục vận động theo bốn nhóm tín hiệu chủ đạo: (i) chính sách lãi suất và thanh khoản toàn cầu, (ii) dòng vốn vào – ra các quỹ ETF Bitcoin và Ethereum giao ngay, (iii) hoạt động on-chain của các địa chỉ lớn (whales) cùng dòng tiền sàn giao dịch, và (iv) các sự kiện cấu trúc của giao thức (halving, nâng cấp, mở khoá token).</p>
+    <p style="margin:0 0 16px;line-height:1.7;color:#333;font-size:14px;">Trong các giai đoạn biến động cao, mức chênh lệch giá giữa các sàn có thể giãn rộng đáng kể; nhà đầu tư cần lưu ý phí giao dịch, trượt giá (slippage) và rủi ro thanh khoản khi vào – thoát vị thế lớn.</p>
+
+    ${button(SITE + "/tien-dien-tu", "Mở bảng giá Crypto thời gian thực")}
+
+    <p style="margin:20px 0 0;padding:14px 16px;background:#fafafa;border-left:3px solid ${GOLD};color:#555;font-size:12px;line-height:1.7;">
+      <strong style="color:#333;">Nguồn dữ liệu &amp; phương pháp:</strong> Giá và biến động 24 giờ được tổng hợp từ các API thị trường công khai (CoinGecko), tham chiếu theo vốn hoá thị trường tại thời điểm phát hành bản tin. Tổng số mã được khảo sát: <strong>${opts.rows.length}</strong>.
+    </p>
+    <p style="margin:10px 0 0;color:#999;font-size:11px;line-height:1.6;">
+      <strong style="color:#777;">Miễn trừ trách nhiệm:</strong> Nội dung bản tin chỉ nhằm mục đích cung cấp thông tin tham khảo, không cấu thành lời khuyên đầu tư, mua – bán hoặc nắm giữ bất kỳ tài sản số nào. Tài sản số có biên độ biến động cao và tiềm ẩn rủi ro mất toàn bộ vốn.
+    </p>
   `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/ban-tin`, unsubLabel: "bản tin crypto" });
+  void ranked;
   return { subject: `Crypto ${opts.dateLabel} — MarketWatch`, html };
 }
 
@@ -297,18 +356,45 @@ export function fxDigestEmail(opts: { dateLabel: string; rows: FxDigestRow[]; un
       <td style="padding:10px 12px;border-bottom:1px solid #f0f0f0;text-align:right;color:${color};font-weight:600;">${chText}</td>
     </tr>`;
   }).join("");
+  const usd = opts.rows.find((r) => r.pair.toUpperCase().startsWith("USD"));
+  const usdCh = usd && typeof usd.changePct === "number" ? usd.changePct : null;
+  const usdDir = usdCh === null ? "đi ngang" : usdCh >= 0 ? "tăng" : "giảm";
+  const usdColor = usdCh === null ? "#666" : usdCh >= 0 ? "#0a8f4a" : "#c8312f";
+  const usdPct = usdCh === null ? "" : ` ${usdCh >= 0 ? "+" : ""}${usdCh.toFixed(2)}%`;
+  const summary = usd
+    ? `Phiên ngày ${escape(opts.dateLabel)} ghi nhận tỷ giá <strong>USD/VND</strong> ${usdDir}<span style="color:${usdColor};font-weight:600;">${usdPct}</span>, niêm yết quanh mức <strong>${fmt(usd.rate)} VNĐ</strong>. Biến động của cặp tỷ giá chủ chốt này tiếp tục là tham chiếu quan trọng cho hoạt động xuất nhập khẩu, thanh toán quốc tế và quản trị dòng tiền ngoại tệ của doanh nghiệp.`
+    : `Dữ liệu tỷ giá ngày ${escape(opts.dateLabel)} hiện chưa đầy đủ. Vui lòng truy cập MarketWatch để xem cập nhật mới nhất.`;
   const html = shell(`Tỷ giá ngoại tệ • ${opts.dateLabel}`, `
-    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Bản tin ngoại tệ</div>
-    <h1 style="font-size:22px;margin:0 0 6px;color:#111;">Tỷ giá ngày ${escape(opts.dateLabel)}</h1>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #ececec;border-radius:8px;overflow:hidden;margin-top:8px;">
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Nhật báo ngoại tệ</div>
+    <h1 style="font-size:24px;margin:0 0 4px;color:#111;line-height:1.25;">Tỷ giá ngoại tệ ${escape(opts.dateLabel)}</h1>
+    <p style="margin:0 0 18px;color:#888;font-size:12px;letter-spacing:0.04em;">Bản tin nội bộ MarketWatch · Tỷ giá tham chiếu liên ngân hàng</p>
+
+    <h2 style="font-size:14px;margin:18px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Tóm tắt phiên</h2>
+    <p style="margin:0 0 16px;line-height:1.7;color:#333;font-size:14px;">${summary}</p>
+
+    <h2 style="font-size:14px;margin:22px 0 10px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Bảng tỷ giá tham chiếu</h2>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:13px;border:1px solid #ececec;border-radius:8px;overflow:hidden;">
       <thead><tr style="background:#fafafa;">
-        <th align="left" style="padding:10px 12px;color:#888;font-weight:500;">Cặp</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">Tỷ giá</th>
-        <th align="right" style="padding:10px 12px;color:#888;font-weight:500;">24h</th>
+        <th align="left" style="padding:11px 12px;color:#666;font-weight:600;">Cặp tỷ giá</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Mức niêm yết</th>
+        <th align="right" style="padding:11px 12px;color:#666;font-weight:600;">Biến động 24h</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    ${button(SITE + "/ngoai-te", "Xem chi tiết tỷ giá")}
+    <p style="margin:8px 0 0;color:#999;font-size:11px;line-height:1.6;">Đơn vị: VNĐ cho 1 đơn vị ngoại tệ cơ sở. Số liệu mang tính tham khảo và có thể chênh lệch so với tỷ giá niêm yết tại từng ngân hàng thương mại.</p>
+
+    <h2 style="font-size:14px;margin:26px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Bối cảnh thị trường</h2>
+    <p style="margin:0 0 12px;line-height:1.7;color:#333;font-size:14px;">Diễn biến tỷ giá USD/VND chịu ảnh hưởng đồng thời từ ba nhóm yếu tố: (i) chính sách điều hành tỷ giá trung tâm của Ngân hàng Nhà nước Việt Nam và biên độ ± 5%, (ii) sức mạnh đồng USD trên thị trường quốc tế thể hiện qua chỉ số DXY, và (iii) cán cân thanh toán – cung cầu ngoại tệ thực tế từ hoạt động xuất nhập khẩu, kiều hối và đầu tư trực tiếp nước ngoài (FDI).</p>
+    <p style="margin:0 0 16px;line-height:1.7;color:#333;font-size:14px;">Đối với các đồng tiền chéo như EUR, JPY, GBP, CNY, biến động phản ánh tương quan của đồng VND so với USD cộng với chênh lệch tỷ giá của từng cặp ngoại tệ chủ chốt trên thị trường toàn cầu.</p>
+
+    ${button(SITE + "/ty-gia-ngoai-te", "Xem chi tiết tỷ giá &amp; lịch sử")}
+
+    <p style="margin:20px 0 0;padding:14px 16px;background:#fafafa;border-left:3px solid ${GOLD};color:#555;font-size:12px;line-height:1.7;">
+      <strong style="color:#333;">Nguồn dữ liệu &amp; phương pháp:</strong> Tỷ giá tham chiếu được tổng hợp tự động từ dữ liệu thị trường quốc tế và các nguồn niêm yết công khai tại thời điểm phát hành. Bản tin không thay thế tỷ giá giao dịch chính thức tại các tổ chức tín dụng.
+    </p>
+    <p style="margin:10px 0 0;color:#999;font-size:11px;line-height:1.6;">
+      <strong style="color:#777;">Miễn trừ trách nhiệm:</strong> Thông tin trong bản tin chỉ phục vụ mục đích tham khảo. MarketWatch không cung cấp dịch vụ đổi tiền, không khuyến nghị giao dịch ngoại hối và không chịu trách nhiệm về các quyết định tài chính phát sinh từ việc sử dụng dữ liệu này.
+    </p>
   `, { unsubUrl: opts.unsubUrl, manageUrl: opts.manageUrl ?? `${SITE}/cai-dat/ban-tin`, unsubLabel: "bản tin tỷ giá" });
   return { subject: `Tỷ giá ${opts.dateLabel} — MarketWatch`, html };
 }
