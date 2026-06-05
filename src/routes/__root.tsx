@@ -235,11 +235,44 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
+          "@id": "https://marketwatch.vn/#organization",
           name: "MarketWatch",
+          alternateName: ["MarketWatch VN", "MarketWatch Việt Nam"],
           url: "https://marketwatch.vn",
           inLanguage: "vi-VN",
           description:
             "Dashboard tài chính tiếng Việt: giá vàng SJC, DOJI, PNJ, Bitcoin, Ethereum, USDT, tỷ giá USD/VND, EUR, JPY, CNY realtime.",
+          logo: {
+            "@type": "ImageObject",
+            url: "https://marketwatch.vn/favicon.png",
+            contentUrl: "https://marketwatch.vn/favicon.png",
+            width: 512,
+            height: 512,
+          },
+          image: "https://marketwatch.vn/og-image.png",
+          foundingDate: "2024",
+          areaServed: { "@type": "Country", name: "Vietnam" },
+          knowsAbout: [
+            "Giá vàng SJC",
+            "Giá Bitcoin",
+            "Tỷ giá ngoại tệ",
+            "Chứng khoán Việt Nam",
+            "Lãi suất ngân hàng",
+            "Giá xăng dầu",
+          ],
+          sameAs: [
+            "https://www.facebook.com/marketwatchvn",
+            "https://twitter.com/MarketWatchVN",
+            "https://www.youtube.com/@marketwatchvn",
+            "https://www.linkedin.com/company/marketwatchvn",
+            "https://github.com/marketwatchvn",
+          ],
+          contactPoint: {
+            "@type": "ContactPoint",
+            contactType: "customer support",
+            url: "https://marketwatch.vn/lien-he",
+            availableLanguage: ["Vietnamese", "English"],
+          },
         }),
       },
       {
@@ -247,9 +280,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
+          "@id": "https://marketwatch.vn/#website",
           name: "MarketWatch",
+          alternateName: "MarketWatch VN",
           url: "https://marketwatch.vn",
           inLanguage: "vi-VN",
+          description:
+            "Dashboard tài chính realtime: giá vàng, crypto, ngoại tệ, chứng khoán, lãi suất và xăng dầu Việt Nam.",
+          publisher: { "@id": "https://marketwatch.vn/#organization" },
           potentialAction: {
             "@type": "SearchAction",
             target: "https://marketwatch.vn/tai-san/{search_term_string}",
