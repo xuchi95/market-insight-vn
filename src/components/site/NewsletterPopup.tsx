@@ -293,6 +293,18 @@ function PopupSubscribeForm({ popup, accentVar, accentFg }: { popup: ActivePopup
         <p className="text-[11px] text-muted-foreground">
           Hãy kiểm tra hộp thư (kể cả mục Spam) để xác nhận đăng ký.
         </p>
+        <p className="text-[11px] text-muted-foreground">
+          Đổi ý?{" "}
+          <Link
+            to="/huy-ban-tin"
+            search={{ email }}
+            className="underline underline-offset-2 transition-opacity duration-200 hover:opacity-80"
+            style={{ color: accentVar }}
+          >
+            Hủy đăng ký
+          </Link>{" "}
+          bất cứ lúc nào.
+        </p>
       </div>
     );
   }
