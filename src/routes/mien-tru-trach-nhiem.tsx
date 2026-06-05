@@ -69,7 +69,7 @@ function DisclaimerPage() {
           <section className="prose prose-invert max-w-none space-y-4 text-muted-foreground leading-relaxed">
             <h2 className="text-xl font-semibold text-foreground">1. Tính chất thông tin</h2>
             <p>
-              MarketWatch (sau đây gọi là “Website”) là kênh <strong>tổng hợp và hiển thị thông tin tham khảo</strong> về giá vàng, tiền mã hoá (crypto) và tỷ giá ngoại tệ. Toàn bộ dữ liệu hiển thị được thu thập từ các nguồn công khai của bên thứ ba (PNJ, SJC, các sàn giao dịch quốc tế, API thị trường) và <strong>không phải là báo giá chính thức</strong> của Website.
+              MarketWatch (sau đây gọi là “Website”) là <strong>công cụ phần mềm phân tích, trực quan hoá và hiển thị số liệu thị trường tài chính theo thời gian thực</strong> (giá vàng, tỷ giá ngoại tệ, lãi suất, giá tài sản mã hoá, chỉ số chứng khoán, giá nhiên liệu). Toàn bộ dữ liệu hiển thị được truy xuất tự động qua API từ các nguồn công khai của bên thứ ba (PNJ, SJC, ngân hàng thương mại, các sàn giao dịch quốc tế, nhà cung cấp dữ liệu thị trường) và <strong>không phải là báo giá chính thức</strong> của Website. Website <strong>không sản xuất, biên tập tin tức, bài viết</strong> và <strong>không cho phép người dùng đăng tải, chia sẻ nội dung công khai</strong>.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground">2. Không phải khuyến nghị đầu tư</h2>
@@ -97,7 +97,17 @@ function DisclaimerPage() {
 
             <h2 className="text-xl font-semibold text-foreground">6. Phân loại Website và tuân thủ pháp luật</h2>
             <p>
-              MarketWatch được phân loại là <strong>trang thông tin điện tử cung cấp dịch vụ chuyên ngành</strong> về dữ liệu thị trường tài chính (giá vàng, tỷ giá ngoại tệ, lãi suất, giá tài sản mã hoá, chỉ số chứng khoán, giá nhiên liệu) theo Điều 26 và Điều 30 Nghị định 147/2024/NĐ-CP. Website <strong>KHÔNG PHẢI</strong> trang thông tin điện tử tổng hợp, không sao chép, biên tập lại tin tức, bài viết của cơ quan báo chí, do đó không thuộc diện phải xin Giấy phép thiết lập trang thông tin điện tử tổng hợp theo Điều 25 Nghị định 147/2024/NĐ-CP.
+              MarketWatch là <strong>ứng dụng/công cụ phần mềm hiển thị số liệu thị trường tài chính</strong> được truy xuất tự động từ API công khai của bên thứ ba, hoạt động tương tự một máy tính tài chính (financial calculator) hoặc bảng giá điện tử (price ticker). Website <strong>KHÔNG PHẢI</strong> và <strong>không hoạt động dưới hình thức</strong>:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Trang thông tin điện tử tổng hợp</strong> theo Điều 25, Điều 30 Nghị định 147/2024/NĐ-CP: Website không trích dẫn, sao chép, biên tập lại tin tức, bài viết của cơ quan báo chí hoặc nguồn thông tin chính thức khác.</li>
+              <li><strong>Trang thông tin điện tử cung cấp dịch vụ chuyên ngành</strong> trong các lĩnh vực có điều kiện kinh doanh: Website chỉ hiển thị số liệu công khai phục vụ tra cứu, không cung cấp dịch vụ tài chính, ngân hàng, chứng khoán, viễn thông, y tế, giáo dục… cần giấy phép chuyên ngành.</li>
+              <li><strong>Mạng xã hội</strong> theo Điều 26 Nghị định 147/2024/NĐ-CP: Website không có chức năng cho phép người dùng tạo trang/hồ sơ cá nhân công khai, đăng tải, chia sẻ, bình luận, tương tác nội dung công khai với người dùng khác. Tài khoản (nếu có) chỉ phục vụ cá nhân hoá cảnh báo giá, danh mục theo dõi và nhận bản tin email riêng tư.</li>
+              <li><strong>Báo điện tử, tạp chí điện tử</strong> theo Luật Báo chí 2016: Website không có tôn chỉ, mục đích báo chí, không có Tổng biên tập và không sản xuất tác phẩm báo chí.</li>
+              <li><strong>Sàn giao dịch, trung gian thanh toán, môi giới</strong>: Website không tổ chức mua-bán, không khớp lệnh, không giữ tài sản, không trung gian thanh toán cho bất kỳ loại tài sản nào (vàng, ngoại tệ, chứng khoán, tài sản mã hoá).</li>
+            </ul>
+            <p>
+              Do đó, Website <strong>không thuộc diện phải xin Giấy phép thiết lập trang thông tin điện tử tổng hợp, giấy phép mạng xã hội, giấy phép báo chí</strong> hoặc các giấy phép kinh doanh có điều kiện liên quan. Trường hợp cơ quan nhà nước có thẩm quyền yêu cầu phân loại lại hoặc bổ sung thủ tục, Website cam kết thực hiện đầy đủ theo quy định.
             </p>
             <p>
               Website hoạt động phù hợp với pháp luật Việt Nam, bao gồm Luật An ninh mạng 2018, Luật Giao dịch điện tử 2023, Nghị định 147/2024/NĐ-CP (thay thế Nghị định 72/2013/NĐ-CP và Nghị định 27/2018/NĐ-CP từ ngày có hiệu lực), Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân và các văn bản hướng dẫn liên quan. Khi phát hiện nội dung sai sót hoặc có yêu cầu hợp pháp từ cơ quan nhà nước có thẩm quyền, Website sẽ phối hợp xử lý kịp thời.
