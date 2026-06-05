@@ -30,6 +30,7 @@ const PAGE_LABELS: Record<string, string> = {
   "cong-cu": "Công cụ",
   "dca-roi": "DCA & ROI",
   "portfolio": "Danh mục",
+  "du-doan-gia-ai": "AI dự đoán giá",
   privacy: "Chính sách dữ liệu",
   terms: "Điều khoản sử dụng",
   disclaimer: "Tuyên bố miễn trừ trách nhiệm",
