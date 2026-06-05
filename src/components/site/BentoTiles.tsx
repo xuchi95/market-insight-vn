@@ -7,6 +7,7 @@ import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
 import { fmtTrieu } from "@/lib/format";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { FormattedNumber } from "./FormattedNumber";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 
 interface InitialPrices {
