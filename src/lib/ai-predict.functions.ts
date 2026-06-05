@@ -81,7 +81,6 @@ export const DEFAULT_MODEL: OpenRouterModelId = "google/gemini-2.5-flash";
 const InputSchema = z.object({
   asset: z.enum(PREDICTABLE_ASSETS.map((a) => a.slug) as [AssetSlug, ...AssetSlug[]]),
   horizon: z.enum(["24h", "7d", "30d"]),
-  model: z.enum(MODEL_IDS).optional(),
 });
 
 interface PriceContext {
@@ -216,7 +215,19 @@ export const predictAssetPrice = createServerFn({ method: "POST" })
     const meta = PREDICTABLE_ASSETS.find((a) => a.slug === data.asset)!;
     const horizonLabel = HORIZONS.find((h) => h.value === data.horizon)!.label;
     const ctx = await buildContext(data.asset);
-    const model: OpenRouterModelId = data.model ?? DEFAULT_MODEL;
+    // Mô hình AI do admin cấu hình trong dashboard — người dùng không tự chọn.
+    let model: OpenRouterModelId = DEFAULT_MODEL;
+    try {
+      const { data: settings } = await supabaseAdmin
+        .from("app_ai_settings")
+        .select("predict_model")
+        .eq("id", 1)
+        .maybeSingle();
+      const saved = settings?.predict_model as OpenRouterModelId | undefined;
+      if (saved && MODEL_IDS.includes(saved)) model = saved;
+    } catch {
+      // giữ DEFAULT_MODEL
+    }
 
     const system = [
       "Bạn là chuyên gia phân tích thị trường tài chính nói tiếng Việt, làm việc cho MarketWatch Việt Nam.",
