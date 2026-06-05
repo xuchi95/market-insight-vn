@@ -313,7 +313,24 @@ Yêu cầu:
     if (!res.ok) {
       const txt = await res.text().catch(() => "");
       console.error("OpenRouter error", res.status, txt);
-      throw new Error("Không kết nối được dịch vụ AI, vui lòng thử lại.");
+      let detail = "";
+      try {
+        const j = JSON.parse(txt);
+        detail = j?.error?.message ?? "";
+      } catch {}
+      if (res.status === 403) {
+        throw new Error(
+          `Mô hình AI hiện tại không khả dụng ở khu vực của máy chủ${
+            detail ? ` (${detail})` : ""
+          }. Vui lòng đổi mô hình khác trong cấu hình admin.`,
+        );
+      }
+      if (res.status === 401) {
+        throw new Error("OpenRouter từ chối API key (401). Kiểm tra lại OPENROUTER_API_KEY.");
+      }
+      throw new Error(
+        `Không kết nối được dịch vụ AI (HTTP ${res.status})${detail ? `: ${detail}` : ""}.`,
+      );
     }
     const json: any = await res.json();
     const content = json?.choices?.[0]?.message?.content;
