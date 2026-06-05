@@ -32,6 +32,7 @@ import { Route as GoldRouteImport } from './routes/gold'
 import { Route as GiaXangDauRouteImport } from './routes/gia-xang-dau'
 import { Route as GiaVangRouteImport } from './routes/gia-vang'
 import { Route as ForexRouteImport } from './routes/forex'
+import { Route as DuDoanGiaAiRouteImport } from './routes/du-doan-gia-ai'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DieuKhoanSuDungRouteImport } from './routes/dieu-khoan-su-dung'
 import { Route as DatLaiMatKhauRouteImport } from './routes/dat-lai-mat-khau'
@@ -225,6 +226,11 @@ const GiaVangRoute = GiaVangRouteImport.update({
 const ForexRoute = ForexRouteImport.update({
   id: '/forex',
   path: '/forex',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuDoanGiaAiRoute = DuDoanGiaAiRouteImport.update({
+  id: '/du-doan-gia-ai',
+  path: '/du-doan-gia-ai',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisclaimerRoute = DisclaimerRouteImport.update({
@@ -651,6 +657,7 @@ export interface FileRoutesByFullPath {
   '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/du-doan-gia-ai': typeof DuDoanGiaAiRoute
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gia-xang-dau': typeof GiaXangDauRoute
@@ -754,6 +761,7 @@ export interface FileRoutesByTo {
   '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/du-doan-gia-ai': typeof DuDoanGiaAiRoute
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gia-xang-dau': typeof GiaXangDauRoute
@@ -859,6 +867,7 @@ export interface FileRoutesById {
   '/dat-lai-mat-khau': typeof DatLaiMatKhauRoute
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/du-doan-gia-ai': typeof DuDoanGiaAiRoute
   '/forex': typeof ForexRoute
   '/gia-vang': typeof GiaVangRoute
   '/gia-xang-dau': typeof GiaXangDauRoute
@@ -964,6 +973,7 @@ export interface FileRouteTypes {
     | '/dat-lai-mat-khau'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
+    | '/du-doan-gia-ai'
     | '/forex'
     | '/gia-vang'
     | '/gia-xang-dau'
@@ -1067,6 +1077,7 @@ export interface FileRouteTypes {
     | '/dat-lai-mat-khau'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
+    | '/du-doan-gia-ai'
     | '/forex'
     | '/gia-vang'
     | '/gia-xang-dau'
@@ -1171,6 +1182,7 @@ export interface FileRouteTypes {
     | '/dat-lai-mat-khau'
     | '/dieu-khoan-su-dung'
     | '/disclaimer'
+    | '/du-doan-gia-ai'
     | '/forex'
     | '/gia-vang'
     | '/gia-xang-dau'
@@ -1276,6 +1288,7 @@ export interface RootRouteChildren {
   DatLaiMatKhauRoute: typeof DatLaiMatKhauRoute
   DieuKhoanSuDungRoute: typeof DieuKhoanSuDungRoute
   DisclaimerRoute: typeof DisclaimerRoute
+  DuDoanGiaAiRoute: typeof DuDoanGiaAiRoute
   ForexRoute: typeof ForexRoute
   GiaVangRoute: typeof GiaVangRoute
   GiaXangDauRoute: typeof GiaXangDauRoute
@@ -1512,6 +1525,13 @@ declare module '@tanstack/react-router' {
       path: '/forex'
       fullPath: '/forex'
       preLoaderRoute: typeof ForexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/du-doan-gia-ai': {
+      id: '/du-doan-gia-ai'
+      path: '/du-doan-gia-ai'
+      fullPath: '/du-doan-gia-ai'
+      preLoaderRoute: typeof DuDoanGiaAiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/disclaimer': {
@@ -2134,6 +2154,7 @@ const rootRouteChildren: RootRouteChildren = {
   DatLaiMatKhauRoute: DatLaiMatKhauRoute,
   DieuKhoanSuDungRoute: DieuKhoanSuDungRoute,
   DisclaimerRoute: DisclaimerRoute,
+  DuDoanGiaAiRoute: DuDoanGiaAiRoute,
   ForexRoute: ForexRoute,
   GiaVangRoute: GiaVangRoute,
   GiaXangDauRoute: GiaXangDauRoute,
