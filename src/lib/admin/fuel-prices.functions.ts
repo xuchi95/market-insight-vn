@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireAdmin, logAudit } from "./middleware.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { refreshFuelPricesFromPetrolimex } from "@/lib/fuel-prices/refresh.server";
 
 const RowSchema = z.object({
   name: z.string().trim().min(1).max(120),
