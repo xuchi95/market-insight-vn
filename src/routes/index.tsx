@@ -83,7 +83,6 @@ function Index() {
           <section className="py-10 md:py-14">
             <div className="flex items-baseline justify-between mb-5 md:mb-6">
               <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Bảng giá thị trường</h2>
-              <div className="eyebrow opacity-60 hidden sm:block">Cập nhật mỗi 10 giây</div>
             </div>
             <BentoTiles initial={initialPrices} />
           </section>
