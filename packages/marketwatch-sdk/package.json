@@ -3,20 +3,32 @@
   "version": "0.1.0",
   "description": "Client SDK cho MarketWatch realtime API (vàng, tiền điện tử, xăng dầu, chứng khoán VN).",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "browser": "./dist/browser/marketwatch.min.global.js",
+  "unpkg": "./dist/browser/marketwatch.min.global.js",
+  "jsdelivr": "./dist/browser/marketwatch.min.global.js",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
+      "browser": {
+        "import": "./dist/index.js",
+        "require": "./dist/index.cjs"
+      },
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./browser": "./dist/browser/marketwatch.min.global.js",
+    "./package.json": "./package.json"
   },
   "files": ["dist", "README.md"],
   "scripts": {
     "clean": "rm -rf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "build": "npm run clean && tsc -p tsconfig.json",
+    "build": "npm run clean && tsup",
     "prepublishOnly": "npm run typecheck && npm run build",
     "version:patch": "npm version patch -m \"chore(sdk): release v%s\"",
     "version:minor": "npm version minor -m \"chore(sdk): release v%s\"",
