@@ -27,6 +27,7 @@
   "keywords": ["marketwatch", "gold", "crypto", "sse", "realtime", "vietnam"],
   "license": "MIT",
   "devDependencies": {
+    "tsup": "^8.5.1",
     "typescript": "^5.5.0"
   }
 }
