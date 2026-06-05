@@ -398,14 +398,60 @@ function AiPredictPage() {
             )}
           </div>
 
-          {mutation.isError && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                {(mutation.error as Error)?.message ?? "Đã có lỗi xảy ra, vui lòng thử lại."}
+          {!isAuthed && !authLoading && (
+            <Alert className="mb-6 border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)]">
+              <Lock className="h-4 w-4 text-[var(--gold)]" />
+              <AlertDescription className="text-sm">
+                <span className="font-semibold">Bạn cần đăng nhập để sử dụng Dự đoán giá AI.</span>{" "}
+                Tính năng này yêu cầu tài khoản miễn phí nhằm chống lạm dụng và bảo vệ hạn mức AI.{" "}
+                <Link
+                  to="/dang-nhap"
+                  search={{ redirect: "/du-doan-gia-ai" } as never}
+                  className="text-[var(--gold)] font-medium underline-offset-2 hover:underline"
+                >
+                  Đăng nhập
+                </Link>{" "}
+                hoặc{" "}
+                <Link to="/dang-ky" className="text-[var(--gold)] font-medium underline-offset-2 hover:underline">
+                  đăng ký nhanh
+                </Link>{" "}
+                để tiếp tục.
               </AlertDescription>
             </Alert>
           )}
+
+          {mutation.isError && (() => {
+            const rawMsg = (mutation.error as Error)?.message ?? "";
+            const isAuthError =
+              /unauthor|401|not authenticated|no authorization/i.test(rawMsg);
+            if (isAuthError) {
+              return (
+                <Alert className="mb-6 border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)]">
+                  <Lock className="h-4 w-4 text-[var(--gold)]" />
+                  <AlertDescription className="text-sm">
+                    <span className="font-semibold">Phiên đăng nhập đã hết hạn hoặc bạn chưa đăng nhập.</span>{" "}
+                    Vui lòng{" "}
+                    <Link
+                      to="/dang-nhap"
+                      search={{ redirect: "/du-doan-gia-ai" } as never}
+                      className="text-[var(--gold)] font-medium underline-offset-2 hover:underline"
+                    >
+                      đăng nhập lại
+                    </Link>{" "}
+                    để tiếp tục sử dụng Dự đoán giá AI.
+                  </AlertDescription>
+                </Alert>
+              );
+            }
+            return (
+              <Alert variant="destructive" className="mb-6">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  {rawMsg || "Đã có lỗi xảy ra, vui lòng thử lại."}
+                </AlertDescription>
+              </Alert>
+            );
+          })()}
 
           {mutation.isPending && (
             <div className="mb-10 rounded-2xl border border-border p-6 space-y-3">
