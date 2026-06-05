@@ -17,6 +17,28 @@ const AiExtractSchema = z.object({
 export type ExtractedSnapshot = z.infer<typeof AiExtractSchema>;
 
 /**
+ * Parse ngày từ chuỗi dạng "HH:MM — DD/MM/YYYY" (hoặc chỉ "DD/MM/YYYY")
+ * thành UTC timestamp (ms). Trả về null nếu không parse được.
+ */
+function parseEffectiveFromDate(s: string | null | undefined): number | null {
+  if (!s) return null;
+  const m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (!m) return null;
+  const [, d, mo, y] = m;
+  const dd = Number(d), mm = Number(mo), yy = Number(y);
+  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
+  return Date.UTC(yy, mm - 1, dd);
+}
+
+/** Parse ngày từ URL Petrolimex dạng ...ngay-DD-M-YYYY.html → UTC ms */
+function parseUrlDate(url: string): number | null {
+  const m = url.match(/ngay-(\d{1,2})-(\d{1,2})-(\d{4})\.html$/i);
+  if (!m) return null;
+  const [, d, mo, y] = m;
+  return Date.UTC(Number(y), Number(mo) - 1, Number(d));
+}
+
+/**
  * Tìm thông cáo điều chỉnh giá mới nhất trên petrolimex.com.vn và
  * lấy URL ảnh JPG bảng giá đính kèm. Dùng Firecrawl vì homepage được
  * render dynamic.
