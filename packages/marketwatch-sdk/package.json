@@ -14,7 +14,15 @@
   },
   "files": ["dist", "src", "README.md"],
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "prepublishOnly": "npm run typecheck && npm run build",
+    "version:patch": "npm version patch -m \"chore(sdk): release v%s\"",
+    "version:minor": "npm version minor -m \"chore(sdk): release v%s\"",
+    "version:major": "npm version major -m \"chore(sdk): release v%s\"",
+    "release": "bash ../../scripts/publish-sdk.sh",
+    "release:dry": "bash ../../scripts/publish-sdk.sh --dry-run"
   },
   "keywords": ["marketwatch", "gold", "crypto", "sse", "realtime", "vietnam"],
   "license": "MIT",
