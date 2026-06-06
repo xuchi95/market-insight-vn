@@ -65,9 +65,18 @@ export const requestMagicLink = createServerFn({ method: "POST" })
     }
 
     const actionLink = linkData.properties.action_link;
+    const tokenHash = linkData.properties.hashed_token;
+
+    // Rewrite link để dùng domain marketwatch.vn thay vì *.supabase.co.
+    // Route /xac-thuc-dang-nhap sẽ gọi verifyOtp({ token_hash, type }) ở client.
+    const verifyUrl = new URL("/xac-thuc-dang-nhap", siteOrigin);
+    verifyUrl.searchParams.set("token_hash", tokenHash);
+    verifyUrl.searchParams.set("type", "magiclink");
+    verifyUrl.searchParams.set("next", data.redirectTo);
+    const brandedLink = verifyUrl.toString();
 
     try {
-      const { subject, html } = magicLinkEmail({ actionLink, minutesValid: 60 });
+      const { subject, html } = magicLinkEmail({ actionLink: brandedLink, minutesValid: 60 });
       const result = await sendEmail({
         to: email,
         subject,
@@ -82,6 +91,7 @@ export const requestMagicLink = createServerFn({ method: "POST" })
         metadata: {
           provider: "postmark",
           provider_message_id: result.id ?? null,
+          original_action_link: actionLink,
         },
       });
       return { ok: true as const };
