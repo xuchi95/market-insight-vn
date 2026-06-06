@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useParams } from "@tanstack/react-router";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -33,6 +33,21 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { CryptoCommunityFeed } from "@/components/site/CryptoCommunityFeed";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
+  // SEO canonical: `/tai-san/{coingecko-id}` (vd: /tai-san/bitcoin) phải 301
+  // sang dạng ticker (`/tai-san/btc`) để Google không thấy 2 URL có cùng nội
+  // dung. Đây cũng là cách `/asset/bitcoin` (đã 301 sang /tai-san/bitcoin)
+  // cuối cùng tới đúng URL ticker trong sitemap.
+  beforeLoad: ({ params }) => {
+    const lower = params.symbol.toLowerCase();
+    const ticker = SLUG_TO_SYMBOL[lower];
+    if (ticker && ticker !== lower) {
+      throw redirect({
+        to: "/tai-san/$symbol",
+        params: { symbol: ticker },
+        statusCode: 301,
+      });
+    }
+  },
   head: ({ params }) => {
     const SYM = params.symbol.toUpperCase();
     const SITE = "https://marketwatch.vn";
