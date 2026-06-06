@@ -114,7 +114,9 @@ for (const theme of THEMES) {
 
         // 5. Bấm nút Dark/Light toggle trong Header rồi đo lại để chắc
         // chắn theme switch không gây layout shift / lệch divider.
-        const toggle = page.locator('button[aria-pressed]').first();
+        const toggle = page
+          .locator('button[aria-pressed]:visible')
+          .first();
         await toggle.waitFor({ state: "visible", timeout: 5_000 });
         const otherTheme = theme === "dark" ? "light" : "dark";
         await toggle.click();
