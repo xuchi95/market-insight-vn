@@ -897,8 +897,8 @@ function AssetDetail() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-3">
-      <div className="text-xs text-muted-foreground">{label}</div>
+    <div className="rounded-xl border border-[color-mix(in_oklab,var(--gold)_12%,var(--border))] bg-muted/30 p-3 transition-colors hover:border-[color-mix(in_oklab,var(--gold)_28%,var(--border))]">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
       <div className="font-semibold tabular mt-1">{value}</div>
     </div>
   );
