@@ -15,10 +15,19 @@ import { test, expect, type Page } from "@playwright/test";
 
 const TOLERANCE_PX = 1.5;
 
-const VIEWPORTS = [
+const DESKTOP_VIEWPORTS = [
   { name: "laptop-1280", width: 1280, height: 720 },
   { name: "desktop-1536", width: 1536, height: 864 },
   { name: "desktop-1920", width: 1920, height: 1080 },
+];
+
+const MOBILE_VIEWPORTS = [
+  { name: "mobile-320", width: 320, height: 568 },
+  { name: "mobile-375", width: 375, height: 812 },
+  { name: "tablet-768", width: 768, height: 1024 },
+  { name: "mobile-landscape-568", width: 568, height: 320 },
+  { name: "mobile-landscape-812", width: 812, height: 375 },
+  { name: "mobile-landscape-896", width: 896, height: 414 },
 ];
 
 const THEMES: Array<"light" | "dark"> = ["light", "dark"];
@@ -53,7 +62,7 @@ for (const theme of THEMES) {
       }, theme);
     });
 
-    for (const vp of VIEWPORTS) {
+    for (const vp of DESKTOP_VIEWPORTS) {
       test(`không lệch ở ${vp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await page.goto("/", { waitUntil: "domcontentloaded" });
