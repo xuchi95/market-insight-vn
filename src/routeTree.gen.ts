@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YeuCauApiKeyRouteImport } from './routes/yeu-cau-api-key'
 import { Route as XacThucDangNhapRouteImport } from './routes/xac-thuc-dang-nhap'
 import { Route as XacThuc2faRouteImport } from './routes/xac-thuc-2fa'
 import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
@@ -90,6 +91,7 @@ import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank
 import { Route as ApiPublicAuthsignalPushRouteImport } from './routes/api/public/authsignal-push'
 import { Route as ApiPublicAuthsignalMagicLinkRouteImport } from './routes/api/public/authsignal-magic-link'
 import { Route as ApiPublicAuthsignalEmailRouteImport } from './routes/api/public/authsignal-email'
+import { Route as ApiPublicApiKeyRequestRouteImport } from './routes/api/public/api-key-request'
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
@@ -106,6 +108,7 @@ import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admi
 import { Route as AdminMwAdminCodeInjectionRouteImport } from './routes/_admin/mw-admin.code-injection'
 import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
 import { Route as AdminMwAdminApiKeysRouteImport } from './routes/_admin/mw-admin.api-keys'
+import { Route as AdminMwAdminApiKeyRequestsRouteImport } from './routes/_admin/mw-admin.api-key-requests'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -116,6 +119,11 @@ import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/
 import { Route as ApiPublicHooksRefreshFuelPricesRouteImport } from './routes/api/public/hooks/refresh-fuel-prices'
 import { Route as AdminMwAdminFuelPricesHistoryRouteImport } from './routes/_admin/mw-admin.fuel-prices_.history'
 
+const YeuCauApiKeyRoute = YeuCauApiKeyRouteImport.update({
+  id: '/yeu-cau-api-key',
+  path: '/yeu-cau-api-key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const XacThucDangNhapRoute = XacThucDangNhapRouteImport.update({
   id: '/xac-thuc-dang-nhap',
   path: '/xac-thuc-dang-nhap',
@@ -527,6 +535,11 @@ const ApiPublicAuthsignalEmailRoute =
     path: '/api/public/authsignal-email',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicApiKeyRequestRoute = ApiPublicApiKeyRequestRouteImport.update({
+  id: '/api/public/api-key-request',
+  path: '/api/public/api-key-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiNewsletterUnsubscribeRoute =
   ApiNewsletterUnsubscribeRouteImport.update({
     id: '/api/newsletter/unsubscribe',
@@ -612,6 +625,12 @@ const AdminMwAdminApiKeysRoute = AdminMwAdminApiKeysRouteImport.update({
   path: '/mw-admin/api-keys',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminApiKeyRequestsRoute =
+  AdminMwAdminApiKeyRequestsRouteImport.update({
+    id: '/mw-admin/api-key-requests',
+    path: '/mw-admin/api-key-requests',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -702,6 +721,7 @@ export interface FileRoutesByFullPath {
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
+  '/yeu-cau-api-key': typeof YeuCauApiKeyRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -714,6 +734,7 @@ export interface FileRoutesByFullPath {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
@@ -730,6 +751,7 @@ export interface FileRoutesByFullPath {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/api-key-request': typeof ApiPublicApiKeyRequestRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
@@ -809,6 +831,7 @@ export interface FileRoutesByTo {
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
+  '/yeu-cau-api-key': typeof YeuCauApiKeyRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -821,6 +844,7 @@ export interface FileRoutesByTo {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat': typeof CaiDatIndexRoute
+  '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
@@ -837,6 +861,7 @@ export interface FileRoutesByTo {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/api-key-request': typeof ApiPublicApiKeyRequestRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
@@ -918,6 +943,7 @@ export interface FileRoutesById {
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
+  '/yeu-cau-api-key': typeof YeuCauApiKeyRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -930,6 +956,7 @@ export interface FileRoutesById {
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/_admin/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/_admin/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/_admin/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
@@ -946,6 +973,7 @@ export interface FileRoutesById {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/api-key-request': typeof ApiPublicApiKeyRequestRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
@@ -1027,6 +1055,7 @@ export interface FileRouteTypes {
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
+    | '/yeu-cau-api-key'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1039,6 +1068,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
+    | '/mw-admin/api-key-requests'
     | '/mw-admin/api-keys'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
@@ -1055,6 +1085,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/api-key-request'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
@@ -1134,6 +1165,7 @@ export interface FileRouteTypes {
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
+    | '/yeu-cau-api-key'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1146,6 +1178,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat'
+    | '/mw-admin/api-key-requests'
     | '/mw-admin/api-keys'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
@@ -1162,6 +1195,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/api-key-request'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
@@ -1242,6 +1276,7 @@ export interface FileRouteTypes {
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
+    | '/yeu-cau-api-key'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1254,6 +1289,7 @@ export interface FileRouteTypes {
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/cai-dat/'
+    | '/_admin/mw-admin/api-key-requests'
     | '/_admin/mw-admin/api-keys'
     | '/_admin/mw-admin/broadcasts'
     | '/_admin/mw-admin/code-injection'
@@ -1270,6 +1306,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/api-key-request'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
@@ -1351,6 +1388,7 @@ export interface RootRouteChildren {
   ViMoVietNamRoute: typeof ViMoVietNamRoute
   XacThuc2faRoute: typeof XacThuc2faRoute
   XacThucDangNhapRoute: typeof XacThucDangNhapRoute
+  YeuCauApiKeyRoute: typeof YeuCauApiKeyRoute
   AdminEmailPreviewRoute: typeof AdminEmailPreviewRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
@@ -1366,6 +1404,7 @@ export interface RootRouteChildren {
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
+  ApiPublicApiKeyRequestRoute: typeof ApiPublicApiKeyRequestRoute
   ApiPublicAuthsignalEmailRoute: typeof ApiPublicAuthsignalEmailRoute
   ApiPublicAuthsignalMagicLinkRoute: typeof ApiPublicAuthsignalMagicLinkRoute
   ApiPublicAuthsignalPushRoute: typeof ApiPublicAuthsignalPushRoute
@@ -1406,6 +1445,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yeu-cau-api-key': {
+      id: '/yeu-cau-api-key'
+      path: '/yeu-cau-api-key'
+      fullPath: '/yeu-cau-api-key'
+      preLoaderRoute: typeof YeuCauApiKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/xac-thuc-dang-nhap': {
       id: '/xac-thuc-dang-nhap'
       path: '/xac-thuc-dang-nhap'
@@ -1973,6 +2019,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAuthsignalEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/api-key-request': {
+      id: '/api/public/api-key-request'
+      path: '/api/public/api-key-request'
+      fullPath: '/api/public/api-key-request'
+      preLoaderRoute: typeof ApiPublicApiKeyRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/newsletter/unsubscribe': {
       id: '/api/newsletter/unsubscribe'
       path: '/api/newsletter/unsubscribe'
@@ -2085,6 +2138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminApiKeysRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/api-key-requests': {
+      id: '/_admin/mw-admin/api-key-requests'
+      path: '/mw-admin/api-key-requests'
+      fullPath: '/mw-admin/api-key-requests'
+      preLoaderRoute: typeof AdminMwAdminApiKeyRequestsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -2152,6 +2212,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminMwAdminApiKeyRequestsRoute: typeof AdminMwAdminApiKeyRequestsRoute
   AdminMwAdminApiKeysRoute: typeof AdminMwAdminApiKeysRoute
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
   AdminMwAdminCodeInjectionRoute: typeof AdminMwAdminCodeInjectionRoute
@@ -2170,6 +2231,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminMwAdminApiKeyRequestsRoute: AdminMwAdminApiKeyRequestsRoute,
   AdminMwAdminApiKeysRoute: AdminMwAdminApiKeysRoute,
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
   AdminMwAdminCodeInjectionRoute: AdminMwAdminCodeInjectionRoute,
@@ -2230,6 +2292,7 @@ const rootRouteChildren: RootRouteChildren = {
   ViMoVietNamRoute: ViMoVietNamRoute,
   XacThuc2faRoute: XacThuc2faRoute,
   XacThucDangNhapRoute: XacThucDangNhapRoute,
+  YeuCauApiKeyRoute: YeuCauApiKeyRoute,
   AdminEmailPreviewRoute: AdminEmailPreviewRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
@@ -2245,6 +2308,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
+  ApiPublicApiKeyRequestRoute: ApiPublicApiKeyRequestRoute,
   ApiPublicAuthsignalEmailRoute: ApiPublicAuthsignalEmailRoute,
   ApiPublicAuthsignalMagicLinkRoute: ApiPublicAuthsignalMagicLinkRoute,
   ApiPublicAuthsignalPushRoute: ApiPublicAuthsignalPushRoute,

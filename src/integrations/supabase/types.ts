@@ -158,6 +158,89 @@ export type Database = {
         }
         Relationships: []
       }
+      api_key_requests: {
+        Row: {
+          admin_notes: string | null
+          agreed_terms: boolean
+          api_key_id: string | null
+          company: string | null
+          created_at: string
+          email: string
+          expected_monthly_requests: string | null
+          full_name: string
+          id: string
+          integration_type: string | null
+          ip_address: string | null
+          project_description: string
+          project_name: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scopes: string[]
+          status: string
+          updated_at: string
+          use_case: string
+          user_agent: string | null
+          website: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          agreed_terms?: boolean
+          api_key_id?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          expected_monthly_requests?: string | null
+          full_name: string
+          id?: string
+          integration_type?: string | null
+          ip_address?: string | null
+          project_description: string
+          project_name: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scopes?: string[]
+          status?: string
+          updated_at?: string
+          use_case: string
+          user_agent?: string | null
+          website?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          agreed_terms?: boolean
+          api_key_id?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          expected_monthly_requests?: string | null
+          full_name?: string
+          id?: string
+          integration_type?: string | null
+          ip_address?: string | null
+          project_description?: string
+          project_name?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scopes?: string[]
+          status?: string
+          updated_at?: string
+          use_case?: string
+          user_agent?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_key_requests_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           active: boolean
