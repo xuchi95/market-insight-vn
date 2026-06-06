@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { logVerifyOtpResult } from "@/lib/auth/magic-link.functions";
 
 const SearchSchema = z.object({
   token_hash: z.string().min(1).optional(),
@@ -35,6 +36,14 @@ function VerifyPage() {
       if (!token_hash || !type) {
         setStatus("error");
         setError("Liên kết không hợp lệ hoặc đã hết hạn.");
+        logVerifyOtpResult({
+          data: {
+            type: type ?? "magiclink",
+            status: "failed",
+            error_message: "missing_token_or_type",
+            has_token: Boolean(token_hash),
+          },
+        }).catch(() => {});
         return;
       }
       const { error } = await supabase.auth.verifyOtp({ token_hash, type });
@@ -42,9 +51,20 @@ function VerifyPage() {
       if (error) {
         setStatus("error");
         setError("Liên kết đã hết hạn hoặc đã được sử dụng. Vui lòng yêu cầu liên kết mới.");
+        logVerifyOtpResult({
+          data: {
+            type,
+            status: "failed",
+            error_message: error.message?.slice(0, 500) ?? "verify_failed",
+            has_token: true,
+          },
+        }).catch(() => {});
         return;
       }
       setStatus("success");
+      logVerifyOtpResult({
+        data: { type, status: "success", has_token: true },
+      }).catch(() => {});
     }
     run();
     return () => {
