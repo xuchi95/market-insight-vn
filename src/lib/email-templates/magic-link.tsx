@@ -27,7 +27,7 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html lang="vi" dir="ltr">
     <Head />
-    <Preview>Liên kết đăng nhập {siteName} — có hiệu lực {minutesValid} phút</Preview>
+      <Preview>{`Liên kết đăng nhập ${siteName} — có hiệu lực ${minutesValid} phút`}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
