@@ -136,7 +136,7 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
                 <FormattedNumber
                   value={sjc.sell}
                   format={(v) => (compact ? fmtTrieu(v) : fmtVndFull(v))}
-                  unit={compact ? "tr/lượng" : "đ/lượng"}
+                  unit={compact ? "tr/chỉ" : "đ/chỉ"}
                   decimals={compact ? 2 : 0}
                   className="font-display text-4xl md:text-6xl leading-none text-foreground"
                   unitClassName="text-sm md:text-base text-muted-foreground"
