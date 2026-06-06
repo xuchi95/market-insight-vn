@@ -134,9 +134,9 @@ export function WatchlistPanel() {
       <DialogTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/20 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--gold-foreground)] bg-gradient-to-br from-[var(--gold-light)] to-[var(--gold)] border border-[var(--gold)]/60 shadow-[0_6px_16px_-8px_color-mix(in_oklab,var(--gold)_70%,transparent)] hover:-translate-y-px hover:shadow-[0_10px_22px_-8px_color-mix(in_oklab,var(--gold)_75%,transparent)] active:translate-y-0 transition-all"
         >
-          <Plus className="h-3.5 w-3.5" /> Thêm tài sản
+          <Plus className="h-4 w-4" strokeWidth={2.4} /> Thêm tài sản
         </button>
       </DialogTrigger>
       <DialogContent className="p-0 overflow-hidden max-w-lg">
@@ -188,28 +188,39 @@ export function WatchlistPanel() {
   );
 
   return (
-    <div className="rounded-2xl border border-border bg-card/40">
-      <div className="flex items-center justify-between px-4 md:px-5 py-3 border-b border-border">
-        <div className="flex items-center gap-2">
-          <Star className="h-4 w-4 text-[var(--gold)]" />
-          <h3 className="font-display text-lg tracking-tight">Danh sách theo dõi</h3>
-          <span
-            className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${
-              synced
-                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-500"
-                : "border-border bg-muted text-muted-foreground"
-            }`}
-          >
-            {synced ? "Đã đồng bộ" : "Cục bộ"}
-          </span>
+    <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-[0_1px_2px_color-mix(in_oklab,var(--foreground)_4%,transparent),0_10px_26px_-14px_color-mix(in_oklab,var(--foreground)_18%,transparent),0_30px_60px_-40px_color-mix(in_oklab,var(--foreground)_22%,transparent)]">
+      {/* Header */}
+      <header className="relative flex flex-wrap items-center justify-between gap-4 px-5 md:px-6 py-5 bg-[radial-gradient(420px_120px_at_14%_-40%,color-mix(in_oklab,var(--gold)_12%,transparent),transparent)]">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="grid place-items-center h-11 w-11 rounded-[13px] flex-none border border-[var(--gold)]/30 bg-gradient-to-br from-[var(--gold-light)] to-[var(--gold)] shadow-[inset_0_1px_0_color-mix(in_oklab,white_60%,transparent)]">
+            <Star className="h-5 w-5 fill-[var(--gold-foreground)] text-[var(--gold-foreground)]" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="font-display text-[17px] font-semibold tracking-tight">Danh sách theo dõi</span>
+              {synced && (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-[3px] rounded-full border border-[var(--up)]/30 bg-[color-mix(in_oklab,var(--up)_14%,transparent)] text-[var(--up)]">
+                  <span className="relative w-1.5 h-1.5 rounded-full bg-[var(--up)]">
+                    <span className="absolute inset-[-3px] rounded-full bg-[var(--up)] opacity-35 animate-ping" />
+                  </span>
+                  Đã đồng bộ
+                </span>
+              )}
+              {!synced && (
+                <span className="text-[11px] font-medium px-2 py-[3px] rounded-full border border-border bg-muted text-muted-foreground">
+                  Cục bộ
+                </span>
+              )}
+            </div>
+            {!isEmpty && (
+              <div className="text-xs text-muted-foreground mt-1 tabular">
+                {list.length} tài sản · cập nhật vừa rồi
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          {!isEmpty && (
-            <span className="text-xs text-muted-foreground">{list.length} tài sản</span>
-          )}
-          {Picker}
-        </div>
-      </div>
+        <div className="flex-none">{Picker}</div>
+      </header>
 
       {isEmpty ? (
         <div className="px-4 md:px-5 py-6">
@@ -232,59 +243,109 @@ export function WatchlistPanel() {
         </div>
       ) : (
         <>
-          <ul className="divide-y divide-border">
+          {/* Column header */}
+          <div className="hidden sm:grid grid-cols-[52px_minmax(0,1fr)_auto_auto] gap-4 items-center px-5 md:px-6 py-3 border-y border-border bg-[color-mix(in_oklab,var(--gold)_3%,transparent)]">
+            <span />
+            <span className="text-[10.5px] font-bold tracking-[0.09em] uppercase text-muted-foreground">Tài sản</span>
+            <span className="text-[10.5px] font-bold tracking-[0.09em] uppercase text-muted-foreground text-right">Giá hiện tại</span>
+            <span className="text-[10.5px] font-bold tracking-[0.09em] uppercase text-muted-foreground text-right">24 giờ</span>
+          </div>
+
+          <ul>
             {list.map((item) => {
               const q = resolveQuote(item);
               const change = q?.changePct ?? 0;
               const up = change >= 0;
+              const tileGradient =
+                item.category === "Vàng"
+                  ? "bg-gradient-to-br from-[var(--gold-light)] to-[var(--gold)] text-[var(--gold-foreground)]"
+                  : item.category === "Tiền điện tử"
+                  ? "bg-gradient-to-br from-[color-mix(in_oklab,var(--chart-4)_85%,white)] to-[var(--chart-4)] text-white"
+                  : "bg-gradient-to-br from-[color-mix(in_oklab,var(--chart-5)_85%,white)] to-[var(--chart-5)] text-white";
+              const dotColor =
+                item.category === "Vàng"
+                  ? "bg-[var(--gold)]"
+                  : item.category === "Tiền điện tử"
+                  ? "bg-[var(--chart-4)]"
+                  : "bg-[var(--chart-5)]";
               return (
-                <li key={item.symbol} className="group flex items-center gap-3 px-4 md:px-5 py-3 hover:bg-accent/40 transition-colors">
-                  <span className="inline-flex min-w-[52px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
-                    {item.symbol}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <a href={item.to} className="block truncate text-sm font-medium text-foreground hover:text-[var(--gold)]">
+                <li
+                  key={item.symbol}
+                  className="group grid grid-cols-[52px_minmax(0,1fr)_auto_auto] gap-4 items-center px-5 md:px-6 py-4 border-b border-border/60 last:border-b-0 transition-colors hover:bg-[linear-gradient(90deg,color-mix(in_oklab,var(--gold)_6%,transparent),color-mix(in_oklab,var(--gold)_1.5%,transparent))]"
+                >
+                  {/* Tile */}
+                  <div className={`relative h-[46px] w-[46px] rounded-[14px] grid place-items-center font-bold text-[12px] tracking-wide overflow-hidden shadow-[inset_0_1px_0_color-mix(in_oklab,white_40%,transparent),0_3px_8px_-4px_color-mix(in_oklab,var(--foreground)_30%,transparent)] ${tileGradient}`}>
+                    <span className="relative z-10 px-1 truncate max-w-full">{item.symbol.slice(0, 4)}</span>
+                    <span className="absolute inset-0 bg-[radial-gradient(60%_60%_at_30%_22%,color-mix(in_oklab,white_45%,transparent),transparent_60%)] pointer-events-none" />
+                  </div>
+
+                  {/* Name */}
+                  <div className="min-w-0">
+                    <a
+                      href={item.to}
+                      className="block truncate text-[14.5px] font-semibold tracking-tight text-foreground hover:text-[var(--gold)] transition-colors"
+                    >
                       {item.label}
                     </a>
-                    <div className="text-[11px] text-muted-foreground">{item.category}</div>
+                    <div className="flex items-center gap-1.5 mt-1 text-[12px] text-muted-foreground">
+                      <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                      {item.category}
+                      <span className="opacity-50">·</span>
+                      <span className="tabular text-[10.5px] font-semibold tracking-wider uppercase opacity-80">{item.symbol}</span>
+                    </div>
                   </div>
-                  <div className="text-right">
+
+                  {/* Price */}
+                  <div className="text-right tabular whitespace-nowrap">
                     {q ? (
                       <>
-                        <div className="tabular text-sm font-semibold text-foreground">
+                        <div className="text-[15px] font-bold tracking-tight text-foreground">
                           {q.priceLabel}
-                          <span className="ml-1 text-[10px] font-normal text-muted-foreground">{q.unit}</span>
+                          {q.unit && <span className="ml-0.5 text-[11.5px] font-semibold text-muted-foreground">{q.unit}</span>}
                         </div>
-                        {q.changePct !== null && (
-                          <div className={`tabular text-[11px] font-medium ${up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
-                            <span aria-hidden className="text-[0.7em]">{up ? "▲" : "▼"}</span>
-                            {" "}
-                            {Math.abs(change).toFixed(2)}%
-                          </div>
-                        )}
                       </>
                     ) : (
                       <div className="text-xs text-muted-foreground italic">—</div>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => void remove(item.symbol)}
-                    className="ml-1 p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+
+                  {/* Change pill + remove */}
+                  <div className="flex items-center gap-1.5 justify-end">
+                    {q && q.changePct !== null ? (
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[9px] text-[12.5px] font-bold tabular tracking-tight ${
+                          up
+                            ? "text-[var(--up)] bg-[color-mix(in_oklab,var(--up)_14%,transparent)]"
+                            : "text-[var(--down)] bg-[color-mix(in_oklab,var(--down)_14%,transparent)]"
+                        }`}
+                      >
+                        <span aria-hidden className="text-[0.7em] leading-none">{up ? "▲" : "▼"}</span>
+                        {Math.abs(change).toFixed(2)}%
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => void remove(item.symbol)}
+                      aria-label={`Xoá ${item.label}`}
+                      className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </li>
               );
             })}
           </ul>
 
-          <div className="border-t border-border px-4 md:px-5 py-2.5 text-right">
+          <div className="flex justify-end border-t border-border px-5 md:px-6 py-3.5 bg-[color-mix(in_oklab,var(--gold)_2.5%,transparent)]">
             <a
               href="/cai-dat/canh-bao"
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-[var(--gold)]"
+              className="group/link inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--gold)] hover:text-[var(--gold-light)] transition-all"
             >
-              Quản lý cảnh báo <ArrowUpRight className="h-3 w-3" />
+              Quản lý cảnh báo
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
             </a>
           </div>
         </>
