@@ -24,6 +24,11 @@ export const Route = createFileRoute("/yeu-cau-api-key")({
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {
+      if (typeof window !== "undefined") {
+        toast.error("Bạn cần đăng nhập để yêu cầu API key", {
+          description: "Đang chuyển đến trang đăng nhập…",
+        });
+      }
       throw redirect({
         to: "/dang-nhap",
         search: { redirect: "/yeu-cau-api-key" } as never,
