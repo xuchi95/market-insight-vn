@@ -32,6 +32,9 @@ function NewsSettingsPage() {
         next ? "Đã bật CoinMarketCap làm nguồn tin" : "Đã tắt CoinMarketCap",
       );
       qc.invalidateQueries({ queryKey: ["admin", "news-settings"] });
+      // Buộc mọi widget tin crypto đang mở (kể cả trên tab admin này)
+      // refetch ngay -> server đã clear cache khi updated_at thay đổi.
+      qc.invalidateQueries({ queryKey: ["crypto-news"] });
     } catch (e) {
       toast.error((e as Error).message);
     }

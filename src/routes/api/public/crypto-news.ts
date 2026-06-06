@@ -29,24 +29,27 @@ const cache = new Map<string, { at: number; payload: NewsPayload }>();
 const inflight = new Map<string, Promise<NewsPayload>>();
 
 // Cache nhỏ cho cờ bật/tắt CMC để không gọi DB mỗi request.
-let cmcFlagCache: { at: number; enabled: boolean } | null = null;
-const FLAG_TTL_MS = 30_000;
+// Lưu cả updated_at để phát hiện thay đổi và xoá cache payload tương ứng.
+let cmcFlagCache: { at: number; enabled: boolean; updatedAt: string | null } | null = null;
+const FLAG_TTL_MS = 10_000;
+let lastAppliedUpdatedAt: string | null = null;
 
-async function isCmcEnabled(): Promise<boolean> {
+async function readCmcFlag(): Promise<{ enabled: boolean; updatedAt: string | null }> {
   if (cmcFlagCache && Date.now() - cmcFlagCache.at < FLAG_TTL_MS) {
-    return cmcFlagCache.enabled;
+    return { enabled: cmcFlagCache.enabled, updatedAt: cmcFlagCache.updatedAt };
   }
   try {
     const { data } = await supabaseAdmin
       .from("app_news_settings")
-      .select("cmc_enabled")
+      .select("cmc_enabled, updated_at")
       .eq("id", 1)
       .maybeSingle();
     const enabled = data?.cmc_enabled ?? true;
-    cmcFlagCache = { at: Date.now(), enabled };
-    return enabled;
+    const updatedAt = (data?.updated_at as string | null) ?? null;
+    cmcFlagCache = { at: Date.now(), enabled, updatedAt };
+    return { enabled, updatedAt };
   } catch {
-    return true;
+    return { enabled: true, updatedAt: null };
   }
 }
 
@@ -104,8 +107,7 @@ async function fetchCoinMarketCap(symbol: string): Promise<NewsPayload["items"]>
   }
 }
 
-async function fetchNews(category: string): Promise<NewsPayload> {
-  const cmcOn = await isCmcEnabled();
+async function fetchNews(category: string, cmcOn: boolean): Promise<NewsPayload> {
   const merged: NewsPayload["items"] = cmcOn
     ? await fetchCoinMarketCap(category).catch(() => [])
     : [];
@@ -123,10 +125,10 @@ async function fetchNews(category: string): Promise<NewsPayload> {
   return { updatedAt: Date.now(), category, items: deduped.slice(0, 40) };
 }
 
-function refresh(category: string): Promise<NewsPayload> {
+function refresh(category: string, cmcOn: boolean): Promise<NewsPayload> {
   const k = category || "_all";
   if (inflight.has(k)) return inflight.get(k)!;
-  const p = fetchNews(category)
+  const p = fetchNews(category, cmcOn)
     .then((payload) => {
       cache.set(k, { at: Date.now(), payload });
       return payload;
@@ -153,6 +155,29 @@ export const Route = createFileRoute("/api/public/crypto-news")({
           // Whitelist a-z0-9, comma, max 40 chars to avoid abuse.
           const category = /^[A-Z0-9,]{0,40}$/.test(raw) ? raw : "";
           const k = category || "_all";
+          const { enabled: cmcOn, updatedAt } = await readCmcFlag();
+
+          // Khi admin đổi cờ, updated_at thay đổi -> xoá cache payload để
+          // phản ánh trạng thái mới ngay lập tức (không SWR phục vụ dữ liệu cũ).
+          if (updatedAt && updatedAt !== lastAppliedUpdatedAt) {
+            cache.clear();
+            inflight.clear();
+            lastAppliedUpdatedAt = updatedAt;
+          }
+
+          // Khi CMC tắt: luôn trả mảng rỗng, không dùng cache cũ, không cache lâu.
+          if (!cmcOn) {
+            const empty: NewsPayload = { updatedAt: Date.now(), category, items: [] };
+            return new Response(JSON.stringify(empty), {
+              status: 200,
+              headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-store",
+                ...CORS,
+              },
+            });
+          }
+
           const c = cache.get(k);
           let payload: NewsPayload;
           const age = c ? Date.now() - c.at : Infinity;
@@ -160,10 +185,10 @@ export const Route = createFileRoute("/api/public/crypto-news")({
             payload = c.payload;
           } else if (c && age < SWR_MS) {
             payload = c.payload;
-            refresh(category).catch(() => {});
+            refresh(category, cmcOn).catch(() => {});
           } else {
             try {
-              payload = await refresh(category);
+              payload = await refresh(category, cmcOn);
             } catch (e) {
               if (c) payload = c.payload;
               else throw e;
