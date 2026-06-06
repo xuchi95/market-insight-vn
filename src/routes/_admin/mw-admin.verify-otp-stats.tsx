@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { getVerifyOtpStats } from "@/lib/admin/verify-otp-stats.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -51,6 +53,10 @@ function VerifyOtpStatsPage() {
     queryKey: ["admin", "verify-otp-stats", days],
     queryFn: () => fn({ data: { days } }),
   });
+  const isFetching = (useQuery({
+    queryKey: ["admin", "verify-otp-stats", days],
+    queryFn: () => fn({ data: { days } }),
+  })).isFetching;
 
   const maxDay = Math.max(1, ...(data?.byDay.map((d) => d.success + d.failed) ?? [1]));
 
