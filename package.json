@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "check:leak": "bash scripts/check-service-role-leak.sh",
-    "check:leak:full": "vite build && bash scripts/check-service-role-leak.sh"
+    "check:leak:full": "vite build && bash scripts/check-service-role-leak.sh",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@authsignal/browser": "^1.17.0",
