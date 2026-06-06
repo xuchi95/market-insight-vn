@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YeuCauApiKeyRouteImport } from './routes/yeu-cau-api-key'
 import { Route as XacThucDangNhapRouteImport } from './routes/xac-thuc-dang-nhap'
 import { Route as XacThuc2faRouteImport } from './routes/xac-thuc-2fa'
 import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
@@ -117,6 +118,11 @@ import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/
 import { Route as ApiPublicHooksRefreshFuelPricesRouteImport } from './routes/api/public/hooks/refresh-fuel-prices'
 import { Route as AdminMwAdminFuelPricesHistoryRouteImport } from './routes/_admin/mw-admin.fuel-prices_.history'
 
+const YeuCauApiKeyRoute = YeuCauApiKeyRouteImport.update({
+  id: '/yeu-cau-api-key',
+  path: '/yeu-cau-api-key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const XacThucDangNhapRoute = XacThucDangNhapRouteImport.update({
   id: '/xac-thuc-dang-nhap',
   path: '/xac-thuc-dang-nhap',
@@ -708,6 +714,7 @@ export interface FileRoutesByFullPath {
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
+  '/yeu-cau-api-key': typeof YeuCauApiKeyRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -816,6 +823,7 @@ export interface FileRoutesByTo {
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
+  '/yeu-cau-api-key': typeof YeuCauApiKeyRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -926,6 +934,7 @@ export interface FileRoutesById {
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
+  '/yeu-cau-api-key': typeof YeuCauApiKeyRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -1036,6 +1045,7 @@ export interface FileRouteTypes {
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
+    | '/yeu-cau-api-key'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1144,6 +1154,7 @@ export interface FileRouteTypes {
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
+    | '/yeu-cau-api-key'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1253,6 +1264,7 @@ export interface FileRouteTypes {
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
+    | '/yeu-cau-api-key'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1363,6 +1375,7 @@ export interface RootRouteChildren {
   ViMoVietNamRoute: typeof ViMoVietNamRoute
   XacThuc2faRoute: typeof XacThuc2faRoute
   XacThucDangNhapRoute: typeof XacThucDangNhapRoute
+  YeuCauApiKeyRoute: typeof YeuCauApiKeyRoute
   AdminEmailPreviewRoute: typeof AdminEmailPreviewRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
@@ -1419,6 +1432,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yeu-cau-api-key': {
+      id: '/yeu-cau-api-key'
+      path: '/yeu-cau-api-key'
+      fullPath: '/yeu-cau-api-key'
+      preLoaderRoute: typeof YeuCauApiKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/xac-thuc-dang-nhap': {
       id: '/xac-thuc-dang-nhap'
       path: '/xac-thuc-dang-nhap'
@@ -2250,6 +2270,7 @@ const rootRouteChildren: RootRouteChildren = {
   ViMoVietNamRoute: ViMoVietNamRoute,
   XacThuc2faRoute: XacThuc2faRoute,
   XacThucDangNhapRoute: XacThucDangNhapRoute,
+  YeuCauApiKeyRoute: YeuCauApiKeyRoute,
   AdminEmailPreviewRoute: AdminEmailPreviewRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
