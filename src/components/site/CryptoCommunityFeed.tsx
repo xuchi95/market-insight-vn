@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ExternalLink, Loader2, MessageSquareText, RefreshCw, AlertTriangle, Newspaper } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -21,12 +21,13 @@ interface NewsPayload {
   items: NewsItem[];
 }
 
-async function fetchCryptoNews(symbol: string): Promise<NewsPayload> {
+async function fetchCryptoNews(symbol: string, bust = false): Promise<NewsPayload> {
   const u = new URL("/api/public/crypto-news", window.location.origin);
   if (symbol) u.searchParams.set("category", symbol.toUpperCase());
-  // cache: "no-cache" buộc trình duyệt revalidate, tránh phục vụ payload
-  // rỗng còn sót lại từ nguồn tin cũ.
-  const r = await fetch(u.toString(), { cache: "no-cache" });
+  // Khi user bấm "Làm mới", thêm timestamp để bypass cả CDN cache (s-maxage=300)
+  // — không thì 5 phút đầu CDN vẫn trả payload cũ và nút trông như không hoạt động.
+  if (bust) u.searchParams.set("_", String(Date.now()));
+  const r = await fetch(u.toString(), { cache: "no-store" });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
@@ -47,12 +48,21 @@ function timeAgo(ts: number): string {
 export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: string }) {
   const sym = symbol.toUpperCase();
   const [limit, setLimit] = useState(8);
+  const bustRef = useRef(false);
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["crypto-news", sym],
-    queryFn: () => fetchCryptoNews(sym),
+    queryFn: () => {
+      const bust = bustRef.current;
+      bustRef.current = false;
+      return fetchCryptoNews(sym, bust);
+    },
     staleTime: 5 * 60_000,
     refetchInterval: 5 * 60_000,
   });
+  const handleManualRefresh = () => {
+    bustRef.current = true;
+    refetch();
+  };
 
   const items = useMemo(() => data?.items ?? [], [data]);
   const shown = items.slice(0, limit);
@@ -76,7 +86,7 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
           {isFetching && !isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-label="Đang cập nhật" />}
           <button
             type="button"
-            onClick={() => refetch()}
+            onClick={handleManualRefresh}
             className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium hover:bg-muted/40"
             disabled={isFetching}
           >
@@ -108,7 +118,7 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
             </div>
             <button
               type="button"
-              onClick={() => refetch()}
+              onClick={handleManualRefresh}
               className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
             >
               <RefreshCw className="h-3 w-3" /> Thử lại
