@@ -21,12 +21,13 @@ interface NewsPayload {
   items: NewsItem[];
 }
 
-async function fetchCryptoNews(symbol: string): Promise<NewsPayload> {
+async function fetchCryptoNews(symbol: string, bust = false): Promise<NewsPayload> {
   const u = new URL("/api/public/crypto-news", window.location.origin);
   if (symbol) u.searchParams.set("category", symbol.toUpperCase());
-  // cache: "no-cache" buộc trình duyệt revalidate, tránh phục vụ payload
-  // rỗng còn sót lại từ nguồn tin cũ.
-  const r = await fetch(u.toString(), { cache: "no-cache" });
+  // Khi user bấm "Làm mới", thêm timestamp để bypass cả CDN cache (s-maxage=300)
+  // — không thì 5 phút đầu CDN vẫn trả payload cũ và nút trông như không hoạt động.
+  if (bust) u.searchParams.set("_", String(Date.now()));
+  const r = await fetch(u.toString(), { cache: "no-store" });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
@@ -49,10 +50,11 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
   const [limit, setLimit] = useState(8);
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["crypto-news", sym],
-    queryFn: () => fetchCryptoNews(sym),
+    queryFn: ({ meta }) => fetchCryptoNews(sym, Boolean(meta?.bust)),
     staleTime: 5 * 60_000,
     refetchInterval: 5 * 60_000,
   });
+  const handleManualRefresh = () => refetch({ meta: { bust: true } } as never);
 
   const items = useMemo(() => data?.items ?? [], [data]);
   const shown = items.slice(0, limit);
