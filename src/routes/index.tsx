@@ -63,18 +63,24 @@ function Index() {
         <div className="mx-auto max-w-6xl px-5">
           {/* Hero — editorial masthead */}
           <section className="py-10 md:py-14 border-b border-border">
-            <div className="grid md:grid-cols-12 gap-6 md:gap-10 items-end">
+            <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-end">
               <div className="md:col-span-7">
-                <h1 className="font-display text-[2.25rem] sm:text-[2.75rem] md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-foreground text-balance">
-                  Theo dõi giá <em className="text-[var(--gold)] not-italic font-display italic">vàng</em>,{" "}
-                  <span className="text-[var(--gold)]">crypto</span> &amp; tỷ giá ngoại tệ.
+                <h1 className="font-display font-bold text-[2.6rem] sm:text-[3.2rem] md:text-[3.75rem] lg:text-[4.4rem] leading-[1.02] tracking-[-0.018em] text-foreground text-balance">
+                  Theo dõi giá
+                  <br />
+                  <em className="not-italic text-[var(--gold)]">vàng, crypto</em> &amp;
+                  <br />
+                  tỷ giá ngoại tệ.
                 </h1>
               </div>
-              <div className="md:col-span-5 md:pl-8 md:border-l md:border-border">
-                <p className="text-sm md:text-base text-muted-foreground leading-relaxed text-pretty">
-                  Công cụ theo dõi dữ liệu tài chính của Việt Nam; Giá vàng, tiền số và ngoại tệ.... cập nhật theo từng phút.
+              <div className="md:col-span-5 md:pb-2">
+                <p className="text-[15px] text-muted-foreground leading-relaxed text-pretty max-w-[42ch]">
+                  Công cụ trực quan hoá dữ liệu tài chính Việt Nam — giá vàng, tiền số, ngoại tệ và lãi suất, cập nhật theo từng phút.
                 </p>
-                <div className="mt-5 eyebrow opacity-60">Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường</div>
+                <div className="mt-4 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
+                  <span aria-hidden className="inline-block w-[22px] h-px bg-[color-mix(in_oklab,var(--gold)_70%,transparent)]" />
+                  Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường
+                </div>
               </div>
             </div>
           </section>
@@ -91,17 +97,27 @@ function Index() {
           <section className="pb-10 md:pb-14">
             <Link
               to="/du-doan-gia-ai"
-              className="group block rounded-2xl border-2 border-[var(--gold)]/70 bg-[color-mix(in_oklab,var(--gold)_18%,var(--background))] p-6 md:p-8 shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--gold)_55%,transparent)] ring-1 ring-[var(--gold)]/25 transition-colors hover:bg-[color-mix(in_oklab,var(--gold)_24%,var(--background))]"
+              className="group relative block overflow-hidden rounded-2xl border border-[var(--gold)]/40 bg-card p-6 md:p-8 shadow-[0_18px_40px_-22px_rgba(0,0,0,0.5)] transition-colors hover:border-[var(--gold)]/60"
+              style={{
+                backgroundImage:
+                  "radial-gradient(420px 180px at 88% 50%, color-mix(in oklab, var(--gold) 14%, transparent), transparent 70%)",
+              }}
             >
+              <span
+                aria-hidden
+                className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[var(--gold-light)] to-[var(--gold)]"
+              />
               <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
                 <div className="flex-1">
-                  <div className="eyebrow text-[var(--gold)] mb-2">✨ Mới · Trí tuệ nhân tạo</div>
-                  <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">
+                  <div className="mb-2 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">
+                    ✦ Mới · Trí tuệ nhân tạo
+                  </div>
+                  <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight text-foreground">
                     AI dự đoán giá vàng, xăng dầu, Bitcoin &amp; ngoại tệ
                   </h2>
                 </div>
                 <div className="shrink-0">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] text-background px-5 py-2.5 text-sm font-semibold group-hover:opacity-90 transition-opacity">
+                  <span className="inline-flex items-center gap-2 rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-2.5 text-sm font-semibold shadow-[0_1px_0_rgba(255,255,255,.18)_inset] transition-colors group-hover:bg-[var(--gold-light)]">
                     Thử ngay →
                   </span>
                 </div>
