@@ -536,12 +536,14 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           {/* Mobile search trigger */}
           <button
             type="button"
+            data-testid="header-mobile-search-trigger"
             onClick={() => setSearchOpen(true)}
             className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
             <Search className="h-5 w-5" />
           </button>
           <button
+            data-testid="header-mobile-menu-trigger"
             className="md:hidden text-muted-foreground hover:text-foreground"
             onClick={() => setOpen((v) => !v)}
           >
@@ -552,9 +554,10 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
       {/* Mobile search sheet */}
       {searchOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-xl animate-in fade-in duration-150">
+        <div data-testid="header-mobile-search-panel" className="md:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-xl animate-in fade-in duration-150">
           <div className="mx-auto max-w-6xl px-4 pt-3 pb-4 border-b border-border bg-background">
             <form
+              data-testid="header-mobile-search-form"
               className="relative flex items-center gap-2"
               onSubmit={(e) => {
                 e.preventDefault();

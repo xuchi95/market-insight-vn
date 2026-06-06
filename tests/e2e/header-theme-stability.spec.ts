@@ -15,10 +15,20 @@ import { test, expect, type Page } from "@playwright/test";
 
 const TOLERANCE_PX = 1.5;
 
-const VIEWPORTS = [
+const DESKTOP_VIEWPORTS = [
+  { name: "tablet-768", width: 768, height: 1024 },
+  { name: "mobile-landscape-812", width: 812, height: 375 },
+  { name: "mobile-landscape-896", width: 896, height: 414 },
   { name: "laptop-1280", width: 1280, height: 720 },
   { name: "desktop-1536", width: 1536, height: 864 },
   { name: "desktop-1920", width: 1920, height: 1080 },
+];
+
+const MOBILE_VIEWPORTS = [
+  { name: "mobile-320", width: 320, height: 568 },
+  { name: "mobile-375", width: 375, height: 812 },
+  { name: "mobile-414", width: 414, height: 896 },
+  { name: "mobile-landscape-568", width: 568, height: 320 },
 ];
 
 const THEMES: Array<"light" | "dark"> = ["light", "dark"];
@@ -53,7 +63,7 @@ for (const theme of THEMES) {
       }, theme);
     });
 
-    for (const vp of VIEWPORTS) {
+    for (const vp of DESKTOP_VIEWPORTS) {
       test(`không lệch ở ${vp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -162,6 +172,141 @@ for (const theme of THEMES) {
         expectRectEqual(after2.header!, before2.header!, "header (search open)");
         expectRectEqual(after2.toolbar!, before2.toolbar!, "toolbar (search open)");
         expectRectEqual(after2.form!, before2.form!, "search form (search open)");
+      });
+    }
+
+    // ==== Mobile / mobile-landscape ====
+    // Ở mobile, desktop nav + toolbar bị ẩn; header dùng nút search + menu
+    // riêng và ThemeToggle nằm trong mobile menu panel.
+    for (const vp of MOBILE_VIEWPORTS) {
+      test(`mobile · không lệch ở ${vp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: vp.width, height: vp.height });
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await page.waitForSelector('[data-testid="site-header"]', { timeout: 15_000 });
+        await page.waitForFunction(
+          (t) => document.documentElement.classList.contains(t as string),
+          theme,
+          { timeout: 5_000 },
+        );
+        await page.waitForLoadState("networkidle").catch(() => {});
+        await page.waitForTimeout(200);
+
+        // ==== Pha 1: đóng menu — đo header + 2 nút trigger mobile ====
+        const before1 = {
+          header: await rectOf(page, '[data-testid="site-header"]'),
+          searchTrigger: await rectOf(page, '[data-testid="header-mobile-search-trigger"]'),
+          menuTrigger: await rectOf(page, '[data-testid="header-mobile-menu-trigger"]'),
+        };
+        for (const [k, v] of Object.entries(before1)) {
+          expect(v, `mobile pha 1 thiếu ${k}`).not.toBeNull();
+        }
+
+        // Mở mobile menu để truy cập ThemeToggle nằm trong panel.
+        await page.locator('[data-testid="header-mobile-menu-trigger"]').click();
+        await page.waitForTimeout(200);
+        const toggle = page.locator('button[aria-pressed]:visible').first();
+        await toggle.waitFor({ state: "visible", timeout: 5_000 });
+        const otherTheme = theme === "dark" ? "light" : "dark";
+        await toggle.click();
+        await page.waitForFunction(
+          (t) => document.documentElement.classList.contains(t as string),
+          otherTheme,
+          { timeout: 5_000 },
+        );
+        await page.waitForTimeout(200);
+        // Đóng menu lại để đo header ở trạng thái bình thường.
+        await page.locator('[data-testid="header-mobile-menu-trigger"]').click();
+        await page.waitForTimeout(200);
+
+        const after1 = {
+          header: await rectOf(page, '[data-testid="site-header"]'),
+          searchTrigger: await rectOf(page, '[data-testid="header-mobile-search-trigger"]'),
+          menuTrigger: await rectOf(page, '[data-testid="header-mobile-menu-trigger"]'),
+        };
+        expectRectEqual(after1.header!, before1.header!, "mobile header (closed)");
+        expectRectEqual(
+          after1.searchTrigger!,
+          before1.searchTrigger!,
+          "mobile search trigger (closed)",
+        );
+        expectRectEqual(
+          after1.menuTrigger!,
+          before1.menuTrigger!,
+          "mobile menu trigger (closed)",
+        );
+
+        // Toggle lần 2 để kiểm tra đối xứng (đảo lại theme ban đầu).
+        await page.locator('[data-testid="header-mobile-menu-trigger"]').click();
+        await page.waitForTimeout(200);
+        const toggle2 = page.locator('button[aria-pressed]:visible').first();
+        await toggle2.click();
+        await page.waitForFunction(
+          (t) => document.documentElement.classList.contains(t as string),
+          theme,
+          { timeout: 5_000 },
+        );
+        await page.waitForTimeout(200);
+        await page.locator('[data-testid="header-mobile-menu-trigger"]').click();
+        await page.waitForTimeout(200);
+        const back1 = {
+          header: await rectOf(page, '[data-testid="site-header"]'),
+          searchTrigger: await rectOf(page, '[data-testid="header-mobile-search-trigger"]'),
+        };
+        expectRectEqual(back1.header!, before1.header!, "mobile header (closed/back)");
+        expectRectEqual(
+          back1.searchTrigger!,
+          before1.searchTrigger!,
+          "mobile search trigger (closed/back)",
+        );
+
+        // ==== Pha 2: mở mobile search panel — form phải giữ nguyên khi
+        // toggle theme. ThemeToggle không nằm trong search panel nên ta đóng
+        // search panel, toggle qua menu, rồi mở lại search và so sánh.
+        await page.locator('[data-testid="header-mobile-search-trigger"]').click();
+        await page.waitForSelector('[data-testid="header-mobile-search-form"]', {
+          timeout: 5_000,
+        });
+        await page.waitForTimeout(200);
+        const before2 = {
+          panel: await rectOf(page, '[data-testid="header-mobile-search-panel"]'),
+          form: await rectOf(page, '[data-testid="header-mobile-search-form"]'),
+        };
+        for (const [k, v] of Object.entries(before2)) {
+          expect(v, `mobile pha 2 thiếu ${k}`).not.toBeNull();
+        }
+        // Đóng search panel (nút X bên trong form).
+        await page
+          .locator('[data-testid="header-mobile-search-form"] button[type="button"]')
+          .click();
+        await page.waitForTimeout(200);
+
+        // Toggle theme qua menu.
+        await page.locator('[data-testid="header-mobile-menu-trigger"]').click();
+        await page.waitForTimeout(200);
+        const toggle3 = page.locator('button[aria-pressed]:visible').first();
+        await toggle3.click();
+        const otherTheme2 = theme === "dark" ? "light" : "dark";
+        await page.waitForFunction(
+          (t) => document.documentElement.classList.contains(t as string),
+          otherTheme2,
+          { timeout: 5_000 },
+        );
+        await page.waitForTimeout(200);
+        await page.locator('[data-testid="header-mobile-menu-trigger"]').click();
+        await page.waitForTimeout(200);
+
+        // Mở lại search panel ở theme mới và đo lại.
+        await page.locator('[data-testid="header-mobile-search-trigger"]').click();
+        await page.waitForSelector('[data-testid="header-mobile-search-form"]', {
+          timeout: 5_000,
+        });
+        await page.waitForTimeout(200);
+        const after2 = {
+          panel: await rectOf(page, '[data-testid="header-mobile-search-panel"]'),
+          form: await rectOf(page, '[data-testid="header-mobile-search-form"]'),
+        };
+        expectRectEqual(after2.panel!, before2.panel!, "mobile search panel (open)");
+        expectRectEqual(after2.form!, before2.form!, "mobile search form (open)");
       });
     }
   });
