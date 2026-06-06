@@ -604,9 +604,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 Không tìm thấy "{q}"
               </div>
             ) : (
-              <ul className="space-y-0.5">
+              <ul data-testid="header-mobile-search-results" className="space-y-0.5">
                 {suggestions.map((s, idx) => (
-                  <li key={s.symbol}>
+                  <li key={s.symbol} data-testid={idx === 0 ? "header-mobile-search-result-first" : undefined}>
                     <button
                       type="button"
                       onMouseDown={(e) => { e.preventDefault(); goToSuggestion(s); }}
