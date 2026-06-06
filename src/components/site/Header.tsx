@@ -272,7 +272,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
+    <header data-testid="site-header" className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center gap-3 lg:gap-4 px-4 md:px-5 lg:px-6 py-2.5 md:py-3">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src={logoUrl} alt="MarketWatch logo" className="h-7 w-7 md:h-8 md:w-8 object-contain" />
@@ -282,7 +282,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </Link>
 
         {/* Desktop NavigationMenu */}
-        <div className="hidden md:flex items-center ml-2 lg:ml-4">
+        <div data-testid="header-nav" className="hidden md:flex items-center ml-2 lg:ml-4">
           <NavigationMenu>
             <NavigationMenuList className="gap-0 lg:gap-0.5">
               <NavigationMenuItem>
@@ -341,12 +341,13 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </NavigationMenu>
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div data-testid="header-actions" className="ml-auto flex items-center gap-2">
           {/* Unified toolbar: Search · Watchlist | Format · Theme */}
-          <div className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm px-1 py-1 shadow-[inset_0_1px_0_color-mix(in_oklab,white_4%,transparent),0_1px_2px_-1px_rgba(0,0,0,0.4)]">
+          <div data-testid="header-toolbar" className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm px-1 py-1 shadow-[inset_0_1px_0_color-mix(in_oklab,white_4%,transparent),0_1px_2px_-1px_rgba(0,0,0,0.4)]">
           <div className="flex items-center">
             {searchOpen ? (
               <form
+                data-testid="header-search-form"
                 className="relative animate-in fade-in slide-in-from-right-2 duration-200"
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -409,6 +410,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             ) : (
               <button
                 type="button"
+                data-testid="header-search-trigger"
                 onClick={() => setSearchOpen(true)}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
