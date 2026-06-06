@@ -199,9 +199,6 @@ function MacroPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Kinh tế vĩ mô Việt Nam</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Các chỉ số kinh tế quan trọng của Việt Nam: <strong>tăng trưởng GDP</strong>, lạm phát CPI, thất nghiệp, dự trữ ngoại hối, xuất nhập khẩu — số liệu cập nhật từ <strong>SBV</strong>, <strong>GSO</strong>, <strong>IMF WEO</strong> và <strong>World Bank Open Data</strong>.
-            </p>
           </header>
 
           {sbv && (

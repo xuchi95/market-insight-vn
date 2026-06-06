@@ -87,9 +87,6 @@ function CryptoPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Giá Bitcoin hôm nay — BTC, ETH, USDT, BNB, SOL realtime</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Cập nhật <strong>giá BTC hôm nay</strong>, giá Ethereum, USDT, BNB, Solana, XRP, Dogecoin, TON… theo USD và VND, làm mới liên tục từ thị trường crypto toàn cầu.
-            </p>
           </header>
           <CryptoPriceTable search={search} />
           <FearGreedGauge />

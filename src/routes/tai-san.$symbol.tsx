@@ -770,9 +770,6 @@ function AssetDetail() {
                   </div>
                   <div className="space-y-1.5 max-w-md">
                     <h3 className="font-display text-xl">Biểu đồ nâng cao dành cho thành viên</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Chỉ thành viên đã đăng ký/đăng nhập mới xem được biểu đồ nến realtime, chỉ báo kỹ thuật và công cụ vẽ.
-                    </p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center">
                     <RouterLink

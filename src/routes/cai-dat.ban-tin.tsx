@@ -59,9 +59,6 @@ function NewsletterSettingsPage() {
         <header className="mb-8">
           <div className="eyebrow text-[var(--gold)]">Cài đặt</div>
           <h1 className="font-display text-4xl mt-1">Quản lý bản tin</h1>
-          <p className="mt-3 text-sm text-muted-foreground max-w-xl">
-            Đăng ký, đổi địa chỉ email hoặc huỷ nhận bản tin tổng hợp vàng, crypto và ngoại tệ.
-          </p>
         </header>
 
         {authLoading || !user ? (
@@ -267,9 +264,6 @@ function SettingsCard() {
       {active && (
         <section className="rounded-2xl border border-border bg-card/40 p-6">
           <h2 className="font-display text-lg text-foreground mb-1">Chủ đề bản tin tuần</h2>
-          <p className="text-xs text-muted-foreground mb-4">
-            Chọn các chủ đề bạn muốn xuất hiện trong bản tin hàng tuần (kèm biểu đồ tóm tắt 7 ngày).
-          </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {([
               { key: "gold", label: "Vàng (XAU/USD)" },

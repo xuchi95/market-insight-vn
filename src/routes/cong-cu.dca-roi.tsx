@@ -68,9 +68,6 @@ function DcaRoiPage() {
           <Breadcrumbs />
           <header className="mt-4 mb-8">
             <h1 className="font-display text-3xl md:text-5xl">Máy tính DCA &amp; ROI</h1>
-            <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-              Mô phỏng chiến lược mua đều đặn (Dollar-Cost Averaging) hoặc tính lợi nhuận của một giao dịch — áp dụng cho Bitcoin, vàng, cổ phiếu hay bất kỳ tài sản nào bạn theo dõi.
-            </p>
           </header>
 
           <Tabs defaultValue="dca">

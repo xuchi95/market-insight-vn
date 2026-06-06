@@ -72,9 +72,6 @@ function ConverterPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Đổi ngoại tệ — Quy đổi USD, EUR, JPY, CNY sang VND</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Công cụ <strong>đổi ngoại tệ trực tuyến</strong> theo tỷ giá thực tế: hỗ trợ USD, EUR, JPY, CNY, GBP, KRW, AUD, vàng SJC/PNJ và crypto — tính chênh lệch do spread mua/bán.
-            </p>
           </header>
           <ConverterTool />
 

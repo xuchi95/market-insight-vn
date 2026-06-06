@@ -153,9 +153,6 @@ function EconomicCalendarPage() {
           <Breadcrumbs />
           <header className="mt-4 mb-8">
             <h1 className="font-display text-3xl md:text-5xl">Lịch kinh tế</h1>
-            <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-              Các sự kiện kinh tế quan trọng từ Fed, ECB, BoJ, BLS… ảnh hưởng trực tiếp đến vàng, USD/VND, Bitcoin và chứng khoán. Giờ hiển thị theo múi giờ Việt Nam (UTC+7).
-            </p>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               {isLoading && (
                 <span className="inline-flex items-center gap-1.5">

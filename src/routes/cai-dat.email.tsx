@@ -99,9 +99,6 @@ function ChangeEmailPage() {
 
         <header className="mb-8">
           <h1 className="font-display text-3xl tracking-tight">Đổi email</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Cập nhật địa chỉ email đăng nhập. Bạn sẽ nhận được thư xác nhận tại địa chỉ mới.
-          </p>
         </header>
 
         <section className="rounded-2xl border border-border bg-card p-6">

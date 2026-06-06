@@ -126,9 +126,6 @@ function GoldPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Giá vàng SJC hôm nay — DOJI, PNJ, BTMC realtime</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Cập nhật <strong>giá vàng SJC hôm nay</strong>, giá vàng DOJI, PNJ, Bảo Tín Minh Châu, Phú Quý và giá vàng thế giới XAU/USD theo thời gian thực — mua vào, bán ra, chênh lệch và biến động trong ngày.
-            </p>
           </header>
           <GoldPriceTable search={search} />
           <MetalsTable />

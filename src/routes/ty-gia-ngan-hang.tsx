@@ -80,9 +80,6 @@ function BankRatesPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Tỷ giá Vietcombank hôm nay</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Bảng tỷ giá ngoại tệ niêm yết chính thức của <strong>Ngân hàng TMCP Ngoại thương Việt Nam (Vietcombank)</strong> — giá mua tiền mặt, mua chuyển khoản và bán ra theo VND.
-            </p>
           </header>
           <BankRateTable />
           <section className="prose prose-invert max-w-none space-y-3">

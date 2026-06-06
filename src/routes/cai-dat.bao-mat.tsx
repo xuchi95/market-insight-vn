@@ -126,9 +126,6 @@ function SecuritySettingsPage() {
 
         <header className="mb-8">
           <h1 className="font-display text-3xl tracking-tight">Bảo mật tài khoản</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Thêm 1 hoặc nhiều phương thức xác thực 2 lớp để bảo vệ tài khoản. Khi đăng nhập hoặc thực hiện hành động nhạy cảm, bạn sẽ được hỏi thêm 1 lớp xác minh.
-          </p>
         </header>
 
         {(authLoading || isLoading) ? (

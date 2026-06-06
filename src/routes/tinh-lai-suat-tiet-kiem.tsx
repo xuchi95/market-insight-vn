@@ -154,9 +154,6 @@ function SavingsCalcPage() {
             <h1 className="text-3xl lg:text-5xl font-bold tracking-tight">
               Tính lãi suất tiết kiệm online
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Công cụ <strong>tính lãi suất tiết kiệm</strong> chính xác theo lãi suất thật của <strong>{items.length}+ ngân hàng</strong> tại Việt Nam — Vietcombank, BIDV, Techcombank, MB, ACB, VPBank, Sacombank… Hỗ trợ tính lãi theo tháng, quý, nhiều năm; lĩnh lãi cuối kỳ hoặc lãi kép (tái tục gốc + lãi).
-            </p>
           </header>
 
           <SavingsCalculator items={items} />
