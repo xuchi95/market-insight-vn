@@ -12,6 +12,7 @@ import { listEnrolledMfaMethods } from "@/lib/mfa.functions";
 import { clearMfaVerified, markMfaVerified } from "@/routes/xac-thuc-2fa";
 import { signalAuthWelcome } from "@/components/site/AuthWelcomeBanner";
 import { isDeviceTrusted } from "@/lib/mfa-trust";
+import { requestMagicLink } from "@/lib/auth/magic-link.functions";
 
 const TITLE = "Đăng nhập — MarketWatch";
 const DESC = "Đăng nhập MarketWatch để đặt cảnh báo giá và nhận email khi vàng, crypto chạm ngưỡng.";
@@ -107,18 +108,16 @@ function LoginPage() {
     }
     setLoading(true);
     clearMfaVerified();
-    const { error } = await supabase.auth.signInWithOtp({
-      email: target,
-      options: {
-        emailRedirectTo: `${window.location.origin}${redirectTo}`,
-        shouldCreateUser: false,
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Không gửi được magic link", { description: error.message });
+    try {
+      await requestMagicLink({ data: { email: target, redirectTo } });
+    } catch (err: any) {
+      setLoading(false);
+      toast.error("Không gửi được magic link", {
+        description: err?.message ?? "Vui lòng thử lại sau.",
+      });
       return;
     }
+    setLoading(false);
     setMagicSent(true);
     signalAuthWelcome({ kind: "magic_sent", email: target });
   }
