@@ -743,6 +743,8 @@ function AssetDetail() {
               </div>
             </SectionCard>
 
+            <CryptoCommunityFeed symbol={coin.symbol} name={coin.name} />
+
             <div className="text-xs text-muted-foreground">Cập nhật lần cuối: {fmtTime(Date.now())}</div>
           </>
         )}
