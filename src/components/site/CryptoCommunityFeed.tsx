@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ExternalLink, Loader2, MessageSquareText, RefreshCw, AlertTriangle, Newspaper } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -48,13 +48,21 @@ function timeAgo(ts: number): string {
 export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: string }) {
   const sym = symbol.toUpperCase();
   const [limit, setLimit] = useState(8);
+  const bustRef = useRef(false);
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["crypto-news", sym],
-    queryFn: ({ meta }) => fetchCryptoNews(sym, Boolean(meta?.bust)),
+    queryFn: () => {
+      const bust = bustRef.current;
+      bustRef.current = false;
+      return fetchCryptoNews(sym, bust);
+    },
     staleTime: 5 * 60_000,
     refetchInterval: 5 * 60_000,
   });
-  const handleManualRefresh = () => refetch({ meta: { bust: true } } as never);
+  const handleManualRefresh = () => {
+    bustRef.current = true;
+    refetch();
+  };
 
   const items = useMemo(() => data?.items ?? [], [data]);
   const shown = items.slice(0, limit);
