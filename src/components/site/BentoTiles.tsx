@@ -198,67 +198,41 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
       {/* BTC */}
       <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
-          <div className="eyebrow mb-2">Bitcoin</div>
-          {btc ? (
-            <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
-              $<AnimatedNumber value={btcPrice} format={(v) => fmt(v, 0)} minChars={6} />
-            </div>
-          ) : cryptoLoading ? (
-            <LoadingLine />
-          ) : (
-            <div className="font-display text-2xl md:text-3xl leading-tight text-muted-foreground">—</div>
-          )}
-          <div className="mt-1.5">{btc && <ChangePill value={btcChange} />}</div>
-          <div className="mt-4">
-            {btc && <Spark data={btc.sparkline} color={btc.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
-          </div>
-          <div className="mt-3 flex justify-between eyebrow opacity-60">
-            <span>Vol</span>
-            <span className="tabular normal-case tracking-normal text-foreground/80">
-              {btc ? (
-                <AnimatedNumber value={btcVol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={6} />
-              ) : cryptoLoading ? "Đang cập nhật" : "—"}
-            </span>
-          </div>
+          <CryptoTile
+            name="Bitcoin"
+            price={btcPrice}
+            change={btcChange}
+            vol={btcVol}
+            spark={btc?.sparkline}
+            loading={cryptoLoading}
+            has={!!btc}
+          />
         </Link>
       </TileFrame>
 
       {/* ETH */}
       <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
-          <div className="eyebrow mb-2">Ethereum</div>
-          {eth ? (
-            <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
-              $<AnimatedNumber value={ethPrice} format={(v) => fmt(v, 0)} minChars={5} />
-            </div>
-          ) : cryptoLoading ? (
-            <LoadingLine />
-          ) : (
-            <div className="font-display text-2xl md:text-3xl leading-tight text-muted-foreground">—</div>
-          )}
-          <div className="mt-1.5">{eth && <ChangePill value={ethChange} />}</div>
-          <div className="mt-4">
-            {eth && <Spark data={eth.sparkline} color={eth.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
-          </div>
-          <div className="mt-3 flex justify-between eyebrow opacity-60">
-            <span>Vol</span>
-            <span className="tabular normal-case tracking-normal text-foreground/80">
-              {eth ? (
-                <AnimatedNumber value={ethVol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={6} />
-              ) : cryptoLoading ? "Đang cập nhật" : "—"}
-            </span>
-          </div>
+          <CryptoTile
+            name="Ethereum"
+            price={ethPrice}
+            change={ethChange}
+            vol={ethVol}
+            spark={eth?.sparkline}
+            loading={cryptoLoading}
+            has={!!eth}
+          />
         </Link>
       </TileFrame>
 
       {/* Forex — full-width compact list */}
       <TileFrame className="col-span-2 md:col-span-6">
         <Link to="/ty-gia-ngoai-te" className="block">
-          <div className="flex items-baseline justify-between mb-4">
+          <div className="flex items-baseline justify-between mb-5">
             <div className="eyebrow">Ngoại tệ · Quy đổi VND</div>
             <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-8">
             <FxCell rate={usd} loading={fxLoading} code="USD" />
             <FxCell rate={eur} loading={fxLoading} code="EUR" />
             <FxCell rate={gbp} loading={fxLoading} code="GBP" />
