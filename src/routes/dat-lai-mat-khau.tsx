@@ -162,7 +162,6 @@ function ResetPasswordPage() {
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
                 className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground"
-                aria-label="Hiện/ẩn mật khẩu"
               >
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>

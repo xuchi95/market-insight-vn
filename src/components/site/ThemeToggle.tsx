@@ -9,7 +9,6 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label={label}
       aria-pressed={isDark}
       className="relative inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-[var(--gold)] hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--gold)]"
     >

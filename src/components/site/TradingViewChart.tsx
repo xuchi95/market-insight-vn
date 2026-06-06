@@ -146,7 +146,6 @@ export function TradingViewChart({
         href="https://marketwatch.vn"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Made by MarketWatch.vn"
         className="absolute left-2 z-20 inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition-colors shadow-sm"
         style={{ bottom: isMobile ? 18 : 36 }}
       >

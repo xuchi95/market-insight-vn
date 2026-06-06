@@ -793,7 +793,7 @@ function AssetDetail() {
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ giá</h2>
                 {chartFetching && !chartLoading && (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" aria-label="Đang cập nhật" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
                 )}
                 {chartUpdatedAt > 0 && !chartError && (
                   <span className="text-[11px] text-muted-foreground hidden sm:inline">

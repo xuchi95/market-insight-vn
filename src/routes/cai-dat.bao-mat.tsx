@@ -170,7 +170,7 @@ function SecuritySettingsPage() {
             </section>
 
             {/* Method cards */}
-            <div className="space-y-3" role="list" aria-label="Danh sách phương thức xác thực 2 lớp">
+            <div className="space-y-3" role="list">
               {methodCatalog.map((m) => {
                 const enrolled = enrolledMethods.find((x) => x.type === m.type);
                 return (
@@ -280,7 +280,6 @@ function MethodCard({
               variant="ghost"
               size="sm"
               onClick={() => onSetDefault(enrolled.id)}
-              aria-label={`Đặt ${catalog.title} làm phương thức mặc định`}
             >
               <Star aria-hidden="true" className="h-4 w-4" />
             </Button>
@@ -292,11 +291,6 @@ function MethodCard({
               onClick={onToggle}
               aria-expanded={isExpanded}
               aria-controls={panelId}
-              aria-label={
-                enrolled
-                  ? (isExpanded ? `Đóng bảng quản lý ${catalog.title}` : `Quản lý ${catalog.title}`)
-                  : (isExpanded ? `Đóng bảng thêm ${catalog.title}` : `Thêm ${catalog.title}`)
-              }
               className={enrolled ? "" : "bg-gold-gradient text-[var(--gold-foreground)]"}
             >
               {enrolled ? (
@@ -306,7 +300,7 @@ function MethodCard({
               )}
             </Button>
           ) : (
-            <Button size="sm" variant="outline" disabled aria-label={`${catalog.title} — sắp ra mắt`}>
+            <Button size="sm" variant="outline" disabled>
               Sắp ra mắt
             </Button>
           )}

@@ -271,7 +271,6 @@ export function WatchlistPanel() {
                     type="button"
                     onClick={() => void remove(item.symbol)}
                     className="ml-1 p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                    aria-label={`Bỏ theo dõi ${item.label}`}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>

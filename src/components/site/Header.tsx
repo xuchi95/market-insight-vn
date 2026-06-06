@@ -410,7 +410,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                aria-label="Tìm kiếm"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
                 <Search className="h-4 w-4" />
@@ -423,7 +422,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  aria-label="Theo dõi"
                   className="relative inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                 >
                   <Star className="h-4 w-4" />
@@ -470,7 +468,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                         type="button"
                         onClick={(e) => { e.stopPropagation(); remove(item.symbol); }}
                         className="ml-1 text-muted-foreground hover:text-destructive"
-                        aria-label="Xóa"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -494,7 +491,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               <DropdownMenuTrigger asChild>
                 <button
                   className="hidden md:inline-flex items-center gap-2 h-8 pl-1 pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
-                  aria-label="Tài khoản"
                 >
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-xs font-bold uppercase">
                     {(user.email ?? "?").slice(0, 1)}
@@ -539,7 +535,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            aria-label="Tìm kiếm"
             className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
             <Search className="h-5 w-5" />
@@ -547,7 +542,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           <button
             className="md:hidden text-muted-foreground hover:text-foreground"
             onClick={() => setOpen((v) => !v)}
-            aria-label="Mở menu"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -591,7 +585,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 type="button"
                 onClick={() => { setSearchOpen(false); setQ(""); }}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
-                aria-label="Đóng"
               >
                 <X className="h-5 w-5" />
               </button>

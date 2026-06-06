@@ -93,7 +93,7 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
       <div className="flex flex-wrap items-center gap-3 p-4 border-b border-border">
         <h2 className="font-bold">{title}</h2>
         {isFetching && !isLoading && (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" aria-label="Đang cập nhật" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
         )}
         {dataUpdatedAt > 0 && !isError && (
           <span className="text-[11px] text-muted-foreground">

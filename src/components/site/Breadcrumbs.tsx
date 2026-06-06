@@ -55,7 +55,7 @@ export function Breadcrumbs({ extra }: { extra?: CrumbItem[] }) {
     : [{ label }];
 
   return (
-    <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
+    <nav className="text-sm text-muted-foreground">
       <ol className="flex items-center gap-2 flex-wrap" itemScope itemType="https://schema.org/BreadcrumbList">
         <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem" className="flex items-center gap-2">
           <Link to="/" className="hover:text-foreground transition-colors inline-flex items-center gap-1" itemProp="item">

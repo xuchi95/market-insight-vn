@@ -136,7 +136,6 @@ export function CryptoPriceTable({ search }: { search?: string }) {
           {/* Category segmented chips */}
           <div
             role="tablist"
-            aria-label="Lọc danh mục crypto"
             className="inline-flex items-stretch rounded-full border border-border bg-muted/40 p-1 shadow-inner"
           >
             {(["all", "top-mcap", "top-volume"] as Category[]).map((cat) => {
