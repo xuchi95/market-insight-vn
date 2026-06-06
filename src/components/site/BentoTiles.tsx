@@ -156,7 +156,7 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
           <div className="h-px bg-border mb-4 md:mb-5" />
 
           {/* Vàng khác — DOJI / PNJ / XAU/USD, 3 cột cân đối với divider dọc */}
-          <div className="grid grid-cols-3 mb-5 md:mb-6 divide-x divide-border">
+          <div className="grid grid-cols-3 mb-5 md:mb-6 divide-x divide-border items-stretch">
             <GoldMini label="DOJI" gold={doji} loading={goldLoading} compact={compact} />
             <GoldMini label="PNJ" gold={pnj} loading={goldLoading} compact={compact} />
             <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd compact={compact} />
@@ -305,11 +305,11 @@ function CryptoTile({ name, price, change, vol, spark, loading, has }: { name: s
 
 function GoldMini({ label, gold, loading, usd, compact = true }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean; compact?: boolean }) {
   return (
-    <div className="px-4 first:pl-0 last:pr-0 min-w-0">
+    <div className="px-3 md:px-4 min-w-0 flex flex-col">
       <div className="eyebrow opacity-70">{label}</div>
       {gold ? (
         <>
-          <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1.5">
+          <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1.5 truncate">
             {usd ? (
               <AnimatedNumber value={gold.sell} format={(v) => `$${fmt(v, 0)}`} minChars={6} />
             ) : (
