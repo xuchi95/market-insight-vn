@@ -207,7 +207,6 @@ function MacroPage() {
           {sbv && (
             <SectionCard
               title="Chính sách tiền tệ — Ngân hàng Nhà nước (SBV)"
-              description="Lãi suất điều hành & tỷ giá trung tâm USD/VND"
               meta={<span className="text-muted-foreground text-xs">Nguồn: {sbv.source}</span>}
             >
               <div className="p-4 lg:p-5 space-y-4">
@@ -240,7 +239,6 @@ function MacroPage() {
 
           <SectionCard
             title="Tổng quan chỉ số vĩ mô"
-            description="Số liệu mới nhất + xu hướng 10 năm gần đây"
             meta={
               data ? (
                 <div className="flex items-center gap-3">

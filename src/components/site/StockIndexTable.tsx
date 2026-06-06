@@ -51,7 +51,6 @@ export function StockIndexTable() {
       id="stock-indices"
       icon={<LineChart className="h-4 w-4" />}
       title="Chỉ số chứng khoán Việt Nam"
-      description="VN-Index, VN30, HNX, UPCOM • cập nhật mỗi 5 phút • nguồn: KBSec — fallback VCI/VNDirect"
       meta={meta}
     >
       {showStaleBanner && (

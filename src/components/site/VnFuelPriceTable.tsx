@@ -51,7 +51,6 @@ export function VnFuelPriceTable() {
       id="vn-fuel"
       icon={<Fuel className="h-4 w-4" />}
       title="Giá xăng dầu trong nước"
-      description="Bảng giá bán lẻ Petrolimex — 34 tỉnh thành, đã bao gồm thuế GTGT"
       action={
         <a
           href={sourceUrl}

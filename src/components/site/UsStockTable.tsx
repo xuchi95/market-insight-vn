@@ -75,7 +75,6 @@ export function UsStockTable() {
       id="us-stocks"
       icon={<Globe className="h-4 w-4" />}
       title="Cổ phiếu Mỹ nổi bật"
-      description="Big Tech & SPY • cập nhật mỗi giờ • nguồn: Financial Modeling Prep"
       meta={meta}
     >
       {showStaleBanner && (

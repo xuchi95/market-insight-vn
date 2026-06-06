@@ -45,7 +45,6 @@ export function GoldPriceTable({ search }: { search?: string }) {
       id="gold"
       icon={<Coins className="h-4 w-4" />}
       title="Bảng giá vàng"
-      description="Giá vàng trong nước và quốc tế — đơn vị VND/chỉ (XAU/USD theo ounce)"
       action={
         <Select value={brand} onValueChange={setBrand}>
             <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder="Thương hiệu" /></SelectTrigger>

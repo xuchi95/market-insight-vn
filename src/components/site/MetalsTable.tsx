@@ -42,7 +42,6 @@ export function MetalsTable() {
       id="metals"
       icon={<Gem className="h-4 w-4" />}
       title="Kim loại quý thế giới"
-      description="Vàng, Bạc, Bạch kim, Palladi — giá USD/ounce theo Metals-API"
       action={
         <button
           onClick={() => refetch()}

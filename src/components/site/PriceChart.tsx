@@ -303,7 +303,6 @@ export function PriceChart({
       id="chart"
       icon={<LCIcon className="h-4 w-4" />}
       title="Biểu đồ biến động"
-      description="So sánh giá tài sản theo khung thời gian"
       meta={
         <span className="flex items-center gap-1.5">
           <LiveDot /> Tự cập nhật mỗi 5 giây

@@ -48,7 +48,6 @@ export function OilPriceTable() {
       id="oil"
       icon={<Fuel className="h-4 w-4" />}
       title="Giá dầu thế giới"
-      description="Brent (ICE) & WTI (NYMEX) — USD/thùng, cập nhật theo Yahoo Finance"
       action={
         <button
           onClick={() => refetch()}

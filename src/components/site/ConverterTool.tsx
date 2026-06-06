@@ -138,7 +138,6 @@ export function ConverterTool() {
       id="converter"
       icon={<Wrench className="h-4 w-4" />}
       title="Công cụ chuyển đổi"
-      description="Chọn cặp tiền, nhập số lượng — tính lãi/lỗ theo giá mua/bán thực tế"
     >
       {/* Wise-style converter */}
       <div className="p-6 sm:p-8 lg:p-10">

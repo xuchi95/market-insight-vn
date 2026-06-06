@@ -159,7 +159,6 @@ export function PriceAlerts() {
       id="price-alerts"
       icon={<Bell className="h-4 w-4" />}
       title="Cảnh báo giá BTC / ETH"
-      description="Nhận thông báo khi giá vượt hoặc giảm dưới ngưỡng bạn đặt"
       action={
         notifPerm !== "granted" ? (
           <Button variant="outline" size="sm" onClick={requestPerm} className="gap-1">
