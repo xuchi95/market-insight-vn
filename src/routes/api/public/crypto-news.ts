@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 // Google News RSS aggregator — free, no API key required, returns both
 // Vietnamese and English sources. We fetch two locales (VN + US) in
@@ -26,6 +27,28 @@ interface NewsPayload {
 
 const cache = new Map<string, { at: number; payload: NewsPayload }>();
 const inflight = new Map<string, Promise<NewsPayload>>();
+
+// Cache nhỏ cho cờ bật/tắt CMC để không gọi DB mỗi request.
+let cmcFlagCache: { at: number; enabled: boolean } | null = null;
+const FLAG_TTL_MS = 30_000;
+
+async function isCmcEnabled(): Promise<boolean> {
+  if (cmcFlagCache && Date.now() - cmcFlagCache.at < FLAG_TTL_MS) {
+    return cmcFlagCache.enabled;
+  }
+  try {
+    const { data } = await supabaseAdmin
+      .from("app_news_settings")
+      .select("cmc_enabled")
+      .eq("id", 1)
+      .maybeSingle();
+    const enabled = data?.cmc_enabled ?? true;
+    cmcFlagCache = { at: Date.now(), enabled };
+    return enabled;
+  } catch {
+    return true;
+  }
+}
 
 function decodeEntities(s: string): string {
   return s
@@ -219,8 +242,9 @@ async function fetchCoinMarketCap(symbol: string): Promise<NewsPayload["items"]>
 
 async function fetchNews(category: string): Promise<NewsPayload> {
   const q = buildQuery(category);
+  const cmcOn = await isCmcEnabled();
   const results = await Promise.allSettled([
-    fetchCoinMarketCap(category),
+    cmcOn ? fetchCoinMarketCap(category) : Promise.resolve([]),
     fetchGoogleNews(q, { hl: "vi", gl: "VN", ceid: "VN:vi" }),
     fetchGoogleNews(q, { hl: "en-US", gl: "US", ceid: "US:en" }),
   ]);

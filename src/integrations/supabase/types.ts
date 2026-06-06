@@ -307,6 +307,24 @@ export type Database = {
         }
         Relationships: []
       }
+      app_news_settings: {
+        Row: {
+          cmc_enabled: boolean
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          cmc_enabled?: boolean
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          cmc_enabled?: boolean
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
