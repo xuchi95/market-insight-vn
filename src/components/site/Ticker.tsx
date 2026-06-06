@@ -279,11 +279,10 @@ export function Ticker() {
         {/* Đồng hồ độc lập — không cuộn cùng marquee */}
         <div
           className="relative z-10 flex shrink-0 items-center gap-2 border-r border-border bg-card/80 px-3 py-2.5 text-[11px] font-medium tabular text-muted-foreground"
-          aria-label="Giờ hiện tại"
         >
           <Clock className="h-3 w-3 text-[var(--gold)]/80" aria-hidden />
           <span className="min-w-[2.6rem] tracking-wider">{timeStr || "--:--"}</span>
-          <div className="flex items-center rounded-sm border border-border/70 bg-background/40 p-0.5" role="group" aria-label="Chọn múi giờ">
+          <div className="flex items-center rounded-sm border border-border/70 bg-background/40 p-0.5" role="group">
             {(["VN", "UTC"] as const).map((opt) => (
               <button
                 key={opt}

@@ -197,7 +197,6 @@ export function ConverterTool() {
               type="text"
               inputMode="decimal"
               placeholder="0"
-              aria-label="Số tiền cần đổi"
               className="h-16 border-0 bg-transparent px-0 text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground caret-gold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/40"
             />
           </WiseRow>
@@ -212,7 +211,6 @@ export function ConverterTool() {
                 "absolute left-6 -top-5 z-10 h-11 w-11 rounded-full bg-gold text-gold-foreground border-2 border-card hover:bg-gold/90 hover:text-gold-foreground shadow-md transition-transform duration-300",
                 swapped && "rotate-180",
               )}
-              aria-label="Đảo chiều"
             >
               <ArrowUpDown className="h-4 w-4" />
             </Button>
@@ -307,7 +305,6 @@ function WiseRow({
           <PopoverTrigger asChild>
             <button
               type="button"
-              aria-label={label}
               className="inline-flex h-12 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background/80 px-4 text-base font-semibold tracking-wide hover:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
             >
               <span className="tabular font-bold text-foreground text-base">

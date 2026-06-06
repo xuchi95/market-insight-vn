@@ -136,7 +136,6 @@ export function AuthWelcomeBanner() {
           <button
             type="button"
             onClick={() => setVisible(false)}
-            aria-label="Đóng thông báo"
             className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />

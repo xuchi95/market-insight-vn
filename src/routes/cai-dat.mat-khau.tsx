@@ -177,7 +177,6 @@ function ChangePasswordPage() {
                     type="button"
                     onClick={() => setShowCurrent((v) => !v)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded text-muted-foreground hover:text-foreground"
-                    aria-label={showCurrent ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                   >
                     {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -202,7 +201,6 @@ function ChangePasswordPage() {
                     type="button"
                     onClick={() => setShowNext((v) => !v)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded text-muted-foreground hover:text-foreground"
-                    aria-label={showNext ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                   >
                     {showNext ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>

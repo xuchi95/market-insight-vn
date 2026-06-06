@@ -306,7 +306,7 @@ export function PriceChart({
         <span className="flex items-center gap-1.5">
           <LiveDot /> Tự cập nhật mỗi 5 giây
           {isFetching && !isLoading && (
-            <RefreshCw className="h-3 w-3 animate-spin text-primary ml-1" aria-label="Đang làm mới" />
+            <RefreshCw className="h-3 w-3 animate-spin text-primary ml-1" />
           )}
         </span>
       }
@@ -351,7 +351,6 @@ export function PriceChart({
                     type="button"
                     onClick={() => setChangeUnit((u) => (u === "pct" ? "abs" : "pct"))}
                     className="inline-flex items-center rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] font-medium hover:bg-muted normal-case tracking-normal"
-                    aria-label="Đổi đơn vị hiển thị giữa phần trăm và tuyệt đối"
                   >
                     {changeUnit === "pct" ? "%" : "Δ"}
                   </button>
@@ -382,7 +381,6 @@ export function PriceChart({
                     onClick={() => refetch()}
                     disabled={isFetching}
                     className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-md border border-border/60 hover:bg-muted disabled:opacity-50"
-                    aria-label="Làm mới ngay"
                   >
                     <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} />
                   </button>

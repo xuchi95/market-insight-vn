@@ -473,7 +473,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
                 variant="outline"
                 className="h-8 px-2 text-xs gap-1"
                 disabled={isExporting || !visibleData.length}
-                aria-label="Xuất PNG"
               >
                 <ImageDown className="h-3.5 w-3.5" /> PNG
               </Button>
@@ -515,7 +514,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
                 variant="outline"
                 className="h-8 px-2 text-xs gap-1"
                 disabled={isExporting || !visibleData.length}
-                aria-label="Xuất PDF"
               >
                 <FileDown className="h-3.5 w-3.5" /> PDF
               </Button>
@@ -556,7 +554,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
                 variant="default"
                 className="h-8 px-2 text-xs gap-1"
                 onClick={applyZoom}
-                aria-label="Phóng to vùng đã chọn"
               >
                 <ZoomIn className="h-3.5 w-3.5" /> Phóng to
               </Button>
@@ -566,7 +563,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
                 variant="outline"
                 className="h-8 px-2 text-xs gap-1"
                 onClick={clearSelection}
-                aria-label="Hủy vùng chọn"
               >
                 <XIcon className="h-3.5 w-3.5" /> Hủy chọn
               </Button>
@@ -579,7 +575,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
               variant="outline"
               className="h-8 px-2 text-xs gap-1"
               onClick={() => setZoom(null)}
-              aria-label="Bỏ zoom"
             >
               <ZoomOut className="h-3.5 w-3.5" /> Bỏ zoom
             </Button>

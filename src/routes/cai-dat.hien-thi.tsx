@@ -38,7 +38,6 @@ function DisplaySettingsPage() {
           <Link
             to="/cai-dat"
             className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
-            aria-label="Quay lại Cài đặt"
           >
             <ChevronLeft className="h-4 w-4" />
           </Link>
@@ -58,7 +57,6 @@ function DisplaySettingsPage() {
                 <Switch
                   checked={animate}
                   onCheckedChange={setAnimate}
-                  aria-label="Bật hiệu ứng nhảy giá"
                 />
               </div>
               <p className="mt-1 text-sm text-muted-foreground">

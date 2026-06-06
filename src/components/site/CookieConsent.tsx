@@ -262,7 +262,6 @@ export function CookieConsent() {
               type="button"
               onClick={essentialOnly}
               className="-mr-1 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              aria-label="Đóng và chỉ dùng cookie thiết yếu"
             >
               <X className="h-4 w-4" />
             </button>
@@ -425,7 +424,6 @@ function CookieRow({
               checked={checked}
               disabled={disabled}
               onChange={(e) => onChange?.(e.target.checked)}
-              aria-label={title}
             />
           </span>
         </span>
