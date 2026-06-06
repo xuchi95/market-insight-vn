@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { getVerifyOtpStats } from "@/lib/admin/verify-otp-stats.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -47,10 +49,30 @@ function VerifyOtpStatsPage() {
     return { ok: true, value: n };
   };
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching, isError, error, dataUpdatedAt, errorUpdatedAt } = useQuery({
     queryKey: ["admin", "verify-otp-stats", days],
     queryFn: () => fn({ data: { days } }),
   });
+
+  // Toast on apply (when days change via "Áp dụng" or preset).
+  const pendingToastDays = useRef<number | null>(null);
+  const lastSuccessAt = useRef<number>(0);
+  const lastErrorAt = useRef<number>(0);
+
+  useEffect(() => {
+    if (pendingToastDays.current === null) return;
+    if (isFetching) return;
+    if (!isError && dataUpdatedAt > lastSuccessAt.current) {
+      lastSuccessAt.current = dataUpdatedAt;
+      toast.success(`Đã cập nhật dữ liệu ${pendingToastDays.current} ngày`);
+      pendingToastDays.current = null;
+    } else if (isError && errorUpdatedAt > lastErrorAt.current) {
+      lastErrorAt.current = errorUpdatedAt;
+      const msg = error instanceof Error ? error.message : "Không xác định";
+      toast.error("Cập nhật thất bại", { description: msg });
+      pendingToastDays.current = null;
+    }
+  }, [isFetching, isError, error, dataUpdatedAt, errorUpdatedAt]);
 
   const maxDay = Math.max(1, ...(data?.byDay.map((d) => d.success + d.failed) ?? [1]));
 
@@ -74,6 +96,7 @@ function VerifyOtpStatsPage() {
                 size="sm"
                 variant={days === r.value ? "default" : "ghost"}
                 onClick={() => {
+                  if (days !== r.value) pendingToastDays.current = r.value;
                   setDays(r.value);
                   setCustomInput("");
                   setCustomError(null);
@@ -93,6 +116,7 @@ function VerifyOtpStatsPage() {
                 return;
               }
               setCustomError(null);
+              pendingToastDays.current = result.value;
               setDays(result.value);
             }}
             noValidate
@@ -132,8 +156,13 @@ function VerifyOtpStatsPage() {
                 ) : null}
               </div>
               <span className="text-xs text-muted-foreground">ngày (1–365)</span>
-              <Button type="submit" size="sm" variant="outline" disabled={!!customError}>
-                Áp dụng
+              <Button
+                type="submit"
+                size="sm"
+                variant="outline"
+                disabled={!!customError || isFetching}
+              >
+                {isFetching && pendingToastDays.current !== null ? "Đang tải…" : "Áp dụng"}
               </Button>
             </div>
           </form>
@@ -142,7 +171,7 @@ function VerifyOtpStatsPage() {
       </div>
 
       {isLoading || !data ? (
-        <div className="text-sm text-muted-foreground">Đang tải…</div>
+        <StatsSkeleton />
       ) : (
         <>
           {/* Summary */}
@@ -297,6 +326,41 @@ function SummaryCard({
     <div className="rounded-lg border border-border bg-card/40 p-4">
       <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className={`mt-1 font-display text-2xl ${toneClass}`}>{value}</div>
+    </div>
+  );
+}
+
+function StatsSkeleton() {
+  return (
+    <div className="space-y-6" aria-busy="true" aria-live="polite">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-lg border border-border bg-card/40 p-4">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="mt-2 h-7 w-16" />
+          </div>
+        ))}
+      </div>
+      <section className="rounded-lg border border-border bg-card/40 p-4">
+        <Skeleton className="mb-3 h-4 w-24" />
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-5 flex-1" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="rounded-lg border border-border bg-card/40 p-4">
+        <Skeleton className="mb-3 h-4 w-32" />
+        <div className="space-y-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-8 w-full" />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
