@@ -30,6 +30,7 @@ import { TradingViewChart, toTradingViewCryptoSymbol } from "@/components/site/T
 import { useTheme } from "@/hooks/useTheme";
 import { useBinanceTicker } from "@/hooks/useBinanceTicker";
 import { keepPreviousData } from "@tanstack/react-query";
+import { CryptoCommunityFeed } from "@/components/site/CryptoCommunityFeed";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
@@ -741,6 +742,8 @@ function AssetDetail() {
                 </table>
               </div>
             </SectionCard>
+
+            <CryptoCommunityFeed symbol={coin.symbol} name={coin.name} />
 
             <div className="text-xs text-muted-foreground">Cập nhật lần cuối: {fmtTime(Date.now())}</div>
           </>
