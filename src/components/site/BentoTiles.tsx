@@ -5,6 +5,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
+// CryptoCoin used in initial props typing
 import { fmtTrieu } from "@/lib/format";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { FormattedNumber } from "./FormattedNumber";
@@ -94,9 +95,6 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const xau = gold?.find((g) => g.id === "xauusd");
   const btc = crypto?.find((c) => c.symbol === "BTC");
   const eth = crypto?.find((c) => c.symbol === "ETH");
-  const moreCoins = ["BNB", "SOL", "XRP", "DOGE"]
-    .map((sym) => crypto?.find((c) => c.symbol === sym))
-    .filter((c): c is CryptoCoin => Boolean(c));
   const usd = fx?.find((r) => r.code === "USD");
   const eur = fx?.find((r) => r.code === "EUR");
   const jpy = fx?.find((r) => r.code === "JPY");
@@ -121,54 +119,44 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const ethPrice = liveTicks.ethereum?.priceUsd ?? eth?.priceUsd ?? 0;
   const ethChange = liveTicks.ethereum?.change24h ?? eth?.change24h ?? 0;
   const ethVol = liveTicks.ethereum?.volume24h ?? eth?.volume24h ?? 0;
-  const coinIdMap: Record<string, string> = {
-    BNB: "binancecoin",
-    SOL: "solana",
-    XRP: "ripple",
-    DOGE: "dogecoin",
-  };
-
-  // Synthetic high/low for gold (no live history); compute from sell ± small range
-  const goldHigh = sjc ? Math.round(sjc.sell * 1.004) : 0;
-  const goldLow = sjc ? Math.round(sjc.sell * 0.997) : 0;
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
       {/* Gold — large hero tile */}
       <TileFrame className="col-span-2 md:col-span-4 md:row-span-2 flex flex-col">
         <Link to="/gia-vang" className="flex flex-col h-full group">
-          <div className="flex justify-between items-start mb-4 md:mb-5">
+          <div className="flex justify-between items-start mb-5 md:mb-6">
+            <div className="eyebrow">Vàng miếng SJC</div>
+            <div className="eyebrow opacity-60">Nguồn · sjc.com.vn</div>
+          </div>
+
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-3 mb-5 md:mb-6">
             <div>
-              <div className="eyebrow mb-2">Vàng miếng SJC</div>
               {sjc ? (
                 <FormattedNumber
                   value={sjc.sell}
                   format={(v) => (compact ? fmtTrieu(v) : fmtVndFull(v))}
-                  unit={compact ? "tr/chỉ" : "đ/chỉ"}
+                  unit={compact ? "tr/lượng" : "đ/lượng"}
                   decimals={compact ? 2 : 0}
-                  className="font-display text-3xl md:text-5xl leading-tight text-foreground"
+                  className="font-display text-4xl md:text-6xl leading-none text-foreground"
                   unitClassName="text-sm md:text-base text-muted-foreground"
                 />
               ) : goldLoading ? (
                 <LoadingLine size="lg" />
               ) : (
-                <div className="font-display text-3xl md:text-5xl leading-tight text-muted-foreground">—</div>
+                <div className="font-display text-4xl md:text-6xl leading-none text-muted-foreground">—</div>
               )}
             </div>
-            <div className="text-right">
-              {sjc && <ChangePill value={sjc.changePct} />}
-              <div className="mt-1.5 eyebrow opacity-60">24 giờ</div>
-            </div>
+            <InlineKV label="Mua vào" loading={goldLoading} compact={compact} value={sjc?.buy} />
+            <InlineKV label="Bán ra" loading={goldLoading} compact={compact} value={sjc?.sell} />
+            {sjc && <ChangePill value={sjc.changePct} />}
           </div>
 
-          <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
-            <Stat label="Mua" num={sjc?.buy} loading={goldLoading} compact={compact} />
-            <Stat label="Cao" num={sjc ? goldHigh : undefined} loading={goldLoading} accent compact={compact} />
-            <Stat label="Thấp" num={sjc ? goldLow : undefined} loading={goldLoading} compact={compact} />
-          </div>
+          {/* Hairline separator */}
+          <div className="h-px bg-border mb-4 md:mb-5" />
 
-          {/* Vàng khác — DOJI / PNJ / XAU realtime */}
-          <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
+          {/* Vàng khác — DOJI / PNJ / XAU/USD, 3 cột cân đối với divider dọc */}
+          <div className="grid grid-cols-3 mb-5 md:mb-6 divide-x divide-border">
             <GoldMini label="DOJI" gold={doji} loading={goldLoading} compact={compact} />
             <GoldMini label="PNJ" gold={pnj} loading={goldLoading} compact={compact} />
             <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd compact={compact} />
@@ -188,7 +176,7 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
             })}
           </div>
 
-          <div className="mt-auto pt-4 md:pt-5 flex items-center justify-between eyebrow opacity-70 group-hover:opacity-100">
+          <div className="mt-auto pt-4 md:pt-5 flex items-center justify-between eyebrow text-[var(--gold)] opacity-90 group-hover:opacity-100">
             <span>Xem bảng giá vàng đầy đủ</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </div>
@@ -198,67 +186,41 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
       {/* BTC */}
       <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
-          <div className="eyebrow mb-2">Bitcoin</div>
-          {btc ? (
-            <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
-              $<AnimatedNumber value={btcPrice} format={(v) => fmt(v, 0)} minChars={6} />
-            </div>
-          ) : cryptoLoading ? (
-            <LoadingLine />
-          ) : (
-            <div className="font-display text-2xl md:text-3xl leading-tight text-muted-foreground">—</div>
-          )}
-          <div className="mt-1.5">{btc && <ChangePill value={btcChange} />}</div>
-          <div className="mt-4">
-            {btc && <Spark data={btc.sparkline} color={btc.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
-          </div>
-          <div className="mt-3 flex justify-between eyebrow opacity-60">
-            <span>Vol</span>
-            <span className="tabular normal-case tracking-normal text-foreground/80">
-              {btc ? (
-                <AnimatedNumber value={btcVol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={6} />
-              ) : cryptoLoading ? "Đang cập nhật" : "—"}
-            </span>
-          </div>
+          <CryptoTile
+            name="Bitcoin"
+            price={btcPrice}
+            change={btcChange}
+            vol={btcVol}
+            spark={btc?.sparkline}
+            loading={cryptoLoading}
+            has={!!btc}
+          />
         </Link>
       </TileFrame>
 
       {/* ETH */}
       <TileFrame className="md:col-span-2">
         <Link to="/tien-dien-tu" className="block">
-          <div className="eyebrow mb-2">Ethereum</div>
-          {eth ? (
-            <div className="font-display text-2xl md:text-3xl leading-tight text-foreground">
-              $<AnimatedNumber value={ethPrice} format={(v) => fmt(v, 0)} minChars={5} />
-            </div>
-          ) : cryptoLoading ? (
-            <LoadingLine />
-          ) : (
-            <div className="font-display text-2xl md:text-3xl leading-tight text-muted-foreground">—</div>
-          )}
-          <div className="mt-1.5">{eth && <ChangePill value={ethChange} />}</div>
-          <div className="mt-4">
-            {eth && <Spark data={eth.sparkline} color={eth.change24h >= 0 ? "var(--up)" : "var(--down)"} />}
-          </div>
-          <div className="mt-3 flex justify-between eyebrow opacity-60">
-            <span>Vol</span>
-            <span className="tabular normal-case tracking-normal text-foreground/80">
-              {eth ? (
-                <AnimatedNumber value={ethVol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={6} />
-              ) : cryptoLoading ? "Đang cập nhật" : "—"}
-            </span>
-          </div>
+          <CryptoTile
+            name="Ethereum"
+            price={ethPrice}
+            change={ethChange}
+            vol={ethVol}
+            spark={eth?.sparkline}
+            loading={cryptoLoading}
+            has={!!eth}
+          />
         </Link>
       </TileFrame>
 
       {/* Forex — full-width compact list */}
       <TileFrame className="col-span-2 md:col-span-6">
         <Link to="/ty-gia-ngoai-te" className="block">
-          <div className="flex items-baseline justify-between mb-4">
+          <div className="flex items-baseline justify-between mb-5">
             <div className="eyebrow">Ngoại tệ · Quy đổi VND</div>
             <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-8">
             <FxCell rate={usd} loading={fxLoading} code="USD" />
             <FxCell rate={eur} loading={fxLoading} code="EUR" />
             <FxCell rate={gbp} loading={fxLoading} code="GBP" />
@@ -286,20 +248,56 @@ function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
   );
 }
 
-function Stat({ label, num, loading, accent, compact = true }: { label: string; num?: number; loading?: boolean; accent?: boolean; compact?: boolean }) {
+function InlineKV({ label, value, loading, compact = true }: { label: string; value?: number; loading?: boolean; compact?: boolean }) {
   return (
-    <div className="bg-card p-3">
-      <div className="eyebrow opacity-70">{label}</div>
-      <div className={`tabular text-sm md:text-base leading-tight mt-1 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>
-        {typeof num === "number" ? (
+    <div className="min-w-0">
+      <div className="eyebrow opacity-70 mb-1">{label}</div>
+      <div className="tabular text-base md:text-lg text-foreground leading-none">
+        {typeof value === "number" ? (
           <AnimatedNumber
-            value={num}
+            value={value}
             format={(v) => (compact ? `${fmtTrieu(v)} tr` : `${fmtVndFull(v)} đ`)}
             minChars={compact ? 6 : 10}
           />
         ) : loading ? (
-          <span className="text-muted-foreground/80 animate-pulse">Đang cập nhật</span>
+          <span className="text-muted-foreground/80 animate-pulse text-sm">Đang cập nhật</span>
         ) : "—"}
+      </div>
+    </div>
+  );
+}
+
+function CryptoTile({ name, price, change, vol, spark, loading, has }: { name: string; price: number; change: number; vol: number; spark?: number[]; loading: boolean; has: boolean }) {
+  return (
+    <div className="flex flex-col h-full min-h-[170px]">
+      <div className="flex items-start justify-between mb-3">
+        <div className="eyebrow">{name}</div>
+        <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)] opacity-70" />
+      </div>
+      {has ? (
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <div className="font-display text-3xl md:text-4xl leading-none text-foreground">
+            $<AnimatedNumber value={price} format={(v) => fmt(v, 0)} minChars={5} />
+          </div>
+          <ChangePill value={change} />
+        </div>
+      ) : loading ? (
+        <LoadingLine size="lg" />
+      ) : (
+        <div className="font-display text-3xl md:text-4xl leading-none text-muted-foreground">—</div>
+      )}
+      <div className="mt-auto pt-6 flex items-end justify-between gap-3">
+        <div className="eyebrow opacity-60 normal-case tracking-[0.14em]">
+          KL 24h ·{" "}
+          <span className="tabular text-foreground/80 normal-case tracking-normal">
+            {has ? (
+              <AnimatedNumber value={vol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={5} />
+            ) : loading ? "—" : "—"}
+          </span>
+        </div>
+        <div className="w-24 md:w-28 shrink-0 opacity-90">
+          {has && spark && <Spark data={spark} color={change >= 0 ? "var(--up)" : "var(--down)"} />}
+        </div>
       </div>
     </div>
   );
@@ -307,11 +305,11 @@ function Stat({ label, num, loading, accent, compact = true }: { label: string; 
 
 function GoldMini({ label, gold, loading, usd, compact = true }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean; compact?: boolean }) {
   return (
-    <div className="bg-card p-3">
+    <div className="px-4 first:pl-0 last:pr-0 min-w-0">
       <div className="eyebrow opacity-70">{label}</div>
       {gold ? (
         <>
-          <div className="tabular text-sm md:text-base leading-tight text-foreground mt-1">
+          <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1.5">
             {usd ? (
               <AnimatedNumber value={gold.sell} format={(v) => `$${fmt(v, 0)}`} minChars={6} />
             ) : (
@@ -322,11 +320,12 @@ function GoldMini({ label, gold, loading, usd, compact = true }: { label: string
               />
             )}
           </div>
-          <div className={`text-[11px] tabular mt-0.5 ${gold.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+          <div className={`text-[12px] tabular mt-1 inline-flex items-center gap-1 ${gold.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+            <span aria-hidden className="text-[0.7em] leading-none">{gold.changePct >= 0 ? "▲" : "▼"}</span>
             <AnimatedNumber
-              value={gold.changePct}
-              format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
-              minChars={6}
+              value={Math.abs(gold.changePct)}
+              format={(v) => `${v.toFixed(2)}%`}
+              minChars={5}
               noFlash
             />
           </div>
@@ -340,39 +339,10 @@ function GoldMini({ label, gold, loading, usd, compact = true }: { label: string
   );
 }
 
-function CoinCell({ symbol, price, change, loading }: { symbol: string; price?: number; change?: number; loading?: boolean }) {
-  if (typeof price !== "number") {
-    return (
-      <div className="bg-card p-3 h-[68px]">
-        <div className="eyebrow opacity-70">{symbol}</div>
-        <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
-          {loading ? "Đang cập nhật giá…" : "—"}
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="bg-card p-3">
-      <div className="eyebrow opacity-70">{symbol}</div>
-      <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1">
-        $<AnimatedNumber value={price} format={(v) => fmt(v, price >= 100 ? 0 : price >= 1 ? 2 : 4)} minChars={5} />
-      </div>
-      <div className={`text-xs tabular mt-1 ${(change ?? 0) >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
-        <AnimatedNumber
-          value={change ?? 0}
-          format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
-          minChars={6}
-          noFlash
-        />
-      </div>
-    </div>
-  );
-}
-
 function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?: number; loading?: boolean; code?: string }) {
   if (!rate) {
     return (
-      <div className="bg-card p-3 h-[68px]">
+      <div className="min-w-0">
         {code && <div className="eyebrow opacity-70">{code}/VND</div>}
         <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
           {loading ? "Đang cập nhật giá…" : "—"}
@@ -381,16 +351,17 @@ function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?
     );
   }
   return (
-    <div className="bg-card p-3">
+    <div className="min-w-0">
       <div className="eyebrow opacity-70">{rate.code}/VND</div>
-      <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1">
+      <div className="tabular text-xl md:text-2xl leading-tight text-foreground mt-2">
         <AnimatedNumber value={rate.mid} format={(v) => fmt(v, digits)} minChars={6} />
       </div>
-      <div className={`text-xs tabular mt-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+      <div className={`text-[12px] tabular mt-1.5 inline-flex items-center gap-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+        <span aria-hidden className="text-[0.7em] leading-none">{rate.changePct >= 0 ? "▲" : "▼"}</span>
         <AnimatedNumber
-          value={rate.changePct}
-          format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
-          minChars={6}
+          value={Math.abs(rate.changePct)}
+          format={(v) => `${v.toFixed(2)}%`}
+          minChars={5}
           noFlash
         />
       </div>
