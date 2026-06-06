@@ -495,7 +495,7 @@ function AssetDetail() {
 
         {oil && (
           <>
-            <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div>
                   <h1 className="text-3xl font-bold tracking-tight text-gold">Giá {oil.nameVi} hôm nay</h1>
@@ -523,7 +523,7 @@ function AssetDetail() {
               <ChangeCard label={`Biến động ${rangeLabel}`} value={oilStats?.changePct ?? null} />
             </div>
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Lịch sử giá {oil.nameVi}</h2>
                 <Tabs value={range} onValueChange={setRange} className="ml-auto">
@@ -611,7 +611,7 @@ function AssetDetail() {
 
         {gold && (
           <>
-            <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div>
                   <h1 className="text-3xl font-bold tracking-tight text-gold">{gold.brand}</h1>
@@ -640,7 +640,7 @@ function AssetDetail() {
 
         {bankRow && (
           <>
-            <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div>
                   <h1 className="text-3xl font-bold tracking-tight text-gold">{bankRow.code}/VND</h1>
@@ -665,7 +665,7 @@ function AssetDetail() {
         )}
 
         {!coin && stock && (
-          <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+          <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
             <div className="flex flex-wrap items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight text-gold">{stock.name}</h1>
@@ -691,7 +691,7 @@ function AssetDetail() {
         )}
 
         {!coin && !stock && fx && (
-          <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+          <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
             <div className="flex flex-wrap items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight text-gold">{fx.code}/VND</h1>
@@ -720,7 +720,7 @@ function AssetDetail() {
 
         {coin && (
           <>
-            <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6">
               <div className="flex flex-wrap items-center gap-4">
                 <img src={coin.image} alt={coin.name} className="h-14 w-14 rounded-full" />
                 <div>
@@ -750,7 +750,7 @@ function AssetDetail() {
               <ChangeCard label="Biến động 7 ngày" value={change7d} />
             </div>
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ nâng cao · {coin.symbol}/USDT</h2>
                 <LiveDot />
@@ -789,7 +789,7 @@ function AssetDetail() {
               )}
             </div>
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ giá</h2>
                 {chartFetching && !chartLoading && (
@@ -897,8 +897,8 @@ function AssetDetail() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-3">
-      <div className="text-xs text-muted-foreground">{label}</div>
+    <div className="rounded-xl border border-[color-mix(in_oklab,var(--gold)_12%,var(--border))] bg-muted/30 p-3 transition-colors hover:border-[color-mix(in_oklab,var(--gold)_28%,var(--border))]">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
       <div className="font-semibold tabular mt-1">{value}</div>
     </div>
   );
