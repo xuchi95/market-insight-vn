@@ -107,3 +107,39 @@ export const requestMagicLink = createServerFn({ method: "POST" })
       return { ok: true as const };
     }
   });
+
+const VerifyLogInput = z.object({
+  type: z.enum(["magiclink", "signup", "recovery", "invite", "email_change"]),
+  status: z.enum(["success", "failed"]),
+  error_message: z.string().max(500).optional(),
+  has_token: z.boolean().default(true),
+});
+
+/**
+ * Ghi log kết quả verifyOtp ở phía server để theo dõi tỷ lệ thành công/thất bại.
+ * Không cần auth (link verify có thể được click bởi anonymous user / trình duyệt mới).
+ * Không log token_hash để tránh leak thông tin nhạy cảm.
+ */
+export const logVerifyOtpResult = createServerFn({ method: "POST" })
+  .inputValidator((input) => VerifyLogInput.parse(input))
+  .handler(async ({ data }) => {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("email_send_log").insert({
+        message_id: crypto.randomUUID(),
+        template_name: `${data.type}_verify`,
+        recipient_email: "unknown@verify.local",
+        status: data.status === "success" ? "delivered" : "failed",
+        error_message: data.error_message ?? null,
+        metadata: {
+          event: "verify_otp",
+          otp_type: data.type,
+          has_token: data.has_token,
+        },
+      });
+    } catch (err) {
+      // Best-effort logging — không bao giờ làm fail UI.
+      console.error("[logVerifyOtpResult] insert failed", err);
+    }
+    return { ok: true as const };
+  });
