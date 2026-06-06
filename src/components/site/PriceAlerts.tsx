@@ -158,6 +158,7 @@ export function PriceAlerts() {
     <SectionCard
       id="price-alerts"
       icon={<Bell className="h-4 w-4" />}
+      title="Cảnh báo giá"
       action={
         notifPerm !== "granted" ? (
           <Button variant="outline" size="sm" onClick={requestPerm} className="gap-1">
