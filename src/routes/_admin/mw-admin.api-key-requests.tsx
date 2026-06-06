@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Check, X, Trash2, ExternalLink, Mail, Building2 } from "lucide-react";
 import {
@@ -292,22 +292,18 @@ function ApproveDialog({
   const [scopes, setScopes] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
 
-  // sync khi mở dialog
-  if (target && scopes.length === 0 && target.scopes.length > 0 && notes === "") {
-    // chạy một lần khi target thay đổi
-  }
+  useEffect(() => {
+    if (target) {
+      setScopes(target.scopes);
+      setNotes("");
+    }
+  }, [target]);
 
   return (
     <Dialog
       open={!!target}
       onOpenChange={(o) => {
-        if (!o) {
-          onClose();
-          setScopes([]);
-          setNotes("");
-        } else if (target) {
-          setScopes(target.scopes);
-        }
+        if (!o) onClose();
       }}
     >
       <DialogContent className="max-w-md">
