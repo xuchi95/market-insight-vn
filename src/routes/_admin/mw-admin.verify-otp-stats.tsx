@@ -33,6 +33,17 @@ function VerifyOtpStatsPage() {
   const fn = useServerFn(getVerifyOtpStats);
   const [days, setDays] = useState<number>(14);
   const [customInput, setCustomInput] = useState<string>("");
+  const [customError, setCustomError] = useState<string | null>(null);
+
+  const validateCustom = (raw: string): { ok: true; value: number } | { ok: false; error: string } => {
+    const trimmed = raw.trim();
+    if (trimmed === "") return { ok: false, error: "Vui lòng nhập số ngày." };
+    if (!/^\d+$/.test(trimmed)) return { ok: false, error: "Chỉ chấp nhận số nguyên dương." };
+    const n = Number(trimmed);
+    if (!Number.isFinite(n)) return { ok: false, error: "Giá trị không hợp lệ." };
+    if (n < 1 || n > 365) return { ok: false, error: "Số ngày phải trong khoảng 1–365." };
+    return { ok: true, value: n };
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "verify-otp-stats", days],
@@ -63,6 +74,7 @@ function VerifyOtpStatsPage() {
                 onClick={() => {
                   setDays(r.value);
                   setCustomInput("");
+                  setCustomError(null);
                 }}
               >
                 {r.label}
@@ -70,26 +82,44 @@ function VerifyOtpStatsPage() {
             ))}
           </div>
           <form
-            className="flex items-center gap-2"
+            className="flex flex-col gap-1"
             onSubmit={(e) => {
               e.preventDefault();
-              const n = Math.max(1, Math.min(365, Math.floor(Number(customInput))));
-              if (Number.isFinite(n) && n > 0) setDays(n);
+              const result = validateCustom(customInput);
+              if (!result.ok) {
+                setCustomError(result.error);
+                return;
+              }
+              setCustomError(null);
+              setDays(result.value);
             }}
+            noValidate
           >
-            <Input
-              type="number"
-              min={1}
-              max={365}
-              placeholder="Tùy ý"
-              value={customInput}
-              onChange={(e) => setCustomInput(e.target.value)}
-              className="h-9 w-24"
-            />
-            <span className="text-xs text-muted-foreground">ngày (1–365)</span>
-            <Button type="submit" size="sm" variant="outline">
-              Áp dụng
-            </Button>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={1}
+                max={365}
+                placeholder="Tùy ý"
+                value={customInput}
+                onChange={(e) => {
+                  setCustomInput(e.target.value);
+                  if (customError) setCustomError(null);
+                }}
+                aria-invalid={customError ? true : undefined}
+                aria-describedby={customError ? "custom-days-error" : undefined}
+                className={`h-9 w-24 ${customError ? "border-rose-500 focus-visible:border-rose-500 focus-visible:ring-rose-500/40" : ""}`}
+              />
+              <span className="text-xs text-muted-foreground">ngày (1–365)</span>
+              <Button type="submit" size="sm" variant="outline">
+                Áp dụng
+              </Button>
+            </div>
+            {customError ? (
+              <span id="custom-days-error" className="text-xs text-rose-500">
+                {customError}
+              </span>
+            ) : null}
           </form>
           <span className="text-xs text-muted-foreground">Đang xem: {days} ngày</span>
         </div>
