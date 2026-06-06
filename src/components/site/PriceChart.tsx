@@ -429,7 +429,17 @@ export function PriceChart({
                 </defs>
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="t" tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis dataKey="v" tickFormatter={fmtVal} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} />
+                <YAxis
+                  dataKey="v"
+                  tickFormatter={fmtVal}
+                  stroke="var(--muted-foreground)"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  width={72}
+                  domain={["auto", "auto"]}
+                  label={{ value: axisUnit, angle: -90, position: "insideLeft", fill: "var(--muted-foreground)", fontSize: 11, dy: 30 }}
+                />
                 <Tooltip
                   content={<ChartTooltip asset={asset} firstValue={stats?.first} />}
                   cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }}
