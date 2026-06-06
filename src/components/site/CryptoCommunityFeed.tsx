@@ -67,7 +67,7 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
             Cộng đồng & truyền thông nói gì về {name ?? sym}
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Tổng hợp bài đăng mới nhất từ CoinDesk, Cointelegraph, Decrypt, The Block, CryptoSlate… (cập nhật mỗi 5 phút)
+            Tổng hợp bài đăng mới nhất từ báo chí Việt Nam &amp; quốc tế (CoinDesk, Cointelegraph, Bloomberg, VnExpress, Thanh Niên…) — cập nhật mỗi 5 phút.
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
@@ -183,7 +183,7 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
               </div>
             )}
             <p className="mt-4 text-[11px] text-muted-foreground text-center">
-              Nguồn dữ liệu: CryptoCompare News API. MarketWatch không chịu trách nhiệm về nội dung của bên thứ ba.
+              Nguồn: Google News (tổng hợp từ nhiều cơ quan báo chí). MarketWatch không chịu trách nhiệm về nội dung của bên thứ ba.
             </p>
           </>
         )}
