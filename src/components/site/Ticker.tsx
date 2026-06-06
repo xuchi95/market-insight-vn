@@ -290,7 +290,6 @@ export function Ticker() {
                 type="button"
                 onClick={() => setTz(opt)}
                 aria-pressed={tz === opt}
-                title={opt === "VN" ? "Giờ Việt Nam (UTC+7)" : "Giờ UTC"}
                 className={
                   "rounded-[2px] px-1.5 py-0.5 text-[10px] font-semibold tracking-wider transition-colors " +
                   (tz === opt
