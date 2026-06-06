@@ -285,6 +285,9 @@ export function PriceChart({
     if (isForex) return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0 }).format(v);
     return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(v);
   };
+  const isGoldAsset = asset === "gold-sjc";
+  const isCryptoAsset = asset === "btc" || asset === "eth";
+  const axisUnit = isGoldAsset ? "đ/chỉ" : isCryptoAsset ? "USD" : "VND";
 
   const rangeLabel =
     range === "1" ? "24 giờ qua" :
@@ -343,7 +346,10 @@ export function PriceChart({
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">
                   {zoom ? "Giá cuối khoảng zoom" : "Giá hiện tại"}
                 </div>
-                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">{fmtVal(stats.last)}</div>
+                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">
+                  {fmtVal(stats.last)}
+                  <span className="ml-1.5 text-sm sm:text-base md:text-lg font-medium text-muted-foreground tracking-normal">{axisUnit}</span>
+                </div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
