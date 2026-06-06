@@ -13,9 +13,13 @@ import { test, expect, type Page } from "@playwright/test";
  */
 
 const BREAKPOINTS: { name: string; width: number; height: number }[] = [
+  { name: "mobile-320", width: 320, height: 568 },
   { name: "mobile-375", width: 375, height: 812 },
   { name: "mobile-414", width: 414, height: 896 },
+  { name: "mobile-landscape-812", width: 812, height: 375 },
+  { name: "mobile-landscape-896", width: 896, height: 414 },
   { name: "tablet-768", width: 768, height: 1024 },
+  { name: "tablet-landscape-1024", width: 1024, height: 768 },
   { name: "laptop-1280", width: 1280, height: 720 },
   { name: "desktop-1536", width: 1536, height: 864 },
   { name: "desktop-1920", width: 1920, height: 1080 },
