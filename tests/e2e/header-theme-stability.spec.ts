@@ -267,13 +267,36 @@ for (const theme of THEMES) {
           timeout: 5_000,
         });
         await page.waitForTimeout(200);
+        // Gõ ký tự để hiện danh sách suggest và đo vị trí dropdown.
+        const mInput = page.locator('[data-testid="header-mobile-search-form"] input');
+        await mInput.fill("btc");
+        await page.waitForSelector(
+          '[data-testid="header-mobile-search-result-first"]',
+          { timeout: 5_000 },
+        );
+        await page.waitForTimeout(150);
         const before2 = {
           panel: await rectOf(page, '[data-testid="header-mobile-search-panel"]'),
           form: await rectOf(page, '[data-testid="header-mobile-search-form"]'),
+          results: await rectOf(page, '[data-testid="header-mobile-search-results"]'),
+          firstItem: await rectOf(
+            page,
+            '[data-testid="header-mobile-search-result-first"]',
+          ),
         };
         for (const [k, v] of Object.entries(before2)) {
           expect(v, `mobile pha 2 thiếu ${k}`).not.toBeNull();
         }
+        // Suggest dropdown phải nằm NGAY DƯỚI search form (không gap > tolerance,
+        // không overlap form). Kiểm tra cả căn lề trái với panel.
+        expect(
+          before2.results!.y,
+          "results phải nằm dưới form (theme cũ)",
+        ).toBeGreaterThanOrEqual(before2.form!.bottom - TOLERANCE_PX);
+        expect(
+          Math.abs(before2.firstItem!.x - before2.panel!.x),
+          "first item lệch trái so với panel",
+        ).toBeLessThanOrEqual(32); // panel có padding px-2 (8px) + item padding
         // Đóng search panel (nút X bên trong form).
         await page
           .locator('[data-testid="header-mobile-search-form"] button[type="button"]')
@@ -301,12 +324,40 @@ for (const theme of THEMES) {
           timeout: 5_000,
         });
         await page.waitForTimeout(200);
+        // Gõ lại cùng query để render lại danh sách ở theme mới.
+        const mInput2 = page.locator('[data-testid="header-mobile-search-form"] input');
+        await mInput2.fill("btc");
+        await page.waitForSelector(
+          '[data-testid="header-mobile-search-result-first"]',
+          { timeout: 5_000 },
+        );
+        await page.waitForTimeout(150);
         const after2 = {
           panel: await rectOf(page, '[data-testid="header-mobile-search-panel"]'),
           form: await rectOf(page, '[data-testid="header-mobile-search-form"]'),
+          results: await rectOf(page, '[data-testid="header-mobile-search-results"]'),
+          firstItem: await rectOf(
+            page,
+            '[data-testid="header-mobile-search-result-first"]',
+          ),
         };
         expectRectEqual(after2.panel!, before2.panel!, "mobile search panel (open)");
         expectRectEqual(after2.form!, before2.form!, "mobile search form (open)");
+        expectRectEqual(
+          after2.results!,
+          before2.results!,
+          "mobile suggest dropdown (open)",
+        );
+        expectRectEqual(
+          after2.firstItem!,
+          before2.firstItem!,
+          "mobile suggest first item (open)",
+        );
+        // Sau khi đổi theme, dropdown vẫn phải nằm ngay dưới form.
+        expect(
+          after2.results!.y,
+          "results phải nằm dưới form (theme mới)",
+        ).toBeGreaterThanOrEqual(after2.form!.bottom - TOLERANCE_PX);
       });
     }
   });
