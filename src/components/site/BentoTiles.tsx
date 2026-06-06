@@ -260,20 +260,56 @@ function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
   );
 }
 
-function Stat({ label, num, loading, accent, compact = true }: { label: string; num?: number; loading?: boolean; accent?: boolean; compact?: boolean }) {
+function InlineKV({ label, value, loading, compact = true }: { label: string; value?: number; loading?: boolean; compact?: boolean }) {
   return (
-    <div className="bg-card p-3">
-      <div className="eyebrow opacity-70">{label}</div>
-      <div className={`tabular text-sm md:text-base leading-tight mt-1 ${accent ? "text-[var(--gold-light)]" : "text-foreground"}`}>
-        {typeof num === "number" ? (
+    <div className="min-w-0">
+      <div className="eyebrow opacity-70 mb-1">{label}</div>
+      <div className="tabular text-base md:text-lg text-foreground leading-none">
+        {typeof value === "number" ? (
           <AnimatedNumber
-            value={num}
+            value={value}
             format={(v) => (compact ? `${fmtTrieu(v)} tr` : `${fmtVndFull(v)} đ`)}
             minChars={compact ? 6 : 10}
           />
         ) : loading ? (
-          <span className="text-muted-foreground/80 animate-pulse">Đang cập nhật</span>
+          <span className="text-muted-foreground/80 animate-pulse text-sm">Đang cập nhật</span>
         ) : "—"}
+      </div>
+    </div>
+  );
+}
+
+function CryptoTile({ name, price, change, vol, spark, loading, has }: { name: string; price: number; change: number; vol: number; spark?: number[]; loading: boolean; has: boolean }) {
+  return (
+    <div className="flex flex-col h-full min-h-[170px]">
+      <div className="flex items-start justify-between mb-3">
+        <div className="eyebrow">{name}</div>
+        <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)] opacity-70" />
+      </div>
+      {has ? (
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <div className="font-display text-3xl md:text-4xl leading-none text-foreground">
+            $<AnimatedNumber value={price} format={(v) => fmt(v, 0)} minChars={5} />
+          </div>
+          <ChangePill value={change} />
+        </div>
+      ) : loading ? (
+        <LoadingLine size="lg" />
+      ) : (
+        <div className="font-display text-3xl md:text-4xl leading-none text-muted-foreground">—</div>
+      )}
+      <div className="mt-auto pt-6 flex items-end justify-between gap-3">
+        <div className="eyebrow opacity-60 normal-case tracking-[0.14em]">
+          KL 24h ·{" "}
+          <span className="tabular text-foreground/80 normal-case tracking-normal">
+            {has ? (
+              <AnimatedNumber value={vol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={5} />
+            ) : loading ? "—" : "—"}
+          </span>
+        </div>
+        <div className="w-24 md:w-28 shrink-0 opacity-90">
+          {has && spark && <Spark data={spark} color={change >= 0 ? "var(--up)" : "var(--down)"} />}
+        </div>
       </div>
     </div>
   );
@@ -281,11 +317,11 @@ function Stat({ label, num, loading, accent, compact = true }: { label: string; 
 
 function GoldMini({ label, gold, loading, usd, compact = true }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean; compact?: boolean }) {
   return (
-    <div className="bg-card p-3">
+    <div className="px-4 first:pl-0 last:pr-0 min-w-0">
       <div className="eyebrow opacity-70">{label}</div>
       {gold ? (
         <>
-          <div className="tabular text-sm md:text-base leading-tight text-foreground mt-1">
+          <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1.5">
             {usd ? (
               <AnimatedNumber value={gold.sell} format={(v) => `$${fmt(v, 0)}`} minChars={6} />
             ) : (
@@ -296,11 +332,12 @@ function GoldMini({ label, gold, loading, usd, compact = true }: { label: string
               />
             )}
           </div>
-          <div className={`text-[11px] tabular mt-0.5 ${gold.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+          <div className={`text-[12px] tabular mt-1 inline-flex items-center gap-1 ${gold.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+            <span aria-hidden className="text-[0.7em] leading-none">{gold.changePct >= 0 ? "▲" : "▼"}</span>
             <AnimatedNumber
-              value={gold.changePct}
-              format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
-              minChars={6}
+              value={Math.abs(gold.changePct)}
+              format={(v) => `${v.toFixed(2)}%`}
+              minChars={5}
               noFlash
             />
           </div>
@@ -346,7 +383,7 @@ function CoinCell({ symbol, price, change, loading }: { symbol: string; price?: 
 function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?: number; loading?: boolean; code?: string }) {
   if (!rate) {
     return (
-      <div className="bg-card p-3 h-[68px]">
+      <div className="min-w-0">
         {code && <div className="eyebrow opacity-70">{code}/VND</div>}
         <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
           {loading ? "Đang cập nhật giá…" : "—"}
@@ -355,16 +392,17 @@ function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?
     );
   }
   return (
-    <div className="bg-card p-3">
+    <div className="min-w-0">
       <div className="eyebrow opacity-70">{rate.code}/VND</div>
-      <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1">
+      <div className="tabular text-xl md:text-2xl leading-tight text-foreground mt-2">
         <AnimatedNumber value={rate.mid} format={(v) => fmt(v, digits)} minChars={6} />
       </div>
-      <div className={`text-xs tabular mt-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+      <div className={`text-[12px] tabular mt-1.5 inline-flex items-center gap-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+        <span aria-hidden className="text-[0.7em] leading-none">{rate.changePct >= 0 ? "▲" : "▼"}</span>
         <AnimatedNumber
-          value={rate.changePct}
-          format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
-          minChars={6}
+          value={Math.abs(rate.changePct)}
+          format={(v) => `${v.toFixed(2)}%`}
+          minChars={5}
           noFlash
         />
       </div>
