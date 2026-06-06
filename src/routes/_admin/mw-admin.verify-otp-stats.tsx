@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { getVerifyOtpStats } from "@/lib/admin/verify-otp-stats.functions";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -31,6 +32,7 @@ function pct(n: number) {
 function VerifyOtpStatsPage() {
   const fn = useServerFn(getVerifyOtpStats);
   const [days, setDays] = useState<number>(14);
+  const [customInput, setCustomInput] = useState<string>("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "verify-otp-stats", days],
@@ -51,17 +53,45 @@ function VerifyOtpStatsPage() {
             Thống kê các lượt xác thực OTP (magic link, recovery, signup…) thành công và thất bại.
           </p>
         </div>
-        <div className="flex gap-1 rounded-md border border-border p-1">
-          {RANGES.map((r) => (
-            <Button
-              key={r.value}
-              size="sm"
-              variant={days === r.value ? "default" : "ghost"}
-              onClick={() => setDays(r.value)}
-            >
-              {r.label}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex gap-1 rounded-md border border-border p-1">
+            {RANGES.map((r) => (
+              <Button
+                key={r.value}
+                size="sm"
+                variant={days === r.value ? "default" : "ghost"}
+                onClick={() => {
+                  setDays(r.value);
+                  setCustomInput("");
+                }}
+              >
+                {r.label}
+              </Button>
+            ))}
+          </div>
+          <form
+            className="flex items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const n = Math.max(1, Math.min(365, Math.floor(Number(customInput))));
+              if (Number.isFinite(n) && n > 0) setDays(n);
+            }}
+          >
+            <Input
+              type="number"
+              min={1}
+              max={365}
+              placeholder="Tùy ý"
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+              className="h-9 w-24"
+            />
+            <span className="text-xs text-muted-foreground">ngày (1–365)</span>
+            <Button type="submit" size="sm" variant="outline">
+              Áp dụng
             </Button>
-          ))}
+          </form>
+          <span className="text-xs text-muted-foreground">Đang xem: {days} ngày</span>
         </div>
       </div>
 
