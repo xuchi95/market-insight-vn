@@ -84,11 +84,12 @@ export function GoldPriceTable({ search }: { search?: string }) {
             {rows.map((g) => {
               const isUsd = g.unit.includes("USD");
               const decimals = isUsd ? 2 : compact ? 2 : 0;
+              const unitSuffix = isUsd ? "/oz" : compact ? " tr/chỉ" : " đ/chỉ";
               const fmt = isUsd
-                ? (n: number) => `$${fmtNum(n, 2)}`
+                ? (n: number) => `$${fmtNum(n, 2)}${unitSuffix}`
                 : compact
-                  ? (n: number) => `${fmtTrieu(n, 2)} tr`
-                  : (n: number) => fmtNum(n, 0);
+                  ? (n: number) => `${fmtTrieu(n, 2)}${unitSuffix}`
+                  : (n: number) => `${fmtNum(n, 0)}${unitSuffix}`;
               const mid = g.mid ?? midOf(g.buy, g.sell);
               return (
                 <tr key={g.id} className="hover:bg-muted/30 transition-colors">

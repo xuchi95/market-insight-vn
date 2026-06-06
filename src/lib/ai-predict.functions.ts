@@ -8,8 +8,8 @@ import { requireAdmin } from "@/lib/admin/middleware.server";
 const SITE = "https://marketwatch.vn";
 
 export const PREDICTABLE_ASSETS = [
-  { slug: "gold-sjc", label: "Vàng SJC", category: "Kim loại quý", unit: "VND/lượng" },
-  { slug: "gold-ring", label: "Vàng nhẫn 9999", category: "Kim loại quý", unit: "VND/lượng" },
+  { slug: "gold-sjc", label: "Vàng SJC", category: "Kim loại quý", unit: "VND/chỉ" },
+  { slug: "gold-ring", label: "Vàng nhẫn 9999", category: "Kim loại quý", unit: "VND/chỉ" },
   { slug: "xau-usd", label: "Vàng thế giới (XAU/USD)", category: "Kim loại quý", unit: "USD/oz" },
   { slug: "silver", label: "Bạc (XAG/USD)", category: "Kim loại quý", unit: "USD/oz" },
   { slug: "platinum", label: "Bạch kim (XPT/USD)", category: "Kim loại quý", unit: "USD/oz" },
@@ -189,8 +189,8 @@ async function buildContext(asset: AssetSlug): Promise<PriceContext> {
     if (g?.items?.length) {
       const sjc = g.items.find((x: any) => /SJC/i.test(x.name));
       const ring = g.items.find((x: any) => /nhẫn|ring|9999/i.test(x.name));
-      if (sjc) notes.push(`Vàng SJC hiện tại: mua ${fmtVND(sjc.buy)} – bán ${fmtVND(sjc.sell)} VND/lượng.`);
-      if (ring) notes.push(`Vàng nhẫn 9999: mua ${fmtVND(ring.buy)} – bán ${fmtVND(ring.sell)} VND/lượng.`);
+      if (sjc) notes.push(`Vàng SJC hiện tại: mua ${fmtVND(sjc.buy)} – bán ${fmtVND(sjc.sell)} VND/chỉ.`);
+      if (ring) notes.push(`Vàng nhẫn 9999: mua ${fmtVND(ring.buy)} – bán ${fmtVND(ring.sell)} VND/chỉ.`);
     }
     const m = await safeFetchJson(`${SITE}/api/public/metals`);
     if (m?.items?.length) {

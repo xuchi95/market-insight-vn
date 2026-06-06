@@ -235,7 +235,7 @@ export function goldDigestEmail(opts: { dateLabel: string; rows: GoldDigestRow[]
   const leadColor = leadCh === null ? "#666" : leadCh >= 0 ? "#0a8f4a" : "#c8312f";
   const leadPct = leadCh === null ? "" : ` ${leadCh >= 0 ? "+" : ""}${leadCh.toFixed(2)}%`;
   const summary = lead
-    ? `Phiên giao dịch ngày ${escape(opts.dateLabel)} ghi nhận <strong>${escape(lead.label)}</strong> ${leadDir}<span style="color:${leadColor};font-weight:600;">${leadPct}</span> so với phiên liền trước, niêm yết ở mức <strong>${fmtVnd(lead.sell)} VNĐ/lượng</strong> (giá bán ra). Mức chênh lệch mua – bán phản ánh thanh khoản thị trường vật chất và biên độ rủi ro mà doanh nghiệp kinh doanh vàng đang áp dụng trong ngày.`
+    ? `Phiên giao dịch ngày ${escape(opts.dateLabel)} ghi nhận <strong>${escape(lead.label)}</strong> ${leadDir}<span style="color:${leadColor};font-weight:600;">${leadPct}</span> so với phiên liền trước, niêm yết ở mức <strong>${fmtVnd(lead.sell)} VNĐ/chỉ</strong> (giá bán ra). Mức chênh lệch mua – bán phản ánh thanh khoản thị trường vật chất và biên độ rủi ro mà doanh nghiệp kinh doanh vàng đang áp dụng trong ngày.`
     : `Dữ liệu giá vàng ngày ${escape(opts.dateLabel)} hiện chưa đầy đủ. Quý độc giả có thể truy cập MarketWatch để xem cập nhật theo thời gian thực.`;
   const html = shell(`Bản tin giá vàng • ${opts.dateLabel}`, `
     <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Nhật báo giá vàng</div>
@@ -255,7 +255,7 @@ export function goldDigestEmail(opts: { dateLabel: string; rows: GoldDigestRow[]
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <p style="margin:8px 0 0;color:#999;font-size:11px;line-height:1.6;">Đơn vị: VNĐ/lượng đối với vàng miếng trong nước; USD/oz đối với XAU quốc tế. Tỷ giá quy đổi tham chiếu USD/VND của ngày phát hành.</p>
+    <p style="margin:8px 0 0;color:#999;font-size:11px;line-height:1.6;">Đơn vị: VNĐ/chỉ đối với vàng miếng trong nước (1 lượng = 10 chỉ); USD/oz đối với XAU quốc tế. Tỷ giá quy đổi tham chiếu USD/VND của ngày phát hành.</p>
 
     <h2 style="font-size:14px;margin:26px 0 8px;color:#111;text-transform:uppercase;letter-spacing:0.08em;">Bối cảnh thị trường</h2>
     <p style="margin:0 0 12px;line-height:1.7;color:#333;font-size:14px;">Giá vàng trong nước thường phản ánh đồng thời ba yếu tố chính: diễn biến của vàng quốc tế (XAU/USD), tỷ giá USD/VND và chênh lệch cung – cầu của thị trường vật chất Việt Nam. Khi một trong các yếu tố này dịch chuyển mạnh, giá niêm yết của các thương hiệu lớn (SJC, DOJI, PNJ) có thể giãn rộng biên độ mua – bán nhằm quản trị rủi ro tồn kho.</p>
