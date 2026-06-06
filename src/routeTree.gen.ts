@@ -85,6 +85,7 @@ import { Route as ApiPublicForexRouteImport } from './routes/api/public/forex'
 import { Route as ApiPublicFearGreedRouteImport } from './routes/api/public/fear-greed'
 import { Route as ApiPublicEconomicCalendarRouteImport } from './routes/api/public/economic-calendar'
 import { Route as ApiPublicDailyMarketDigestRouteImport } from './routes/api/public/daily-market-digest'
+import { Route as ApiPublicCryptoNewsRouteImport } from './routes/api/public/crypto-news'
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
@@ -503,6 +504,11 @@ const ApiPublicDailyMarketDigestRoute =
     path: '/api/public/daily-market-digest',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCryptoNewsRoute = ApiPublicCryptoNewsRouteImport.update({
+  id: '/api/public/crypto-news',
+  path: '/api/public/crypto-news',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCryptoChartRoute = ApiPublicCryptoChartRouteImport.update({
   id: '/api/public/crypto-chart',
   path: '/api/public/crypto-chart',
@@ -758,6 +764,7 @@ export interface FileRoutesByFullPath {
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
+  '/api/public/crypto-news': typeof ApiPublicCryptoNewsRoute
   '/api/public/daily-market-digest': typeof ApiPublicDailyMarketDigestRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
@@ -868,6 +875,7 @@ export interface FileRoutesByTo {
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
+  '/api/public/crypto-news': typeof ApiPublicCryptoNewsRoute
   '/api/public/daily-market-digest': typeof ApiPublicDailyMarketDigestRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
@@ -980,6 +988,7 @@ export interface FileRoutesById {
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
+  '/api/public/crypto-news': typeof ApiPublicCryptoNewsRoute
   '/api/public/daily-market-digest': typeof ApiPublicDailyMarketDigestRoute
   '/api/public/economic-calendar': typeof ApiPublicEconomicCalendarRoute
   '/api/public/fear-greed': typeof ApiPublicFearGreedRoute
@@ -1092,6 +1101,7 @@ export interface FileRouteTypes {
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
+    | '/api/public/crypto-news'
     | '/api/public/daily-market-digest'
     | '/api/public/economic-calendar'
     | '/api/public/fear-greed'
@@ -1202,6 +1212,7 @@ export interface FileRouteTypes {
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
+    | '/api/public/crypto-news'
     | '/api/public/daily-market-digest'
     | '/api/public/economic-calendar'
     | '/api/public/fear-greed'
@@ -1313,6 +1324,7 @@ export interface FileRouteTypes {
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
+    | '/api/public/crypto-news'
     | '/api/public/daily-market-digest'
     | '/api/public/economic-calendar'
     | '/api/public/fear-greed'
@@ -1411,6 +1423,7 @@ export interface RootRouteChildren {
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
+  ApiPublicCryptoNewsRoute: typeof ApiPublicCryptoNewsRoute
   ApiPublicDailyMarketDigestRoute: typeof ApiPublicDailyMarketDigestRoute
   ApiPublicEconomicCalendarRoute: typeof ApiPublicEconomicCalendarRoute
   ApiPublicFearGreedRoute: typeof ApiPublicFearGreedRoute
@@ -1977,6 +1990,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDailyMarketDigestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/crypto-news': {
+      id: '/api/public/crypto-news'
+      path: '/api/public/crypto-news'
+      fullPath: '/api/public/crypto-news'
+      preLoaderRoute: typeof ApiPublicCryptoNewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/crypto-chart': {
       id: '/api/public/crypto-chart'
       path: '/api/public/crypto-chart'
@@ -2315,6 +2335,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
+  ApiPublicCryptoNewsRoute: ApiPublicCryptoNewsRoute,
   ApiPublicDailyMarketDigestRoute: ApiPublicDailyMarketDigestRoute,
   ApiPublicEconomicCalendarRoute: ApiPublicEconomicCalendarRoute,
   ApiPublicFearGreedRoute: ApiPublicFearGreedRoute,
@@ -2350,13 +2371,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
