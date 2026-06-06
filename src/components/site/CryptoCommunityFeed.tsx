@@ -116,9 +116,6 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
           <h2 className="text-lg font-bold tracking-tight">
             Tin tức mới nhất về {name ?? sym}
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Tổng hợp tin tức về {sym} từ CoinDesk Data — cập nhật mỗi 5 phút.
-          </p>
         </div>
         <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
           {isFetching && !isLoading && (
