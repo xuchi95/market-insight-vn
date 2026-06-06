@@ -90,6 +90,7 @@ import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank
 import { Route as ApiPublicAuthsignalPushRouteImport } from './routes/api/public/authsignal-push'
 import { Route as ApiPublicAuthsignalMagicLinkRouteImport } from './routes/api/public/authsignal-magic-link'
 import { Route as ApiPublicAuthsignalEmailRouteImport } from './routes/api/public/authsignal-email'
+import { Route as ApiPublicApiKeyRequestRouteImport } from './routes/api/public/api-key-request'
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
@@ -527,6 +528,11 @@ const ApiPublicAuthsignalEmailRoute =
     path: '/api/public/authsignal-email',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicApiKeyRequestRoute = ApiPublicApiKeyRequestRouteImport.update({
+  id: '/api/public/api-key-request',
+  path: '/api/public/api-key-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiNewsletterUnsubscribeRoute =
   ApiNewsletterUnsubscribeRouteImport.update({
     id: '/api/newsletter/unsubscribe',
@@ -730,6 +736,7 @@ export interface FileRoutesByFullPath {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/api-key-request': typeof ApiPublicApiKeyRequestRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
@@ -837,6 +844,7 @@ export interface FileRoutesByTo {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/api-key-request': typeof ApiPublicApiKeyRequestRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
@@ -946,6 +954,7 @@ export interface FileRoutesById {
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
+  '/api/public/api-key-request': typeof ApiPublicApiKeyRequestRoute
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
@@ -1055,6 +1064,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/api-key-request'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
@@ -1162,6 +1172,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/api-key-request'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
@@ -1270,6 +1281,7 @@ export interface FileRouteTypes {
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
+    | '/api/public/api-key-request'
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
@@ -1366,6 +1378,7 @@ export interface RootRouteChildren {
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
+  ApiPublicApiKeyRequestRoute: typeof ApiPublicApiKeyRequestRoute
   ApiPublicAuthsignalEmailRoute: typeof ApiPublicAuthsignalEmailRoute
   ApiPublicAuthsignalMagicLinkRoute: typeof ApiPublicAuthsignalMagicLinkRoute
   ApiPublicAuthsignalPushRoute: typeof ApiPublicAuthsignalPushRoute
@@ -1973,6 +1986,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAuthsignalEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/api-key-request': {
+      id: '/api/public/api-key-request'
+      path: '/api/public/api-key-request'
+      fullPath: '/api/public/api-key-request'
+      preLoaderRoute: typeof ApiPublicApiKeyRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/newsletter/unsubscribe': {
       id: '/api/newsletter/unsubscribe'
       path: '/api/newsletter/unsubscribe'
@@ -2245,6 +2265,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,
+  ApiPublicApiKeyRequestRoute: ApiPublicApiKeyRequestRoute,
   ApiPublicAuthsignalEmailRoute: ApiPublicAuthsignalEmailRoute,
   ApiPublicAuthsignalMagicLinkRoute: ApiPublicAuthsignalMagicLinkRoute,
   ApiPublicAuthsignalPushRoute: ApiPublicAuthsignalPushRoute,
