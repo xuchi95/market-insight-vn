@@ -329,3 +329,38 @@ function SummaryCard({
     </div>
   );
 }
+
+function StatsSkeleton() {
+  return (
+    <div className="space-y-6" aria-busy="true" aria-live="polite">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-lg border border-border bg-card/40 p-4">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="mt-2 h-7 w-16" />
+          </div>
+        ))}
+      </div>
+      <section className="rounded-lg border border-border bg-card/40 p-4">
+        <Skeleton className="mb-3 h-4 w-24" />
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-5 flex-1" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="rounded-lg border border-border bg-card/40 p-4">
+        <Skeleton className="mb-3 h-4 w-32" />
+        <div className="space-y-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-8 w-full" />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
