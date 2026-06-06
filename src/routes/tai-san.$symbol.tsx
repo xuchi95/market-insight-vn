@@ -43,6 +43,10 @@ export const Route = createFileRoute("/tai-san/$symbol")({
     const isOilBrent = slug === "oil-brent";
     const isOilWti = slug === "oil-wti";
     const isOil = isOilBrent || isOilWti;
+    const isGold = slug.startsWith("gold-");
+    const isBank = slug.startsWith("bank-");
+    const isCrypto = !isOil && !isGold && !isBank;
+    const OG_IMAGE = `${SITE}/og-image.png`;
 
     let TITLE: string;
     let DESC: string;
@@ -69,10 +73,27 @@ export const Route = createFileRoute("/tai-san/$symbol")({
       BREADCRUMB_PARENT = { name: "Giá dầu thế giới", item: `${SITE}/#oil` };
       BREADCRUMB_LEAF = "Dầu WTI";
       OG_TYPE = "article";
+    } else if (isGold) {
+      const id = slug.slice("gold-".length).toUpperCase();
+      TITLE = `Giá vàng ${id} hôm nay — Biểu đồ giá vàng realtime | MarketWatch`;
+      DESC = `Giá vàng ${id} hôm nay cập nhật realtime: giá mua, giá bán, biến động, biểu đồ giá vàng ${id} VND/lượng chi tiết.`;
+      KEYWORDS = `giá vàng ${id.toLowerCase()}, giá vàng hôm nay, biểu đồ vàng ${id.toLowerCase()}, vàng ${id.toLowerCase()} mua bán`;
+      BREADCRUMB_PARENT = { name: "Giá vàng", item: `${SITE}/gia-vang` };
+      BREADCRUMB_LEAF = `Vàng ${id}`;
+      OG_TYPE = "article";
+    } else if (isBank) {
+      const code = slug.slice("bank-".length).toUpperCase();
+      TITLE = `Tỷ giá ${code} Vietcombank hôm nay — Mua/Bán realtime | MarketWatch`;
+      DESC = `Tỷ giá ${code} Vietcombank hôm nay cập nhật realtime: giá mua tiền mặt, mua chuyển khoản, giá bán và biến động ${code}/VND chi tiết.`;
+      KEYWORDS = `tỷ giá ${code.toLowerCase()}, tỷ giá ${code.toLowerCase()} vietcombank, ${code.toLowerCase()}/vnd, tỷ giá ngân hàng ${code.toLowerCase()}`;
+      BREADCRUMB_PARENT = { name: "Tỷ giá ngân hàng", item: `${SITE}/ty-gia-ngan-hang` };
+      BREADCRUMB_LEAF = `${code} · Vietcombank`;
+      OG_TYPE = "article";
     } else {
       TITLE = `Giá ${SYM} hôm nay — Biểu đồ ${SYM}/USD realtime | MarketWatch`;
       DESC = `Giá ${SYM} hôm nay cập nhật realtime: biến động 24h, vốn hoá thị trường, khối lượng giao dịch và biểu đồ giá ${SYM}/USD chi tiết.`;
       KEYWORDS = `giá ${SYM.toLowerCase()}, giá ${SYM.toLowerCase()} hôm nay, ${SYM.toLowerCase()}/usd, biểu đồ ${SYM.toLowerCase()}, vốn hoá ${SYM.toLowerCase()}`;
+      OG_TYPE = "article";
     }
     return {
       meta: [
@@ -86,9 +107,18 @@ export const Route = createFileRoute("/tai-san/$symbol")({
         { property: "og:type", content: OG_TYPE },
         { property: "og:locale", content: "vi_VN" },
         { property: "og:site_name", content: "MarketWatch" },
+        { property: "og:image", content: OG_IMAGE },
+        { property: "og:image:secure_url", content: OG_IMAGE },
+        { property: "og:image:type", content: "image/png" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: TITLE },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:site", content: "@MarketWatchVN" },
         { name: "twitter:title", content: TITLE },
         { name: "twitter:description", content: DESC },
+        { name: "twitter:image", content: OG_IMAGE },
+        { name: "twitter:image:alt", content: TITLE },
       ],
       links: [{ rel: "canonical", href: URL }],
       scripts: [
@@ -103,6 +133,54 @@ export const Route = createFileRoute("/tai-san/$symbol")({
               { "@type": "ListItem", position: 3, name: BREADCRUMB_LEAF, item: URL },
             ],
           }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            isCrypto
+              ? {
+                  "@context": "https://schema.org",
+                  "@type": "FinancialProduct",
+                  name: `${SYM} (${SYM}/USD)`,
+                  category: "Cryptocurrency",
+                  url: URL,
+                  description: DESC,
+                  image: OG_IMAGE,
+                  provider: { "@type": "Organization", name: "MarketWatch", url: SITE },
+                }
+              : isGold
+                ? {
+                    "@context": "https://schema.org",
+                    "@type": "Product",
+                    name: BREADCRUMB_LEAF,
+                    category: "Vàng miếng",
+                    url: URL,
+                    description: DESC,
+                    image: OG_IMAGE,
+                    brand: { "@type": "Brand", name: BREADCRUMB_LEAF.replace(/^Vàng\s+/, "") },
+                  }
+                : isBank
+                  ? {
+                      "@context": "https://schema.org",
+                      "@type": "FinancialProduct",
+                      name: BREADCRUMB_LEAF,
+                      category: "Tỷ giá ngoại tệ ngân hàng",
+                      url: URL,
+                      description: DESC,
+                      image: OG_IMAGE,
+                      provider: { "@type": "Organization", name: "Vietcombank" },
+                    }
+                  : {
+                      "@context": "https://schema.org",
+                      "@type": "Product",
+                      name: isOilBrent ? "Dầu Brent (BZ=F)" : "Dầu WTI (CL=F)",
+                      category: "Hàng hoá · Dầu thô",
+                      url: URL,
+                      description: DESC,
+                      image: OG_IMAGE,
+                      brand: { "@type": "Brand", name: isOilBrent ? "ICE" : "NYMEX" },
+                    },
+          ),
         },
         ...(isOil
           ? [
