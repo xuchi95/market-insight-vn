@@ -302,7 +302,6 @@ export function PriceChart({
     <SectionCard
       id="chart"
       icon={<LCIcon className="h-4 w-4" />}
-      title="Biểu đồ biến động"
       meta={
         <span className="flex items-center gap-1.5">
           <LiveDot /> Tự cập nhật mỗi 5 giây
@@ -321,10 +320,10 @@ export function PriceChart({
           </Select>
           <Tabs value={range} onValueChange={(v) => { setRange(v as Range); setZoom(null); }}>
             <TabsList className="h-9">
-              <TabsTrigger value="1" title="1 ngày">1D</TabsTrigger>
-              <TabsTrigger value="7" title="1 tuần">1W</TabsTrigger>
-              <TabsTrigger value="30" title="1 tháng">1M</TabsTrigger>
-              <TabsTrigger value="365" title="1 năm">1Y</TabsTrigger>
+              <TabsTrigger value="1">1D</TabsTrigger>
+              <TabsTrigger value="7">1W</TabsTrigger>
+              <TabsTrigger value="30">1M</TabsTrigger>
+              <TabsTrigger value="365">1Y</TabsTrigger>
             </TabsList>
           </Tabs>
           {zoom && (
@@ -352,7 +351,6 @@ export function PriceChart({
                     type="button"
                     onClick={() => setChangeUnit((u) => (u === "pct" ? "abs" : "pct"))}
                     className="inline-flex items-center rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] font-medium hover:bg-muted normal-case tracking-normal"
-                    title="Đổi đơn vị hiển thị"
                     aria-label="Đổi đơn vị hiển thị giữa phần trăm và tuyệt đối"
                   >
                     {changeUnit === "pct" ? "%" : "Δ"}
@@ -385,7 +383,6 @@ export function PriceChart({
                     disabled={isFetching}
                     className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-md border border-border/60 hover:bg-muted disabled:opacity-50"
                     aria-label="Làm mới ngay"
-                    title="Làm mới ngay"
                   >
                     <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} />
                   </button>

@@ -158,7 +158,6 @@ export function PriceAlerts() {
     <SectionCard
       id="price-alerts"
       icon={<Bell className="h-4 w-4" />}
-      title="Cảnh báo giá BTC / ETH"
       action={
         notifPerm !== "granted" ? (
           <Button variant="outline" size="sm" onClick={requestPerm} className="gap-1">
@@ -288,11 +287,11 @@ export function PriceAlerts() {
                     <span className="rounded-full bg-emerald-500/10 text-emerald-500 text-xs px-2 py-0.5">Đang theo dõi</span>
                   )}
                   {a.triggered && (
-                    <Button variant="ghost" size="icon" onClick={() => resetAlert(a.id)} title="Đặt lại">
+                    <Button variant="ghost" size="icon" onClick={() => resetAlert(a.id)}>
                       <RotateCcw className="h-4 w-4" />
                     </Button>
                   )}
-                  <Button variant="ghost" size="icon" onClick={() => removeAlert(a.id)} title="Xoá">
+                  <Button variant="ghost" size="icon" onClick={() => removeAlert(a.id)}>
                     <Trash2 className="h-4 w-4 text-rose-500" />
                   </Button>
                 </div>

@@ -280,7 +280,6 @@ function MethodCard({
               variant="ghost"
               size="sm"
               onClick={() => onSetDefault(enrolled.id)}
-              title="Đặt làm mặc định"
               aria-label={`Đặt ${catalog.title} làm phương thức mặc định`}
             >
               <Star aria-hidden="true" className="h-4 w-4" />
