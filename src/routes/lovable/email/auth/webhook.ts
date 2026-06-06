@@ -10,6 +10,8 @@ import { MagicLinkEmail } from '@/lib/email-templates/magic-link'
 import { RecoveryEmail } from '@/lib/email-templates/recovery'
 import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
+import { sendEmail } from '@/lib/email/resend.server'
+import { magicLinkEmail as brandedMagicLinkEmail } from '@/lib/email/templates.server'
 
 const EMAIL_SUBJECTS: Record<string, string> = {
   signup: 'Confirm your email',
@@ -121,6 +123,57 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           email_redacted: redactEmail(payload.data.email),
           run_id,
         })
+
+        // Magic link: gửi trực tiếp qua Postmark với template branded thay vì
+        // đi qua hàng đợi auth_emails. Đảm bảo email tới nhanh, đúng thương hiệu
+        // và dùng đúng infrastructure email chính (Postmark).
+        if (emailType === 'magiclink') {
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+          const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+          if (!supabaseUrl || !supabaseServiceKey) {
+            console.error('Missing Supabase environment variables (magiclink)')
+            return Response.json({ error: 'Server configuration error' }, { status: 500 })
+          }
+          const supabase = createClient(supabaseUrl, supabaseServiceKey)
+          const messageId = crypto.randomUUID()
+          await supabase.from('email_send_log').insert({
+            message_id: messageId,
+            template_name: 'magiclink',
+            recipient_email: payload.data.email,
+            status: 'pending',
+          })
+          try {
+            const { subject, html } = brandedMagicLinkEmail({ actionLink: payload.data.url })
+            const result = await sendEmail({
+              to: payload.data.email,
+              subject,
+              html,
+              tags: ['auth', 'magic-link'],
+            })
+            await supabase.from('email_send_log').insert({
+              message_id: messageId,
+              template_name: 'magiclink',
+              recipient_email: payload.data.email,
+              status: 'sent',
+              provider_message_id: result.id ?? null,
+            })
+            console.log('Magic link sent via Postmark', {
+              email_redacted: redactEmail(payload.data.email),
+              run_id,
+            })
+            return Response.json({ success: true, provider: 'postmark' })
+          } catch (err: any) {
+            console.error('Postmark magic link send failed', { error: err?.message ?? err, run_id })
+            await supabase.from('email_send_log').insert({
+              message_id: messageId,
+              template_name: 'magiclink',
+              recipient_email: payload.data.email,
+              status: 'failed',
+              error_message: err?.message ?? 'postmark_send_failed',
+            })
+            return Response.json({ error: 'Failed to send magic link' }, { status: 502 })
+          }
+        }
 
         const EmailTemplate = EMAIL_TEMPLATES[emailType]
         if (!EmailTemplate) {
