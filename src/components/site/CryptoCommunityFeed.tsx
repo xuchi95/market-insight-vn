@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useRef, useState } from "react";
-import { ExternalLink, Loader2, MessageSquareText, RefreshCw, AlertTriangle, Newspaper } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ExternalLink, Loader2, MessageSquareText, RefreshCw, AlertTriangle, Newspaper, Pause, Play } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -49,6 +49,7 @@ function timeAgo(ts: number): string {
 export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: string }) {
   const sym = symbol.toUpperCase();
   const [limit, setLimit] = useState(8);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const bustRef = useRef(false);
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["crypto-news", sym],
@@ -58,18 +59,47 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
       return fetchCryptoNews(sym, bust);
     },
     staleTime: 5 * 60_000,
-    refetchInterval: 5 * 60_000,
+    refetchInterval: autoRefresh ? 5 * 60_000 : false,
   });
-  const handleManualRefresh = async () => {
-    bustRef.current = true;
-    const tId = toast.loading(`Đang tải lại tin tức ${sym} từ CoinDesk…`);
+  const runRefresh = async (opts: { bust: boolean; loadingMsg: string; successMsg: (n: number) => string }) => {
+    if (opts.bust) bustRef.current = true;
+    const tId = toast.loading(opts.loadingMsg);
     try {
       const res = await refetch();
       if (res.error) throw res.error;
-      toast.success(`Đã cập nhật ${res.data?.items.length ?? 0} tin mới nhất về ${sym}`, { id: tId });
+      toast.success(opts.successMsg(res.data?.items.length ?? 0), { id: tId });
     } catch (e) {
       toast.error(`Không thể tải tin tức: ${e instanceof Error ? e.message : "Lỗi không xác định"}`, { id: tId });
     }
+  };
+
+  const handleManualRefresh = () =>
+    runRefresh({
+      bust: true,
+      loadingMsg: `Đang tải lại tin tức ${sym} từ CoinDesk…`,
+      successMsg: (n) => `Đã cập nhật ${n} tin mới nhất về ${sym}`,
+    });
+
+  // Auto-refresh: hẹn giờ 5 phút, mỗi tick cũng hiện toast/loading giống nút "Làm mới".
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const id = setInterval(() => {
+      runRefresh({
+        bust: false,
+        loadingMsg: `Tự động cập nhật tin ${sym}…`,
+        successMsg: (n) => `Đã tự động cập nhật ${n} tin về ${sym}`,
+      });
+    }, 5 * 60_000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRefresh, sym]);
+
+  const toggleAutoRefresh = () => {
+    setAutoRefresh((v) => {
+      const next = !v;
+      toast.success(next ? "Đã bật tự động cập nhật mỗi 5 phút" : "Đã tắt tự động cập nhật");
+      return next;
+    });
   };
 
   const items = useMemo(() => data?.items ?? [], [data]);
@@ -96,6 +126,15 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> Đang cập nhật…
             </span>
           )}
+          <button
+            type="button"
+            onClick={toggleAutoRefresh}
+            className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium hover:bg-muted/40"
+            title={autoRefresh ? "Đang tự động cập nhật mỗi 5 phút" : "Tự động cập nhật đang tắt"}
+          >
+            {autoRefresh ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+            {autoRefresh ? "Tự động: Bật" : "Tự động: Tắt"}
+          </button>
           <button
             type="button"
             onClick={handleManualRefresh}
