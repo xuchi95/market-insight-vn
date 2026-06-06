@@ -86,7 +86,7 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
           {isFetching && !isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-label="Đang cập nhật" />}
           <button
             type="button"
-            onClick={() => refetch()}
+            onClick={handleManualRefresh}
             className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium hover:bg-muted/40"
             disabled={isFetching}
           >
@@ -118,7 +118,7 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
             </div>
             <button
               type="button"
-              onClick={() => refetch()}
+              onClick={handleManualRefresh}
               className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
             >
               <RefreshCw className="h-3 w-3" /> Thử lại
