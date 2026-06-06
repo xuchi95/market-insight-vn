@@ -54,14 +54,15 @@ async function readCmcFlag(): Promise<{ enabled: boolean; updatedAt: string | nu
 }
 
 // ---- CoinMarketCap content endpoint ----
-// Requires CMC_API_KEY (CoinMarketCap Pro). Endpoint: /v1/content/latest
-// Docs: https://coinmarketcap.com/api/documentation/v1/#operation/getV1ContentLatest
+// Requires CMC_API_KEY (CoinMarketCap Pro). Endpoint: /v1/content/posts/latest
+// Chỉ lấy BÀI ĐĂNG cộng đồng trên CMC, không lấy báo chí.
+// Docs: https://coinmarketcap.com/api/documentation/v1/#operation/getV1ContentPostsLatest
 async function fetchCoinMarketCap(symbol: string): Promise<NewsPayload["items"]> {
   const key = process.env.CMC_API_KEY || process.env.COINMARKETCAP_API_KEY;
   if (!key || !symbol) return [];
-  const u = new URL("https://pro-api.coinmarketcap.com/v1/content/latest");
-  u.searchParams.set("symbol", symbol);
-  u.searchParams.set("limit", "20");
+  const u = new URL("https://pro-api.coinmarketcap.com/v1/content/posts/latest");
+  // CMC posts endpoint nhận 1 symbol duy nhất.
+  u.searchParams.set("symbol", symbol.split(",")[0]);
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
@@ -71,34 +72,43 @@ async function fetchCoinMarketCap(symbol: string): Promise<NewsPayload["items"]>
     });
     if (!r.ok) throw new Error(`cmc ${r.status}`);
     const json = (await r.json()) as {
-      data?: Array<{
-        slug?: string;
-        title?: string;
-        subtitle?: string;
-        cover?: string;
-        source_name?: string;
-        source_url?: string;
-        released_at?: string;
-        type?: string;
-        assets?: Array<{ symbol?: string }>;
-      }>;
+      data?: {
+        list?: Array<{
+          post_id?: string | number;
+          owner?: { nickname?: string; avatar_url?: string; handle?: string };
+          text_content?: string;
+          photos?: string[];
+          post_time?: string | number;
+          currencies?: Array<{ symbol?: string }>;
+        }>;
+      };
     };
     const items: NewsPayload["items"] = [];
-    for (const it of json.data ?? []) {
-      const url = (it.source_url || "").trim();
-      const title = (it.title || "").trim();
-      if (!url || !title) continue;
-      const publishedAt = it.released_at ? Date.parse(it.released_at) : 0;
+    for (const it of json.data?.list ?? []) {
+      const text = (it.text_content || "").trim();
+      if (!text) continue;
+      const postId = String(it.post_id ?? "");
+      if (!postId) continue;
+      const nickname = it.owner?.nickname || it.owner?.handle || "CMC Community";
+      const postUrl = `https://coinmarketcap.com/community/post/${postId}/`;
+      const ts =
+        typeof it.post_time === "number"
+          ? it.post_time * (it.post_time < 1e12 ? 1000 : 1)
+          : it.post_time
+            ? Date.parse(it.post_time)
+            : 0;
+      // Lấy ~140 ký tự đầu làm "tiêu đề"; phần còn lại đưa vào body.
+      const title = text.length > 140 ? text.slice(0, 140).trimEnd() + "…" : text;
       items.push({
-        id: `cmc:${it.slug || url}`,
+        id: `cmc:post:${postId}`,
         title,
-        url,
-        body: (it.subtitle || "").slice(0, 280),
-        image: it.cover || "",
-        source: it.source_name || "CoinMarketCap",
-        sourceImage: "",
-        publishedAt: Number.isFinite(publishedAt) ? publishedAt : 0,
-        tags: ["cmc", it.type || "news"],
+        url: postUrl,
+        body: text.length > 140 ? text.slice(0, 280) : "",
+        image: it.photos?.[0] || "",
+        source: nickname,
+        sourceImage: it.owner?.avatar_url || "",
+        publishedAt: Number.isFinite(ts) ? ts : 0,
+        tags: ["cmc", "post"],
       });
     }
     return items;
