@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { AlertCircle } from "lucide-react";
 import { getVerifyOtpStats } from "@/lib/admin/verify-otp-stats.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,13 +36,14 @@ function VerifyOtpStatsPage() {
   const [customInput, setCustomInput] = useState<string>("");
   const [customError, setCustomError] = useState<string | null>(null);
 
-  const validateCustom = (raw: string): { ok: true; value: number } | { ok: false; error: string } => {
+  const validateCustom = (
+    raw: string,
+  ): { ok: true; value: number } | { ok: false; error: string } => {
     const trimmed = raw.trim();
-    if (trimmed === "") return { ok: false, error: "Vui lòng nhập số ngày." };
-    if (!/^\d+$/.test(trimmed)) return { ok: false, error: "Chỉ chấp nhận số nguyên dương." };
+    if (trimmed === "") return { ok: false, error: "Nhập số ngày." };
+    if (!/^\d+$/.test(trimmed)) return { ok: false, error: "Phải là số nguyên." };
     const n = Number(trimmed);
-    if (!Number.isFinite(n)) return { ok: false, error: "Giá trị không hợp lệ." };
-    if (n < 1 || n > 365) return { ok: false, error: "Số ngày phải trong khoảng 1–365." };
+    if (n < 1 || n > 365) return { ok: false, error: "Ngoài khoảng 1–365." };
     return { ok: true, value: n };
   };
 
@@ -82,7 +84,7 @@ function VerifyOtpStatsPage() {
             ))}
           </div>
           <form
-            className="flex flex-col gap-1"
+            className="flex flex-col"
             onSubmit={(e) => {
               e.preventDefault();
               const result = validateCustom(customInput);
@@ -96,30 +98,44 @@ function VerifyOtpStatsPage() {
             noValidate
           >
             <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                min={1}
-                max={365}
-                placeholder="Tùy ý"
-                value={customInput}
-                onChange={(e) => {
-                  setCustomInput(e.target.value);
-                  if (customError) setCustomError(null);
-                }}
-                aria-invalid={customError ? true : undefined}
-                aria-describedby={customError ? "custom-days-error" : undefined}
-                className={`h-9 w-24 ${customError ? "border-rose-500 focus-visible:border-rose-500 focus-visible:ring-rose-500/40" : ""}`}
-              />
+              <div className="flex flex-col">
+                <Input
+                  type="number"
+                  min={1}
+                  max={365}
+                  placeholder="Tùy ý"
+                  value={customInput}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    setCustomInput(next);
+                    // Re-validate live so error clears the moment input is valid.
+                    if (next.trim() === "") {
+                      setCustomError(null);
+                      return;
+                    }
+                    const result = validateCustom(next);
+                    setCustomError(result.ok ? null : result.error);
+                  }}
+                  aria-invalid={customError ? true : undefined}
+                  aria-describedby={customError ? "custom-days-error" : undefined}
+                  className={`h-9 w-24 ${customError ? "border-rose-500 focus-visible:border-rose-500 focus-visible:ring-rose-500/40" : ""}`}
+                />
+                {customError ? (
+                  <span
+                    id="custom-days-error"
+                    role="alert"
+                    className="mt-1 flex items-center gap-1 text-[11px] leading-tight text-rose-500"
+                  >
+                    <AlertCircle className="h-3 w-3 shrink-0" aria-hidden />
+                    <span>{customError}</span>
+                  </span>
+                ) : null}
+              </div>
               <span className="text-xs text-muted-foreground">ngày (1–365)</span>
-              <Button type="submit" size="sm" variant="outline">
+              <Button type="submit" size="sm" variant="outline" disabled={!!customError}>
                 Áp dụng
               </Button>
             </div>
-            {customError ? (
-              <span id="custom-days-error" className="text-xs text-rose-500">
-                {customError}
-              </span>
-            ) : null}
           </form>
           <span className="text-xs text-muted-foreground">Đang xem: {days} ngày</span>
         </div>
