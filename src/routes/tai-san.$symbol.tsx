@@ -523,18 +523,19 @@ function AssetDetail() {
               <ChangeCard label={`Biến động ${rangeLabel}`} value={oilStats?.changePct ?? null} />
             </div>
 
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
+            <div className="relative rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Lịch sử giá {oil.nameVi}</h2>
-                <Tabs value={range} onValueChange={setRange} className="ml-auto">
-                  <TabsList className="h-9">
-                    <TabsTrigger value="1">24h</TabsTrigger>
-                    <TabsTrigger value="7">7 ngày</TabsTrigger>
-                    <TabsTrigger value="30">30 ngày</TabsTrigger>
-                    <TabsTrigger value="90">90 ngày</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                {oilHistLoading && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--gold)]" />
+                )}
+                <RangeTabs value={range} onValueChange={setRange} />
               </div>
+              {oilHistLoading && (
+                <div className="absolute left-0 right-0 top-[57px] h-0.5 overflow-hidden">
+                  <div className="h-full w-1/3 bg-[var(--gold)]/70 animate-[slide_1.2s_ease-in-out_infinite]" />
+                </div>
+              )}
               <div className="h-80 w-full p-4">
                 {oilHistLoading ? (
                   <Skeleton className="h-full w-full" />
