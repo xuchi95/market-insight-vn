@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const SearchSchema = z.object({
   token_hash: z.string().min(1).optional(),
@@ -23,49 +25,100 @@ export const Route = createFileRoute("/xac-thuc-dang-nhap")({
 function VerifyPage() {
   const { token_hash, type, next } = useSearch({ from: "/xac-thuc-dang-nhap" });
   const navigate = useNavigate();
+  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
     let cancelled = false;
     async function run() {
       if (!token_hash || !type) {
+        setStatus("error");
         setError("Liên kết không hợp lệ hoặc đã hết hạn.");
         return;
       }
       const { error } = await supabase.auth.verifyOtp({ token_hash, type });
       if (cancelled) return;
       if (error) {
+        setStatus("error");
         setError("Liên kết đã hết hạn hoặc đã được sử dụng. Vui lòng yêu cầu liên kết mới.");
         return;
       }
-      navigate({ to: next, replace: true });
+      setStatus("success");
     }
     run();
     return () => {
       cancelled = true;
     };
-  }, [token_hash, type, next, navigate]);
+  }, [token_hash, type]);
+
+  // Auto-redirect on success after a short countdown so the user sees confirmation.
+  useEffect(() => {
+    if (status !== "success") return;
+    if (countdown <= 0) {
+      navigate({ to: next, replace: true });
+      return;
+    }
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [status, countdown, next, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="max-w-md w-full text-center space-y-4">
-        {error ? (
-          <>
-            <h1 className="text-2xl font-semibold text-foreground">Không thể đăng nhập</h1>
-            <p className="text-muted-foreground">{error}</p>
-            <a
-              href="/dang-nhap"
-              className="inline-block mt-4 px-4 py-2 rounded-md bg-primary text-primary-foreground"
-            >
-              Quay lại đăng nhập
-            </a>
-          </>
-        ) : (
-          <>
-            <h1 className="text-2xl font-semibold text-foreground">Đang xác thực...</h1>
-            <p className="text-muted-foreground">Vui lòng chờ trong giây lát.</p>
-          </>
-        )}
+      <div className="max-w-md w-full">
+        <div className="rounded-2xl border border-border bg-card p-8 shadow-sm text-center space-y-5">
+          {status === "verifying" && (
+            <>
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-border bg-muted/50">
+                <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" />
+              </div>
+              <div className="space-y-1.5">
+                <h1 className="text-2xl font-semibold text-foreground">Đang xác thực…</h1>
+                <p className="text-sm text-muted-foreground">
+                  Vui lòng chờ trong giây lát.
+                </p>
+              </div>
+            </>
+          )}
+
+          {status === "success" && (
+            <>
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-[var(--gold)]/30 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)]">
+                <CheckCircle2 className="h-7 w-7 text-[var(--gold)]" />
+              </div>
+              <div className="space-y-1.5">
+                <h1 className="text-2xl font-semibold text-foreground">Đăng nhập thành công</h1>
+                <p className="text-sm text-muted-foreground">
+                  Bạn sẽ được chuyển hướng trong {countdown} giây…
+                </p>
+              </div>
+              <Button
+                onClick={() => navigate({ to: next, replace: true })}
+                className="h-11 w-full bg-gold-gradient text-[var(--gold-foreground)] font-medium"
+              >
+                Tiếp tục ngay
+              </Button>
+            </>
+          )}
+
+          {status === "error" && (
+            <>
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-destructive/30 bg-destructive/10">
+                <XCircle className="h-7 w-7 text-destructive" />
+              </div>
+              <div className="space-y-1.5">
+                <h1 className="text-2xl font-semibold text-foreground">Không thể đăng nhập</h1>
+                <p className="text-sm text-muted-foreground">{error}</p>
+              </div>
+              <Button
+                onClick={() => navigate({ to: "/dang-nhap", replace: true })}
+                className="h-11 w-full bg-gold-gradient text-[var(--gold-foreground)] font-medium"
+              >
+                Quay lại đăng nhập
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
