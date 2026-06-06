@@ -93,6 +93,7 @@ import { Route as ApiPublicAuthsignalEmailRouteImport } from './routes/api/publi
 import { Route as ApiNewsletterUnsubscribeRouteImport } from './routes/api/newsletter/unsubscribe'
 import { Route as ApiNewsletterSubscribeRouteImport } from './routes/api/newsletter/subscribe'
 import { Route as ApiContactSubmitRouteImport } from './routes/api/contact/submit'
+import { Route as AdminMwAdminVerifyOtpStatsRouteImport } from './routes/_admin/mw-admin.verify-otp-stats'
 import { Route as AdminMwAdminUsersRouteImport } from './routes/_admin/mw-admin.users'
 import { Route as AdminMwAdminSettingsRouteImport } from './routes/_admin/mw-admin.settings'
 import { Route as AdminMwAdminSeoRouteImport } from './routes/_admin/mw-admin.seo'
@@ -542,6 +543,12 @@ const ApiContactSubmitRoute = ApiContactSubmitRouteImport.update({
   path: '/api/contact/submit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMwAdminVerifyOtpStatsRoute =
+  AdminMwAdminVerifyOtpStatsRouteImport.update({
+    id: '/mw-admin/verify-otp-stats',
+    path: '/mw-admin/verify-otp-stats',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminMwAdminUsersRoute = AdminMwAdminUsersRouteImport.update({
   id: '/mw-admin/users',
   path: '/mw-admin/users',
@@ -719,6 +726,7 @@ export interface FileRoutesByFullPath {
   '/mw-admin/seo': typeof AdminMwAdminSeoRoute
   '/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/mw-admin/users': typeof AdminMwAdminUsersRoute
+  '/mw-admin/verify-otp-stats': typeof AdminMwAdminVerifyOtpStatsRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -825,6 +833,7 @@ export interface FileRoutesByTo {
   '/mw-admin/seo': typeof AdminMwAdminSeoRoute
   '/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/mw-admin/users': typeof AdminMwAdminUsersRoute
+  '/mw-admin/verify-otp-stats': typeof AdminMwAdminVerifyOtpStatsRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -933,6 +942,7 @@ export interface FileRoutesById {
   '/_admin/mw-admin/seo': typeof AdminMwAdminSeoRoute
   '/_admin/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/_admin/mw-admin/users': typeof AdminMwAdminUsersRoute
+  '/_admin/mw-admin/verify-otp-stats': typeof AdminMwAdminVerifyOtpStatsRoute
   '/api/contact/submit': typeof ApiContactSubmitRoute
   '/api/newsletter/subscribe': typeof ApiNewsletterSubscribeRoute
   '/api/newsletter/unsubscribe': typeof ApiNewsletterUnsubscribeRoute
@@ -1041,6 +1051,7 @@ export interface FileRouteTypes {
     | '/mw-admin/seo'
     | '/mw-admin/settings'
     | '/mw-admin/users'
+    | '/mw-admin/verify-otp-stats'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -1147,6 +1158,7 @@ export interface FileRouteTypes {
     | '/mw-admin/seo'
     | '/mw-admin/settings'
     | '/mw-admin/users'
+    | '/mw-admin/verify-otp-stats'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -1254,6 +1266,7 @@ export interface FileRouteTypes {
     | '/_admin/mw-admin/seo'
     | '/_admin/mw-admin/settings'
     | '/_admin/mw-admin/users'
+    | '/_admin/mw-admin/verify-otp-stats'
     | '/api/contact/submit'
     | '/api/newsletter/subscribe'
     | '/api/newsletter/unsubscribe'
@@ -1981,6 +1994,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiContactSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_admin/mw-admin/verify-otp-stats': {
+      id: '/_admin/mw-admin/verify-otp-stats'
+      path: '/mw-admin/verify-otp-stats'
+      fullPath: '/mw-admin/verify-otp-stats'
+      preLoaderRoute: typeof AdminMwAdminVerifyOtpStatsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/users': {
       id: '/_admin/mw-admin/users'
       path: '/mw-admin/users'
@@ -2144,6 +2164,7 @@ interface AdminRouteChildren {
   AdminMwAdminSeoRoute: typeof AdminMwAdminSeoRoute
   AdminMwAdminSettingsRoute: typeof AdminMwAdminSettingsRoute
   AdminMwAdminUsersRoute: typeof AdminMwAdminUsersRoute
+  AdminMwAdminVerifyOtpStatsRoute: typeof AdminMwAdminVerifyOtpStatsRoute
   AdminMwAdminIndexRoute: typeof AdminMwAdminIndexRoute
   AdminMwAdminFuelPricesHistoryRoute: typeof AdminMwAdminFuelPricesHistoryRoute
 }
@@ -2161,6 +2182,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminSeoRoute: AdminMwAdminSeoRoute,
   AdminMwAdminSettingsRoute: AdminMwAdminSettingsRoute,
   AdminMwAdminUsersRoute: AdminMwAdminUsersRoute,
+  AdminMwAdminVerifyOtpStatsRoute: AdminMwAdminVerifyOtpStatsRoute,
   AdminMwAdminIndexRoute: AdminMwAdminIndexRoute,
   AdminMwAdminFuelPricesHistoryRoute: AdminMwAdminFuelPricesHistoryRoute,
 }
