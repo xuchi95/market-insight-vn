@@ -243,33 +243,21 @@ export function ConverterTool() {
               );
               const long = full.length > 14;
               return (
-                <TooltipProvider delayDuration={150}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="min-h-16 flex flex-col justify-center cursor-help select-text">
-                        <div
-                          className={cn(
-                            "tabular font-semibold tracking-tight text-foreground break-all leading-tight",
-                            long
-                              ? "text-xl sm:text-2xl"
-                              : "text-3xl sm:text-4xl",
-                          )}
-                          title={full}
-                        >
-                          {full}
-                        </div>
-                        {secondary && (
-                          <div className="mt-1 text-sm sm:text-base text-muted-foreground tabular">
-                            {secondary}
-                          </div>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-[280px] break-all">
-                      <div className="tabular text-xs font-semibold">{full}</div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <div className="min-h-16 flex flex-col justify-center select-text">
+                  <div
+                    className={cn(
+                      "tabular font-semibold tracking-tight text-foreground break-all leading-tight",
+                      long ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl",
+                    )}
+                  >
+                    {full}
+                  </div>
+                  {secondary && (
+                    <div className="mt-1 text-sm sm:text-base text-muted-foreground tabular">
+                      {secondary}
+                    </div>
+                  )}
+                </div>
               );
             })()}
           </WiseRow>
