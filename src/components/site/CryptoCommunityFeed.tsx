@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 import { ExternalLink, Loader2, MessageSquareText, RefreshCw, AlertTriangle, Newspaper } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 interface NewsItem {
   id: string;
@@ -59,9 +60,16 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
     staleTime: 5 * 60_000,
     refetchInterval: 5 * 60_000,
   });
-  const handleManualRefresh = () => {
+  const handleManualRefresh = async () => {
     bustRef.current = true;
-    refetch();
+    const tId = toast.loading(`Đang tải lại tin tức ${sym} từ CoinDesk…`);
+    try {
+      const res = await refetch();
+      if (res.error) throw res.error;
+      toast.success(`Đã cập nhật ${res.data?.items.length ?? 0} tin mới nhất về ${sym}`, { id: tId });
+    } catch (e) {
+      toast.error(`Không thể tải tin tức: ${e instanceof Error ? e.message : "Lỗi không xác định"}`, { id: tId });
+    }
   };
 
   const items = useMemo(() => data?.items ?? [], [data]);
@@ -83,20 +91,25 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-          {isFetching && !isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-label="Đang cập nhật" />}
+          {isFetching && !isLoading && (
+            <span className="inline-flex items-center gap-1 text-gold">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Đang cập nhật…
+            </span>
+          )}
           <button
             type="button"
             onClick={handleManualRefresh}
-            className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium hover:bg-muted/40"
+            className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium hover:bg-muted/40 disabled:opacity-60 disabled:cursor-not-allowed"
             disabled={isFetching}
           >
-            <RefreshCw className="h-3 w-3" /> Làm mới
+            <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} />
+            {isFetching ? "Đang tải…" : "Làm mới"}
           </button>
         </div>
       </div>
 
       <div className="p-4 lg:p-5">
-        {isLoading ? (
+        {isLoading || (isFetching && items.length === 0) ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="rounded-xl border border-border bg-muted/20 p-3 flex gap-3">
