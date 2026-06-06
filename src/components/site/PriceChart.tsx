@@ -302,6 +302,7 @@ export function PriceChart({
     <SectionCard
       id="chart"
       icon={<LCIcon className="h-4 w-4" />}
+      title="Biểu đồ giá"
       meta={
         <span className="flex items-center gap-1.5">
           <LiveDot /> Tự cập nhật mỗi 5 giây
