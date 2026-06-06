@@ -30,6 +30,7 @@ import { TradingViewChart, toTradingViewCryptoSymbol } from "@/components/site/T
 import { useTheme } from "@/hooks/useTheme";
 import { useBinanceTicker } from "@/hooks/useBinanceTicker";
 import { keepPreviousData } from "@tanstack/react-query";
+import { CryptoCommunityFeed } from "@/components/site/CryptoCommunityFeed";
 
 export const Route = createFileRoute("/tai-san/$symbol")({
   head: ({ params }) => {
