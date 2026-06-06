@@ -10,7 +10,6 @@ import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtNum, fmtVNDCompact } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type AssetKind = "crypto" | "forex" | "gold";
