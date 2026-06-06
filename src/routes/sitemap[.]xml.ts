@@ -34,6 +34,28 @@ const STATIC_ENTRIES: SitemapEntry[] = [
   { path: "/chinh-sach-cookie", changefreq: "monthly", priority: "0.3" },
 ];
 
+// Crypto fallback — luôn có mặt trong sitemap kể cả khi API cold-start lỗi,
+// tránh tình trạng Google báo "Google không xác định được URL" cho các trang
+// /tai-san/<symbol> phổ biến (cũng là đích redirect 301 từ /asset/<symbol>).
+const POPULAR_CRYPTO = [
+  "btc","eth","usdt","bnb","sol","xrp","usdc","ada","doge","ton",
+  "trx","avax","shib","dot","link","matic","pol","bch","near","ltc",
+  "uni","icp","apt","dai","leo","kas","etc","xlm","atom","xmr",
+  "okb","fil","stx","hbar","arb","vet","mkr","render","inj","op",
+  "sui","pepe","wbtc",
+];
+
+// Vàng — các mã thường xuất hiện trong bảng giá vàng VN/quốc tế.
+const POPULAR_GOLD = [
+  "sjc","pnj-9999","doji","mihong","phunhuan","xau","xau-vn",
+];
+
+// Ngân hàng — các mã ngân hàng có trang chi tiết tỉ giá riêng.
+const POPULAR_BANK = [
+  "vcb","bidv","ctg","mbb","tcb","vpb","acb","hdb","stb","shb",
+  "agribank","techcombank","sacombank",
+];
+
 // Cổ phiếu VN phổ biến (HOSE/HNX) — index trực tiếp trang chi tiết.
 const POPULAR_VN_TICKERS = [
   "VNM", "VCB", "BID", "CTG", "TCB", "MBB", "VPB", "ACB", "HDB", "STB", "MSB", "SHB",
@@ -43,24 +65,59 @@ const POPULAR_VN_TICKERS = [
 ];
 
 async function fetchAssetEntries(): Promise<SitemapEntry[]> {
+  const fallback: SitemapEntry[] = POPULAR_CRYPTO.map((sym) => ({
+    path: `/tai-san/${sym}`,
+    changefreq: "hourly",
+    priority: "0.7",
+  }));
   try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4_000);
     const res = await fetch(`${BASE_URL}/api/public/crypto`, {
       headers: { accept: "application/json" },
+      signal: ctrl.signal,
       // @ts-ignore - cloudflare worker fetch supports this
       cf: { cacheTtl: 60 },
-    });
-    if (!res.ok) return [];
+    }).finally(() => clearTimeout(timer));
+    if (!res.ok) return fallback;
     const j: any = await res.json();
-    if (!Array.isArray(j?.coins)) return [];
+    if (!Array.isArray(j?.coins)) return fallback;
+    const seen = new Set<string>();
     const entries: SitemapEntry[] = [];
     for (const c of j.coins) {
       const sym = String(c.symbol).toLowerCase();
+      if (!sym || seen.has(sym)) continue;
+      seen.add(sym);
       entries.push({ path: `/tai-san/${sym}`, changefreq: "hourly", priority: "0.7" });
+    }
+    // Trộn fallback để đảm bảo các symbol "core" luôn có mặt.
+    for (const f of fallback) {
+      const sym = f.path.split("/").pop()!;
+      if (!seen.has(sym)) {
+        seen.add(sym);
+        entries.push(f);
+      }
     }
     return entries;
   } catch {
-    return [];
+    return fallback;
   }
+}
+
+function goldEntries(): SitemapEntry[] {
+  return POPULAR_GOLD.map((g) => ({
+    path: `/tai-san/gold-${g}`,
+    changefreq: "hourly" as const,
+    priority: "0.65",
+  }));
+}
+
+function bankEntries(): SitemapEntry[] {
+  return POPULAR_BANK.map((b) => ({
+    path: `/tai-san/bank-${b}`,
+    changefreq: "daily" as const,
+    priority: "0.6",
+  }));
 }
 
 function vnStockEntries(): SitemapEntry[] {
@@ -96,7 +153,13 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const now = new Date().toISOString().slice(0, 10);
         const assetEntries = await fetchAssetEntries();
-        const entries = [...STATIC_ENTRIES, ...vnStockEntries(), ...assetEntries];
+        const entries = [
+          ...STATIC_ENTRIES,
+          ...vnStockEntries(),
+          ...assetEntries,
+          ...goldEntries(),
+          ...bankEntries(),
+        ];
         const urls = entries.map((e) => renderUrl(e, now)).join("\n");
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
