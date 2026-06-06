@@ -142,7 +142,7 @@ export const Route = createFileRoute("/tai-san/$symbol")({
     } else if (isGold) {
       const id = slug.slice("gold-".length).toUpperCase();
       TITLE = `Giá vàng ${id} hôm nay — Biểu đồ giá vàng realtime | MarketWatch`;
-      DESC = `Giá vàng ${id} hôm nay cập nhật realtime: giá mua, giá bán, biến động, biểu đồ giá vàng ${id} VND/lượng chi tiết.`;
+      DESC = `Giá vàng ${id} hôm nay cập nhật realtime: giá mua, giá bán, biến động, biểu đồ giá vàng ${id} VND/chỉ chi tiết (1 lượng = 10 chỉ).`;
       KEYWORDS = `giá vàng ${id.toLowerCase()}, giá vàng hôm nay, biểu đồ vàng ${id.toLowerCase()}, vàng ${id.toLowerCase()} mua bán`;
       BREADCRUMB_PARENT = { name: "Giá vàng", item: `${SITE}/gia-vang` };
       BREADCRUMB_LEAF = `Vàng ${id}`;
@@ -620,17 +620,21 @@ function AssetDetail() {
                 </div>
                 <div className="ml-auto text-right">
                   <div className="text-4xl font-bold tabular tracking-tight">
-                    {gold.unit.includes("USD") ? `$${fmtNum(gold.sell, 2)}` : `${fmtTrieu(gold.sell)} tr`}
+                    {gold.unit.includes("USD")
+                      ? `$${fmtNum(gold.sell, 2)}`
+                      : <>{fmtTrieu(gold.sell)} <span className="text-xl text-muted-foreground font-semibold">tr/chỉ</span></>}
                   </div>
-                  <div className="text-sm text-muted-foreground">Giá bán ra hiện tại</div>
+                  <div className="text-sm text-muted-foreground">
+                    Giá bán ra hiện tại{gold.unit.includes("USD") ? "" : ` · ${gold.unit}`}
+                  </div>
                 </div>
                 <ChangeBadge value={gold.changePct} className="text-sm px-3 py-1" />
                 <WatchButton item={{ symbol: lower, label: `${gold.brand} ${gold.type}`, category: "Vàng", to: `/tai-san/${lower}` }} />
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <Stat label="Mua vào" value={gold.unit.includes("USD") ? `$${fmtNum(gold.buy, 2)}` : `${fmtTrieu(gold.buy)} tr`} />
-                <Stat label="Bán ra" value={gold.unit.includes("USD") ? `$${fmtNum(gold.sell, 2)}` : `${fmtTrieu(gold.sell)} tr`} />
-                <Stat label="Chênh lệch" value={gold.unit.includes("USD") ? `$${fmtNum(gold.sell - gold.buy, 2)}` : `${fmtTrieu(gold.sell - gold.buy)} tr`} />
+                <Stat label="Mua vào" value={gold.unit.includes("USD") ? `$${fmtNum(gold.buy, 2)} /oz` : `${fmtTrieu(gold.buy)} tr/chỉ`} />
+                <Stat label="Bán ra" value={gold.unit.includes("USD") ? `$${fmtNum(gold.sell, 2)} /oz` : `${fmtTrieu(gold.sell)} tr/chỉ`} />
+                <Stat label="Chênh lệch" value={gold.unit.includes("USD") ? `$${fmtNum(gold.sell - gold.buy, 2)} /oz` : `${fmtTrieu(gold.sell - gold.buy)} tr/chỉ`} />
                 <Stat label="Cập nhật" value={fmtTime(gold.updatedAt)} />
               </div>
             </div>
