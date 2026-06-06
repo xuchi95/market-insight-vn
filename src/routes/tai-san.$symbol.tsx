@@ -857,7 +857,7 @@ function AssetDetail() {
               </div>
             </div>
 
-            <SectionCard title="Tài sản liên quan" description="So sánh với các coin có vốn hoá lớn">
+            <SectionCard title="Tài sản liên quan">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">

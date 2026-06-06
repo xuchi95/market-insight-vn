@@ -309,7 +309,7 @@ function StockDetail() {
               </div>
             </SectionCard>
 
-            <SectionCard title="Chỉ số tài chính cơ bản" description="Cập nhật từ báo cáo quý gần nhất (TCBS)">
+            <SectionCard title="Chỉ số tài chính cơ bản">
               <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Stat label="P/E" value={data.pe !== null ? data.pe.toFixed(2) : "—"} />
                 <Stat label="EPS (VND)" value={data.eps !== null ? fmtNum(data.eps, 0) : "—"} />
