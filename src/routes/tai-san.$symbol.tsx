@@ -903,6 +903,39 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+function RangeTabs({ value, onValueChange }: { value: string; onValueChange: (v: string) => void }) {
+  const opts = [
+    { v: "1", l: "24h" },
+    { v: "7", l: "7 ngày" },
+    { v: "30", l: "30 ngày" },
+    { v: "90", l: "90 ngày" },
+  ];
+  return (
+    <Tabs value={value} onValueChange={onValueChange} className="ml-auto">
+      <TabsList className="h-9 rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card/60 p-1 gap-0.5">
+        {opts.map((o) => (
+          <TabsTrigger
+            key={o.v}
+            value={o.v}
+            className="rounded-xl text-xs px-3 data-[state=active]:bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] data-[state=active]:text-[var(--gold)] data-[state=active]:border data-[state=active]:border-[color-mix(in_oklab,var(--gold)_40%,transparent)] data-[state=active]:shadow-none"
+          >
+            {o.l}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
+  );
+}
+
+function _StatLegacy({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-[color-mix(in_oklab,var(--gold)_12%,var(--border))] bg-muted/30 p-3 transition-colors hover:border-[color-mix(in_oklab,var(--gold)_28%,var(--border))]">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+      <div className="font-semibold tabular mt-1">{value}</div>
+    </div>
+  );
+}
+
 function ChangeCard({ label, value }: { label: string; value: number | null | undefined }) {
   const has = typeof value === "number" && isFinite(value);
   const pos = (value ?? 0) >= 0;
