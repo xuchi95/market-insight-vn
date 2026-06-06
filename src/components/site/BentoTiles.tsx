@@ -54,12 +54,9 @@ function ChangePill({ value }: { value: number }) {
 
 function TileFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`relative bg-card border border-border p-4 md:p-5 ${className}`}>
-      {/* corner ticks */}
-      <span className="absolute top-0 left-0 w-2 h-px bg-[var(--gold)]/40" />
-      <span className="absolute top-0 left-0 h-2 w-px bg-[var(--gold)]/40" />
-      <span className="absolute bottom-0 right-0 w-2 h-px bg-[var(--gold)]/40" />
-      <span className="absolute bottom-0 right-0 h-2 w-px bg-[var(--gold)]/40" />
+    <div
+      className={`relative bg-card border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] rounded-2xl p-4 md:p-5 shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] transition-colors hover:border-[color-mix(in_oklab,var(--gold)_30%,var(--border))] ${className}`}
+    >
       {children}
     </div>
   );
