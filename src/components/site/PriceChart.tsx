@@ -144,7 +144,7 @@ function ChartTooltip({
   const isForex = asset.endsWith("-vnd");
   const isCrypto = asset === "btc" || asset === "eth";
   const isGold = asset === "gold-sjc";
-  const unit = isCrypto ? "USD" : isGold ? "VND/chỉ" : "VND";
+  const unit = isCrypto ? "USD" : isGold ? "đ/chỉ" : "VND";
   const decimals = isCrypto ? 2 : asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0;
 
   const fmt = (n: number) =>
@@ -285,6 +285,9 @@ export function PriceChart({
     if (isForex) return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0 }).format(v);
     return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(v);
   };
+  const isGoldAsset = asset === "gold-sjc";
+  const isCryptoAsset = asset === "btc" || asset === "eth";
+  const axisUnit = isGoldAsset ? "đ/chỉ" : isCryptoAsset ? "USD" : "VND";
 
   const rangeLabel =
     range === "1" ? "24 giờ qua" :
@@ -343,7 +346,10 @@ export function PriceChart({
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">
                   {zoom ? "Giá cuối khoảng zoom" : "Giá hiện tại"}
                 </div>
-                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">{fmtVal(stats.last)}</div>
+                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tabular tracking-tight leading-none mt-1">
+                  {fmtVal(stats.last)}
+                  <span className="ml-1.5 text-sm sm:text-base md:text-lg font-medium text-muted-foreground tracking-normal">{axisUnit}</span>
+                </div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
@@ -423,7 +429,17 @@ export function PriceChart({
                 </defs>
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="t" tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis dataKey="v" tickFormatter={fmtVal} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} />
+                <YAxis
+                  dataKey="v"
+                  tickFormatter={fmtVal}
+                  stroke="var(--muted-foreground)"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  width={72}
+                  domain={["auto", "auto"]}
+                  label={{ value: axisUnit, angle: -90, position: "insideLeft", fill: "var(--muted-foreground)", fontSize: 11, dy: 30 }}
+                />
                 <Tooltip
                   content={<ChartTooltip asset={asset} firstValue={stats?.first} />}
                   cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }}
