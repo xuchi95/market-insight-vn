@@ -13,7 +13,21 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        // Use the Chromium build bundled with this exact Playwright version.
+        // Do NOT set `channel` — that would use the system-installed Chrome,
+        // which varies across machines.
+        channel: undefined,
+        viewport: { width: 1280, height: 720 },
+        deviceScaleFactor: 1,
+        locale: "en-US",
+        timezoneId: "UTC",
+        colorScheme: "light",
+      },
+    },
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined
