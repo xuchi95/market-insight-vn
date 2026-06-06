@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as XacThucDangNhapRouteImport } from './routes/xac-thuc-dang-nhap'
 import { Route as XacThuc2faRouteImport } from './routes/xac-thuc-2fa'
 import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
@@ -114,6 +115,11 @@ import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/
 import { Route as ApiPublicHooksRefreshFuelPricesRouteImport } from './routes/api/public/hooks/refresh-fuel-prices'
 import { Route as AdminMwAdminFuelPricesHistoryRouteImport } from './routes/_admin/mw-admin.fuel-prices_.history'
 
+const XacThucDangNhapRoute = XacThucDangNhapRouteImport.update({
+  id: '/xac-thuc-dang-nhap',
+  path: '/xac-thuc-dang-nhap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const XacThuc2faRoute = XacThuc2faRouteImport.update({
   id: '/xac-thuc-2fa',
   path: '/xac-thuc-2fa',
@@ -688,6 +694,7 @@ export interface FileRoutesByFullPath {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
+  '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -793,6 +800,7 @@ export interface FileRoutesByTo {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
+  '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -900,6 +908,7 @@ export interface FileRoutesById {
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
+  '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
   '/admin/email-preview': typeof AdminEmailPreviewRoute
   '/asset/$symbol': typeof AssetSymbolRoute
   '/cai-dat/ban-tin': typeof CaiDatBanTinRoute
@@ -1007,6 +1016,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
+    | '/xac-thuc-dang-nhap'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1112,6 +1122,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
+    | '/xac-thuc-dang-nhap'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1218,6 +1229,7 @@ export interface FileRouteTypes {
     | '/ty-gia-ngoai-te'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
+    | '/xac-thuc-dang-nhap'
     | '/admin/email-preview'
     | '/asset/$symbol'
     | '/cai-dat/ban-tin'
@@ -1325,6 +1337,7 @@ export interface RootRouteChildren {
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   ViMoVietNamRoute: typeof ViMoVietNamRoute
   XacThuc2faRoute: typeof XacThuc2faRoute
+  XacThucDangNhapRoute: typeof XacThucDangNhapRoute
   AdminEmailPreviewRoute: typeof AdminEmailPreviewRoute
   AssetSymbolRoute: typeof AssetSymbolRoute
   CaiDatBanTinRoute: typeof CaiDatBanTinRoute
@@ -1380,6 +1393,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/xac-thuc-dang-nhap': {
+      id: '/xac-thuc-dang-nhap'
+      path: '/xac-thuc-dang-nhap'
+      fullPath: '/xac-thuc-dang-nhap'
+      preLoaderRoute: typeof XacThucDangNhapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/xac-thuc-2fa': {
       id: '/xac-thuc-2fa'
       path: '/xac-thuc-2fa'
@@ -2187,6 +2207,7 @@ const rootRouteChildren: RootRouteChildren = {
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   ViMoVietNamRoute: ViMoVietNamRoute,
   XacThuc2faRoute: XacThuc2faRoute,
+  XacThucDangNhapRoute: XacThucDangNhapRoute,
   AdminEmailPreviewRoute: AdminEmailPreviewRoute,
   AssetSymbolRoute: AssetSymbolRoute,
   CaiDatBanTinRoute: CaiDatBanTinRoute,
