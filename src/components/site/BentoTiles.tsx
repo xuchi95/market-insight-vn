@@ -94,9 +94,6 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const xau = gold?.find((g) => g.id === "xauusd");
   const btc = crypto?.find((c) => c.symbol === "BTC");
   const eth = crypto?.find((c) => c.symbol === "ETH");
-  const moreCoins = ["BNB", "SOL", "XRP", "DOGE"]
-    .map((sym) => crypto?.find((c) => c.symbol === sym))
-    .filter((c): c is CryptoCoin => Boolean(c));
   const usd = fx?.find((r) => r.code === "USD");
   const eur = fx?.find((r) => r.code === "EUR");
   const jpy = fx?.find((r) => r.code === "JPY");
@@ -121,16 +118,6 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const ethPrice = liveTicks.ethereum?.priceUsd ?? eth?.priceUsd ?? 0;
   const ethChange = liveTicks.ethereum?.change24h ?? eth?.change24h ?? 0;
   const ethVol = liveTicks.ethereum?.volume24h ?? eth?.volume24h ?? 0;
-  const coinIdMap: Record<string, string> = {
-    BNB: "binancecoin",
-    SOL: "solana",
-    XRP: "ripple",
-    DOGE: "dogecoin",
-  };
-
-  // Synthetic high/low for gold (no live history); compute from sell ± small range
-  const goldHigh = sjc ? Math.round(sjc.sell * 1.004) : 0;
-  const goldLow = sjc ? Math.round(sjc.sell * 0.997) : 0;
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
