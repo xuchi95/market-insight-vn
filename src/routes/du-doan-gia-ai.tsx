@@ -1,14 +1,11 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Sparkles,
   TrendingUp,
@@ -16,7 +13,6 @@ import {
   Minus,
   AlertTriangle,
   Loader2,
-  RefreshCw,
   Info,
   Gem,
   Flame,
@@ -24,9 +20,12 @@ import {
   Banknote,
   Clock,
   ShieldAlert,
-  CheckCircle2,
+  Check,
   ChevronDown,
   Lock,
+  Database,
+  Cpu,
+  LineChart,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
