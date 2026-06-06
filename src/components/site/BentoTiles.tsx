@@ -338,35 +338,6 @@ function GoldMini({ label, gold, loading, usd, compact = true }: { label: string
   );
 }
 
-function CoinCell({ symbol, price, change, loading }: { symbol: string; price?: number; change?: number; loading?: boolean }) {
-  if (typeof price !== "number") {
-    return (
-      <div className="bg-card p-3 h-[68px]">
-        <div className="eyebrow opacity-70">{symbol}</div>
-        <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
-          {loading ? "Đang cập nhật giá…" : "—"}
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="bg-card p-3">
-      <div className="eyebrow opacity-70">{symbol}</div>
-      <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1">
-        $<AnimatedNumber value={price} format={(v) => fmt(v, price >= 100 ? 0 : price >= 1 ? 2 : 4)} minChars={5} />
-      </div>
-      <div className={`text-xs tabular mt-1 ${(change ?? 0) >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
-        <AnimatedNumber
-          value={change ?? 0}
-          format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`}
-          minChars={6}
-          noFlash
-        />
-      </div>
-    </div>
-  );
-}
-
 function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?: number; loading?: boolean; code?: string }) {
   if (!rate) {
     return (
