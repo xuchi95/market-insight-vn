@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   KeyRound,
@@ -19,6 +20,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export const Route = createFileRoute("/yeu-cau-api-key")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
+      throw redirect({
+        to: "/dang-nhap",
+        search: { redirect: "/yeu-cau-api-key" } as never,
+      });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Yêu cầu API key — MarketWatch" },
@@ -94,6 +105,23 @@ function ApiKeyRequestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const email = data.user?.email;
+      const fullName =
+        (data.user?.user_metadata?.full_name as string | undefined) ||
+        (data.user?.user_metadata?.name as string | undefined) ||
+        "";
+      if (email) {
+        setForm((prev) => ({
+          ...prev,
+          email: prev.email || email,
+          full_name: prev.full_name || fullName,
+        }));
+      }
+    });
+  }, []);
 
   function setField<K extends keyof FormState>(k: K, v: FormState[K]) {
     setForm((prev) => ({ ...prev, [k]: v }));
