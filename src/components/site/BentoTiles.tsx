@@ -137,38 +137,38 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
       {/* Gold — large hero tile */}
       <TileFrame className="col-span-2 md:col-span-4 md:row-span-2 flex flex-col">
         <Link to="/gia-vang" className="flex flex-col h-full group">
-          <div className="flex justify-between items-start mb-4 md:mb-5">
+          <div className="flex justify-between items-start mb-5 md:mb-6">
+            <div className="eyebrow">Vàng miếng SJC</div>
+            <div className="eyebrow opacity-60">Nguồn · sjc.com.vn</div>
+          </div>
+
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-3 mb-5 md:mb-6">
             <div>
-              <div className="eyebrow mb-2">Vàng miếng SJC</div>
               {sjc ? (
                 <FormattedNumber
                   value={sjc.sell}
                   format={(v) => (compact ? fmtTrieu(v) : fmtVndFull(v))}
-                  unit={compact ? "tr/chỉ" : "đ/chỉ"}
+                  unit={compact ? "tr/lượng" : "đ/lượng"}
                   decimals={compact ? 2 : 0}
-                  className="font-display text-3xl md:text-5xl leading-tight text-foreground"
+                  className="font-display text-4xl md:text-6xl leading-none text-foreground"
                   unitClassName="text-sm md:text-base text-muted-foreground"
                 />
               ) : goldLoading ? (
                 <LoadingLine size="lg" />
               ) : (
-                <div className="font-display text-3xl md:text-5xl leading-tight text-muted-foreground">—</div>
+                <div className="font-display text-4xl md:text-6xl leading-none text-muted-foreground">—</div>
               )}
             </div>
-            <div className="text-right">
-              {sjc && <ChangePill value={sjc.changePct} />}
-              <div className="mt-1.5 eyebrow opacity-60">24 giờ</div>
-            </div>
+            <InlineKV label="Mua vào" loading={goldLoading} compact={compact} value={sjc?.buy} />
+            <InlineKV label="Bán ra" loading={goldLoading} compact={compact} value={sjc?.sell} />
+            {sjc && <ChangePill value={sjc.changePct} />}
           </div>
 
-          <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
-            <Stat label="Mua" num={sjc?.buy} loading={goldLoading} compact={compact} />
-            <Stat label="Cao" num={sjc ? goldHigh : undefined} loading={goldLoading} accent compact={compact} />
-            <Stat label="Thấp" num={sjc ? goldLow : undefined} loading={goldLoading} compact={compact} />
-          </div>
+          {/* Hairline separator */}
+          <div className="h-px bg-border mb-4 md:mb-5" />
 
-          {/* Vàng khác — DOJI / PNJ / XAU realtime */}
-          <div className="grid grid-cols-3 gap-px bg-border mb-4 md:mb-5">
+          {/* Vàng khác — DOJI / PNJ / XAU/USD, 3 cột cân đối với divider dọc */}
+          <div className="grid grid-cols-3 mb-5 md:mb-6 divide-x divide-border">
             <GoldMini label="DOJI" gold={doji} loading={goldLoading} compact={compact} />
             <GoldMini label="PNJ" gold={pnj} loading={goldLoading} compact={compact} />
             <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd compact={compact} />
@@ -188,7 +188,7 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
             })}
           </div>
 
-          <div className="mt-auto pt-4 md:pt-5 flex items-center justify-between eyebrow opacity-70 group-hover:opacity-100">
+          <div className="mt-auto pt-4 md:pt-5 flex items-center justify-between eyebrow text-[var(--gold)] opacity-90 group-hover:opacity-100">
             <span>Xem bảng giá vàng đầy đủ</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </div>
