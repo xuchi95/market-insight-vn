@@ -211,7 +211,9 @@ export const Route = createFileRoute("/api/public/crypto-news")({
             status: 200,
             headers: {
               "Content-Type": "application/json",
-              "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=1800",
+              // Client không cache (tránh phục vụ payload rỗng cũ khi đổi nguồn);
+              // CDN edge cache 5 phút + SWR 30 phút để giảm tải.
+              "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=1800",
               ...CORS,
             },
           });
