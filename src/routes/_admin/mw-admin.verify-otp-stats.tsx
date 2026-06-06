@@ -49,14 +49,30 @@ function VerifyOtpStatsPage() {
     return { ok: true, value: n };
   };
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching, isError, error, dataUpdatedAt, errorUpdatedAt } = useQuery({
     queryKey: ["admin", "verify-otp-stats", days],
     queryFn: () => fn({ data: { days } }),
   });
-  const isFetching = (useQuery({
-    queryKey: ["admin", "verify-otp-stats", days],
-    queryFn: () => fn({ data: { days } }),
-  })).isFetching;
+
+  // Toast on apply (when days change via "Áp dụng" or preset).
+  const pendingToastDays = useRef<number | null>(null);
+  const lastSuccessAt = useRef<number>(0);
+  const lastErrorAt = useRef<number>(0);
+
+  useEffect(() => {
+    if (pendingToastDays.current === null) return;
+    if (isFetching) return;
+    if (!isError && dataUpdatedAt > lastSuccessAt.current) {
+      lastSuccessAt.current = dataUpdatedAt;
+      toast.success(`Đã cập nhật dữ liệu ${pendingToastDays.current} ngày`);
+      pendingToastDays.current = null;
+    } else if (isError && errorUpdatedAt > lastErrorAt.current) {
+      lastErrorAt.current = errorUpdatedAt;
+      const msg = error instanceof Error ? error.message : "Không xác định";
+      toast.error("Cập nhật thất bại", { description: msg });
+      pendingToastDays.current = null;
+    }
+  }, [isFetching, isError, error, dataUpdatedAt, errorUpdatedAt]);
 
   const maxDay = Math.max(1, ...(data?.byDay.map((d) => d.success + d.failed) ?? [1]));
 
