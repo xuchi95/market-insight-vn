@@ -5,6 +5,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
+// CryptoCoin used in initial props typing
 import { fmtTrieu } from "@/lib/format";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { FormattedNumber } from "./FormattedNumber";
