@@ -99,7 +99,6 @@ export function FearGreedGauge() {
   return (
     <SectionCard
       title="Chỉ số Fear & Greed (Crypto)"
-      description="Đo tâm lý thị trường crypto toàn cầu — từ Sợ hãi tột độ (0) đến Tham lam tột độ (100)"
       meta={
         <span className="inline-flex items-center gap-1.5">
           {isFetching && <Loader2 className="h-3 w-3 animate-spin" />}

@@ -32,7 +32,6 @@ export function ForexRateTable({ search }: { search?: string }) {
       id="forex"
       icon={<DollarSign className="h-4 w-4" />}
       title="Tỷ giá ngoại tệ"
-      description="Quy đổi 1 đơn vị ngoại tệ sang VND • cập nhật mỗi 10 phút"
       meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >

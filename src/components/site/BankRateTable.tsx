@@ -50,7 +50,6 @@ export function BankRateTable() {
       id="bank-rates"
       icon={<Landmark className="h-4 w-4" />}
       title="Tỷ giá Ngân hàng Vietcombank"
-      description="Tỷ giá niêm yết chính thức từ Vietcombank • cập nhật mỗi 10 phút"
       meta={meta}
     >
       {showStaleBanner && (

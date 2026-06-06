@@ -133,7 +133,6 @@ function SavingsPage() {
 
           <SectionCard
             title="Bảng lãi suất tiết kiệm"
-            description="Đơn vị: %/năm — Top 3 lãi suất cao nhất ở cột đang sort được tô màu vàng"
             meta={<span>{rows.length}/{items.length} ngân hàng</span>}
             action={
               <Input
