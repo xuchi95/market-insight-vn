@@ -64,10 +64,10 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
         </div>
         <div className="min-w-0">
           <h2 className="text-lg font-bold tracking-tight">
-            Cộng đồng CoinMarketCap nói gì về {name ?? sym}
+            Tin tức mới nhất về {name ?? sym}
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Bài đăng cộng đồng trên CoinMarketCap về {sym} — cập nhật mỗi 5 phút.
+            Tổng hợp tin tức về {sym} từ CoinDesk Data — cập nhật mỗi 5 phút.
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
@@ -115,7 +115,7 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
         ) : shown.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-muted-foreground">
             <Newspaper className="h-7 w-7 opacity-60" />
-            Chưa có bài đăng nào về {sym} trong thời gian gần đây.
+            Chưa có tin tức nào về {sym} trong thời gian gần đây.
           </div>
         ) : (
           <>
@@ -178,12 +178,12 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
                   onClick={() => setLimit((n) => n + 8)}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-4 py-2 text-xs font-semibold hover:bg-muted/40"
                 >
-                  Xem thêm bài đăng
+                  Xem thêm tin tức
                 </button>
               </div>
             )}
             <p className="mt-4 text-[11px] text-muted-foreground text-center">
-              Nguồn: bài đăng cộng đồng CoinMarketCap. MarketWatch không chịu trách nhiệm về nội dung của bên thứ ba.
+              Nguồn: CoinDesk Data API. MarketWatch không chịu trách nhiệm về nội dung của bên thứ ba.
             </p>
           </>
         )}
