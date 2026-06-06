@@ -53,10 +53,10 @@ function NewsSettingsPage() {
           <div className="flex-1">
             <h2 className="font-display text-lg">CoinMarketCap Content API</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Khi bật, hệ thống sẽ lấy thêm bài viết chính thống từ
-              CoinMarketCap (endpoint <code>/v1/content/latest</code>) bên cạnh
-              Google News. Tắt nếu vượt quota hoặc muốn chỉ dùng Google News.
-              Thay đổi có hiệu lực trong vòng 30 giây.
+              Khi bật, hệ thống lấy bài viết từ CoinMarketCap
+              (endpoint <code>/v1/content/latest</code>) làm nguồn tin duy nhất
+              cho trang chi tiết tiền điện tử. Tắt nếu vượt quota — khi đó
+              danh sách tin sẽ trống. Thay đổi có hiệu lực trong vòng 30 giây.
             </p>
           </div>
         </div>
@@ -71,8 +71,8 @@ function NewsSettingsPage() {
                   <div className="text-sm font-medium">Bật CoinMarketCap</div>
                   <div className="text-xs text-muted-foreground">
                     {data.cmc_enabled
-                      ? "Đang lấy bài viết từ CoinMarketCap + Google News."
-                      : "Chỉ dùng Google News (CMC đã tắt)."}
+                      ? "Đang lấy bài viết từ CoinMarketCap."
+                      : "Đã tắt — danh sách tin sẽ trống."}
                   </div>
                 </div>
                 <Switch
