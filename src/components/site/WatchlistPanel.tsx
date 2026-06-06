@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Star, X, Plus, ArrowUpRight } from "lucide-react";
+import { Star, X, Plus, ArrowUpRight, TriangleAlert as _unused } from "lucide-react";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -134,9 +134,9 @@ export function WatchlistPanel() {
       <DialogTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/20 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--gold-foreground)] bg-gradient-to-br from-[var(--gold-light)] to-[var(--gold)] border border-[var(--gold)]/60 shadow-[0_6px_16px_-8px_color-mix(in_oklab,var(--gold)_70%,transparent)] hover:-translate-y-px hover:shadow-[0_10px_22px_-8px_color-mix(in_oklab,var(--gold)_75%,transparent)] active:translate-y-0 transition-all"
         >
-          <Plus className="h-3.5 w-3.5" /> Thêm tài sản
+          <Plus className="h-4 w-4" strokeWidth={2.4} /> Thêm tài sản
         </button>
       </DialogTrigger>
       <DialogContent className="p-0 overflow-hidden max-w-lg">
