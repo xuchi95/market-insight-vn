@@ -45,9 +45,11 @@ export interface PriceHistoryProps {
   useUsd?: boolean;
   /** Decimal places in tooltip / axis. */
   decimals?: number;
+  /** Đơn vị hiển thị trên trục Y và tooltip (vd: "đ/chỉ", "$/oz", "VND"). */
+  unit?: string;
 }
 
-export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = false, decimals = 0 }: PriceHistoryProps) {
+export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = false, decimals = 0, unit }: PriceHistoryProps) {
   const [range, setRange] = useState<"1" | "7" | "30">("7");
 
   const {
@@ -87,6 +89,7 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
   const color = positive ? "var(--up)" : "var(--down)";
 
   const fmt = (v: number) => (useUsd ? "$" + fmtNum(v, decimals) : fmtNum(v, decimals));
+  const withUnit = (s: string) => (unit ? `${s} ${unit}` : s);
 
   return (
     <div className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -111,10 +114,10 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
 
       {stats && !isError && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 border-b border-border text-sm">
-          <StatPill label="Giá hiện tại" value={fmt(stats.last)} />
+          <StatPill label={withUnit("Giá hiện tại")} value={fmt(stats.last)} />
           <StatPill label="Thay đổi 24h" pct={stats.ch24} />
-          <StatPill label={`Cao nhất (${rangeLabel})`} value={fmt(stats.max)} />
-          <StatPill label={`Thấp nhất (${rangeLabel})`} value={fmt(stats.min)} />
+          <StatPill label={`Cao nhất (${rangeLabel})`} value={withUnit(fmt(stats.max))} />
+          <StatPill label={`Thấp nhất (${rangeLabel})`} value={withUnit(fmt(stats.min))} />
           <StatPill label="Khung thời gian" value={rangeLabel} />
         </div>
       )}
@@ -172,11 +175,16 @@ export function PriceHistory({ assetKey, title = "Biểu đồ giá", useUsd = f
                 width={80}
                 domain={["auto", "auto"]}
                 tickFormatter={(v) => new Intl.NumberFormat("vi-VN", { notation: "compact", maximumFractionDigits: 2 }).format(v as number)}
+                label={
+                  unit
+                    ? { value: unit, angle: -90, position: "insideLeft", fill: "var(--muted-foreground)", fontSize: 11, dy: 30 }
+                    : undefined
+                }
               />
               <Tooltip
                 contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
                 labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")}
-                formatter={(v: number) => [fmt(v), "Giá"]}
+                formatter={(v: number) => [withUnit(fmt(v)), "Giá"]}
               />
               <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill={`url(#ph-${assetKey})`} />
             </AreaChart>

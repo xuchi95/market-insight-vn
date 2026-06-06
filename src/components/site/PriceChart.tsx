@@ -144,7 +144,7 @@ function ChartTooltip({
   const isForex = asset.endsWith("-vnd");
   const isCrypto = asset === "btc" || asset === "eth";
   const isGold = asset === "gold-sjc";
-  const unit = isCrypto ? "USD" : isGold ? "VND/chỉ" : "VND";
+  const unit = isCrypto ? "USD" : isGold ? "đ/chỉ" : "VND";
   const decimals = isCrypto ? 2 : asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0;
 
   const fmt = (n: number) =>

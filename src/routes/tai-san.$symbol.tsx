@@ -638,7 +638,15 @@ function AssetDetail() {
                 <Stat label="Cập nhật" value={fmtTime(gold.updatedAt)} />
               </div>
             </div>
-            {historyKey && <PriceHistory assetKey={historyKey} title={`Lịch sử giá ${gold.brand} ${gold.type}`} decimals={0} />}
+            {historyKey && (
+              <PriceHistory
+                assetKey={historyKey}
+                title={`Lịch sử giá ${gold.brand} ${gold.type}`}
+                decimals={gold.unit.includes("USD") ? 2 : 0}
+                useUsd={gold.unit.includes("USD")}
+                unit={gold.unit.includes("USD") ? "$/oz" : "đ/chỉ"}
+              />
+            )}
             <Link to="/gia-vang" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ bảng giá vàng →</Link>
           </>
         )}
@@ -664,7 +672,7 @@ function AssetDetail() {
                 <Stat label="Cập nhật" value={fmtTime(bankRow.updatedAt)} />
               </div>
             </div>
-            {historyKey && <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${bankRow.code}/VND`} decimals={2} />}
+            {historyKey && <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${bankRow.code}/VND`} decimals={2} unit="VND" />}
             <Link to="/ty-gia-ngan-hang" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ tỷ giá ngân hàng →</Link>
           </>
         )}
@@ -717,7 +725,7 @@ function AssetDetail() {
           </div>
         )}
         {!coin && !stock && fx && historyKey && (
-          <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${fx.code}/VND`} decimals={2} />
+          <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${fx.code}/VND`} decimals={2} unit="VND" />
         )}
         {!coin && !stock && fx && (
           <Link to="/ty-gia-ngoai-te" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ tỷ giá →</Link>
