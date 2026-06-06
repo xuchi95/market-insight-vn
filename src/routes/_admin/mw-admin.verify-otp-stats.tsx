@@ -96,6 +96,7 @@ function VerifyOtpStatsPage() {
                 size="sm"
                 variant={days === r.value ? "default" : "ghost"}
                 onClick={() => {
+                  if (days !== r.value) pendingToastDays.current = r.value;
                   setDays(r.value);
                   setCustomInput("");
                   setCustomError(null);
@@ -115,6 +116,7 @@ function VerifyOtpStatsPage() {
                 return;
               }
               setCustomError(null);
+              pendingToastDays.current = result.value;
               setDays(result.value);
             }}
             noValidate
@@ -154,8 +156,13 @@ function VerifyOtpStatsPage() {
                 ) : null}
               </div>
               <span className="text-xs text-muted-foreground">ngày (1–365)</span>
-              <Button type="submit" size="sm" variant="outline" disabled={!!customError}>
-                Áp dụng
+              <Button
+                type="submit"
+                size="sm"
+                variant="outline"
+                disabled={!!customError || isFetching}
+              >
+                {isFetching && pendingToastDays.current !== null ? "Đang tải…" : "Áp dụng"}
               </Button>
             </div>
           </form>
@@ -164,7 +171,7 @@ function VerifyOtpStatsPage() {
       </div>
 
       {isLoading || !data ? (
-        <div className="text-sm text-muted-foreground">Đang tải…</div>
+        <StatsSkeleton />
       ) : (
         <>
           {/* Summary */}
