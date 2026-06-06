@@ -222,9 +222,6 @@ function ApiKeyRequestPage() {
       <form onSubmit={onSubmit} className="space-y-8" noValidate>
         <section className="rounded-xl border border-border bg-card p-5 md:p-6">
           <h2 className="font-display text-lg text-foreground">Thông tin liên hệ</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Chúng tôi dùng email này để gửi API key và liên hệ khi cần.
-          </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <Field label="Họ và tên *" error={errors.full_name} htmlFor="f-name">
               <Input
@@ -275,9 +272,6 @@ function ApiKeyRequestPage() {
 
         <section className="rounded-xl border border-border bg-card p-5 md:p-6">
           <h2 className="font-display text-lg text-foreground">Về dự án của bạn</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Mô tả càng rõ, key càng nhanh được duyệt.
-          </p>
           <div className="mt-5 space-y-4">
             <Field label="Tên dự án *" error={errors.project_name} htmlFor="f-pname">
               <Input
@@ -322,9 +316,6 @@ function ApiKeyRequestPage() {
 
         <section className="rounded-xl border border-border bg-card p-5 md:p-6">
           <h2 className="font-display text-lg text-foreground">Phạm vi dữ liệu</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Chọn ít nhất một nhóm — có thể yêu cầu mở rộng sau.
-          </p>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {SCOPES.map((s) => {
               const checked = form.scopes.includes(s.id);

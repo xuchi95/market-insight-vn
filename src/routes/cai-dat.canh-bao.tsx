@@ -43,9 +43,6 @@ function AlertsSettingsPage() {
         <header className="mb-8">
           <div className="eyebrow text-[var(--gold)]">Cài đặt</div>
           <h1 className="font-display text-4xl mt-1">Cảnh báo theo dõi</h1>
-          <p className="mt-3 text-sm text-muted-foreground max-w-xl">
-            Quản lý email cảnh báo khi tài sản trong danh sách theo dõi biến động mạnh.
-          </p>
         </header>
         {!user ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

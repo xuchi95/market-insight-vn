@@ -79,15 +79,11 @@ function StocksPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">VN-Index hôm nay — Chỉ số chứng khoán Việt Nam</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Theo dõi <strong>VN-Index</strong>, <strong>VN30</strong>, <strong>HNX-Index</strong>, <strong>HNX30</strong> và <strong>UPCOM-Index</strong> theo phiên giao dịch gần nhất — điểm số, thay đổi, khối lượng khớp lệnh.
-            </p>
           </header>
           <StockIndexTable />
           <UsStockTable />
           <section aria-labelledby="popular-tickers" className="space-y-4">
             <h2 id="popular-tickers" className="text-2xl font-bold tracking-tight">Cổ phiếu Việt Nam phổ biến</h2>
-            <p className="text-sm text-muted-foreground">Xem chi tiết giá, P/E, EPS và biểu đồ kỹ thuật của từng mã.</p>
             <ul className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
               {["VNM","VCB","BID","CTG","TCB","MBB","VPB","ACB","HPG","HSG","FPT","MWG","PNJ","MSN","VIC","VHM","GAS","PLX","POW","SSI","VND","HCM","VJC","HVN"].map((t) => (
                 <li key={t}>

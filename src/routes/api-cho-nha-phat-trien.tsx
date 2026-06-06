@@ -74,11 +74,6 @@ function DeveloperApiPage() {
       <h1 className="mt-2 font-display text-3xl md:text-4xl text-foreground">
         API &amp; SDK realtime MarketWatch
       </h1>
-      <p className="mt-3 max-w-2xl text-base text-muted-foreground leading-relaxed">
-        Đưa dữ liệu giá vàng (SJC, PNJ, XAU/USD…), tiền điện tử, xăng dầu Việt Nam và
-        chứng khoán VN vào website của bạn chỉ với vài dòng code — qua REST, Server-Sent
-        Events realtime hoặc SDK TypeScript chính thức.
-      </p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         {[

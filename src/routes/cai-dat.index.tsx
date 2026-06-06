@@ -76,9 +76,6 @@ function SettingsHubPage() {
 
         <header className="mb-8">
           <h1 className="font-display text-3xl tracking-tight">Cài đặt tài khoản</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Quản lý mật khẩu, xác thực 2 lớp và tuỳ chọn nhận bản tin.
-          </p>
           {user?.email && (
             <p className="mt-1 text-xs text-muted-foreground">
               Đang đăng nhập: <span className="font-medium text-foreground/80">{user.email}</span>

@@ -44,9 +44,6 @@ function DisplaySettingsPage() {
           </Link>
           <div>
             <h1 className="font-display text-3xl tracking-tight">Tuỳ chọn hiển thị</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Điều chỉnh hiệu ứng chuyển động cho phù hợp với thiết bị của bạn.
-            </p>
           </div>
         </header>
 

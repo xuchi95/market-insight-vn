@@ -103,9 +103,6 @@ function ForexPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Giá USD hôm nay — Tỷ giá EUR, JPY, CNY, GBP realtime</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Cập nhật <strong>giá USD hôm nay</strong>, tỷ giá EUR, JPY, CNY, GBP, KRW, AUD… sang VND theo thời gian thực, kèm công cụ quy đổi nhanh và chính xác.
-            </p>
           </header>
           <ForexRateTable search={search} />
           <PriceChart

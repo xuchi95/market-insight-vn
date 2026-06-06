@@ -59,7 +59,6 @@ function ContactPage() {
           <Breadcrumbs />
           <header>
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Liên hệ MarketWatch</h1>
-            <p className="mt-2 text-muted-foreground">Chúng tôi luôn sẵn sàng tiếp nhận phản ánh và phối hợp với cơ quan chức năng.</p>
           </header>
 
           <section className="grid gap-4 sm:grid-cols-2">
@@ -84,7 +83,6 @@ function ContactPage() {
 
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-foreground">Gửi liên hệ trực tiếp</h2>
-            <p className="text-sm text-muted-foreground">Điền form bên dưới, chúng tôi sẽ gửi email xác nhận và phản hồi sớm.</p>
             <ContactForm />
           </section>
         </div>

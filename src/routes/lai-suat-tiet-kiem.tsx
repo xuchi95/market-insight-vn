@@ -194,9 +194,6 @@ function SavingsPage() {
             <div className="flex-1">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">Công cụ miễn phí</p>
               <h2 className="text-xl md:text-2xl font-bold tracking-tight mt-1">Tính lãi suất tiết kiệm online</h2>
-              <p className="text-sm text-muted-foreground mt-1.5 max-w-xl">
-                Tính ngay tiền lãi gửi tiết kiệm theo lãi suất thật của 30+ ngân hàng — kỳ hạn 1 đến 36 tháng, lĩnh lãi cuối kỳ hoặc lãi kép tái tục.
-              </p>
             </div>
             <Link
               to="/tinh-lai-suat-tiet-kiem"

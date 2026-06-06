@@ -235,9 +235,6 @@ function PortfolioContent() {
             Sổ tay cá nhân · Không phải sàn giao dịch
           </div>
           <h1 className="font-display text-3xl md:text-5xl">Sổ tay danh mục của tôi</h1>
-          <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-            Bạn tự ghi lại các lệnh mua/bán đã thực hiện ở nơi khác (sàn crypto, cửa hàng vàng…). MarketWatch chỉ giúp tính <strong className="text-foreground">giá vốn trung bình</strong>, <strong className="text-foreground">số lượng còn lại</strong> và <strong className="text-foreground">lãi/lỗ realtime</strong> theo giá thị trường.
-          </p>
         </div>
         <TransactionDialog />
       </header>
