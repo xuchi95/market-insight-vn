@@ -22,10 +22,12 @@ import {
   ShieldAlert,
   Check,
   ChevronDown,
+  ChevronRight,
   Lock,
   Database,
   Cpu,
   LineChart,
+  Home,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -43,9 +45,6 @@ const DESC =
   "AI dự đoán giá vàng SJC, vàng nhẫn 9999, Bitcoin (BTC), Ethereum, xăng RON 95, dầu Brent/WTI và USD/VND cho 24h, 7 ngày, 30 ngày tới. Miễn phí, dữ liệu thời gian thực.";
 
 export const Route = createFileRoute("/du-doan-gia-ai")({
-  // Page is fully gated — client-rendered only, redirect to login when
-  // session is missing. SSR is disabled because Supabase sessions live in
-  // localStorage and cannot be read on the server.
   ssr: false,
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
@@ -102,61 +101,6 @@ export const Route = createFileRoute("/du-doan-gia-ai")({
           offers: { "@type": "Offer", price: "0", priceCurrency: "VND" },
         }),
       },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: [
-            {
-              "@type": "Question",
-              name: "Dự đoán giá vàng SJC hôm nay bằng AI có chính xác không?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "AI dự đoán giá vàng SJC dựa trên dữ liệu mua–bán hiện hành, giá vàng thế giới XAU/USD và bối cảnh vĩ mô. Đây là ước lượng xác suất, chỉ mang tính tham khảo, không phải lời khuyên đầu tư.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "Có thể dự đoán giá Bitcoin (BTC) trong 24h, 7 ngày, 30 ngày tới không?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "Có. Công cụ AI đoán giá BTC, ETH, SOL, BNB, XRP cho khung thời gian 24 giờ, 7 ngày hoặc 30 ngày tới, kèm 3 kịch bản lạc quan / cơ sở / bi quan và các động lực thúc đẩy giá.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "AI dự đoán giá xăng dầu Việt Nam và dầu Brent/WTI thế nào?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "AI tham khảo bảng giá Petrolimex hiện hành (RON 95-III, E5 RON 92-II, Diesel 0,05S-II) cùng giá dầu Brent và WTI để dự đoán xu hướng giá xăng dầu cho kỳ điều hành sắp tới.",
-              },
-            },
-            {
-              "@type": "Question",
-              name: "Tính năng AI dự đoán giá có miễn phí không?",
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: "Có, công cụ AI dự đoán giá vàng, Bitcoin, xăng dầu và ngoại tệ trên MarketWatch.vn hoàn toàn miễn phí, không yêu cầu đăng ký.",
-              },
-            },
-          ],
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "HowTo",
-          name: "Cách dùng AI dự đoán giá vàng, Bitcoin, xăng dầu",
-          inLanguage: "vi-VN",
-          step: [
-            { "@type": "HowToStep", position: 1, name: "Chọn loại tài sản", text: "Chọn nhóm tài sản: vàng SJC, vàng nhẫn 9999, Bitcoin, Ethereum, xăng RON 95, dầu Brent/WTI hoặc USD/VND." },
-            { "@type": "HowToStep", position: 2, name: "Chọn khung thời gian", text: "Chọn dự đoán cho 24 giờ, 7 ngày hoặc 30 ngày tới." },
-            { "@type": "HowToStep", position: 3, name: "Nhận dự đoán AI", text: "Bấm 'Dự đoán bằng AI' để xem hướng giá, biên độ % thay đổi, động lực, rủi ro và 3 kịch bản tham khảo." },
-          ],
-        }),
-      },
     ],
   }),
   component: AiPredictPage,
@@ -171,35 +115,8 @@ const CATEGORY_ICONS: Record<string, typeof Gem> = {
   "Ngoại tệ": Banknote,
 };
 
-function dirIcon(d: string, cls = "h-5 w-5") {
-  if (d === "tăng") return <TrendingUp className={`${cls} text-emerald-500`} />;
-  if (d === "giảm") return <TrendingDown className={`${cls} text-rose-500`} />;
-  return <Minus className={`${cls} text-muted-foreground`} />;
-}
-function dirColor(d: string) {
-  if (d === "tăng") return "text-emerald-500";
-  if (d === "giảm") return "text-rose-500";
-  return "text-muted-foreground";
-}
-function dirBg(d: string) {
-  if (d === "tăng") return "bg-emerald-500/10 border-emerald-500/30";
-  if (d === "giảm") return "bg-rose-500/10 border-rose-500/30";
-  return "bg-muted/40 border-border";
-}
-function confidenceDots(c: string) {
-  const n = c === "cao" ? 3 : c === "trung bình" ? 2 : 1;
-  return (
-    <span className="inline-flex items-center gap-0.5">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className={`h-1.5 w-1.5 rounded-full ${
-            i < n ? "bg-[var(--gold)]" : "bg-muted-foreground/25"
-          }`}
-        />
-      ))}
-    </span>
-  );
+function fmtPct(n: number) {
+  return `${n > 0 ? "+" : ""}${n.toFixed(2)}%`;
 }
 
 function AiPredictPage() {
@@ -209,121 +126,89 @@ function AiPredictPage() {
   );
   const [horizon, setHorizon] = useState<"24h" | "7d" | "30d">("24h");
   const [result, setResult] = useState<PredictionResult | null>(null);
+  const [clock, setClock] = useState("--:--:--");
   const { user, loading: authLoading } = useAuth();
   const isAuthed = !!user;
+
+  useEffect(() => {
+    const tick = () =>
+      setClock(
+        new Date().toLocaleTimeString("vi-VN", {
+          hour12: false,
+          timeZone: "Asia/Ho_Chi_Minh",
+        }),
+      );
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const assetsInCategory = useMemo(
     () => PREDICTABLE_ASSETS.filter((a) => a.category === category),
     [category],
   );
   const activeMeta = PREDICTABLE_ASSETS.find((a) => a.slug === asset)!;
+  const horizonMeta = HORIZONS.find((h) => h.value === horizon)!;
 
   const callPredict = useServerFn(predictAssetPrice);
   const mutation = useMutation({
-    mutationFn: (vars: {
-      asset: AssetSlug;
-      horizon: "24h" | "7d" | "30d";
-    }) =>
+    mutationFn: (vars: { asset: AssetSlug; horizon: "24h" | "7d" | "30d" }) =>
       callPredict({ data: vars }),
     onSuccess: (data) => setResult(data),
   });
 
   const onPredict = () => {
     if (!isAuthed) return;
+    setResult(null);
     mutation.mutate({ asset, horizon });
   };
 
-  const horizonLabel = HORIZONS.find((h) => h.value === horizon)!.label;
+  // Reset result when the user changes selection
+  useEffect(() => {
+    setResult(null);
+  }, [asset, horizon]);
 
-  // Full-page lock: when the user is not authenticated, gate the entire
-  // experience behind a single CTA. We still render the page shell + masthead
-  // so SEO/meta and brand chrome stay intact.
+  const horizonSub = (h: string) =>
+    h === "24h" ? "Ngắn hạn" : h === "7d" ? "Trung hạn" : "Dài hạn";
+
   if (!authLoading && !isAuthed) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="aip min-h-screen flex flex-col">
+        <AipStyles />
         <Header />
-        <main className="flex-1">
-          <div className="mx-auto max-w-5xl px-5 pt-6 pb-16">
-            <Breadcrumbs />
-            <header className="mt-6 mb-10 border-b border-border pb-8">
-              <div className="eyebrow text-[var(--gold)] mb-3 inline-flex items-center gap-2">
+        <main className="flex-1 relative">
+          <div className="aip-bg-glow" />
+          <div className="aip-bg-grid" />
+          <div className="aip-bg-grain" />
+          <div className="aip-shell aip-shell-narrow">
+            <section className="aip-hero">
+              <span className="aip-eyebrow">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Trí tuệ nhân tạo · Tham khảo</span>
-              </div>
-              <h1 className="font-display text-[2rem] sm:text-4xl md:text-5xl leading-[1.1] tracking-tight text-balance">
-                AI dự đoán giá{" "}
-                <em className="not-italic font-display italic text-[var(--gold)]">vàng</em>, xăng dầu,{" "}
-                <span className="text-[var(--gold)]">Bitcoin</span> &amp; ngoại tệ
+                Trí tuệ nhân tạo <span className="aip-mid">·</span> Đăng nhập
+              </span>
+              <h1 className="aip-h1">
+                Đăng nhập để mở khóa <span className="aip-au">Dự đoán giá AI</span>
               </h1>
-              <p className="mt-4 text-base text-muted-foreground max-w-2xl leading-relaxed text-pretty">
-                Chọn tài sản và khung thời gian, AI sẽ phân tích dữ liệu thị trường thời gian thực để
-                đưa ra ước lượng xu hướng, biên độ % thay đổi và 3 kịch bản tham khảo. Kết quả{" "}
-                <strong className="text-foreground">không phải lời khuyên đầu tư.</strong>
+              <p className="aip-lead">
+                Tính năng yêu cầu tài khoản miễn phí để bảo vệ hạn mức và chống lạm dụng.
+                Đăng nhập hoặc tạo tài khoản chỉ mất 30 giây.
               </p>
-            </header>
-
-            <section
-              aria-labelledby="auth-gate-title"
-              className="relative overflow-hidden rounded-2xl border border-[var(--gold)]/30 bg-[color-mix(in_oklab,var(--gold)_6%,var(--card))] p-8 sm:p-12 text-center shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--gold)_50%,transparent)]"
-            >
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--gold)_25%,transparent),transparent_60%)]"
-              />
-              <div className="relative">
-                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_15%,transparent)]">
-                  <Lock className="h-6 w-6 text-[var(--gold)]" />
-                </div>
-                <h2
-                  id="auth-gate-title"
-                  className="font-display text-2xl sm:text-3xl tracking-tight text-foreground"
+              <div className="aip-hero-chips">
+                <Link
+                  to="/dang-nhap"
+                  search={{ redirect: "/du-doan-gia-ai" } as never}
+                  className="aip-btn"
                 >
-                  Đăng nhập để mở khóa <span className="italic text-[var(--gold)]">Dự đoán giá AI</span>
-                </h2>
-                <p className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-muted-foreground leading-relaxed">
-                  Tính năng AI yêu cầu tài khoản miễn phí để bảo vệ hạn mức và chống lạm dụng.
-                  Đăng nhập hoặc tạo tài khoản chỉ mất 30 giây — sau đó bạn có thể dự đoán giá
-                  vàng SJC, Bitcoin, xăng dầu và ngoại tệ cho 24h, 7 ngày, 30 ngày tới.
-                </p>
-
-                <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <Link
-                    to="/dang-nhap"
-                    search={{ redirect: "/du-doan-gia-ai" } as never}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-7 py-3 text-sm font-semibold tracking-wide uppercase shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--gold)_60%,transparent)] hover:opacity-90 transition-opacity"
-                  >
-                    <Lock className="h-4 w-4" />
-                    Đăng nhập
-                  </Link>
-                  <Link
-                    to="/dang-ky"
-                    search={{ redirect: "/du-doan-gia-ai" } as never}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--gold)]/50 text-[var(--gold)] px-7 py-3 text-sm font-semibold tracking-wide uppercase hover:bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] transition-colors"
-                  >
-                    Tạo tài khoản miễn phí
-                  </Link>
-                </div>
-
-                <ul className="mx-auto mt-8 grid max-w-2xl grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-                  <li className="flex items-start gap-2 rounded-lg border border-border/60 bg-card/40 p-3">
-                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-[var(--gold)]" />
-                    <span className="text-xs text-muted-foreground">
-                      Dữ liệu thị trường <span className="text-foreground">thời gian thực</span>
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2 rounded-lg border border-border/60 bg-card/40 p-3">
-                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-[var(--gold)]" />
-                    <span className="text-xs text-muted-foreground">
-                      18 tài sản · 3 kịch bản tham khảo
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2 rounded-lg border border-border/60 bg-card/40 p-3">
-                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-[var(--gold)]" />
-                    <span className="text-xs text-muted-foreground">
-                      Miễn phí · Không lưu lịch sử cá nhân
-                    </span>
-                  </li>
-                </ul>
+                  <Lock className="h-4 w-4" />
+                  Đăng nhập
+                </Link>
+                <Link
+                  to="/dang-ky"
+                  search={{ redirect: "/du-doan-gia-ai" } as never}
+                  className="aip-btn-ghost"
+                >
+                  Tạo tài khoản miễn phí
+                </Link>
               </div>
             </section>
           </div>
@@ -334,313 +219,271 @@ function AiPredictPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="aip min-h-screen flex flex-col">
+      <AipStyles />
       <Header />
-      <main className="flex-1">
-        <div className="mx-auto max-w-5xl px-5 pt-6 pb-16">
-          <Breadcrumbs />
+      <main className="flex-1 relative">
+        <div className="aip-bg-glow" />
+        <div className="aip-bg-grid" />
+        <div className="aip-bg-grain" />
 
-          {/* Editorial masthead */}
-          <header className="mt-6 mb-10 border-b border-border pb-8">
-            <div className="eyebrow text-[var(--gold)] mb-3 inline-flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Trí tuệ nhân tạo · Tham khảo</span>
+        <div className="aip-shell">
+          {/* top bar */}
+          <header className="aip-topbar">
+            <nav className="aip-crumb">
+              <Link to="/" className="aip-home" aria-label="Trang chủ">
+                <Home className="h-4 w-4" />
+              </Link>
+              <ChevronRight className="aip-sep h-3.5 w-3.5" />
+              <span className="aip-here">AI dự đoán giá</span>
+            </nav>
+            <div className="aip-live">
+              <span className="aip-pill">
+                <span className="aip-dot" /> Thị trường mở · <span className="aip-clock">{clock}</span>
+              </span>
             </div>
-            <h1 className="font-display text-[2rem] sm:text-4xl md:text-5xl leading-[1.1] tracking-tight text-balance">
-              AI dự đoán giá{" "}
-              <em className="not-italic font-display italic text-[var(--gold)]">vàng</em>, xăng dầu,{" "}
-              <span className="text-[var(--gold)]">Bitcoin</span> &amp; ngoại tệ
-            </h1>
-            <p className="mt-4 text-base text-muted-foreground max-w-2xl leading-relaxed text-pretty">
-              Chọn tài sản và khung thời gian, AI sẽ phân tích dữ liệu thị trường thời gian thực để
-              đưa ra ước lượng xu hướng, biên độ % thay đổi và 3 kịch bản tham khảo. Kết quả{" "}
-              <strong className="text-foreground">không phải lời khuyên đầu tư.</strong>
-            </p>
           </header>
 
-          {/* Step 1 — Category + asset */}
-          <section className="mb-10">
-            <StepHeader n={1} title="Chọn loại tài sản" hint="4 nhóm · 18 tài sản" />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
-              {CATEGORIES.map((c) => {
-                const Icon = CATEGORY_ICONS[c] ?? Gem;
-                const active = category === c;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => {
-                      setCategory(c);
-                      const first = PREDICTABLE_ASSETS.find((a) => a.category === c);
-                      if (first) setAsset(first.slug);
-                    }}
-                    className={`group flex items-center gap-2.5 rounded-xl border p-3 text-left transition-all ${
-                      active
-                        ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,var(--background))] shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_30%,transparent)]"
-                        : "border-border hover:border-[var(--gold)]/40 hover:bg-card/50"
-                    }`}
-                  >
-                    <Icon
-                      className={`h-4 w-4 shrink-0 ${active ? "text-[var(--gold)]" : "text-muted-foreground"}`}
-                    />
-                    <span className={`text-sm font-medium ${active ? "text-foreground" : "text-muted-foreground"}`}>
+          {/* hero */}
+          <section className="aip-hero">
+            <span className="aip-eyebrow">
+              <Sparkles className="h-3.5 w-3.5" />
+              Trí tuệ nhân tạo <span className="aip-mid">·</span> Tham khảo
+            </span>
+            <h1 className="aip-h1">
+              AI dự đoán giá <span className="aip-au">vàng</span>, xăng dầu,{" "}
+              <span className="aip-au">Bitcoin</span> &amp; ngoại tệ
+            </h1>
+            <p className="aip-lead">
+              Chọn tài sản và khung thời gian — AI phân tích dữ liệu thị trường thời gian thực
+              để đưa ra ước lượng xu hướng, biên độ&nbsp;% thay đổi và 3 kịch bản tham khảo.
+              Kết quả <b>không phải lời khuyên đầu tư</b>.
+            </p>
+            <div className="aip-hero-chips">
+              <span className="aip-chip">
+                <Clock className="h-3.5 w-3.5" /> Cập nhật mỗi 60 giây
+              </span>
+              <span className="aip-chip">
+                <Database className="h-3.5 w-3.5" /> 4 nhóm · {PREDICTABLE_ASSETS.length} tài sản
+              </span>
+              <span className="aip-chip">
+                <LineChart className="h-3.5 w-3.5" /> 3 kịch bản dự báo
+              </span>
+            </div>
+          </section>
+
+          <div className="aip-rule" />
+
+          {/* configurator */}
+          <main className="aip-panel">
+            {/* step 1 */}
+            <section className="aip-step">
+              <div className="aip-step-head">
+                <div className="aip-step-title">
+                  <span className="aip-step-num">1</span>
+                  <h2>Chọn loại tài sản</h2>
+                </div>
+                <span className="aip-step-count">
+                  {CATEGORIES.length} nhóm · {PREDICTABLE_ASSETS.length} tài sản
+                </span>
+              </div>
+
+              <div className="aip-cats">
+                {CATEGORIES.map((c) => {
+                  const Icon = CATEGORY_ICONS[c] ?? Gem;
+                  const active = category === c;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => {
+                        setCategory(c);
+                        const first = PREDICTABLE_ASSETS.find((a) => a.category === c);
+                        if (first) setAsset(first.slug);
+                      }}
+                      className={`aip-cat ${active ? "on" : ""}`}
+                    >
+                      <span className="aip-cat-ic">
+                        <Icon className="h-4 w-4" />
+                      </span>
                       {c}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                    </button>
+                  );
+                })}
+              </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-              {assetsInCategory.map((a) => {
-                const active = asset === a.slug;
-                return (
-                  <button
-                    key={a.slug}
-                    type="button"
-                    onClick={() => setAsset(a.slug)}
-                    className={`relative text-left rounded-xl border p-3.5 transition-all ${
-                      active
-                        ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_8%,var(--background))]"
-                        : "border-border hover:border-[var(--gold)]/40 hover:bg-card/50"
-                    }`}
-                  >
-                    {active && (
-                      <CheckCircle2 className="absolute top-2 right-2 h-3.5 w-3.5 text-[var(--gold)]" />
-                    )}
-                    <div className="text-sm font-medium leading-tight pr-4">{a.label}</div>
-                    <div className="text-[11px] font-mono text-muted-foreground mt-1.5">{a.unit}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+              <div className="aip-assets">
+                {assetsInCategory.map((a, i) => {
+                  const active = asset === a.slug;
+                  const code = a.slug.toUpperCase().replace(/-/g, "/");
+                  return (
+                    <button
+                      key={a.slug}
+                      type="button"
+                      onClick={() => setAsset(a.slug)}
+                      className={`aip-asset ${active ? "on" : ""}`}
+                      style={{ animationDelay: `${i * 45}ms` }}
+                    >
+                      <div className="aip-asset-top">
+                        <div className="min-w-0">
+                          <div className="aip-asset-name">{a.label}</div>
+                          <div className="aip-asset-unit">
+                            <span className="aip-code">{code}</span> · {a.unit}
+                          </div>
+                        </div>
+                        <span className="aip-tick">
+                          <Check className="h-3 w-3" strokeWidth={3} />
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
 
-          {/* Step 2 — Horizon */}
-          <section className="mb-10">
-            <StepHeader n={2} title="Khung thời gian dự báo" />
-            <div className="grid grid-cols-3 gap-2 max-w-md">
-              {HORIZONS.map((h) => {
-                const active = horizon === h.value;
-                return (
-                  <button
-                    key={h.value}
-                    type="button"
-                    onClick={() => setHorizon(h.value)}
-                    className={`flex flex-col items-center justify-center gap-1 rounded-xl border py-3 transition-all ${
-                      active
-                        ? "border-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_10%,var(--background))]"
-                        : "border-border hover:border-[var(--gold)]/40"
-                    }`}
-                  >
-                    <Clock className={`h-4 w-4 ${active ? "text-[var(--gold)]" : "text-muted-foreground"}`} />
-                    <span className={`text-sm font-medium ${active ? "text-foreground" : "text-muted-foreground"}`}>
-                      {h.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Sticky-feeling action bar */}
-          <div className="mb-10 rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 sm:p-5">
-            <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <div className="eyebrow opacity-60 mb-1">Sẵn sàng phân tích</div>
-                <div className="text-base font-medium truncate">
-                  {activeMeta.label}{" "}
-                  <span className="text-muted-foreground font-normal">
-                    · {horizonLabel}
-                  </span>
+            {/* step 2 */}
+            <section className="aip-step">
+              <div className="aip-step-head">
+                <div className="aip-step-title">
+                  <span className="aip-step-num">2</span>
+                  <h2>Khung thời gian dự báo</h2>
                 </div>
               </div>
-              {!isAuthed && !authLoading ? (
-                <Link
-                  to="/dang-nhap"
-                  search={{ redirect: "/du-doan-gia-ai" } as never}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-6 py-3 text-sm font-semibold tracking-wide uppercase shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--gold)_60%,transparent)] hover:opacity-90 transition-opacity shrink-0"
-                >
-                  <Lock className="h-4 w-4" />
-                  Đăng nhập để dùng AI
-                </Link>
-              ) : (
+              <div className="aip-frames">
+                {HORIZONS.map((h) => {
+                  const active = horizon === h.value;
+                  return (
+                    <button
+                      key={h.value}
+                      type="button"
+                      onClick={() => setHorizon(h.value)}
+                      className={`aip-frame ${active ? "on" : ""}`}
+                    >
+                      <span className="aip-frame-ic">
+                        <Clock className="h-4 w-4" />
+                      </span>
+                      <span className="aip-frame-txt">
+                        <b>{h.label}</b>
+                        <span>{horizonSub(h.value)}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* CTA */}
+            <div className="aip-cta">
+              <div className="aip-cta-info">
+                <div className="aip-cta-lbl">Sẵn sàng phân tích</div>
+                <div className="aip-cta-sel">
+                  {activeMeta.label} <span className="aip-mid">·</span> {horizonMeta.label}
+                </div>
+              </div>
               <button
                 type="button"
+                className="aip-btn"
+                disabled={mutation.isPending}
                 onClick={onPredict}
-                disabled={mutation.isPending || authLoading}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--gold)] text-[var(--gold-foreground)] px-6 py-3 text-sm font-semibold tracking-wide uppercase shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--gold)_60%,transparent)] hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
               >
                 {mutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Đang phân tích…
                   </>
-                ) : result ? (
-                  <>
-                    <RefreshCw className="h-4 w-4" />
-                    Dự đoán lại
-                  </>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    Dự đoán bằng AI
+                    {result ? "Dự đoán lại" : "Dự đoán bằng AI"}
                   </>
                 )}
               </button>
-              )}
             </div>
-            {!isAuthed && !authLoading && (
-              <p className="mt-3 text-xs text-muted-foreground">
-                Tính năng AI yêu cầu tài khoản miễn phí để chống lạm dụng.{" "}
-                <Link
-                  to="/dang-ky"
-                  search={{ redirect: "/du-doan-gia-ai" } as never}
-                  className="text-[var(--gold)] underline-offset-2 hover:underline"
-                >
-                  Đăng ký nhanh
-                </Link>{" "}
-                hoặc{" "}
-                <Link
-                  to="/dang-nhap"
-                  search={{ redirect: "/du-doan-gia-ai" } as never}
-                  className="text-[var(--gold)] underline-offset-2 hover:underline"
-                >
-                  đăng nhập
-                </Link>
-                .
-              </p>
-            )}
-          </div>
 
-          {!isAuthed && !authLoading && (
-            <Alert className="mb-6 border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)]">
-              <Lock className="h-4 w-4 text-[var(--gold)]" />
-              <AlertDescription className="text-sm">
-                <span className="font-semibold">Bạn cần đăng nhập để sử dụng Dự đoán giá AI.</span>{" "}
-                Tính năng này yêu cầu tài khoản miễn phí nhằm chống lạm dụng và bảo vệ hạn mức AI.{" "}
-                <Link
-                  to="/dang-nhap"
-                  search={{ redirect: "/du-doan-gia-ai" } as never}
-                  className="text-[var(--gold)] font-medium underline-offset-2 hover:underline"
-                >
-                  Đăng nhập
-                </Link>{" "}
-                hoặc{" "}
-                <Link
-                  to="/dang-ky"
-                  search={{ redirect: "/du-doan-gia-ai" } as never}
-                  className="text-[var(--gold)] font-medium underline-offset-2 hover:underline"
-                >
-                  đăng ký nhanh
-                </Link>{" "}
-                để tiếp tục.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {mutation.isError && (() => {
-            const rawMsg = (mutation.error as Error)?.message ?? "";
-            const isAuthError =
-              /unauthor|401|not authenticated|no authorization/i.test(rawMsg);
-            if (isAuthError) {
-              return (
-                <Alert className="mb-6 border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)]">
-                  <Lock className="h-4 w-4 text-[var(--gold)]" />
-                  <AlertDescription className="text-sm">
-                    <span className="font-semibold">Phiên đăng nhập đã hết hạn hoặc bạn chưa đăng nhập.</span>{" "}
-                    Vui lòng{" "}
-                    <Link
-                      to="/dang-nhap"
-                      search={{ redirect: "/du-doan-gia-ai" } as never}
-                      className="text-[var(--gold)] font-medium underline-offset-2 hover:underline"
-                    >
-                      đăng nhập lại
-                    </Link>{" "}
-                    để tiếp tục sử dụng Dự đoán giá AI.
-                  </AlertDescription>
-                </Alert>
-              );
-            }
-            return (
-              <Alert variant="destructive" className="mb-6">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  {rawMsg || "Đã có lỗi xảy ra, vui lòng thử lại."}
-                </AlertDescription>
-              </Alert>
-            );
-          })()}
-
-          {mutation.isPending && (
-            <div className="mb-10 rounded-2xl border border-border p-6 space-y-3">
-              <Skeleton className="h-8 w-1/3" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-          )}
-
-          {result && !mutation.isPending && (
-            <ResultPanel result={result} />
-          )}
-
-          {/* Disclaimer */}
-          <div className="mt-10 rounded-xl border border-[var(--gold)]/40 border-l-4 border-l-[var(--gold)] bg-[color-mix(in_oklab,var(--gold)_6%,var(--background))] p-4 text-sm leading-relaxed">
-            <div className="flex gap-3">
-              <Info className="h-4 w-4 text-[var(--gold)] shrink-0 mt-0.5" />
-              <div>
-                <strong className="text-[var(--gold)] uppercase tracking-wider text-xs">
-                  Miễn trừ trách nhiệm
-                </strong>
-                <p className="mt-1 text-foreground/85">
-                  Dự đoán do AI tạo ra dựa trên dữ liệu công khai và mô hình ngôn ngữ —{" "}
-                  <strong>không phải</strong> tư vấn tài chính, không đảm bảo độ chính xác. Thị
-                  trường có thể biến động bất thường; bạn tự chịu trách nhiệm với mọi quyết định
-                  đầu tư.
-                </p>
+            {/* result */}
+            {(result || mutation.isError) && (
+              <div className="aip-result open">
+                {mutation.isError ? (
+                  <div className="aip-err">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>
+                      {(mutation.error as Error)?.message ||
+                        "Đã có lỗi xảy ra, vui lòng thử lại."}
+                    </span>
+                  </div>
+                ) : result ? (
+                  <ResultBody result={result} />
+                ) : null}
               </div>
+            )}
+          </main>
+
+          {/* disclaimer */}
+          <div className="aip-disclaimer">
+            <span className="aip-disc-ic">
+              <Info className="h-5 w-5" />
+            </span>
+            <div>
+              <div className="aip-disc-lbl">Miễn trừ trách nhiệm</div>
+              <p>
+                Dự đoán do AI tạo ra dựa trên dữ liệu công khai và mô hình ngôn ngữ —{" "}
+                <b>không phải</b> tư vấn tài chính, không đảm bảo độ chính xác. Thị trường có
+                thể biến động bất thường; bạn tự chịu trách nhiệm với mọi quyết định đầu tư.
+              </p>
             </div>
           </div>
 
-          {/* Explainer */}
-          <section className="mt-16">
-            <div className="eyebrow text-[var(--gold)] mb-3">Cách hoạt động</div>
-            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-4">
-              AI dự đoán giá hoạt động thế nào?
-            </h2>
-            <p className="text-muted-foreground leading-relaxed max-w-3xl">
-              Công cụ truy xuất dữ liệu giá{" "}
-              <strong className="text-foreground">thời gian thực</strong> của vàng SJC, vàng nhẫn,
-              xăng dầu Petrolimex, dầu Brent/WTI, Bitcoin, Ethereum và các cặp tỷ giá ngoại tệ —
-              sau đó gửi tới mô hình AI để phân tích xu hướng ngắn hạn. Mô hình đưa ra: hướng giá
-              kỳ vọng, biên độ % thay đổi, mức độ tự tin, các động lực chính và rủi ro có thể đảo
-              chiều dự báo, kèm 3 kịch bản tham khảo (lạc quan / cơ sở / bi quan).
+          {/* how */}
+          <section className="aip-how">
+            <span className="aip-eyebrow">Cách hoạt động</span>
+            <h2 className="aip-h2">AI dự đoán giá hoạt động thế nào?</h2>
+            <p className="aip-how-body">
+              Công cụ truy xuất dữ liệu giá <b>thời gian thực</b> của vàng SJC, vàng nhẫn,
+              xăng dầu Petrolimex, dầu Brent/WTI, Bitcoin, Ethereum và các cặp tỷ giá ngoại
+              tệ — sau đó gửi tới mô hình AI để phân tích xu hướng ngắn hạn. Mô hình đưa ra:
+              hướng giá kỳ vọng, biên độ % thay đổi, mức độ tự tin, các động lực chính và
+              rủi ro có thể đảo chiều dự báo, kèm 3 kịch bản tham khảo (lạc quan / cơ sở /
+              bi quan).
             </p>
 
-            <div className="mt-8 grid sm:grid-cols-2 gap-3">
+            <div className="aip-flow">
               {[
-                { icon: Gem, title: "Kim loại quý", text: "Vàng SJC, vàng nhẫn 9999, XAU/USD, bạc, bạch kim." },
-                { icon: Flame, title: "Năng lượng", text: "Brent, WTI, xăng RON 95-III, E5 RON 92, dầu Diesel." },
-                { icon: Bitcoin, title: "Tiền điện tử", text: "Bitcoin, Ethereum, Solana, BNB, XRP." },
-                { icon: Banknote, title: "Ngoại tệ", text: "USD/VND, EUR/VND, JPY/VND." },
-              ].map((row) => (
-                <div key={row.title} className="flex gap-3 rounded-xl border border-border p-4">
-                  <row.icon className="h-5 w-5 text-[var(--gold)] shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-medium text-sm">{row.title}</div>
-                    <div className="text-sm text-muted-foreground mt-0.5">{row.text}</div>
+                {
+                  n: "01",
+                  Icon: Database,
+                  title: "Thu thập dữ liệu",
+                  text: "Giá thị trường được truy xuất trực tiếp và chuẩn hoá theo từng tài sản, đơn vị và khung thời gian.",
+                },
+                {
+                  n: "02",
+                  Icon: Cpu,
+                  title: "Phân tích bằng AI",
+                  text: "Mô hình đánh giá xu hướng, động lực và rủi ro đảo chiều để ước lượng hướng đi và biên độ giá.",
+                },
+                {
+                  n: "03",
+                  Icon: LineChart,
+                  title: "3 kịch bản tham khảo",
+                  text: "Kết quả trình bày kèm mức tin cậy và ba kịch bản lạc quan / cơ sở / bi quan để bạn cân nhắc.",
+                },
+              ].map((c) => (
+                <div key={c.n} className="aip-flow-card">
+                  <div className="aip-flow-n">{c.n}</div>
+                  <div className="aip-flow-ic">
+                    <c.Icon className="h-5 w-5" />
                   </div>
+                  <h4>{c.title}</h4>
+                  <p>{c.text}</p>
                 </div>
               ))}
             </div>
           </section>
 
           {/* FAQ */}
-          <section className="mt-12">
-            <div className="eyebrow text-[var(--gold)] mb-3">Câu hỏi thường gặp</div>
-            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6">FAQ</h2>
-            <div className="divide-y divide-border border-y border-border">
+          <section className="aip-faq">
+            <span className="aip-eyebrow">Câu hỏi thường gặp</span>
+            <h2 className="aip-h2">FAQ</h2>
+            <div className="aip-faq-list">
               {[
                 {
                   q: "AI dự đoán giá có chính xác 100% không?",
@@ -659,56 +502,14 @@ function AiPredictPage() {
                   a: "Có, hoàn toàn miễn phí cho người dùng MarketWatch.vn.",
                 },
               ].map((it) => (
-                <details key={it.q} className="group py-4">
-                  <summary className="flex items-center justify-between cursor-pointer list-none gap-4">
-                    <span className="font-medium text-base">{it.q}</span>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 transition-transform group-open:rotate-180" />
+                <details key={it.q} className="aip-faq-item">
+                  <summary>
+                    <span>{it.q}</span>
+                    <ChevronDown className="h-4 w-4" />
                   </summary>
-                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{it.a}</p>
+                  <p>{it.a}</p>
                 </details>
               ))}
-            </div>
-          </section>
-
-          {/* Per-asset SEO content — long-tail keywords */}
-          <section className="mt-16">
-            <div className="eyebrow text-[var(--gold)] mb-3">Dự đoán theo tài sản</div>
-            <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-6">
-              AI dự đoán giá từng loại tài sản
-            </h2>
-            <div className="grid md:grid-cols-2 gap-5">
-              <article className="rounded-xl border border-border p-5">
-                <h3 className="font-display text-lg mb-2">Dự đoán giá vàng SJC & vàng nhẫn 9999</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  AI dự đoán giá vàng SJC và vàng nhẫn 9999 dựa trên giá mua–bán hiện hành trong nước,
-                  giá vàng thế giới <a href="/gia-vang" className="underline hover:text-[var(--gold)]">XAU/USD</a>,
-                  tỷ giá USD/VND và bối cảnh vĩ mô (lãi suất Fed, lạm phát, dòng tiền trú ẩn).
-                </p>
-              </article>
-              <article className="rounded-xl border border-border p-5">
-                <h3 className="font-display text-lg mb-2">Dự đoán giá Bitcoin (BTC) & Ethereum</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Đoán giá BTC, ETH, SOL, BNB, XRP theo dữ liệu từ{" "}
-                  <a href="/tien-dien-tu" className="underline hover:text-[var(--gold)]">thị trường crypto</a>{" "}
-                  thời gian thực, chỉ số Fear &amp; Greed, vốn hóa và biến động 24h. Khung thời gian 24h / 7 ngày / 30 ngày.
-                </p>
-              </article>
-              <article className="rounded-xl border border-border p-5">
-                <h3 className="font-display text-lg mb-2">Dự đoán giá xăng dầu Việt Nam</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Dự báo xu hướng{" "}
-                  <a href="/gia-xang-dau" className="underline hover:text-[var(--gold)]">giá xăng RON 95-III, E5 RON 92-II và dầu Diesel</a>{" "}
-                  cho kỳ điều hành sắp tới, tham chiếu giá dầu Brent &amp; WTI cùng tỷ giá USD/VND.
-                </p>
-              </article>
-              <article className="rounded-xl border border-border p-5">
-                <h3 className="font-display text-lg mb-2">Dự đoán tỷ giá USD/VND, EUR/VND</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  AI ước lượng biến động{" "}
-                  <a href="/ty-gia-ngoai-te" className="underline hover:text-[var(--gold)]">tỷ giá ngoại tệ USD/VND, EUR/VND, JPY/VND</a>{" "}
-                  cho ngắn hạn, dựa trên chỉ số DXY, chính sách của SBV và dòng vốn FDI.
-                </p>
-              </article>
             </div>
           </section>
         </div>
@@ -718,159 +519,376 @@ function AiPredictPage() {
   );
 }
 
-function StepHeader({ n, title, hint }: { n: number; title: string; hint?: string }) {
-  return (
-    <div className="flex items-baseline justify-between mb-4">
-      <div className="flex items-baseline gap-3">
-        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[var(--gold)]/40 text-[11px] font-mono text-[var(--gold)]">
-          {n}
-        </span>
-        <h2 className="font-display text-xl md:text-2xl tracking-tight">{title}</h2>
-      </div>
-      {hint && <span className="eyebrow opacity-60 hidden sm:inline">{hint}</span>}
-    </div>
-  );
-}
-
-function ResultPanel({ result }: { result: PredictionResult }) {
+function ResultBody({ result }: { result: PredictionResult }) {
   const meta = PREDICTABLE_ASSETS.find((a) => a.slug === result.asset)!;
   const horizonLabel = HORIZONS.find((h) => h.value === result.horizon)!.label;
   const low = result.expected_change_pct_low;
   const high = result.expected_change_pct_high;
-  const fmtPct = (n: number) => `${n > 0 ? "+" : ""}${n.toFixed(2)}%`;
+  const mid = (low + high) / 2;
+  const dir = result.direction;
+  const dirUp = dir === "tăng";
+  const dirDown = dir === "giảm";
+  const confPct =
+    result.confidence === "cao" ? 86 : result.confidence === "trung bình" ? 64 : 42;
+
+  const DirIcon = dirUp ? TrendingUp : dirDown ? TrendingDown : Minus;
+  const dirColor = dirUp ? "var(--aip-up)" : dirDown ? "var(--aip-down)" : "var(--aip-ink-3)";
 
   return (
-    <article className="mb-6 rounded-2xl border border-border bg-card/40 overflow-hidden animate-fade-in">
-      {/* Hero strip */}
-      <div className={`relative border-b ${dirBg(result.direction)} px-6 py-6`}>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-          <div className="min-w-0">
-            <div className="eyebrow opacity-70 mb-1.5">Dự đoán · {horizonLabel}</div>
-            <h2 className="font-display text-2xl md:text-3xl tracking-tight truncate">
-              {meta.label}
-            </h2>
-            <div className="text-xs text-muted-foreground mt-1">
-              {new Date(result.generated_at).toLocaleString("vi-VN")}
-            </div>
-          </div>
-          <div className="flex items-center gap-5 shrink-0">
-            <div className="text-right">
-              <div className="eyebrow opacity-60 mb-1">Biên độ kỳ vọng</div>
-              <div className={`font-display text-2xl md:text-3xl tracking-tight ${dirColor(result.direction)}`}>
-                {fmtPct(low)} → {fmtPct(high)}
-              </div>
-            </div>
-            <div className={`flex items-center gap-2 rounded-full border px-3 py-2 ${dirBg(result.direction)}`}>
-              {dirIcon(result.direction, "h-5 w-5")}
-              <span className={`font-semibold uppercase tracking-wider text-sm ${dirColor(result.direction)}`}>
-                {result.direction}
-              </span>
-            </div>
-          </div>
+    <>
+      <div className="aip-res-head">
+        <div className="aip-res-title">
+          <span className="aip-res-tag">Phân tích AI</span>
+          <h3>
+            {meta.label} · {horizonLabel}
+          </h3>
         </div>
-        <div className="mt-4 flex items-center gap-2 text-xs">
-          <span className="text-muted-foreground">Độ tự tin:</span>
-          {confidenceDots(result.confidence)}
-          <span className="text-foreground font-medium capitalize">{result.confidence}</span>
+        <div className="aip-res-conf">
+          Độ tin cậy
+          <b className="capitalize">{result.confidence}</b>
         </div>
       </div>
 
-      <div className="p-6 space-y-8">
-        {/* Summary */}
-        <div>
-          <div className="eyebrow text-[var(--gold)] mb-2">Tổng quan</div>
-          <p className="text-base leading-relaxed text-foreground/90">{result.summary}</p>
-        </div>
-
-        {/* Drivers / Risks */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <div className="eyebrow text-[var(--gold)] mb-3 inline-flex items-center gap-2">
-              <TrendingUp className="h-3.5 w-3.5" />
-              Động lực chính
-            </div>
-            <ul className="space-y-2.5 text-sm">
-              {result.drivers.map((d, i) => (
-                <li key={i} className="flex gap-2.5">
-                  <span className="text-[var(--gold)] mt-0.5 font-mono text-xs">
-                    0{i + 1}
-                  </span>
-                  <span className="leading-relaxed text-foreground/90">{d}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <div className="eyebrow text-amber-500 mb-3 inline-flex items-center gap-2">
-              <ShieldAlert className="h-3.5 w-3.5" />
-              Rủi ro đảo chiều
-            </div>
-            <ul className="space-y-2.5 text-sm">
-              {result.risks.map((r, i) => (
-                <li key={i} className="flex gap-2.5">
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
-                  <span className="leading-relaxed text-foreground/90">{r}</span>
-                </li>
-              ))}
-            </ul>
+      <div className="aip-res-metrics">
+        <div className="aip-metric">
+          <div className="aip-metric-k">Hướng dự kiến</div>
+          <div className="aip-metric-v">
+            <DirIcon className="h-5 w-5" style={{ color: dirColor }} />
+            <span style={{ color: dirColor }} className="capitalize">
+              {dir}
+            </span>
           </div>
         </div>
-
-        {/* Scenarios */}
-        <div>
-          <div className="eyebrow text-[var(--gold)] mb-3">3 kịch bản tham khảo</div>
-          <div className="grid md:grid-cols-3 gap-3">
-            <ScenarioCard tone="bull" label="Lạc quan" text={result.scenarios.bullish} />
-            <ScenarioCard tone="base" label="Cơ sở" text={result.scenarios.base} />
-            <ScenarioCard tone="bear" label="Bi quan" text={result.scenarios.bearish} />
+        <div className="aip-metric">
+          <div className="aip-metric-k">Biên độ ước tính</div>
+          <div className="aip-metric-v" style={{ color: dirColor }}>
+            {fmtPct(low)} → {fmtPct(high)}
           </div>
         </div>
-
-        {result.context && (
-          <details className="group border-t border-border pt-4">
-            <summary className="flex items-center justify-between cursor-pointer list-none text-sm text-muted-foreground hover:text-foreground">
-              <span className="eyebrow opacity-70">Dữ liệu AI đã tham khảo</span>
-              <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
-            </summary>
-            <pre className="mt-3 whitespace-pre-wrap font-mono text-[11px] text-muted-foreground bg-muted/30 rounded-lg p-3 border border-border">
-              {result.context}
-            </pre>
-          </details>
-        )}
+        <div className="aip-metric">
+          <div className="aip-metric-k">Mức tin cậy mô hình</div>
+          <div className="aip-metric-v">{confPct}%</div>
+          <div className="aip-bar">
+            <span style={{ width: `${confPct}%` }} />
+          </div>
+        </div>
       </div>
-    </article>
+
+      <div>
+        <div className="aip-eyebrow aip-section-eyebrow">Tổng quan</div>
+        <p className="aip-summary">{result.summary}</p>
+      </div>
+
+      <div className="aip-scenarios">
+        <div className="aip-scn optimistic">
+          <div className="aip-scn-tag">
+            <TrendingUp className="h-3.5 w-3.5" /> Lạc quan
+          </div>
+          <div className="aip-scn-pct" style={{ color: "var(--aip-up)" }}>
+            {fmtPct(high)}
+          </div>
+          <p className="aip-scn-note">{result.scenarios.bullish}</p>
+        </div>
+        <div className="aip-scn base">
+          <div className="aip-scn-tag">
+            <Minus className="h-3.5 w-3.5" /> Cơ sở
+          </div>
+          <div className="aip-scn-pct">{fmtPct(mid)}</div>
+          <p className="aip-scn-note">{result.scenarios.base}</p>
+        </div>
+        <div className="aip-scn pessimistic">
+          <div className="aip-scn-tag">
+            <TrendingDown className="h-3.5 w-3.5" /> Bi quan
+          </div>
+          <div className="aip-scn-pct" style={{ color: "var(--aip-down)" }}>
+            {fmtPct(low)}
+          </div>
+          <p className="aip-scn-note">{result.scenarios.bearish}</p>
+        </div>
+      </div>
+
+      <div className="aip-twocol">
+        <div>
+          <div className="aip-eyebrow aip-section-eyebrow">
+            <TrendingUp className="h-3.5 w-3.5" /> Động lực chính
+          </div>
+          <ul className="aip-list">
+            {result.drivers.map((d, i) => (
+              <li key={i}>
+                <span className="aip-list-n">0{i + 1}</span>
+                <span>{d}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <div className="aip-eyebrow aip-section-eyebrow aip-amber">
+            <ShieldAlert className="h-3.5 w-3.5" /> Rủi ro đảo chiều
+          </div>
+          <ul className="aip-list">
+            {result.risks.map((r, i) => (
+              <li key={i}>
+                <AlertTriangle className="h-3.5 w-3.5 aip-amber-ic" />
+                <span>{r}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {result.context && (
+        <details className="aip-context">
+          <summary>
+            <span>Dữ liệu AI đã tham khảo</span>
+            <ChevronDown className="h-4 w-4" />
+          </summary>
+          <pre>{result.context}</pre>
+        </details>
+      )}
+
+      <div className="aip-res-foot">
+        <Info className="h-3.5 w-3.5" />
+        Mô hình: {result.model} · Tạo lúc{" "}
+        {new Date(result.generated_at).toLocaleString("vi-VN")}
+      </div>
+    </>
   );
 }
 
-function ScenarioCard({
-  tone,
-  label,
-  text,
-}: {
-  tone: "bull" | "base" | "bear";
-  label: string;
-  text: string;
-}) {
-  const styles =
-    tone === "bull"
-      ? "border-emerald-500/30 bg-emerald-500/5"
-      : tone === "bear"
-        ? "border-rose-500/30 bg-rose-500/5"
-        : "border-border bg-muted/20";
-  const labelColor =
-    tone === "bull"
-      ? "text-emerald-500"
-      : tone === "bear"
-        ? "text-rose-500"
-        : "text-muted-foreground";
-  const Icon = tone === "bull" ? TrendingUp : tone === "bear" ? TrendingDown : Minus;
+/* ─────────────────────────────────────────────────────────────
+ * Scoped page styles — all selectors prefixed with `.aip`.
+ * Mirrors the supplied design (dark warm-black + antique gold).
+ * ───────────────────────────────────────────────────────────── */
+function AipStyles() {
   return (
-    <div className={`rounded-xl border p-4 ${styles}`}>
-      <div className={`flex items-center gap-1.5 eyebrow ${labelColor} mb-2`}>
-        <Icon className="h-3 w-3" />
-        {label}
-      </div>
-      <p className="text-sm leading-relaxed text-foreground/90">{text}</p>
-    </div>
+    <style>{`
+      .aip {
+        --aip-bg:#0a0807;
+        --aip-bg-2:#0e0b09;
+        --aip-ink:#f6f1e7;
+        --aip-ink-2:#c3baa9;
+        --aip-ink-3:#8a8273;
+        --aip-ink-4:#5d564b;
+        --aip-gold:#cba75f;
+        --aip-gold-bright:#e7cd8c;
+        --aip-gold-soft:#d8bc78;
+        --aip-up:#7cc492;
+        --aip-down:#db8278;
+        --aip-line:rgba(203,167,95,.14);
+        --aip-line-soft:rgba(246,241,231,.07);
+        --aip-panel:rgba(255,255,255,.018);
+        --aip-panel-2:rgba(255,255,255,.028);
+        --aip-panel-hi:rgba(203,167,95,.06);
+        --aip-r-lg:22px;
+        --aip-r-md:15px;
+        --aip-shadow-deep:0 40px 90px -40px rgba(0,0,0,.9);
+        --aip-gold-grad:linear-gradient(135deg,#f0d999 0%,#cba75f 42%,#a07e36 100%);
+        background:var(--aip-bg);
+        color:var(--aip-ink);
+        font-family:'Be Vietnam Pro', system-ui, sans-serif;
+        line-height:1.6;
+      }
+      .aip main { background:var(--aip-bg); }
+      .aip .aip-bg-glow {
+        position:absolute; inset:0; z-index:0; pointer-events:none;
+        background:
+          radial-gradient(900px 520px at 18% -8%, rgba(203,167,95,.16), transparent 60%),
+          radial-gradient(700px 600px at 100% 4%, rgba(160,126,54,.08), transparent 55%),
+          linear-gradient(180deg, var(--aip-bg) 0%, var(--aip-bg-2) 55%, var(--aip-bg) 100%);
+      }
+      .aip .aip-bg-grid {
+        position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.5;
+        background-image:
+          linear-gradient(to right, rgba(246,241,231,.022) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(246,241,231,.022) 1px, transparent 1px);
+        background-size:64px 64px;
+        -webkit-mask-image:radial-gradient(circle at 30% 0%, #000 0%, transparent 70%);
+                mask-image:radial-gradient(circle at 30% 0%, #000 0%, transparent 70%);
+      }
+      .aip .aip-bg-grain {
+        position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.045; mix-blend-mode:overlay;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .aip .aip-shell { position:relative; z-index:1; max-width:1160px; margin:0 auto; padding:0 28px 90px; }
+      .aip .aip-shell-narrow { max-width:780px; padding-top:40px; }
+
+      /* topbar */
+      .aip .aip-topbar { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:26px 0 8px; }
+      .aip .aip-crumb { display:flex; align-items:center; gap:11px; font-size:.82rem; color:var(--aip-ink-3); }
+      .aip .aip-home { width:31px; height:31px; border-radius:9px; display:grid; place-items:center; border:1px solid var(--aip-line); background:var(--aip-panel); color:var(--aip-gold-soft); transition:.25s; }
+      .aip .aip-home:hover { border-color:rgba(203,167,95,.35); background:var(--aip-panel-hi); }
+      .aip .aip-sep { color:var(--aip-ink-4); }
+      .aip .aip-here { color:var(--aip-ink-2); font-weight:500; }
+      .aip .aip-live { display:flex; align-items:center; gap:14px; font-size:.7rem; letter-spacing:.04em; color:var(--aip-ink-3); }
+      .aip .aip-pill { display:inline-flex; align-items:center; gap:8px; padding:7px 13px; border-radius:999px; border:1px solid var(--aip-line); background:var(--aip-panel); font-variant-numeric:tabular-nums; }
+      .aip .aip-dot { width:7px; height:7px; border-radius:50%; background:var(--aip-up); box-shadow:0 0 0 0 rgba(124,196,146,.6); animation:aip-pulse 2.4s infinite; }
+      @keyframes aip-pulse { 0%{box-shadow:0 0 0 0 rgba(124,196,146,.55)} 70%{box-shadow:0 0 0 7px rgba(124,196,146,0)} 100%{box-shadow:0 0 0 0 rgba(124,196,146,0)} }
+      .aip .aip-clock { color:var(--aip-ink-2); }
+
+      /* hero */
+      .aip .aip-hero { padding:54px 0 40px; max-width:880px; }
+      .aip .aip-eyebrow { display:inline-flex; align-items:center; gap:10px; font-size:.72rem; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:var(--aip-gold-soft); }
+      .aip .aip-mid { color:var(--aip-ink-4); }
+      .aip .aip-h1 { font-weight:700; font-size:clamp(2.4rem, 6vw, 4.4rem); line-height:1.05; letter-spacing:-.022em; margin:22px 0 0; color:var(--aip-ink); }
+      .aip .aip-au { background:var(--aip-gold-grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; font-weight:700; }
+      .aip .aip-lead { margin-top:24px; max-width:660px; font-size:1.05rem; line-height:1.72; color:var(--aip-ink-2); }
+      .aip .aip-lead b { color:var(--aip-ink); font-weight:600; }
+      .aip .aip-hero-chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:30px; }
+      .aip .aip-chip { display:inline-flex; align-items:center; gap:9px; padding:9px 15px; border-radius:999px; border:1px solid var(--aip-line); background:var(--aip-panel); font-size:.74rem; color:var(--aip-ink-2); }
+      .aip .aip-chip svg { color:var(--aip-gold-soft); }
+      .aip .aip-rule { height:1px; background:linear-gradient(90deg, var(--aip-line) 0%, transparent 80%); margin:8px 0 0; }
+
+      /* panel */
+      .aip .aip-panel { position:relative; margin-top:40px; border:1px solid var(--aip-line); border-radius:var(--aip-r-lg); background:linear-gradient(180deg, rgba(203,167,95,.04), transparent 26%), var(--aip-bg-2); box-shadow:var(--aip-shadow-deep); overflow:hidden; }
+      .aip .aip-step { padding:34px 36px; }
+      .aip .aip-step + .aip-step { border-top:1px solid var(--aip-line-soft); }
+      .aip .aip-step-head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
+      .aip .aip-step-title { display:flex; align-items:center; gap:15px; }
+      .aip .aip-step-num { flex:none; width:30px; height:30px; border-radius:9px; display:grid; place-items:center; font-size:.82rem; font-weight:600; color:var(--aip-gold-bright); border:1px solid rgba(203,167,95,.35); background:radial-gradient(circle at 30% 25%, rgba(203,167,95,.22), rgba(203,167,95,.05)); font-variant-numeric:tabular-nums; }
+      .aip .aip-step-title h2 { font-weight:600; font-size:1.5rem; letter-spacing:-.012em; color:var(--aip-ink); }
+      .aip .aip-step-count { font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--aip-ink-3); }
+
+      /* cats */
+      .aip .aip-cats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+      .aip .aip-cat { display:flex; align-items:center; gap:12px; padding:15px 17px; cursor:pointer; text-align:left; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); color:var(--aip-ink-2); font-size:.96rem; font-weight:500; transition:transform .2s ease, border-color .25s, background .25s, color .25s, box-shadow .25s; }
+      .aip .aip-cat-ic { width:30px; height:30px; flex:none; display:grid; place-items:center; border-radius:9px; color:var(--aip-ink-3); border:1px solid var(--aip-line-soft); transition:.25s; }
+      .aip .aip-cat:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.3); color:var(--aip-ink); }
+      .aip .aip-cat:hover .aip-cat-ic { color:var(--aip-gold-soft); }
+      .aip .aip-cat.on { color:var(--aip-ink); border-color:rgba(203,167,95,.55); background:linear-gradient(180deg, rgba(203,167,95,.12), rgba(203,167,95,.03)); box-shadow:inset 0 1px 0 rgba(231,205,140,.18), 0 10px 30px -18px rgba(203,167,95,.5); }
+      .aip .aip-cat.on .aip-cat-ic { color:var(--aip-gold-bright); border-color:rgba(203,167,95,.4); background:rgba(203,167,95,.1); }
+
+      /* assets */
+      .aip .aip-assets { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; }
+      .aip .aip-asset { position:relative; cursor:pointer; text-align:left; padding:16px 17px 15px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); transition:transform .2s ease, border-color .25s, background .25s, box-shadow .25s; animation:aip-pop .4s ease both; }
+      @keyframes aip-pop { from{ opacity:0; transform:translateY(8px) scale(.985);} to{ opacity:1; transform:translateY(0) scale(1);} }
+      .aip .aip-asset:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.32); background:var(--aip-panel-2); }
+      .aip .aip-asset.on { border-color:rgba(203,167,95,.6); background:linear-gradient(180deg, rgba(203,167,95,.11), rgba(203,167,95,.025)); box-shadow:inset 0 1px 0 rgba(231,205,140,.2), 0 14px 34px -20px rgba(203,167,95,.55); }
+      .aip .aip-asset-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+      .aip .aip-asset-name { font-weight:600; font-size:1rem; color:var(--aip-ink); letter-spacing:-.01em; }
+      .aip .aip-asset-unit { margin-top:5px; font-size:.7rem; letter-spacing:.02em; color:var(--aip-ink-3); font-variant-numeric:tabular-nums; }
+      .aip .aip-code { color:var(--aip-gold-soft); }
+      .aip .aip-tick { flex:none; width:21px; height:21px; border-radius:7px; display:grid; place-items:center; border:1px solid var(--aip-line); color:var(--aip-ink-4); transition:.25s; transform:scale(.85); }
+      .aip .aip-asset.on .aip-tick { border-color:rgba(203,167,95,.5); background:var(--aip-gold-grad); color:#1a1305; transform:scale(1); box-shadow:0 4px 12px -4px rgba(203,167,95,.7); }
+
+      /* frames */
+      .aip .aip-frames { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+      .aip .aip-frame { cursor:pointer; text-align:left; padding:18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); transition:transform .2s ease, border-color .25s, background .25s, box-shadow .25s; display:flex; gap:14px; align-items:center; }
+      .aip .aip-frame-ic { width:34px; height:34px; flex:none; border-radius:10px; display:grid; place-items:center; border:1px solid var(--aip-line-soft); color:var(--aip-ink-3); transition:.25s; }
+      .aip .aip-frame-txt b { display:block; font-weight:600; font-size:1rem; color:var(--aip-ink); letter-spacing:-.01em; }
+      .aip .aip-frame-txt span { font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--aip-ink-3); }
+      .aip .aip-frame:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.3); }
+      .aip .aip-frame:hover .aip-frame-ic { color:var(--aip-gold-soft); }
+      .aip .aip-frame.on { border-color:rgba(203,167,95,.55); background:linear-gradient(180deg, rgba(203,167,95,.12), rgba(203,167,95,.03)); box-shadow:inset 0 1px 0 rgba(231,205,140,.18), 0 12px 32px -20px rgba(203,167,95,.5); }
+      .aip .aip-frame.on .aip-frame-ic { color:var(--aip-gold-bright); border-color:rgba(203,167,95,.4); background:rgba(203,167,95,.1); }
+
+      /* cta */
+      .aip .aip-cta { display:flex; align-items:center; justify-content:space-between; gap:22px; padding:22px 28px 22px 32px; border-top:1px solid var(--aip-line); background:linear-gradient(180deg, rgba(203,167,95,.05), transparent); }
+      .aip .aip-cta-info .aip-cta-lbl { font-size:.7rem; letter-spacing:.22em; text-transform:uppercase; color:var(--aip-ink-3); }
+      .aip .aip-cta-info .aip-cta-sel { margin-top:6px; font-size:1.25rem; font-weight:600; color:var(--aip-ink); letter-spacing:-.012em; }
+
+      .aip .aip-btn { position:relative; overflow:hidden; display:inline-flex; align-items:center; gap:11px; padding:16px 26px; border:none; border-radius:12px; cursor:pointer; font-weight:600; font-size:.86rem; letter-spacing:.12em; text-transform:uppercase; color:#231803; background:var(--aip-gold-grad); box-shadow:0 14px 34px -14px rgba(203,167,95,.85), inset 0 1px 0 rgba(255,255,255,.4); transition:transform .2s ease, box-shadow .25s, filter .2s; }
+      .aip .aip-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 20px 44px -14px rgba(203,167,95,.95); filter:brightness(1.04); }
+      .aip .aip-btn:disabled { opacity:.7; cursor:wait; }
+      .aip .aip-btn-ghost { display:inline-flex; align-items:center; gap:10px; padding:14px 22px; border-radius:12px; border:1px solid rgba(203,167,95,.5); color:var(--aip-gold-soft); font-weight:600; font-size:.82rem; letter-spacing:.12em; text-transform:uppercase; transition:background .2s; }
+      .aip .aip-btn-ghost:hover { background:rgba(203,167,95,.1); }
+
+      /* result */
+      .aip .aip-result { border-top:1px solid var(--aip-line); padding:32px 36px 38px; display:flex; flex-direction:column; gap:24px; animation:aip-rise .5s ease both; }
+      @keyframes aip-rise { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+      .aip .aip-res-head { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+      .aip .aip-res-title { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+      .aip .aip-res-tag { font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:var(--aip-gold-bright); padding:5px 11px; border-radius:999px; border:1px solid rgba(203,167,95,.4); background:rgba(203,167,95,.08); }
+      .aip .aip-res-title h3 { font-weight:600; font-size:1.35rem; color:var(--aip-ink); letter-spacing:-.012em; }
+      .aip .aip-res-conf { text-align:right; font-size:.72rem; color:var(--aip-ink-3); letter-spacing:.04em; }
+      .aip .aip-res-conf b { color:var(--aip-ink); font-size:1.05rem; display:block; }
+      .aip .aip-res-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+      .aip .aip-metric { padding:16px 18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); }
+      .aip .aip-metric-k { font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--aip-ink-3); }
+      .aip .aip-metric-v { margin-top:8px; font-size:1.25rem; font-weight:600; color:var(--aip-ink); display:flex; align-items:center; gap:8px; font-variant-numeric:tabular-nums; }
+      .aip .aip-bar { margin-top:10px; height:6px; border-radius:99px; background:rgba(246,241,231,.08); overflow:hidden; }
+      .aip .aip-bar span { display:block; height:100%; border-radius:99px; background:var(--aip-gold-grad); width:0; transition:width 1s ease .15s; }
+
+      .aip .aip-section-eyebrow { color:var(--aip-gold); margin-bottom:12px; display:inline-flex; align-items:center; gap:8px; }
+      .aip .aip-amber { color:#e0a458; }
+      .aip .aip-amber-ic { color:#e0a458; flex:none; margin-top:4px; }
+      .aip .aip-summary { font-size:1rem; line-height:1.72; color:var(--aip-ink-2); }
+
+      .aip .aip-scenarios { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+      .aip .aip-scn { padding:17px 18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); border-top:2px solid var(--aip-gold); }
+      .aip .aip-scn.optimistic { border-top-color:var(--aip-up); }
+      .aip .aip-scn.base { border-top-color:var(--aip-gold); }
+      .aip .aip-scn.pessimistic { border-top-color:var(--aip-down); }
+      .aip .aip-scn-tag { font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--aip-ink-3); display:flex; align-items:center; gap:7px; }
+      .aip .aip-scn.optimistic .aip-scn-tag { color:var(--aip-up); }
+      .aip .aip-scn.pessimistic .aip-scn-tag { color:var(--aip-down); }
+      .aip .aip-scn.base .aip-scn-tag { color:var(--aip-gold-soft); }
+      .aip .aip-scn-pct { margin-top:11px; font-weight:600; font-size:1.5rem; color:var(--aip-ink); font-variant-numeric:tabular-nums; }
+      .aip .aip-scn-note { margin-top:7px; font-size:.85rem; color:var(--aip-ink-3); line-height:1.55; }
+
+      .aip .aip-twocol { display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+      .aip .aip-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:.92rem; color:var(--aip-ink-2); line-height:1.6; }
+      .aip .aip-list li { display:flex; gap:10px; }
+      .aip .aip-list-n { color:var(--aip-gold); font-size:.78rem; font-variant-numeric:tabular-nums; flex:none; margin-top:2px; }
+
+      .aip .aip-context { border-top:1px solid var(--aip-line-soft); padding-top:16px; }
+      .aip .aip-context summary { display:flex; align-items:center; justify-content:space-between; cursor:pointer; list-style:none; font-size:.74rem; letter-spacing:.18em; text-transform:uppercase; color:var(--aip-ink-3); }
+      .aip .aip-context summary::-webkit-details-marker { display:none; }
+      .aip .aip-context[open] summary svg { transform:rotate(180deg); }
+      .aip .aip-context summary svg { transition:transform .2s; }
+      .aip .aip-context pre { margin-top:12px; white-space:pre-wrap; font-size:.74rem; color:var(--aip-ink-3); background:rgba(255,255,255,.02); border:1px solid var(--aip-line-soft); border-radius:10px; padding:14px; line-height:1.55; }
+
+      .aip .aip-res-foot { font-size:.74rem; color:var(--aip-ink-4); display:flex; align-items:center; gap:8px; }
+      .aip .aip-err { display:flex; align-items:center; gap:10px; color:var(--aip-down); padding:14px 16px; border:1px solid rgba(219,130,120,.3); background:rgba(219,130,120,.06); border-radius:var(--aip-r-md); font-size:.9rem; }
+
+      /* disclaimer */
+      .aip .aip-disclaimer { margin-top:30px; display:flex; gap:16px; border:1px solid var(--aip-line); border-left:3px solid var(--aip-gold); border-radius:var(--aip-r-md); padding:20px 24px; background:linear-gradient(90deg, rgba(203,167,95,.05), transparent 60%); }
+      .aip .aip-disc-ic { flex:none; color:var(--aip-gold-soft); margin-top:2px; }
+      .aip .aip-disc-lbl { font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--aip-gold-soft); margin-bottom:7px; }
+      .aip .aip-disclaimer p { font-size:.92rem; line-height:1.65; color:var(--aip-ink-2); }
+      .aip .aip-disclaimer b { color:var(--aip-ink); font-weight:600; }
+
+      /* how */
+      .aip .aip-how { padding:74px 0 30px; }
+      .aip .aip-h2 { font-weight:600; font-size:clamp(1.8rem,3.6vw,2.4rem); letter-spacing:-.018em; color:var(--aip-ink); margin:18px 0 28px; max-width:680px; }
+      .aip .aip-how-body { max-width:720px; font-size:1rem; line-height:1.78; color:var(--aip-ink-2); }
+      .aip .aip-how-body b { color:var(--aip-ink); font-weight:600; }
+      .aip .aip-flow { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:38px; }
+      .aip .aip-flow-card { position:relative; padding:24px 22px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); }
+      .aip .aip-flow-n { font-size:.72rem; color:var(--aip-gold-soft); letter-spacing:.12em; font-variant-numeric:tabular-nums; }
+      .aip .aip-flow-ic { width:40px; height:40px; border-radius:11px; display:grid; place-items:center; margin:14px 0 16px; border:1px solid var(--aip-line); color:var(--aip-gold-bright); background:rgba(203,167,95,.06); }
+      .aip .aip-flow-card h4 { font-weight:600; font-size:1.1rem; color:var(--aip-ink); margin-bottom:8px; letter-spacing:-.012em; }
+      .aip .aip-flow-card p { font-size:.9rem; line-height:1.6; color:var(--aip-ink-3); }
+
+      /* faq */
+      .aip .aip-faq { padding:30px 0 60px; }
+      .aip .aip-faq-list { border-top:1px solid var(--aip-line-soft); border-bottom:1px solid var(--aip-line-soft); }
+      .aip .aip-faq-item { border-bottom:1px solid var(--aip-line-soft); padding:18px 0; }
+      .aip .aip-faq-item:last-child { border-bottom:none; }
+      .aip .aip-faq-item summary { display:flex; align-items:center; justify-content:space-between; cursor:pointer; list-style:none; gap:16px; font-weight:500; color:var(--aip-ink); font-size:1rem; }
+      .aip .aip-faq-item summary::-webkit-details-marker { display:none; }
+      .aip .aip-faq-item summary svg { color:var(--aip-ink-3); transition:transform .2s; flex:none; }
+      .aip .aip-faq-item[open] summary svg { transform:rotate(180deg); }
+      .aip .aip-faq-item p { margin-top:12px; font-size:.92rem; color:var(--aip-ink-3); line-height:1.65; }
+
+      /* responsive */
+      @media (max-width:920px) {
+        .aip .aip-cats { grid-template-columns:repeat(2,1fr); }
+        .aip .aip-assets { grid-template-columns:repeat(2,1fr); }
+        .aip .aip-res-metrics, .aip .aip-scenarios, .aip .aip-flow, .aip .aip-twocol { grid-template-columns:1fr; }
+      }
+      @media (max-width:680px) {
+        .aip .aip-shell { padding:0 18px 60px; }
+        .aip .aip-step { padding:26px 20px; }
+        .aip .aip-cta { flex-direction:column; align-items:stretch; padding:22px 20px; }
+        .aip .aip-btn { justify-content:center; }
+        .aip .aip-frames { grid-template-columns:1fr; }
+        .aip .aip-result { padding:26px 20px 32px; }
+        .aip .aip-disclaimer { flex-direction:column; gap:10px; }
+        .aip .aip-live { display:none; }
+      }
+      @media (max-width:430px) {
+        .aip .aip-cats, .aip .aip-assets { grid-template-columns:1fr; }
+      }
+    `}</style>
   );
 }
