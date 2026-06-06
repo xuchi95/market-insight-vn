@@ -155,7 +155,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
               template_name: 'magiclink',
               recipient_email: payload.data.email,
               status: 'sent',
-              provider_message_id: result.id ?? null,
+              metadata: { provider: 'postmark', provider_message_id: result.id ?? null },
             })
             console.log('Magic link sent via Postmark', {
               email_redacted: redactEmail(payload.data.email),
