@@ -53,41 +53,65 @@ async function measureGrid(page: Page) {
   });
 }
 
-test.describe("BentoTiles · gold mini dividers", () => {
-  for (const bp of BREAKPOINTS) {
-    test(`cân đối DOJI/PNJ/XAU ở ${bp.name}`, async ({ page }) => {
-      await page.setViewportSize({ width: bp.width, height: bp.height });
-      await page.goto("/", { waitUntil: "domcontentloaded" });
-      await page.waitForSelector('[data-testid="bento-gold-mini-grid"]', {
-        timeout: 15_000,
-      });
-      // Cho layout settle (font, hydration)
-      await page.waitForLoadState("networkidle").catch(() => {});
-      await page.waitForTimeout(200);
+const THEMES: Array<"light" | "dark"> = ["light", "dark"];
 
-      const m = await measureGrid(page);
-      expect(m, "không tìm thấy 3 ô GoldMini").not.toBeNull();
-      const { gridRect, cellRects } = m!;
-      const [a, b, c] = cellRects;
-
-      // 1. Width bằng nhau
-      expect(Math.abs(a.width - b.width)).toBeLessThanOrEqual(TOLERANCE_PX);
-      expect(Math.abs(b.width - c.width)).toBeLessThanOrEqual(TOLERANCE_PX);
-
-      // 2. Cùng hàng, cùng chiều cao
-      expect(Math.abs(a.top - b.top)).toBeLessThanOrEqual(TOLERANCE_PX);
-      expect(Math.abs(b.top - c.top)).toBeLessThanOrEqual(TOLERANCE_PX);
-      expect(Math.abs(a.height - b.height)).toBeLessThanOrEqual(TOLERANCE_PX);
-      expect(Math.abs(b.height - c.height)).toBeLessThanOrEqual(TOLERANCE_PX);
-
-      // 3. Hai divider dọc cách đều nhau (khoảng cách giữa các mép phải = width 1 ô)
-      const gap1 = b.right - a.right;
-      const gap2 = c.right - b.right;
-      expect(Math.abs(gap1 - gap2)).toBeLessThanOrEqual(TOLERANCE_PX);
-
-      // 4. Tổng 3 ô lấp kín chiều ngang grid (không lệch trái/phải)
-      expect(Math.abs(a.x - gridRect.x)).toBeLessThanOrEqual(TOLERANCE_PX);
-      expect(Math.abs(c.right - gridRect.right)).toBeLessThanOrEqual(TOLERANCE_PX);
+for (const theme of THEMES) {
+  test.describe(`BentoTiles · gold mini dividers · ${theme} mode`, () => {
+    test.beforeEach(async ({ context }) => {
+      // Seed localStorage trước khi app khởi động để ThemeProvider pick up
+      // đúng theme ngay từ first paint (tránh flash + tránh layout shift do
+      // theme đổi sau hydration).
+      await context.addInitScript((t) => {
+        try {
+          window.localStorage.setItem("mw-theme", t as string);
+        } catch {}
+      }, theme);
     });
-  }
-});
+
+    for (const bp of BREAKPOINTS) {
+      test(`cân đối DOJI/PNJ/XAU ở ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await page.waitForSelector('[data-testid="bento-gold-mini-grid"]', {
+          timeout: 15_000,
+        });
+        // Xác nhận theme đã apply (class trên <html>) để chắc chắn đang test
+        // đúng dark/light mode chứ không phải fallback.
+        await page.waitForFunction(
+          (t) => document.documentElement.classList.contains(t as string),
+          theme,
+          { timeout: 5_000 },
+        );
+        // Cho layout settle (font, hydration)
+        await page.waitForLoadState("networkidle").catch(() => {});
+        await page.waitForTimeout(200);
+
+        const m = await measureGrid(page);
+        expect(m, "không tìm thấy 3 ô GoldMini").not.toBeNull();
+        const { gridRect, cellRects } = m!;
+        const [a, b, c] = cellRects;
+
+        // 1. Width bằng nhau
+        expect(Math.abs(a.width - b.width)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(b.width - c.width)).toBeLessThanOrEqual(TOLERANCE_PX);
+
+        // 2. Cùng hàng, cùng chiều cao
+        expect(Math.abs(a.top - b.top)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(b.top - c.top)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(a.height - b.height)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(b.height - c.height)).toBeLessThanOrEqual(TOLERANCE_PX);
+
+        // 3. Hai divider dọc cách đều nhau
+        const gap1 = b.right - a.right;
+        const gap2 = c.right - b.right;
+        expect(Math.abs(gap1 - gap2)).toBeLessThanOrEqual(TOLERANCE_PX);
+
+        // 4. Tổng 3 ô lấp kín chiều ngang grid
+        expect(Math.abs(a.x - gridRect.x)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(c.right - gridRect.right)).toBeLessThanOrEqual(
+          TOLERANCE_PX,
+        );
+      });
+    }
+  });
+}
