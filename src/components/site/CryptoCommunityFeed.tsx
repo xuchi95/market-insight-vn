@@ -24,7 +24,9 @@ interface NewsPayload {
 async function fetchCryptoNews(symbol: string): Promise<NewsPayload> {
   const u = new URL("/api/public/crypto-news", window.location.origin);
   if (symbol) u.searchParams.set("category", symbol.toUpperCase());
-  const r = await fetch(u.toString());
+  // cache: "no-cache" buộc trình duyệt revalidate, tránh phục vụ payload
+  // rỗng còn sót lại từ nguồn tin cũ.
+  const r = await fetch(u.toString(), { cache: "no-cache" });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
