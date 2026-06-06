@@ -927,14 +927,6 @@ function RangeTabs({ value, onValueChange }: { value: string; onValueChange: (v:
   );
 }
 
-function _StatLegacy({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-[color-mix(in_oklab,var(--gold)_12%,var(--border))] bg-muted/30 p-3 transition-colors hover:border-[color-mix(in_oklab,var(--gold)_28%,var(--border))]">
-      <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
-      <div className="font-semibold tabular mt-1">{value}</div>
-    </div>
-  );
-}
 
 function ChangeCard({ label, value }: { label: string; value: number | null | undefined }) {
   const has = typeof value === "number" && isFinite(value);
