@@ -163,16 +163,71 @@ async function fetchGoogleNews(query: string, locale: { hl: string; gl: string; 
   }
 }
 
+// ---- CoinMarketCap content endpoint ----
+// Requires CMC_API_KEY (CoinMarketCap Pro). Endpoint: /v1/content/latest
+// Docs: https://coinmarketcap.com/api/documentation/v1/#operation/getV1ContentLatest
+async function fetchCoinMarketCap(symbol: string): Promise<NewsPayload["items"]> {
+  const key = process.env.CMC_API_KEY || process.env.COINMARKETCAP_API_KEY;
+  if (!key || !symbol) return [];
+  const u = new URL("https://pro-api.coinmarketcap.com/v1/content/latest");
+  u.searchParams.set("symbol", symbol);
+  u.searchParams.set("limit", "20");
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  try {
+    const r = await fetch(u, {
+      signal: ctrl.signal,
+      headers: { "X-CMC_PRO_API_KEY": key, accept: "application/json" },
+    });
+    if (!r.ok) throw new Error(`cmc ${r.status}`);
+    const json = (await r.json()) as {
+      data?: Array<{
+        slug?: string;
+        title?: string;
+        subtitle?: string;
+        cover?: string;
+        source_name?: string;
+        source_url?: string;
+        released_at?: string;
+        type?: string;
+        assets?: Array<{ symbol?: string }>;
+      }>;
+    };
+    const items: NewsPayload["items"] = [];
+    for (const it of json.data ?? []) {
+      const url = (it.source_url || "").trim();
+      const title = (it.title || "").trim();
+      if (!url || !title) continue;
+      const publishedAt = it.released_at ? Date.parse(it.released_at) : 0;
+      items.push({
+        id: `cmc:${it.slug || url}`,
+        title,
+        url,
+        body: (it.subtitle || "").slice(0, 280),
+        image: it.cover || "",
+        source: it.source_name || "CoinMarketCap",
+        sourceImage: "",
+        publishedAt: Number.isFinite(publishedAt) ? publishedAt : 0,
+        tags: ["cmc", it.type || "news"],
+      });
+    }
+    return items;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function fetchNews(category: string): Promise<NewsPayload> {
   const q = buildQuery(category);
   const results = await Promise.allSettled([
+    fetchCoinMarketCap(category),
     fetchGoogleNews(q, { hl: "vi", gl: "VN", ceid: "VN:vi" }),
     fetchGoogleNews(q, { hl: "en-US", gl: "US", ceid: "US:en" }),
   ]);
   const merged: NewsPayload["items"] = [];
   for (const r of results) if (r.status === "fulfilled") merged.push(...r.value);
 
-  // Dedupe by normalized title.
+  // Dedupe by normalized title. CMC items come first so they win when duplicated.
   const seen = new Set<string>();
   const deduped: NewsPayload["items"] = [];
   for (const it of merged) {
