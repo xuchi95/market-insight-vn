@@ -790,26 +790,24 @@ function AssetDetail() {
               )}
             </div>
 
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
+            <div className="relative rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ giá</h2>
-                {chartFetching && !chartLoading && (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                {(chartFetching || chartLoading) && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--gold)]" />
                 )}
-                {chartUpdatedAt > 0 && !chartError && (
+                {chartUpdatedAt > 0 && !chartError && !chartFetching && (
                   <span className="text-[11px] text-muted-foreground hidden sm:inline">
                     Cập nhật {new Date(chartUpdatedAt).toLocaleTimeString("vi-VN")}
                   </span>
                 )}
-                <Tabs value={range} onValueChange={setRange} className="ml-auto">
-                  <TabsList className="h-9">
-                    <TabsTrigger value="1">24h</TabsTrigger>
-                    <TabsTrigger value="7">7 ngày</TabsTrigger>
-                    <TabsTrigger value="30">30 ngày</TabsTrigger>
-                    <TabsTrigger value="90">90 ngày</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <RangeTabs value={range} onValueChange={setRange} />
               </div>
+              {(chartFetching || chartLoading) && (
+                <div className="absolute left-0 right-0 top-[57px] h-0.5 overflow-hidden">
+                  <div className="h-full w-1/3 bg-[var(--gold)]/70 animate-[slide_1.2s_ease-in-out_infinite]" />
+                </div>
+              )}
               <div className="h-80 w-full p-4">
                 {chartLoading ? (
                   <div className="h-full w-full space-y-3">
