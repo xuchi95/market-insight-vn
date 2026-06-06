@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -105,6 +105,23 @@ function ApiKeyRequestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const email = data.user?.email;
+      const fullName =
+        (data.user?.user_metadata?.full_name as string | undefined) ||
+        (data.user?.user_metadata?.name as string | undefined) ||
+        "";
+      if (email) {
+        setForm((prev) => ({
+          ...prev,
+          email: prev.email || email,
+          full_name: prev.full_name || fullName,
+        }));
+      }
+    });
+  }, []);
 
   function setField<K extends keyof FormState>(k: K, v: FormState[K]) {
     setForm((prev) => ({ ...prev, [k]: v }));
