@@ -259,44 +259,24 @@ export function Ticker() {
   const Row = () => (
     <div className="flex shrink-0 gap-10 px-5 text-xs font-medium tracking-[0.14em] uppercase">
       {ticks.map((t, i) => (
-        <Tooltip key={i}>
-          <TooltipTrigger asChild>
-            <Link
-              to={t.href}
-              className="flex cursor-pointer items-center gap-2 select-none rounded-sm transition-colors hover:text-foreground"
-            >
-              <span className="text-foreground/90">{t.label}</span>
-              <span className="tabular text-[var(--gold-light)]">{t.value}</span>
-              <span className={t.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}>
-                {t.changePct >= 0 ? "+" : ""}
-                {t.changePct.toFixed(2)}%
-              </span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent
-            side="bottom"
-            className="z-[80] w-56 border border-border bg-[var(--background)] p-0 text-foreground shadow-lg shadow-background/40"
-          >
-            <div className="px-3 py-2 border-b border-border bg-card/80">
-              <span className="text-xs font-semibold text-foreground">{t.label}</span>
-            </div>
-            <div className="px-3 py-2 space-y-1">
-              {t.details.map((d, idx) => (
-                <div key={idx} className="flex justify-between text-xs">
-                  <span className="text-foreground/75">{d.label}</span>
-                  <span className="tabular text-foreground">{d.value}</span>
-                </div>
-              ))}
-            </div>
-          </TooltipContent>
-        </Tooltip>
+        <Link
+          key={i}
+          to={t.href}
+          className="flex cursor-pointer items-center gap-2 select-none rounded-sm transition-colors hover:text-foreground"
+        >
+          <span className="text-foreground/90">{t.label}</span>
+          <span className="tabular text-[var(--gold-light)]">{t.value}</span>
+          <span className={t.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}>
+            {t.changePct >= 0 ? "+" : ""}
+            {t.changePct.toFixed(2)}%
+          </span>
+        </Link>
       ))}
     </div>
   );
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="ticker-marquee group relative flex items-stretch overflow-hidden border-y border-border bg-card/60">
+    <div className="ticker-marquee group relative flex items-stretch overflow-hidden border-y border-border bg-card/60">
         {/* Đồng hồ độc lập — không cuộn cùng marquee */}
         <div
           className="relative z-10 flex shrink-0 items-center gap-2 border-r border-border bg-card/80 px-3 py-2.5 text-[11px] font-medium tabular text-muted-foreground"
