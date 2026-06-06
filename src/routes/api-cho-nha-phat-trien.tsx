@@ -106,7 +106,7 @@ function DeveloperApiPage() {
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
-            to="/lien-he"
+            to="/yeu-cau-api-key"
             className="inline-flex items-center gap-2 rounded-md bg-[var(--gold)] px-4 py-2 text-sm font-medium text-background hover:opacity-90"
           >
             Yêu cầu API key →
