@@ -111,6 +111,43 @@ for (const theme of THEMES) {
         expect(Math.abs(c.right - gridRect.right)).toBeLessThanOrEqual(
           TOLERANCE_PX,
         );
+
+        // 5. Bấm nút Dark/Light toggle trong Header rồi đo lại để chắc
+        // chắn theme switch không gây layout shift / lệch divider.
+        const toggle = page
+          .locator('button[aria-pressed]:visible')
+          .first();
+        await toggle.waitFor({ state: "visible", timeout: 5_000 });
+        const otherTheme = theme === "dark" ? "light" : "dark";
+        await toggle.click();
+        await page.waitForFunction(
+          (t) => document.documentElement.classList.contains(t as string),
+          otherTheme,
+          { timeout: 5_000 },
+        );
+        await page.waitForTimeout(200);
+
+        const m2 = await measureGrid(page);
+        expect(m2, "không tìm thấy 3 ô GoldMini sau khi đổi theme").not.toBeNull();
+        const { gridRect: g2, cellRects: cr2 } = m2!;
+        const [a2, b2, c2] = cr2;
+
+        expect(Math.abs(a2.width - b2.width)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(b2.width - c2.width)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(a2.top - b2.top)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(b2.top - c2.top)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(a2.height - b2.height)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(b2.height - c2.height)).toBeLessThanOrEqual(TOLERANCE_PX);
+        const gap1b = b2.right - a2.right;
+        const gap2b = c2.right - b2.right;
+        expect(Math.abs(gap1b - gap2b)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(a2.x - g2.x)).toBeLessThanOrEqual(TOLERANCE_PX);
+        expect(Math.abs(c2.right - g2.right)).toBeLessThanOrEqual(TOLERANCE_PX);
+
+        // Width grid không được thay đổi sau toggle (không scrollbar shift).
+        expect(Math.abs(g2.width - gridRect.width)).toBeLessThanOrEqual(
+          TOLERANCE_PX,
+        );
       });
     }
   });
