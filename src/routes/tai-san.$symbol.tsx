@@ -523,18 +523,19 @@ function AssetDetail() {
               <ChangeCard label={`Biến động ${rangeLabel}`} value={oilStats?.changePct ?? null} />
             </div>
 
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
+            <div className="relative rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Lịch sử giá {oil.nameVi}</h2>
-                <Tabs value={range} onValueChange={setRange} className="ml-auto">
-                  <TabsList className="h-9">
-                    <TabsTrigger value="1">24h</TabsTrigger>
-                    <TabsTrigger value="7">7 ngày</TabsTrigger>
-                    <TabsTrigger value="30">30 ngày</TabsTrigger>
-                    <TabsTrigger value="90">90 ngày</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                {oilHistLoading && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--gold)]" />
+                )}
+                <RangeTabs value={range} onValueChange={setRange} />
               </div>
+              {oilHistLoading && (
+                <div className="absolute left-0 right-0 top-[57px] h-0.5 overflow-hidden">
+                  <div className="h-full w-1/3 bg-[var(--gold)]/70 animate-[slide_1.2s_ease-in-out_infinite]" />
+                </div>
+              )}
               <div className="h-80 w-full p-4">
                 {oilHistLoading ? (
                   <Skeleton className="h-full w-full" />
@@ -789,26 +790,24 @@ function AssetDetail() {
               )}
             </div>
 
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
+            <div className="relative rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
               <div className="flex items-center gap-3 p-4 border-b border-border">
                 <h2 className="font-bold">Biểu đồ giá</h2>
-                {chartFetching && !chartLoading && (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                {(chartFetching || chartLoading) && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--gold)]" />
                 )}
-                {chartUpdatedAt > 0 && !chartError && (
+                {chartUpdatedAt > 0 && !chartError && !chartFetching && (
                   <span className="text-[11px] text-muted-foreground hidden sm:inline">
                     Cập nhật {new Date(chartUpdatedAt).toLocaleTimeString("vi-VN")}
                   </span>
                 )}
-                <Tabs value={range} onValueChange={setRange} className="ml-auto">
-                  <TabsList className="h-9">
-                    <TabsTrigger value="1">24h</TabsTrigger>
-                    <TabsTrigger value="7">7 ngày</TabsTrigger>
-                    <TabsTrigger value="30">30 ngày</TabsTrigger>
-                    <TabsTrigger value="90">90 ngày</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <RangeTabs value={range} onValueChange={setRange} />
               </div>
+              {(chartFetching || chartLoading) && (
+                <div className="absolute left-0 right-0 top-[57px] h-0.5 overflow-hidden">
+                  <div className="h-full w-1/3 bg-[var(--gold)]/70 animate-[slide_1.2s_ease-in-out_infinite]" />
+                </div>
+              )}
               <div className="h-80 w-full p-4">
                 {chartLoading ? (
                   <div className="h-full w-full space-y-3">
@@ -903,6 +902,31 @@ function Stat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function RangeTabs({ value, onValueChange }: { value: string; onValueChange: (v: string) => void }) {
+  const opts = [
+    { v: "1", l: "24h" },
+    { v: "7", l: "7 ngày" },
+    { v: "30", l: "30 ngày" },
+    { v: "90", l: "90 ngày" },
+  ];
+  return (
+    <Tabs value={value} onValueChange={onValueChange} className="ml-auto">
+      <TabsList className="h-9 rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card/60 p-1 gap-0.5">
+        {opts.map((o) => (
+          <TabsTrigger
+            key={o.v}
+            value={o.v}
+            className="rounded-xl text-xs px-3 data-[state=active]:bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] data-[state=active]:text-[var(--gold)] data-[state=active]:border data-[state=active]:border-[color-mix(in_oklab,var(--gold)_40%,transparent)] data-[state=active]:shadow-none"
+          >
+            {o.l}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
+  );
+}
+
 
 function ChangeCard({ label, value }: { label: string; value: number | null | undefined }) {
   const has = typeof value === "number" && isFinite(value);
