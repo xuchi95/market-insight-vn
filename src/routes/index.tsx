@@ -91,7 +91,7 @@ function Index() {
           <section className="pb-10 md:pb-14">
             <Link
               to="/du-doan-gia-ai"
-              className="group block rounded-2xl border border-[var(--gold)]/40 bg-[color-mix(in_oklab,var(--gold)_8%,var(--background))] p-6 md:p-8 transition-colors hover:bg-[color-mix(in_oklab,var(--gold)_14%,var(--background))]"
+              className="group block rounded-2xl border-2 border-[var(--gold)]/70 bg-[color-mix(in_oklab,var(--gold)_18%,var(--background))] p-6 md:p-8 shadow-[0_10px_30px_-12px_color-mix(in_oklab,var(--gold)_55%,transparent)] ring-1 ring-[var(--gold)]/25 transition-colors hover:bg-[color-mix(in_oklab,var(--gold)_24%,var(--background))]"
             >
               <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
                 <div className="flex-1">
