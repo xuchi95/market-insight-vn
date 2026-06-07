@@ -29,6 +29,8 @@ export const Route = createFileRoute("/lai-suat-tiet-kiem")({
       { name: "keywords", content: "lãi suất tiết kiệm, lãi suất gửi tiết kiệm, lãi suất ngân hàng, vietcombank, bidv, techcombank, mb bank, lãi suất 12 tháng" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "vi_VN" },

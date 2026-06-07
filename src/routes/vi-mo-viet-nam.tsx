@@ -138,6 +138,8 @@ export const Route = createFileRoute("/vi-mo-viet-nam")({
       { name: "keywords", content: "kinh tế vĩ mô việt nam, gdp việt nam, lạm phát cpi, lãi suất sbv, lãi suất điều hành, lãi suất tái cấp vốn, tỷ giá trung tâm, dự trữ ngoại hối, xuất nhập khẩu, gso, world bank, imf" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "vi_VN" },

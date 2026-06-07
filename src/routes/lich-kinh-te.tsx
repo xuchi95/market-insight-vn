@@ -22,8 +22,11 @@ export const Route = createFileRoute("/lich-kinh-te")({
       { name: "keywords", content: "lịch kinh tế, lịch fed, cuộc họp fomc, cpi mỹ, nfp, lãi suất ecb, sự kiện kinh tế ảnh hưởng vàng" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "vi_VN" },
     ],
     links: [{ rel: "canonical", href: URL }],
     scripts: [

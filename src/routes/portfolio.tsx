@@ -34,6 +34,8 @@ export const Route = createFileRoute("/portfolio")({
       { name: "robots", content: "noindex,nofollow" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
     ],
   }),
   component: PortfolioPage,

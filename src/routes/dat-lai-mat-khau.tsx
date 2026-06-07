@@ -19,6 +19,8 @@ export const Route = createFileRoute("/dat-lai-mat-khau")({
       { name: "description", content: DESC },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
       { property: "og:url", content: PAGE_URL },
       { name: "robots", content: "noindex,nofollow" },
     ],

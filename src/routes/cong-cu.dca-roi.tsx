@@ -23,8 +23,11 @@ export const Route = createFileRoute("/cong-cu/dca-roi")({
       { name: "keywords", content: "máy tính dca, dca bitcoin, dca vàng, công cụ tính roi, tính lợi nhuận đầu tư crypto" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "vi_VN" },
     ],
     links: [{ rel: "canonical", href: URL }],
     scripts: [
