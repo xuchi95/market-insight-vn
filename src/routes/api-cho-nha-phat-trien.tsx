@@ -1,23 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Code2, Radio, Zap, KeyRound, Package, BookOpen } from "lucide-react";
 
+const API_TITLE = "API & SDK realtime cho nhà phát triển — MarketWatch";
+const API_DESC = "Tích hợp giá vàng, tiền điện tử, xăng dầu và chứng khoán Việt Nam vào website của bạn qua REST, SSE realtime và SDK TypeScript chính thức.";
+const API_URL = "https://marketwatch.vn/api-cho-nha-phat-trien";
+
 export const Route = createFileRoute("/api-cho-nha-phat-trien")({
   head: () => ({
     meta: [
-      { title: "API & SDK realtime cho nhà phát triển — MarketWatch" },
-      {
-        name: "description",
-        content:
-          "Tích hợp giá vàng, tiền điện tử, xăng dầu và chứng khoán Việt Nam vào website của bạn qua REST, SSE realtime và SDK TypeScript chính thức.",
-      },
-      { property: "og:title", content: "API & SDK realtime — MarketWatch" },
-      {
-        property: "og:description",
-        content:
-          "REST snapshot, SSE stream và SDK @marketwatch/sdk để tích hợp dữ liệu thị trường Việt Nam vào website của bạn.",
-      },
-      { property: "og:url", content: "https://marketwatch.vn/api-cho-nha-phat-trien" },
+      { title: API_TITLE },
+      { name: "description", content: API_DESC },
+      { name: "keywords", content: "api giá vàng, api crypto, api tỷ giá, api chứng khoán, sse realtime, sdk typescript, marketwatch api, dữ liệu tài chính việt nam" },
+      { property: "og:title", content: API_TITLE },
+      { property: "og:description", content: API_DESC },
+      { name: "twitter:title", content: API_TITLE },
+      { name: "twitter:description", content: API_DESC },
+      { property: "og:url", content: API_URL },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "vi_VN" },
     ],
     links: [
       { rel: "canonical", href: "https://marketwatch.vn/api-cho-nha-phat-trien" },
