@@ -20,6 +20,8 @@ export const Route = createFileRoute("/quen-mat-khau")({
       { name: "description", content: DESC },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESC },
       { property: "og:url", content: URL },
       { name: "robots", content: "noindex,follow" },
     ],
