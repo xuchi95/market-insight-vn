@@ -77,7 +77,7 @@ function StocksPage() {
       <Header />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-5">
-          <div className="pt-6"><Breadcrumbs /></div>
+          <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
             eyebrow="Chứng khoán · Phiên giao dịch"
             title={<><em className="not-italic text-[var(--gold)]">VN-Index</em> hôm nay — Chỉ số chứng khoán Việt Nam</>}
