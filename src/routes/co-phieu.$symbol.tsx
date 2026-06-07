@@ -2,13 +2,12 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { AlertTriangle, ExternalLink, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
+import { AlertTriangle, ExternalLink, RefreshCw } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { ChangeBadge } from "@/components/site/ChangeBadge";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
-import { SectionCard } from "@/components/site/SectionCard";
+import { AssetHero, KpiStrip, Panel, SectionLabel, StatRow, ChartError, ChartEmpty } from "@/components/site/AssetShell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fmtNum, fmtTime } from "@/lib/format";
@@ -217,135 +216,190 @@ function StockDetail() {
 
         {data && (
           <>
-            <header className="rounded-2xl border border-border bg-card p-6 space-y-5">
-              <div className="flex flex-wrap items-start gap-4">
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-gold">
-                    Cổ phiếu {SYM}
-                    {data.shortName && <span className="text-foreground"> · {data.shortName}</span>}
-                  </h1>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {data.companyName ?? "—"}
-                    {data.exchange && <> · Sàn <strong>{data.exchange}</strong></>}
-                    {data.industry && <> · Ngành {data.industry}</>}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-4xl font-bold tabular-nums tracking-tight">{fmtPrice(data.price)}</div>
-                  <div className={cn("text-sm tabular-nums", positive ? "text-[var(--up)]" : "text-[var(--down)]")}>
-                    {data.change !== null && (data.change >= 0 ? "+" : "")}{data.change !== null ? fmtNum(data.change, 2) : "—"} ·{" "}
-                    <ChangeBadge value={data.changePct ?? 0} className="text-xs px-2 py-0.5 inline-flex" />
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">nghìn VND/cổ phiếu · cập nhật {fmtTime(data.fetchedAt)}</div>
-                </div>
-              </div>
+            <AssetHero
+              eyebrow="Cổ phiếu Việt Nam"
+              logo={<span className="text-base font-extrabold tracking-tight">{SYM.slice(0, 3)}</span>}
+              title={data.shortName || data.companyName || `Cổ phiếu ${SYM}`}
+              pills={[SYM, data.exchange ?? "HOSE"]}
+              meta={[
+                ...(data.companyName ? [{ k: "Công ty", v: data.companyName }] : []),
+                ...(data.industry ? [{ k: "Ngành", v: data.industry }] : []),
+                { k: "Cập nhật", v: fmtTime(data.fetchedAt) },
+              ]}
+              price={fmtPrice(data.price)}
+              priceSuffix="nghìn ₫"
+              changePct={data.changePct}
+              subPrice={
+                data.change !== null
+                  ? `${data.change >= 0 ? "+" : ""}${fmtNum(data.change, 2)} so với tham chiếu`
+                  : undefined
+              }
+              subPriceTone={positive ? "up" : "down"}
+            />
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <Stat label="Mở cửa" value={fmtPrice(data.open)} />
-                <Stat label="Tham chiếu" value={fmtPrice(data.prevClose)} />
-                <Stat label="Cao nhất" value={fmtPrice(data.high)} />
-                <Stat label="Thấp nhất" value={fmtPrice(data.low)} />
-                <Stat label="KLGD" value={fmtInt(data.volume)} />
-                <Stat label="Vốn hoá" value={fmtMarketCap(data.marketCap)} />
-                <Stat label="P/E" value={data.pe !== null ? data.pe.toFixed(2) : "—"} highlight />
-                <Stat label="EPS" value={data.eps !== null ? fmtNum(data.eps, 0) : "—"} highlight />
-              </div>
-            </header>
+            <KpiStrip
+              cells={[
+                { k: "Mở cửa", v: fmtPrice(data.open) },
+                { k: "Tham chiếu", v: fmtPrice(data.prevClose) },
+                { k: "Cao nhất phiên", v: fmtPrice(data.high) },
+                { k: "Thấp nhất phiên", v: fmtPrice(data.low) },
+                { k: "Khối lượng", v: fmtInt(data.volume) },
+                { k: "Vốn hoá", v: fmtMarketCap(data.marketCap) },
+              ]}
+            />
 
-            <SectionCard title={`Biểu đồ giá ${SYM}`}>
-              <div className="p-4 space-y-4">
-                <Tabs value={String(days)} onValueChange={(v) => setDays(Number(v))}>
-                  <TabsList className="h-9">
-                    {RANGES.map((r) => (
-                      <TabsTrigger key={r.days} value={String(r.days)}>{r.label}</TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
-                <div className="h-80 w-full">
-                  {chartLoading ? (
-                    <Skeleton className="h-full w-full" />
-                  ) : chartError || !chart?.points?.length ? (
-                    <div className="h-full flex flex-col items-center justify-center gap-3">
-                      <AlertTriangle className="h-8 w-8 text-[var(--down)]" />
-                      <div className="text-sm font-semibold">Không tải được biểu đồ</div>
-                      <button onClick={() => refetchChart()} className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted/40">
-                        <RefreshCw className="h-3 w-3" /> Thử lại
-                      </button>
+            <div className="rise d3 mt-5 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_348px] gap-5 items-start">
+              {/* LEFT column */}
+              <div className="flex flex-col gap-5 min-w-0">
+                <Panel>
+                  <SectionLabel
+                    title={`Biểu đồ giá ${SYM}`}
+                    sub={chart?.source}
+                    right={
+                      <Tabs value={String(days)} onValueChange={(v) => setDays(Number(v))} className="ml-auto">
+                        <TabsList className="h-9 rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card/60 p-1 gap-0.5">
+                          {RANGES.map((r) => (
+                            <TabsTrigger
+                              key={r.days}
+                              value={String(r.days)}
+                              className="rounded-xl text-xs px-3 data-[state=active]:bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] data-[state=active]:text-[var(--gold)] data-[state=active]:border data-[state=active]:border-[color-mix(in_oklab,var(--gold)_40%,transparent)] data-[state=active]:shadow-none"
+                            >
+                              {r.label}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                      </Tabs>
+                    }
+                  />
+                  <div className="h-80 w-full p-4">
+                    {chartLoading ? (
+                      <Skeleton className="h-full w-full" />
+                    ) : chartError ? (
+                      <ChartError onRetry={() => refetchChart()} />
+                    ) : !chart?.points?.length ? (
+                      <ChartEmpty />
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chart.points}>
+                          <defs>
+                            <linearGradient id="stockGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="var(--gold)" stopOpacity={0.35} />
+                              <stop offset="100%" stopColor="var(--gold)" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                          <XAxis
+                            dataKey="t"
+                            tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
+                            stroke="var(--muted-foreground)"
+                            fontSize={11}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis stroke="var(--muted-foreground)" fontSize={11} domain={["auto", "auto"]} tickLine={false} axisLine={false} width={56} />
+                          <Tooltip
+                            contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
+                            labelFormatter={(t) => new Date(t).toLocaleDateString("vi-VN")}
+                            formatter={(v: number) => [fmtNum(v, 2), SYM]}
+                          />
+                          <Area type="monotone" dataKey="v" stroke="var(--gold)" strokeWidth={2} fill="url(#stockGrad)" isAnimationActive={false} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    )}
+                  </div>
+                  {stats && (
+                    <div className="border-t border-border grid grid-cols-3 divide-x divide-border">
+                      <MiniStat label={`Cao nhất ${days}N`} value={fmtNum(stats.max, 2)} />
+                      <MiniStat label={`Thấp nhất ${days}N`} value={fmtNum(stats.min, 2)} />
+                      <MiniStat
+                        label={`Biến động ${days}N`}
+                        value={`${stats.changePct >= 0 ? "+" : ""}${stats.changePct.toFixed(2)}%`}
+                        tone={stats.changePct >= 0 ? "up" : "down"}
+                      />
                     </div>
-                  ) : (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={chart.points}>
-                        <defs>
-                          <linearGradient id="stockGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="var(--gold)" stopOpacity={0.4} />
-                            <stop offset="100%" stopColor="var(--gold)" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.4} />
-                        <XAxis
-                          dataKey="t"
-                          tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
-                          stroke="var(--muted-foreground)"
-                          fontSize={11}
-                        />
-                        <YAxis stroke="var(--muted-foreground)" fontSize={11} domain={["auto", "auto"]} />
-                        <Tooltip
-                          contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
-                          labelFormatter={(t) => new Date(t).toLocaleDateString("vi-VN")}
-                          formatter={(v: number) => [fmtNum(v, 2), `${SYM}`]}
-                        />
-                        <Area type="monotone" dataKey="v" stroke="var(--gold)" strokeWidth={2} fill="url(#stockGrad)" />
-                      </AreaChart>
-                    </ResponsiveContainer>
                   )}
-                </div>
-                {stats && (
-                  <div className="grid grid-cols-3 gap-3 text-sm">
-                    <Stat label={`Cao nhất ${days}N`} value={fmtNum(stats.max, 2)} />
-                    <Stat label={`Thấp nhất ${days}N`} value={fmtNum(stats.min, 2)} />
-                    <Stat label={`Biến động ${days}N`} value={`${stats.changePct >= 0 ? "+" : ""}${stats.changePct.toFixed(2)}%`} />
+                </Panel>
+
+                <Panel className="rise d4">
+                  <SectionLabel title={`Về cổ phiếu ${SYM}`} />
+                  <div className="p-5 space-y-3 text-sm text-muted-foreground leading-relaxed">
+                    <p>
+                      <strong className="text-foreground">{SYM}</strong>
+                      {data.companyName ? ` (${data.companyName})` : ""} là cổ phiếu niêm yết trên sàn{" "}
+                      <strong className="text-foreground">{data.exchange ?? "HOSE/HNX/UPCOM"}</strong>
+                      {data.industry ? `, thuộc ngành ${data.industry}` : ""}. Trang này cập nhật{" "}
+                      <strong className="text-foreground">giá {SYM} realtime</strong>, các chỉ số định giá quan trọng (
+                      <strong className="text-foreground">P/E</strong>, <strong className="text-foreground">EPS</strong>,{" "}
+                      <strong className="text-foreground">P/B</strong>, <strong className="text-foreground">ROE</strong>,{" "}
+                      <strong className="text-foreground">ROA</strong>) và biểu đồ kỹ thuật {SYM} 7-365 phiên gần nhất.
+                    </p>
+                    <p>
+                      Theo dõi đồng thời với <Link to="/chung-khoan" className="text-[var(--gold)] hover:underline">chỉ số VN-Index</Link>,{" "}
+                      <Link to="/vi-mo-viet-nam" className="text-[var(--gold)] hover:underline">vĩ mô Việt Nam</Link> và{" "}
+                      <Link to="/lich-kinh-te" className="text-[var(--gold)] hover:underline">lịch kinh tế</Link> để đánh giá bối cảnh đầu tư.
+                    </p>
+                    {data.website && (
+                      <p className="text-xs">
+                        Website công ty:{" "}
+                        <a
+                          href={data.website.startsWith("http") ? data.website : `https://${data.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[var(--gold)] hover:underline inline-flex items-center gap-1"
+                        >
+                          {data.website} <ExternalLink className="h-3 w-3" />
+                        </a>
+                        {data.established && <> · Thành lập {data.established}</>}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {["Cổ phiếu", data.exchange ?? "HOSE", data.industry ?? "Niêm yết", "Realtime"].filter(Boolean).map((t) => (
+                        <span key={t} className="text-xs font-semibold text-muted-foreground bg-muted/40 border border-border px-2.5 py-1 rounded-md">{t}</span>
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-muted-foreground/70 italic pt-1">
+                      Nguồn dữ liệu: {data.source} + VNDirect dchart. Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
+                    </p>
                   </div>
-                )}
+                </Panel>
               </div>
-            </SectionCard>
 
-            <SectionCard title="Chỉ số tài chính cơ bản">
-              <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-                <Stat label="P/E" value={data.pe !== null ? data.pe.toFixed(2) : "—"} />
-                <Stat label="EPS (VND)" value={data.eps !== null ? fmtNum(data.eps, 0) : "—"} />
-                <Stat label="P/B" value={data.pb !== null ? data.pb.toFixed(2) : "—"} />
-                <Stat label="BVPS (VND)" value={data.bvps !== null ? fmtNum(data.bvps, 0) : "—"} />
-                <Stat label="ROE" value={fmtPct(data.roe !== null ? data.roe * 100 : null)} />
-                <Stat label="ROA" value={fmtPct(data.roa !== null ? data.roa * 100 : null)} />
-                <Stat label="Vốn hoá" value={fmtMarketCap(data.marketCap)} />
-                <Stat label="Số nhân viên" value={fmtInt(data.employees)} />
-              </div>
-            </SectionCard>
+              {/* RIGHT sidebar */}
+              <aside className="flex flex-col gap-5 lg:sticky lg:top-20">
+                <Panel className="rise d4">
+                  <SectionLabel title="Chỉ số tài chính" />
+                  <div className="px-5 py-2">
+                    <StatRow k="P/E" v={data.pe !== null ? data.pe.toFixed(2) : "—"} />
+                    <StatRow k="EPS (VND)" v={data.eps !== null ? fmtNum(data.eps, 0) : "—"} />
+                    <StatRow k="P/B" v={data.pb !== null ? data.pb.toFixed(2) : "—"} />
+                    <StatRow k="BVPS (VND)" v={data.bvps !== null ? fmtNum(data.bvps, 0) : "—"} />
+                    <StatRow k="ROE" v={fmtPct(data.roe !== null ? data.roe * 100 : null)} />
+                    <StatRow k="ROA" v={fmtPct(data.roa !== null ? data.roa * 100 : null)} />
+                    <StatRow k="Vốn hoá" v={fmtMarketCap(data.marketCap)} />
+                    <StatRow k="Nhân viên" v={fmtInt(data.employees)} />
+                  </div>
+                </Panel>
 
-            {data.website && (
-              <div className="text-sm text-muted-foreground">
-                Website công ty:{" "}
-                <a href={data.website.startsWith("http") ? data.website : `https://${data.website}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1">
-                  {data.website} <ExternalLink className="h-3 w-3" />
-                </a>
-                {data.established && <> · Thành lập {data.established}</>}
-              </div>
-            )}
+                <Panel className="rise d5">
+                  <SectionLabel title="Thông tin doanh nghiệp" />
+                  <div className="px-5 py-2">
+                    <StatRow k="Mã" v={SYM} />
+                    {data.shortName && <StatRow k="Tên viết tắt" v={data.shortName} />}
+                    <StatRow k="Sàn" v={data.exchange ?? "—"} />
+                    <StatRow k="Ngành" v={data.industry ?? "—"} />
+                    {data.established && <StatRow k="Thành lập" v={String(data.established)} />}
+                    <StatRow k="Nhân viên" v={fmtInt(data.employees)} />
+                  </div>
+                </Panel>
+              </aside>
+            </div>
 
-            <section className="prose prose-invert max-w-none">
+            <section className="rise d5 mt-5">
               <h2 className="text-2xl font-bold tracking-tight">Về cổ phiếu {SYM}</h2>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mt-2">
                 <strong>{SYM}</strong>{data.companyName ? ` (${data.companyName})` : ""} là cổ phiếu niêm yết trên sàn{" "}
                 <strong>{data.exchange ?? "HOSE/HNX/UPCOM"}</strong>
                 {data.industry ? `, thuộc ngành ${data.industry}` : ""}. Trang này cập nhật <strong>giá {SYM} realtime</strong>, các chỉ số định giá quan trọng (<strong>P/E</strong>, <strong>EPS</strong>, <strong>P/B</strong>, <strong>ROE</strong>, <strong>ROA</strong>) và <strong>biểu đồ kỹ thuật {SYM}</strong> 7-365 phiên gần nhất.
-              </p>
-              <p className="text-muted-foreground">
-                Theo dõi đồng thời với <Link to="/chung-khoan" className="text-primary hover:underline">chỉ số VN-Index</Link>,{" "}
-                <Link to="/vi-mo-viet-nam" className="text-primary hover:underline">vĩ mô Việt Nam</Link> và{" "}
-                <Link to="/lich-kinh-te" className="text-primary hover:underline">lịch kinh tế</Link> để đánh giá bối cảnh đầu tư.
-              </p>
-              <p className="text-xs text-muted-foreground/70 italic">
-                Nguồn dữ liệu: {data.source} + VNDirect dchart. Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
               </p>
             </section>
 
@@ -358,11 +412,13 @@ function StockDetail() {
   );
 }
 
-function Stat({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
+function MiniStat({ label, value, tone }: { label: string; value: string; tone?: "up" | "down" }) {
   return (
-    <div className={cn("rounded-lg border bg-card p-3", highlight ? "border-[var(--gold)]/60 bg-[var(--gold)]/5" : "border-border")}>
-      <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={cn("text-base font-bold tabular-nums mt-1", highlight && "text-[var(--gold)]")}>{value}</div>
+    <div className="px-4 py-3">
+      <div className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground mb-1">{label}</div>
+      <div className={cn("text-sm font-bold tabular", tone === "up" ? "text-[var(--up)]" : tone === "down" ? "text-[var(--down)]" : "")}>
+        {value}
+      </div>
     </div>
   );
 }
