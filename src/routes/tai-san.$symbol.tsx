@@ -718,7 +718,7 @@ function AssetDetail() {
               eyebrow="Tiền điện tử"
               logo={<img src={coin.image} alt={coin.name} className="h-full w-full rounded-full object-cover" />}
               title={coin.name}
-              pills={[coin.symbol, coin.rank ? `#${coin.rank}` : "Crypto"]}
+              pills={[coin.symbol, "Crypto"]}
               meta={[{ k: "Cặp", v: `${coin.symbol}/USDT` }, { k: "Sàn", v: "Binance" }, { k: "Khung", v: rangeLabel }]}
               price={fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)}
               subPrice={`≈ ${fmtVND(coin.priceVnd)}`}
@@ -833,15 +833,14 @@ function AssetDetail() {
                   <SectionLabel title={`Giới thiệu về ${coin.name}`} />
                   <div className="p-5 space-y-3 text-sm text-muted-foreground leading-relaxed">
                     <p>
-                      <strong className="text-foreground">{coin.name} ({coin.symbol})</strong> là tài sản tiền điện tử
-                      {coin.rank ? ` xếp hạng #${coin.rank} theo vốn hoá thị trường` : ""}, được giao dịch realtime trên các sàn lớn như Binance, Coinbase và OKX.
+                      <strong className="text-foreground">{coin.name} ({coin.symbol})</strong> là tài sản tiền điện tử được giao dịch realtime trên các sàn lớn như Binance, Coinbase và OKX.
                       Giá {coin.symbol}/USDT trên trang này được cập nhật trực tiếp từ Binance WebSocket.
                     </p>
                     <p>
                       Vốn hoá hiện tại {fmtCompactUSD(coin.marketCap)} với khối lượng giao dịch 24h đạt {fmtCompactUSD(coin.volume24h)}. Bạn có thể theo dõi sự biến động giá, đặt cảnh báo email và quy đổi sang VND theo tỷ giá thực thời gian.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {["Tiền điện tử", "Realtime", coin.rank ? `Rank #${coin.rank}` : "Crypto", "Giao dịch 24/7"].filter(Boolean).map((t) => (
+                      {["Tiền điện tử", "Realtime", "Crypto", "Giao dịch 24/7"].map((t) => (
                         <span key={t} className="text-xs font-semibold text-muted-foreground bg-muted/40 border border-border px-2.5 py-1 rounded-md">{t}</span>
                       ))}
                     </div>
