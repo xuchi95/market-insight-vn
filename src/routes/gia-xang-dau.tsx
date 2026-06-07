@@ -6,6 +6,7 @@ import { OilPriceTable } from "@/components/site/OilPriceTable";
 import { VnFuelPriceTable } from "@/components/site/VnFuelPriceTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { PageHero } from "@/components/site/PageHero";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/gia-xang-dau`;
@@ -104,6 +105,7 @@ function Page() {
       <Ticker />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-5">
+          <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
             eyebrow="Hàng hoá · Năng lượng"
             title={<>Giá <em className="not-italic text-[var(--gold)]">xăng dầu</em> hôm nay</>}

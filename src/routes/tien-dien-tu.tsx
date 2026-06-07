@@ -85,7 +85,7 @@ function CryptoPage() {
       <Header onSearch={setSearch} />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-5">
-          <div className="pt-6"><Breadcrumbs /></div>
+          <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
             eyebrow="Tiền mã hoá · 24/7"
             title={<>Giá <em className="not-italic text-[var(--gold)]">Bitcoin</em> hôm nay — BTC, ETH, USDT, BNB, SOL</>}

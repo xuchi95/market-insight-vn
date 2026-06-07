@@ -124,7 +124,7 @@ function GoldPage() {
       <Header onSearch={setSearch} />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-5">
-          <div className="pt-6"><Breadcrumbs /></div>
+          <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
             eyebrow="Kim loại quý · Realtime"
             title={<>Giá <em className="not-italic text-[var(--gold)]">vàng SJC</em> hôm nay — DOJI, PNJ, BTMC</>}

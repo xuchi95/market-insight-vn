@@ -78,7 +78,7 @@ function BankRatesPage() {
       <Header />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-5">
-          <div className="pt-6"><Breadcrumbs /></div>
+          <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
             eyebrow="Ngân hàng · Tỷ giá chính thức"
             title={<>Tỷ giá <em className="not-italic text-[var(--gold)]">Vietcombank</em> hôm nay</>}
