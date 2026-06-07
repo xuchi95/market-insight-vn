@@ -6,14 +6,15 @@ import { ContactForm } from "@/components/site/ContactForm";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/lien-he`;
-const TITLE = "Liên hệ — MarketWatch";
-const DESC = "Liên hệ MarketWatch để phản ánh dữ liệu, hợp tác hoặc gửi yêu cầu hợp pháp từ cơ quan có thẩm quyền.";
+const TITLE = "Liên hệ MarketWatch — Email hỗ trợ, hợp tác & phản ánh nội dung";
+const DESC = "Liên hệ MarketWatch qua email contact@marketwatch.vn (hỗ trợ người dùng, góp ý dữ liệu, hợp tác) hoặc legal@marketwatch.vn (phản ánh nội dung, yêu cầu từ cơ quan nhà nước). Phản hồi trong 24–72 giờ làm việc.";
 
 export const Route = createFileRoute("/lien-he")({
   head: () => ({
     meta: [
       { title: TITLE },
       { name: "description", content: DESC },
+      { name: "keywords", content: "liên hệ marketwatch, email marketwatch, hợp tác marketwatch, phản ánh nội dung, contact marketwatch vn, marketwatch việt nam" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
       { property: "og:url", content: URL },
@@ -29,9 +30,36 @@ export const Route = createFileRoute("/lien-he")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "ContactPage",
+          "@id": URL + "#contactpage",
           name: TITLE,
+          description: DESC,
           url: URL,
           inLanguage: "vi-VN",
+          isPartOf: { "@type": "WebSite", "@id": SITE + "/#website" },
+          about: { "@id": SITE + "/#organization" },
+          mainEntity: {
+            "@type": "Organization",
+            "@id": SITE + "/#organization",
+            name: "MarketWatch",
+            url: SITE,
+            email: "contact@marketwatch.vn",
+            contactPoint: [
+              {
+                "@type": "ContactPoint",
+                contactType: "customer support",
+                email: "contact@marketwatch.vn",
+                areaServed: "VN",
+                availableLanguage: ["Vietnamese", "English"],
+              },
+              {
+                "@type": "ContactPoint",
+                contactType: "legal",
+                email: "legal@marketwatch.vn",
+                areaServed: "VN",
+                availableLanguage: ["Vietnamese", "English"],
+              },
+            ],
+          },
         }),
       },
       {
@@ -40,8 +68,8 @@ export const Route = createFileRoute("/lien-he")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE + "/" },
-            { "@type": "ListItem", position: 2, name: "Liên hệ", item: URL },
+            { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE },
+            { "@type": "ListItem", position: 2, name: "Liên hệ" },
           ],
         }),
       },
