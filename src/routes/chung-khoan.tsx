@@ -5,6 +5,7 @@ import { Footer } from "@/components/site/Footer";
 import { StockIndexTable } from "@/components/site/StockIndexTable";
 import { UsStockTable } from "@/components/site/UsStockTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { PageHero } from "@/components/site/PageHero";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/chung-khoan`;
@@ -75,11 +76,14 @@ function StocksPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-10 space-y-8">
-          <Breadcrumbs />
-          <header className="space-y-2">
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">VN-Index hôm nay — Chỉ số chứng khoán Việt Nam</h1>
-          </header>
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="pt-6"><Breadcrumbs /></div>
+          <PageHero
+            eyebrow="Chứng khoán · Phiên giao dịch"
+            title={<><em className="not-italic text-[var(--gold)]">VN-Index</em> hôm nay — Chỉ số chứng khoán Việt Nam</>}
+            description={<>VN-Index, VN30, HNX-Index, HNX30, UPCOM-Index — điểm số, thay đổi và khối lượng giao dịch theo phiên gần nhất, cùng các chỉ số chính của thị trường Mỹ.</>}
+          />
+          <div className="py-8 lg:py-10 space-y-8">
           <StockIndexTable />
           <UsStockTable />
           <section aria-labelledby="popular-tickers" className="space-y-4">
@@ -101,6 +105,7 @@ function StocksPage() {
             </p>
           </section>
           <RelatedLinks current="stocks" />
+          </div>
         </div>
       </main>
       <Footer />
