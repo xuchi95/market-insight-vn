@@ -251,7 +251,7 @@ function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
 function InlineKV({ label, value, loading, compact = true }: { label: string; value?: number; loading?: boolean; compact?: boolean }) {
   return (
     <div className="min-w-0">
-      <div className="eyebrow opacity-70 mb-1">{label}</div>
+      <div className="text-xs text-muted-foreground mb-1.5">{label}</div>
       <div className="tabular text-base md:text-lg text-foreground leading-none">
         {typeof value === "number" ? (
           <AnimatedNumber
