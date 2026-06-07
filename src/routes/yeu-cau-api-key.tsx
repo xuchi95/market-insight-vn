@@ -35,24 +35,26 @@ export const Route = createFileRoute("/yeu-cau-api-key")({
       });
     }
   },
-  head: () => ({
-    meta: [
-      { title: "Yêu cầu API key — MarketWatch" },
-      {
-        name: "description",
-        content:
-          "Đăng ký API key MarketWatch để tích hợp dữ liệu vàng, crypto, xăng dầu và chứng khoán Việt Nam vào website hoặc app của bạn — duyệt trong 1–2 ngày.",
-      },
-      { property: "og:title", content: "Yêu cầu API key — MarketWatch" },
-      {
-        property: "og:description",
-        content:
-          "Form đăng ký API key cho nhà phát triển. Miễn phí cho dự án cá nhân và startup.",
-      },
-      { property: "og:url", content: "https://marketwatch.vn/yeu-cau-api-key" },
-    ],
-    links: [{ rel: "canonical", href: "https://marketwatch.vn/yeu-cau-api-key" }],
-  }),
+  head: () => {
+    const TITLE = "Yêu cầu API key — MarketWatch";
+    const DESC = "Đăng ký API key MarketWatch để tích hợp dữ liệu vàng, crypto, xăng dầu và chứng khoán Việt Nam vào website hoặc app của bạn — duyệt trong 1–2 ngày.";
+    const URL = "https://marketwatch.vn/yeu-cau-api-key";
+    return {
+      meta: [
+        { title: TITLE },
+        { name: "description", content: DESC },
+        { name: "keywords", content: "api key marketwatch, đăng ký api, api giá vàng, api crypto, api tỷ giá, api chứng khoán việt nam" },
+        { property: "og:title", content: TITLE },
+        { property: "og:description", content: DESC },
+        { name: "twitter:title", content: TITLE },
+        { name: "twitter:description", content: DESC },
+        { property: "og:url", content: URL },
+        { property: "og:type", content: "website" },
+        { property: "og:locale", content: "vi_VN" },
+      ],
+      links: [{ rel: "canonical", href: URL }],
+    };
+  },
   component: ApiKeyRequestPage,
 });
 
