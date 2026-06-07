@@ -482,10 +482,10 @@ function AssetDetail() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 mx-auto w-full max-w-6xl px-4 md:px-5 lg:px-6 py-8 space-y-6">
-        <Breadcrumbs extra={assetCrumb} />
+      <main className="flex-1 mx-auto w-full max-w-[1320px] px-4 md:px-6 py-6 pb-16">
+        <div className="rise d1"><Breadcrumbs extra={assetCrumb} /></div>
 
-        {isLoading && !isGold && !isBank && <Skeleton className="h-40 w-full" />}
+        {isLoading && !isGold && !isBank && <Skeleton className="h-40 w-full mt-5" />}
         {!isLoading && !coin && !stock && !fx && !gold && !bankRow && !oil && (
           <div className="text-center py-20">
             <h1 className="text-2xl font-bold">Không tìm thấy tài sản "{symbol.toUpperCase()}"</h1>
@@ -495,42 +495,37 @@ function AssetDetail() {
 
         {oil && (
           <>
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-gold">Giá {oil.nameVi} hôm nay</h1>
-                  <div className="text-sm text-muted-foreground mt-1">{oil.name} · Sàn {oil.exchange} · USD/thùng · Cập nhật realtime</div>
-                </div>
-                <div className="ml-auto text-right">
-                  <div className="text-4xl font-bold tabular tracking-tight">${fmtNum(oil.priceUsd, 2)}</div>
-                  <div className={`text-sm tabular ${oil.changeAbs >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
-                    {oil.changeAbs >= 0 ? "+" : ""}{fmtNum(oil.changeAbs, 2)} USD
-                  </div>
-                </div>
-                <ChangeBadge value={oil.changePct} className="text-sm px-3 py-1" />
-                <WatchButton item={{ symbol: lower, label: oil.nameVi, category: "Dầu thô", to: `/tai-san/${lower}` }} />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <Stat label="Đóng cửa trước" value={`$${fmtNum(oil.prevClose, 2)}`} />
-                <Stat label={`Cao nhất (${rangeLabel})`} value={oilStats ? `$${fmtNum(oilStats.max, 2)}` : "—"} />
-                <Stat label={`Thấp nhất (${rangeLabel})`} value={oilStats ? `$${fmtNum(oilStats.min, 2)}` : "—"} />
-                <Stat label="Cập nhật" value={fmtTime(oil.updatedAt)} />
-              </div>
-            </div>
+            <AssetHero
+              eyebrow="Hàng hoá · Dầu thô"
+              logo={<span className="text-2xl">🛢️</span>}
+              title={`Giá ${oil.nameVi} hôm nay`}
+              pills={[oil.name, oil.exchange]}
+              meta={[{ k: "Đơn vị", v: "USD/thùng" }, { k: "Nguồn", v: oil.exchange }]}
+              price={`$${fmtNum(oil.priceUsd, 2)}`}
+              subPrice={`${oil.changeAbs >= 0 ? "+" : ""}${fmtNum(oil.changeAbs, 2)} USD`}
+              subPriceTone={oil.changeAbs >= 0 ? "up" : "down"}
+              changePct={oil.changePct}
+              actions={<WatchButton item={{ symbol: lower, label: oil.nameVi, category: "Dầu thô", to: `/tai-san/${lower}` }} />}
+            />
 
-            <div className="grid grid-cols-2 gap-3">
-              <ChangeCard label="Biến động phiên" value={oil.changePct} />
-              <ChangeCard label={`Biến động ${rangeLabel}`} value={oilStats?.changePct ?? null} />
-            </div>
+            <KpiStrip
+              cells={[
+                { k: "Đóng cửa trước", v: `$${fmtNum(oil.prevClose, 2)}` },
+                { k: `Cao nhất · ${rangeLabel}`, v: oilStats ? `$${fmtNum(oilStats.max, 2)}` : "—" },
+                { k: `Thấp nhất · ${rangeLabel}`, v: oilStats ? `$${fmtNum(oilStats.min, 2)}` : "—" },
+                { k: "Biến động phiên", v: `${oil.changePct >= 0 ? "+" : ""}${oil.changePct.toFixed(2)}%`, tone: oil.changePct >= 0 ? "up" : "down" },
+                { k: `Biến động · ${rangeLabel}`, v: oilStats ? `${oilStats.changePct >= 0 ? "+" : ""}${oilStats.changePct.toFixed(2)}%` : "—", tone: (oilStats?.changePct ?? 0) >= 0 ? "up" : "down" },
+                { k: "Cập nhật", v: fmtTime(oil.updatedAt) },
+              ]}
+            />
 
-            <div className="relative rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
-              <div className="flex items-center gap-3 p-4 border-b border-border">
-                <h2 className="font-bold">Lịch sử giá {oil.nameVi}</h2>
-                {oilHistLoading && (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--gold)]" />
-                )}
-                <RangeTabs value={range} onValueChange={setRange} />
-              </div>
+            <Panel className="rise d3 mt-5 relative">
+              <SectionLabel
+                title={`Lịch sử giá ${oil.nameVi}`}
+                badge={<LivePing />}
+                loading={oilHistLoading}
+                right={<RangeTabs value={range} onValueChange={setRange} />}
+              />
               {oilHistLoading && (
                 <div className="absolute left-0 right-0 top-[57px] h-0.5 overflow-hidden">
                   <div className="h-full w-1/3 bg-[var(--gold)]/70 animate-[slide_1.2s_ease-in-out_infinite]" />
@@ -540,21 +535,9 @@ function AssetDetail() {
                 {oilHistLoading ? (
                   <Skeleton className="h-full w-full" />
                 ) : oilHistError ? (
-                  <div className="h-full w-full flex flex-col items-center justify-center gap-3 text-center">
-                    <AlertTriangle className="h-8 w-8 text-[var(--down)]" />
-                    <div className="text-sm font-semibold">Không tải được biểu đồ</div>
-                    <button
-                      type="button"
-                      onClick={() => refetchOilHist()}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
-                    >
-                      <RefreshCw className="h-3 w-3" /> Thử lại
-                    </button>
-                  </div>
+                  <ChartError onRetry={() => refetchOilHist()} />
                 ) : !oilHistory || oilHistory.length === 0 ? (
-                  <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
-                    Chưa có dữ liệu lịch sử.
-                  </div>
+                  <ChartEmpty />
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={oilHistory}>
@@ -578,331 +561,548 @@ function AssetDetail() {
                         axisLine={false}
                         minTickGap={32}
                       />
-                      <YAxis
-                        dataKey="v"
-                        stroke="var(--muted-foreground)"
-                        fontSize={11}
-                        tickLine={false}
-                        axisLine={false}
-                        width={70}
-                        domain={["auto", "auto"]}
-                        tickFormatter={(v) => "$" + fmtNum(v as number, 0)}
-                      />
-                      <Tooltip
-                        contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
-                        labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")}
-                        formatter={(v: number) => ["$" + fmtNum(v, 2), "USD/thùng"]}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="v"
-                        stroke={(oilStats?.changePct ?? 0) >= 0 ? "var(--up)" : "var(--down)"}
-                        strokeWidth={2}
-                        fill={`url(#oil-${oilId})`}
-                      />
+                      <YAxis dataKey="v" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} tickFormatter={(v) => "$" + fmtNum(v as number, 0)} />
+                      <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }} labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")} formatter={(v: number) => ["$" + fmtNum(v, 2), "USD/thùng"]} />
+                      <Area type="monotone" dataKey="v" stroke={(oilStats?.changePct ?? 0) >= 0 ? "var(--up)" : "var(--down)"} strokeWidth={2} fill={`url(#oil-${oilId})`} />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}
               </div>
-            </div>
+            </Panel>
 
-            <Link to="/" className="text-sm text-gold hover:underline inline-flex items-center gap-1">← Về trang chủ</Link>
+            <Link to="/" className="mt-5 inline-flex items-center gap-1 text-sm text-gold hover:underline">← Về trang chủ</Link>
           </>
         )}
 
         {gold && (
           <>
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-gold">{gold.brand}</h1>
-                  <div className="text-sm text-muted-foreground mt-1">{gold.type} · {gold.unit}</div>
-                </div>
-                <div className="ml-auto text-right">
-                  <div className="text-4xl font-bold tabular tracking-tight">
-                    {gold.unit.includes("USD")
-                      ? `$${fmtNum(gold.sell, 2)}`
-                      : <>{fmtTrieu(gold.sell)} <span className="text-xl text-muted-foreground font-semibold">tr/chỉ</span></>}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Giá bán ra hiện tại{gold.unit.includes("USD") ? "" : ` · ${gold.unit}`}
-                  </div>
-                </div>
-                <ChangeBadge value={gold.changePct} className="text-sm px-3 py-1" />
-                <WatchButton item={{ symbol: lower, label: `${gold.brand} ${gold.type}`, category: "Vàng", to: `/tai-san/${lower}` }} />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <Stat label="Mua vào" value={gold.unit.includes("USD") ? `$${fmtNum(gold.buy, 2)} /oz` : `${fmtTrieu(gold.buy)} tr/chỉ`} />
-                <Stat label="Bán ra" value={gold.unit.includes("USD") ? `$${fmtNum(gold.sell, 2)} /oz` : `${fmtTrieu(gold.sell)} tr/chỉ`} />
-                <Stat label="Chênh lệch" value={gold.unit.includes("USD") ? `$${fmtNum(gold.sell - gold.buy, 2)} /oz` : `${fmtTrieu(gold.sell - gold.buy)} tr/chỉ`} />
-                <Stat label="Cập nhật" value={fmtTime(gold.updatedAt)} />
-              </div>
-            </div>
+            <AssetHero
+              eyebrow="Vàng miếng"
+              logo={<span className="text-2xl">🪙</span>}
+              title={gold.brand}
+              pills={[gold.type, gold.unit]}
+              meta={[{ k: "Loại", v: gold.type }, { k: "Đơn vị", v: gold.unit }]}
+              price={gold.unit.includes("USD") ? `$${fmtNum(gold.sell, 2)}` : `${fmtTrieu(gold.sell)}`}
+              priceSuffix={gold.unit.includes("USD") ? undefined : "tr/chỉ"}
+              subPrice={`Bán ra hiện tại${gold.unit.includes("USD") ? "" : ` · ${gold.unit}`}`}
+              changePct={gold.changePct}
+              actions={<WatchButton item={{ symbol: lower, label: `${gold.brand} ${gold.type}`, category: "Vàng", to: `/tai-san/${lower}` }} />}
+            />
+
+            <KpiStrip
+              cells={[
+                { k: "Mua vào", v: gold.unit.includes("USD") ? `$${fmtNum(gold.buy, 2)} /oz` : `${fmtTrieu(gold.buy)} tr/chỉ` },
+                { k: "Bán ra", v: gold.unit.includes("USD") ? `$${fmtNum(gold.sell, 2)} /oz` : `${fmtTrieu(gold.sell)} tr/chỉ` },
+                { k: "Chênh lệch", v: gold.unit.includes("USD") ? `$${fmtNum(gold.sell - gold.buy, 2)} /oz` : `${fmtTrieu(gold.sell - gold.buy)} tr/chỉ` },
+                { k: "Biến động", v: `${gold.changePct >= 0 ? "+" : ""}${gold.changePct.toFixed(2)}%`, tone: gold.changePct >= 0 ? "up" : "down" },
+                { k: "Đơn vị", v: gold.unit },
+                { k: "Cập nhật", v: fmtTime(gold.updatedAt) },
+              ]}
+            />
+
             {historyKey && (
-              <PriceHistory
-                assetKey={historyKey}
-                title={`Lịch sử giá ${gold.brand} ${gold.type}`}
-                decimals={gold.unit.includes("USD") ? 2 : 0}
-                useUsd={gold.unit.includes("USD")}
-                unit={gold.unit.includes("USD") ? "$/oz" : "đ/chỉ"}
-              />
+              <div className="rise d3 mt-5">
+                <PriceHistory
+                  assetKey={historyKey}
+                  title={`Lịch sử giá ${gold.brand} ${gold.type}`}
+                  decimals={gold.unit.includes("USD") ? 2 : 0}
+                  useUsd={gold.unit.includes("USD")}
+                  unit={gold.unit.includes("USD") ? "$/oz" : "đ/chỉ"}
+                />
+              </div>
             )}
-            <Link to="/gia-vang" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ bảng giá vàng →</Link>
+            <Link to="/gia-vang" className="mt-5 inline-flex items-center gap-1 text-sm text-gold hover:underline">Xem toàn bộ bảng giá vàng →</Link>
           </>
         )}
 
         {bankRow && (
           <>
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-gold">{bankRow.code}/VND</h1>
-                  <div className="text-sm text-muted-foreground mt-1">{bankRow.name} · Niêm yết Vietcombank</div>
-                </div>
-                <div className="ml-auto text-right">
-                  <div className="text-4xl font-bold tabular tracking-tight">{bankRow.sell ? fmtNum(bankRow.sell, 2) : "—"}</div>
-                  <div className="text-sm text-muted-foreground">VND / {bankRow.code} (bán ra)</div>
-                </div>
-                <WatchButton item={{ symbol: lower, label: `Vietcombank · ${bankRow.code}`, category: "Ngân hàng", to: `/tai-san/${lower}` }} />
+            <AssetHero
+              eyebrow="Tỷ giá ngân hàng"
+              logo={<span className="text-xl font-bold">{bankRow.code.slice(0, 2)}</span>}
+              title={`${bankRow.code}/VND`}
+              pills={[bankRow.code, "Vietcombank"]}
+              meta={[{ k: "Tiền tệ", v: bankRow.name }, { k: "Ngân hàng", v: "Vietcombank" }]}
+              price={bankRow.sell ? fmtNum(bankRow.sell, 2) : "—"}
+              subPrice={`VND / ${bankRow.code} (bán ra)`}
+              actions={<WatchButton item={{ symbol: lower, label: `Vietcombank · ${bankRow.code}`, category: "Ngân hàng", to: `/tai-san/${lower}` }} />}
+            />
+
+            <KpiStrip
+              cells={[
+                { k: "Mua tiền mặt", v: bankRow.cash ? fmtNum(bankRow.cash, 2) : "—" },
+                { k: "Mua chuyển khoản", v: bankRow.transfer ? fmtNum(bankRow.transfer, 2) : "—" },
+                { k: "Bán", v: bankRow.sell ? fmtNum(bankRow.sell, 2) : "—" },
+                { k: "Mã tiền tệ", v: bankRow.code },
+                { k: "Ngân hàng", v: "Vietcombank" },
+                { k: "Cập nhật", v: fmtTime(bankRow.updatedAt) },
+              ]}
+            />
+
+            {historyKey && (
+              <div className="rise d3 mt-5">
+                <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${bankRow.code}/VND`} decimals={2} unit="VND" />
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <Stat label="Mua tiền mặt" value={bankRow.cash ? fmtNum(bankRow.cash, 2) : "—"} />
-                <Stat label="Mua chuyển khoản" value={bankRow.transfer ? fmtNum(bankRow.transfer, 2) : "—"} />
-                <Stat label="Bán" value={bankRow.sell ? fmtNum(bankRow.sell, 2) : "—"} />
-                <Stat label="Cập nhật" value={fmtTime(bankRow.updatedAt)} />
-              </div>
-            </div>
-            {historyKey && <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${bankRow.code}/VND`} decimals={2} unit="VND" />}
-            <Link to="/ty-gia-ngan-hang" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ tỷ giá ngân hàng →</Link>
+            )}
+            <Link to="/ty-gia-ngan-hang" className="mt-5 inline-flex items-center gap-1 text-sm text-gold hover:underline">Xem toàn bộ tỷ giá ngân hàng →</Link>
           </>
         )}
 
         {!coin && stock && (
-          <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
-            <div className="flex flex-wrap items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-gold">{stock.name}</h1>
-                <div className="text-sm text-muted-foreground mt-1">Sàn {stock.exchange} · Mã {stock.code}</div>
-              </div>
-              <div className="ml-auto text-right">
-                <div className="text-4xl font-bold tabular tracking-tight">{fmtNum(stock.value, 2)}</div>
-                <div className={`text-sm tabular ${stock.change >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
-                  {stock.change >= 0 ? "+" : ""}{fmtNum(stock.change, 2)} điểm
-                </div>
-              </div>
-              <ChangeBadge value={stock.changePct} className="text-sm px-3 py-1" />
-              <WatchButton item={{ symbol: lower, label: stock.name, category: "Chứng khoán", to: `/tai-san/${lower}` }} />
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <Stat label="Cao trong phiên" value={fmtNum(stock.high, 2)} />
-              <Stat label="Thấp trong phiên" value={fmtNum(stock.low, 2)} />
-              <Stat label="Khối lượng GD" value={new Intl.NumberFormat("vi-VN").format(stock.volume)} />
-              <Stat label="Cập nhật" value={fmtTime(stock.updatedAt)} />
-            </div>
-            <Link to="/chung-khoan" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ chỉ số →</Link>
-          </div>
+          <>
+            <AssetHero
+              eyebrow="Chứng khoán"
+              logo={<span className="text-base font-bold">{stock.code.slice(0, 3)}</span>}
+              title={stock.name}
+              pills={[stock.code, stock.exchange]}
+              meta={[{ k: "Sàn", v: stock.exchange }, { k: "Mã", v: stock.code }]}
+              price={fmtNum(stock.value, 2)}
+              subPrice={`${stock.change >= 0 ? "+" : ""}${fmtNum(stock.change, 2)} điểm`}
+              subPriceTone={stock.change >= 0 ? "up" : "down"}
+              changePct={stock.changePct}
+              actions={<WatchButton item={{ symbol: lower, label: stock.name, category: "Chứng khoán", to: `/tai-san/${lower}` }} />}
+            />
+
+            <KpiStrip
+              cells={[
+                { k: "Cao trong phiên", v: fmtNum(stock.high, 2) },
+                { k: "Thấp trong phiên", v: fmtNum(stock.low, 2) },
+                { k: "Khối lượng GD", v: new Intl.NumberFormat("vi-VN").format(stock.volume) },
+                { k: "Thay đổi", v: `${stock.change >= 0 ? "+" : ""}${fmtNum(stock.change, 2)}`, tone: stock.change >= 0 ? "up" : "down" },
+                { k: "% Thay đổi", v: `${stock.changePct >= 0 ? "+" : ""}${stock.changePct.toFixed(2)}%`, tone: stock.changePct >= 0 ? "up" : "down" },
+                { k: "Cập nhật", v: fmtTime(stock.updatedAt) },
+              ]}
+            />
+
+            <Link to="/chung-khoan" className="mt-5 inline-flex items-center gap-1 text-sm text-gold hover:underline">Xem toàn bộ chỉ số →</Link>
+          </>
         )}
 
         {!coin && !stock && fx && (
-          <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6 space-y-6">
-            <div className="flex flex-wrap items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-gold">{fx.code}/VND</h1>
-                <div className="text-sm text-muted-foreground mt-1">{fx.name}</div>
+          <>
+            <AssetHero
+              eyebrow="Tỷ giá ngoại tệ"
+              logo={<span className="text-base font-bold">{fx.code}</span>}
+              title={`${fx.code}/VND`}
+              pills={[fx.code]}
+              meta={[{ k: "Tiền tệ", v: fx.name }]}
+              price={fmtNum(fx.mid, 2)}
+              subPrice={`VND / ${fx.code}`}
+              changePct={fx.changePct}
+              actions={<WatchButton item={{ symbol: lower, label: fx.name, category: "Ngoại tệ", to: `/tai-san/${lower}` }} />}
+            />
+
+            <KpiStrip
+              cells={[
+                { k: "Mua", v: fmtNum(fx.buy, 2) },
+                { k: "Bán", v: fmtNum(fx.sell, 2) },
+                { k: "Trung bình", v: fmtNum(fx.mid, 2) },
+                { k: "% Thay đổi", v: `${fx.changePct >= 0 ? "+" : ""}${fx.changePct.toFixed(2)}%`, tone: fx.changePct >= 0 ? "up" : "down" },
+                { k: "Mã", v: fx.code },
+                { k: "Cập nhật", v: fmtTime(fx.updatedAt) },
+              ]}
+            />
+
+            {historyKey && (
+              <div className="rise d3 mt-5">
+                <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${fx.code}/VND`} decimals={2} unit="VND" />
               </div>
-              <div className="ml-auto text-right">
-                <div className="text-4xl font-bold tabular tracking-tight">{fmtNum(fx.mid, 2)}</div>
-                <div className="text-sm text-muted-foreground">VND / {fx.code}</div>
-              </div>
-              <ChangeBadge value={fx.changePct} className="text-sm px-3 py-1" />
-              <WatchButton item={{ symbol: lower, label: fx.name, category: "Ngoại tệ", to: `/tai-san/${lower}` }} />
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-              <Stat label="Mua" value={fmtNum(fx.buy, 2)} />
-              <Stat label="Bán" value={fmtNum(fx.sell, 2)} />
-              <Stat label="Cập nhật" value={fmtTime(fx.updatedAt)} />
-            </div>
-          </div>
-        )}
-        {!coin && !stock && fx && historyKey && (
-          <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${fx.code}/VND`} decimals={2} unit="VND" />
-        )}
-        {!coin && !stock && fx && (
-          <Link to="/ty-gia-ngoai-te" className="text-sm text-gold hover:underline inline-flex items-center gap-1">Xem toàn bộ tỷ giá →</Link>
+            )}
+            <Link to="/ty-gia-ngoai-te" className="mt-5 inline-flex items-center gap-1 text-sm text-gold hover:underline">Xem toàn bộ tỷ giá →</Link>
+          </>
         )}
 
         {coin && (
           <>
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] p-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <img src={coin.image} alt={coin.name} className="h-14 w-14 rounded-full" />
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight">{coin.name} <span className="text-muted-foreground text-xl font-medium">{coin.symbol}</span></h1>
-                </div>
-                <div className="ml-auto text-right">
-                  <div className="text-4xl font-bold tabular tracking-tight">{fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)}</div>
-                  <div className="text-sm text-muted-foreground tabular">{fmtVND(coin.priceVnd)}</div>
-                </div>
-                <ChangeBadge value={coin.change24h} className="text-sm px-3 py-1" />
-                <WatchButton item={{ symbol: coin.symbol, label: coin.name, category: "Tiền điện tử", to: `/tai-san/${coin.symbol.toLowerCase()}` }} />
-              </div>
-              <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <Stat label={`Cao nhất (${rangeLabel})`} value={stats ? fmtUSD(stats.max, 2) : "—"} />
-                <Stat label={`Thấp nhất (${rangeLabel})`} value={stats ? fmtUSD(stats.min, 2) : "—"} />
-                <Stat label="Vốn hoá" value={fmtCompactUSD(coin.marketCap)} />
-                <Stat label="Volume 24h" value={fmtCompactUSD(coin.volume24h)} />
-              </div>
-              <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <Stat label="Thay đổi 24h" value={`${coin.change24h >= 0 ? "+" : ""}${coin.change24h.toFixed(2)}%`} />
-                <Stat label="Khung thời gian" value={rangeLabel} />
-              </div>
-            </div>
+            <AssetHero
+              eyebrow="Tiền điện tử"
+              logo={<img src={coin.image} alt={coin.name} className="h-full w-full rounded-full object-cover" />}
+              title={coin.name}
+              pills={[coin.symbol, "Crypto"]}
+              meta={[{ k: "Cặp", v: `${coin.symbol}/USDT` }, { k: "Sàn", v: "Binance" }, { k: "Khung", v: rangeLabel }]}
+              price={fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)}
+              subPrice={`≈ ${fmtVND(coin.priceVnd)}`}
+              changePct={coin.change24h}
+              extra={
+                typeof change7d === "number" ? (
+                  <div className="hidden md:flex flex-col items-end gap-1 text-xs">
+                    <span className="text-muted-foreground uppercase tracking-[0.14em] text-[10px] font-semibold">7 ngày</span>
+                    <span className={`text-sm font-bold tabular ${change7d >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+                      {change7d >= 0 ? "+" : ""}{change7d.toFixed(2)}%
+                    </span>
+                  </div>
+                ) : null
+              }
+              actions={<WatchButton item={{ symbol: coin.symbol, label: coin.name, category: "Tiền điện tử", to: `/tai-san/${coin.symbol.toLowerCase()}` }} />}
+            />
 
-            <div className="grid grid-cols-2 gap-3">
-              <ChangeCard label="Biến động 24h" value={coin.change24h} />
-              <ChangeCard label="Biến động 7 ngày" value={change7d} />
-            </div>
+            <KpiStrip
+              cells={[
+                { k: `Cao nhất · ${rangeLabel}`, v: stats ? fmtUSD(stats.max, 2) : "—" },
+                { k: `Thấp nhất · ${rangeLabel}`, v: stats ? fmtUSD(stats.min, 2) : "—" },
+                { k: "Vốn hoá", v: fmtCompactUSD(coin.marketCap) },
+                { k: "KL giao dịch · 24h", v: fmtCompactUSD(coin.volume24h) },
+                { k: "Thay đổi · 24h", v: `${coin.change24h >= 0 ? "+" : ""}${coin.change24h.toFixed(2)}%`, tone: coin.change24h >= 0 ? "up" : "down" },
+                { k: "Biến động · 7N", v: typeof change7d === "number" ? `${change7d >= 0 ? "+" : ""}${change7d.toFixed(2)}%` : "—", tone: (change7d ?? 0) >= 0 ? "up" : "down" },
+              ]}
+            />
 
-            <div className="rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
-              <div className="flex items-center gap-3 p-4 border-b border-border">
-                <h2 className="font-bold">Biểu đồ nâng cao · {coin.symbol}/USDT</h2>
-                <LiveDot />
-              </div>
-              {user ? (
-                <TradingViewChart
-                  key={`tv-${coin.symbol}-${theme}`}
-                  symbol={toTradingViewCryptoSymbol(coin.symbol)}
-                  interval="60"
-                  height={760}
-                  mobileHeight={540}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center gap-4 px-6 py-16 sm:py-24">
-                  <div className="h-12 w-12 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center">
-                    <Lock className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1.5 max-w-md">
-                    <h3 className="font-display text-xl">Biểu đồ nâng cao dành cho thành viên</h3>
-                  </div>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <RouterLink
-                      to="/dang-nhap"
-                      className="inline-flex h-9 items-center rounded-md bg-[var(--gold)] px-4 text-sm font-semibold text-[var(--gold-foreground)] hover:opacity-90 transition-opacity"
-                    >
-                      Đăng nhập
-                    </RouterLink>
-                    <RouterLink
-                      to="/dang-ky"
-                      className="inline-flex h-9 items-center rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-accent transition-colors"
-                    >
-                      Đăng ký miễn phí
-                    </RouterLink>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="relative rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden">
-              <div className="flex items-center gap-3 p-4 border-b border-border">
-                <h2 className="font-bold">Biểu đồ giá</h2>
-                {(chartFetching || chartLoading) && (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--gold)]" />
-                )}
-                {chartUpdatedAt > 0 && !chartError && !chartFetching && (
-                  <span className="text-[11px] text-muted-foreground hidden sm:inline">
-                    Cập nhật {new Date(chartUpdatedAt).toLocaleTimeString("vi-VN")}
-                  </span>
-                )}
-                <RangeTabs value={range} onValueChange={setRange} />
-              </div>
-              {(chartFetching || chartLoading) && (
-                <div className="absolute left-0 right-0 top-[57px] h-0.5 overflow-hidden">
-                  <div className="h-full w-1/3 bg-[var(--gold)]/70 animate-[slide_1.2s_ease-in-out_infinite]" />
-                </div>
-              )}
-              <div className="h-80 w-full p-4">
-                {chartLoading ? (
-                  <div className="h-full w-full space-y-3">
-                    <Skeleton className="h-[calc(100%-2rem)] w-full" />
-                    <Skeleton className="h-6 w-1/3" />
-                  </div>
-                ) : chartError ? (
-                  <div className="h-full w-full flex flex-col items-center justify-center gap-3 text-center">
-                    <AlertTriangle className="h-8 w-8 text-[var(--down)]" />
-                    <div className="text-sm font-semibold">Không tải được biểu đồ</div>
-                    <div className="text-xs text-muted-foreground max-w-xs">
-                      {chartErrorObj instanceof Error ? chartErrorObj.message : "Lỗi không xác định"}. Vui lòng thử lại.
+            <div className="rise d3 mt-5 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_348px] gap-5 items-start">
+              {/* LEFT column */}
+              <div className="flex flex-col gap-5 min-w-0">
+                {/* TradingView panel */}
+                <Panel>
+                  <SectionLabel
+                    title={`${coin.symbol} / USDT`}
+                    badge={<LivePing />}
+                    sub="Binance"
+                    right={<span className="text-xs text-muted-foreground">Biểu đồ nâng cao</span>}
+                  />
+                  {user ? (
+                    <TradingViewChart
+                      key={`tv-${coin.symbol}-${theme}`}
+                      symbol={toTradingViewCryptoSymbol(coin.symbol)}
+                      interval="60"
+                      height={520}
+                      mobileHeight={420}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center gap-4 px-6 py-16 sm:py-24">
+                      <div className="h-12 w-12 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center">
+                        <Lock className="h-5 w-5" />
+                      </div>
+                      <div className="space-y-1.5 max-w-md">
+                        <h3 className="font-display text-xl">Biểu đồ nâng cao dành cho thành viên</h3>
+                      </div>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <RouterLink to="/dang-nhap" className="inline-flex h-9 items-center rounded-md bg-[var(--gold)] px-4 text-sm font-semibold text-[var(--gold-foreground)] hover:opacity-90 transition-opacity">Đăng nhập</RouterLink>
+                        <RouterLink to="/dang-ky" className="inline-flex h-9 items-center rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-accent transition-colors">Đăng ký miễn phí</RouterLink>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => refetchChart()}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
-                    >
-                      <RefreshCw className="h-3 w-3" /> Thử lại
-                    </button>
+                  )}
+                </Panel>
+
+                {/* Simple area chart (history) */}
+                <Panel className="relative">
+                  <SectionLabel
+                    title="Biểu đồ giá"
+                    loading={chartFetching || chartLoading}
+                    sub={chartUpdatedAt > 0 && !chartError && !chartFetching ? `cập nhật ${new Date(chartUpdatedAt).toLocaleTimeString("vi-VN")}` : undefined}
+                    right={<RangeTabs value={range} onValueChange={setRange} />}
+                  />
+                  {(chartFetching || chartLoading) && (
+                    <div className="absolute left-0 right-0 top-[57px] h-0.5 overflow-hidden">
+                      <div className="h-full w-1/3 bg-[var(--gold)]/70 animate-[slide_1.2s_ease-in-out_infinite]" />
+                    </div>
+                  )}
+                  <div className="h-80 w-full p-4">
+                    {chartLoading ? (
+                      <div className="h-full w-full space-y-3">
+                        <Skeleton className="h-[calc(100%-2rem)] w-full" />
+                        <Skeleton className="h-6 w-1/3" />
+                      </div>
+                    ) : chartError ? (
+                      <ChartError
+                        onRetry={() => refetchChart()}
+                        message={chartErrorObj instanceof Error ? chartErrorObj.message : undefined}
+                      />
+                    ) : !chart || chart.length === 0 ? (
+                      <ChartEmpty />
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData}>
+                          <defs>
+                            <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={color} stopOpacity={0.35} />
+                              <stop offset="100%" stopColor={color} stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                          <XAxis dataKey="t" stroke="var(--muted-foreground)" fontSize={11} tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} tickLine={false} axisLine={false} />
+                          <YAxis dataKey="v" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} tickFormatter={(v) => "$" + new Intl.NumberFormat("en", { notation: "compact" }).format(v)} />
+                          <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }} labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")} formatter={(v: number) => [fmtUSD(v, 2), "Giá"]} />
+                          <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill="url(#ag)" isAnimationActive={false} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
-                ) : !chart || chart.length === 0 ? (
-                  <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
-                    Chưa có dữ liệu lịch sử cho khung thời gian này.
+                </Panel>
+
+                {/* About */}
+                <Panel className="rise d4">
+                  <SectionLabel title={`Giới thiệu về ${coin.name}`} />
+                  <div className="p-5 space-y-3 text-sm text-muted-foreground leading-relaxed">
+                    <p>
+                      <strong className="text-foreground">{coin.name} ({coin.symbol})</strong> là tài sản tiền điện tử được giao dịch realtime trên các sàn lớn như Binance, Coinbase và OKX.
+                      Giá {coin.symbol}/USDT trên trang này được cập nhật trực tiếp từ Binance WebSocket.
+                    </p>
+                    <p>
+                      Vốn hoá hiện tại {fmtCompactUSD(coin.marketCap)} với khối lượng giao dịch 24h đạt {fmtCompactUSD(coin.volume24h)}. Bạn có thể theo dõi sự biến động giá, đặt cảnh báo email và quy đổi sang VND theo tỷ giá thực thời gian.
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {["Tiền điện tử", "Realtime", "Crypto", "Giao dịch 24/7"].map((t) => (
+                        <span key={t} className="text-xs font-semibold text-muted-foreground bg-muted/40 border border-border px-2.5 py-1 rounded-md">{t}</span>
+                      ))}
+                    </div>
                   </div>
-                ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={color} stopOpacity={0.35} />
-                        <stop offset="100%" stopColor={color} stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="t" stroke="var(--muted-foreground)" fontSize={11} tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} tickLine={false} axisLine={false} />
-                    <YAxis dataKey="v" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} tickFormatter={(v) => "$" + new Intl.NumberFormat("en", { notation: "compact" }).format(v)} />
-                    <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }} labelFormatter={(t) => new Date(t as number).toLocaleString("vi-VN")} formatter={(v: number) => [fmtUSD(v, 2), "Giá"]} />
-                    <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill="url(#ag)" isAnimationActive={false} />
-                  </AreaChart>
-                </ResponsiveContainer>
-                )}
+                </Panel>
               </div>
+
+              {/* RIGHT sidebar */}
+              <aside className="flex flex-col gap-5 lg:sticky lg:top-20">
+                <Panel className="rise d4">
+                  <SectionLabel title="Thống kê thị trường" />
+                  <div className="px-5 py-2">
+                    <StatRow k="Giá USD" v={fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)} />
+                    <StatRow k="Giá VND" v={fmtVND(coin.priceVnd)} />
+                    <StatRow k="Vốn hoá" v={fmtCompactUSD(coin.marketCap)} />
+                    <StatRow k="KL giao dịch · 24h" v={fmtCompactUSD(coin.volume24h)} />
+                    <StatRow k="Thay đổi · 24h" v={`${coin.change24h >= 0 ? "+" : ""}${coin.change24h.toFixed(2)}%`} tone={coin.change24h >= 0 ? "up" : "down"} />
+                    {typeof change7d === "number" && (
+                      <StatRow k="Biến động · 7N" v={`${change7d >= 0 ? "+" : ""}${change7d.toFixed(2)}%`} tone={change7d >= 0 ? "up" : "down"} />
+                    )}
+                    {stats && (
+                      <>
+                        <StatRow k={`Cao nhất · ${rangeLabel}`} v={fmtUSD(stats.max, 2)} />
+                        <StatRow k={`Thấp nhất · ${rangeLabel}`} v={fmtUSD(stats.min, 2)} />
+                      </>
+                    )}
+                  </div>
+                </Panel>
+
+                {others.length > 0 && (
+                  <Panel className="rise d5">
+                    <SectionLabel title="Tài sản liên quan" />
+                    <div className="divide-y divide-border">
+                      {others.map((c) => (
+                        <Link
+                          key={c.id}
+                          to="/tai-san/$symbol"
+                          params={{ symbol: c.symbol.toLowerCase() }}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
+                        >
+                          <img src={c.image} alt={c.name} className="h-8 w-8 rounded-full flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-semibold truncate">{c.name}</div>
+                            <div className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground">{c.symbol}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-semibold tabular">{fmtUSD(c.priceUsd, 2)}</div>
+                            <ChangeBadge value={c.change24h} className="text-[10px] mt-0.5 px-1.5 py-0" />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </Panel>
+                )}
+              </aside>
             </div>
 
-            <SectionCard title="Tài sản liên quan">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
-                    <tr>
-                      <th className="text-left px-4 py-3">Coin</th>
-                      <th className="text-right px-4 py-3">Giá</th>
-                      <th className="text-right px-4 py-3">24h</th>
-                      <th className="text-right px-4 py-3 hidden md:table-cell">Vốn hoá</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {others.map((c) => (
-                      <tr key={c.id} className="hover:bg-muted/30">
-                        <td className="px-4 py-3">
-                          <Link to="/tai-san/$symbol" params={{ symbol: c.symbol.toLowerCase() }} className="flex items-center gap-3">
-                            <img src={c.image} alt={c.name} className="h-6 w-6 rounded-full" />
-                            <div className="font-semibold">{c.name} <span className="text-muted-foreground text-xs">{c.symbol}</span></div>
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 text-right tabular">{fmtUSD(c.priceUsd, 2)}</td>
-                        <td className="px-4 py-3 text-right"><ChangeBadge value={c.change24h} /></td>
-                        <td className="px-4 py-3 text-right tabular text-muted-foreground hidden md:table-cell">{fmtCompactUSD(c.marketCap)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </SectionCard>
+            <div className="rise d5 mt-5">
+              <CryptoCommunityFeed symbol={coin.symbol} name={coin.name} />
+            </div>
 
-            <CryptoCommunityFeed symbol={coin.symbol} name={coin.name} />
-
-            <div className="text-xs text-muted-foreground">Cập nhật lần cuối: {fmtTime(Date.now())}</div>
+            <div className="mt-5 text-xs text-muted-foreground">Cập nhật lần cuối: {fmtTime(Date.now())}</div>
           </>
         )}
       </main>
       <Footer />
     </div>
+  );
+}
+
+/* =========================================================
+ * Asset detail UI primitives (visual shell only).
+ * Every block keeps its data/feature intact; these helpers
+ * just lay them out per the new design language.
+ * ========================================================= */
+function Panel({ className = "", children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <section
+      className={`rounded-2xl border border-border bg-card shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] overflow-hidden ${className}`}
+    >
+      {children}
+    </section>
+  );
+}
+
+function SectionLabel({
+  title,
+  sub,
+  badge,
+  right,
+  loading,
+}: {
+  title: string;
+  sub?: string;
+  badge?: React.ReactNode;
+  right?: React.ReactNode;
+  loading?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 md:px-5 py-3.5 border-b border-border flex-wrap">
+      <div className="flex items-center gap-2.5 text-sm font-semibold">
+        {badge}
+        <span>{title}</span>
+        {sub && <span className="text-xs font-normal text-muted-foreground">· {sub}</span>}
+        {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--gold)]" />}
+      </div>
+      {right}
+    </div>
+  );
+}
+
+function LivePing() {
+  return (
+    <span className="relative inline-flex h-2 w-2">
+      <span className="absolute inset-0 rounded-full bg-[var(--up)]" />
+      <span className="live-dot-ring" />
+    </span>
+  );
+}
+
+type KpiCell = { k: string; v: string; tone?: "up" | "down" };
+function KpiStrip({ cells }: { cells: KpiCell[] }) {
+  return (
+    <section className="rise d2 mt-5 rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-border">
+        {cells.map((c, i) => (
+          <div key={i} className="bg-card px-4 py-3.5">
+            <div className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground mb-1.5">{c.k}</div>
+            <div
+              className={`text-[17px] font-bold tabular tracking-tight ${
+                c.tone === "up" ? "text-[var(--up)]" : c.tone === "down" ? "text-[var(--down)]" : ""
+              }`}
+            >
+              {c.v}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function StatRow({ k, v, tone }: { k: string; v: string; tone?: "up" | "down" }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-border last:border-b-0 text-sm">
+      <span className="text-muted-foreground">{k}</span>
+      <span
+        className={`font-semibold tabular ${tone === "up" ? "text-[var(--up)]" : tone === "down" ? "text-[var(--down)]" : ""}`}
+      >
+        {v}
+      </span>
+    </div>
+  );
+}
+
+function ChartError({ onRetry, message }: { onRetry: () => void; message?: string }) {
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center gap-3 text-center">
+      <AlertTriangle className="h-8 w-8 text-[var(--down)]" />
+      <div className="text-sm font-semibold">Không tải được biểu đồ</div>
+      {message && <div className="text-xs text-muted-foreground max-w-xs">{message}. Vui lòng thử lại.</div>}
+      <button
+        type="button"
+        onClick={onRetry}
+        className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
+      >
+        <RefreshCw className="h-3 w-3" /> Thử lại
+      </button>
+    </div>
+  );
+}
+
+function ChartEmpty() {
+  return (
+    <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
+      Chưa có dữ liệu lịch sử.
+    </div>
+  );
+}
+
+type HeroProps = {
+  eyebrow: string;
+  logo: React.ReactNode;
+  title: string;
+  pills: string[];
+  meta: { k: string; v: string }[];
+  price: string;
+  priceSuffix?: string;
+  subPrice?: string;
+  subPriceTone?: "up" | "down";
+  changePct?: number | null;
+  extra?: React.ReactNode;
+  actions?: React.ReactNode;
+};
+function AssetHero(p: HeroProps) {
+  const pos = (p.changePct ?? 0) >= 0;
+  return (
+    <section className="rise d1 mt-5 flex flex-wrap items-start justify-between gap-6 pb-6 border-b border-border">
+      <div className="flex items-center gap-4 min-w-0">
+        <div className="h-12 w-12 rounded-full flex-shrink-0 grid place-items-center overflow-hidden bg-gradient-to-br from-[var(--gold-light)] to-[var(--gold)] text-[var(--gold-foreground)] shadow-[0_6px_20px_-8px_color-mix(in_oklab,var(--gold)_60%,transparent)]">
+          {p.logo}
+        </div>
+        <div className="min-w-0">
+          <div className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1">{p.eyebrow}</div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-2xl md:text-[26px] font-bold tracking-tight">{p.title}</h1>
+            {p.pills.map((pill, i) => (
+              <span
+                key={i}
+                className={`text-[11px] font-bold uppercase tracking-[0.04em] px-2 py-0.5 rounded-md border ${
+                  i === 0
+                    ? "border-border text-muted-foreground"
+                    : "border-[color-mix(in_oklab,var(--gold)_35%,transparent)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] text-[var(--gold)]"
+                }`}
+              >
+                {pill}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+            {p.meta.map((m) => (
+              <span key={m.k}>
+                {m.k}: <b className="font-semibold text-foreground/80">{m.v}</b>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-5 ml-auto">
+        <div className="flex flex-col">
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <span className="text-[32px] md:text-[34px] font-extrabold tracking-tight tabular leading-none">
+              {p.price}
+              {p.priceSuffix && <span className="text-lg text-muted-foreground font-semibold ml-1">{p.priceSuffix}</span>}
+            </span>
+            {typeof p.changePct === "number" && (
+              <span
+                className={`inline-flex items-center gap-1 text-sm font-bold px-2.5 py-1 rounded-lg tabular leading-none ${
+                  pos
+                    ? "bg-[color-mix(in_oklab,var(--up)_12%,transparent)] text-[var(--up)]"
+                    : "bg-[color-mix(in_oklab,var(--down)_12%,transparent)] text-[var(--down)]"
+                }`}
+              >
+                {pos ? "▲" : "▼"} {pos ? "+" : ""}{p.changePct.toFixed(2)}%
+              </span>
+            )}
+          </div>
+          {p.subPrice && (
+            <div
+              className={`text-[13px] mt-1 tabular ${
+                p.subPriceTone === "up" ? "text-[var(--up)]" : p.subPriceTone === "down" ? "text-[var(--down)]" : "text-muted-foreground"
+              }`}
+            >
+              {p.subPrice}
+            </div>
+          )}
+        </div>
+        {p.extra}
+        {p.actions && <div className="flex items-center gap-2">{p.actions}</div>}
+      </div>
+    </section>
   );
 }
 

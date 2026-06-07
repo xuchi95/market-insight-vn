@@ -231,3 +231,36 @@
   0% { transform: translateX(-100%); }
   100% { transform: translateX(400%); }
 }
+
+/* ============================================================
+ * Asset detail page — entrance stagger + live ping
+ * ============================================================ */
+@keyframes asset-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rise { opacity: 0; animation: asset-rise 0.5s cubic-bezier(0.22, 0.7, 0.3, 1) forwards; }
+.rise.d1 { animation-delay: 0.04s; }
+.rise.d2 { animation-delay: 0.10s; }
+.rise.d3 { animation-delay: 0.16s; }
+.rise.d4 { animation-delay: 0.22s; }
+.rise.d5 { animation-delay: 0.28s; }
+.rise.d6 { animation-delay: 0.34s; }
+
+@keyframes asset-live-ping {
+  0%   { transform: scale(0.6); opacity: 0.6; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.live-dot-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 1px solid var(--up);
+  opacity: 0.5;
+  animation: asset-live-ping 1.8s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise { animation: none; opacity: 1; }
+  .live-dot-ring { animation: none; }
+}
