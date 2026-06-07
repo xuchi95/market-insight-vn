@@ -55,11 +55,11 @@ export function Breadcrumbs({ extra }: { extra?: CrumbItem[] }) {
     : [{ label }];
 
   return (
-    <nav className="text-sm text-muted-foreground">
-      <ol className="flex items-center gap-2 flex-wrap" itemScope itemType="https://schema.org/BreadcrumbList">
+    <nav className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground/70">
+      <ol className="flex items-center gap-1.5 flex-wrap" itemScope itemType="https://schema.org/BreadcrumbList">
         <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem" className="flex items-center gap-2">
           <Link to="/" className="hover:text-foreground transition-colors inline-flex items-center gap-1" itemProp="item">
-            <Home className="h-3.5 w-3.5" />
+            <Home className="h-3 w-3" />
             <span itemProp="name" className="sr-only">Trang chủ</span>
           </Link>
           <meta itemProp="position" content="1" />
@@ -68,8 +68,8 @@ export function Breadcrumbs({ extra }: { extra?: CrumbItem[] }) {
           const position = idx + 2;
           const isLast = idx === crumbs.length - 1;
           return (
-            <li key={idx} itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem" className="flex items-center gap-2">
-              <ChevronRight className="h-3.5 w-3.5 opacity-60" aria-hidden />
+            <li key={idx} itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem" className="flex items-center gap-1.5">
+              <ChevronRight className="h-3 w-3 opacity-50" aria-hidden />
               {item.to && !isLast ? (
                 <Link
                   to={item.to}
@@ -79,7 +79,7 @@ export function Breadcrumbs({ extra }: { extra?: CrumbItem[] }) {
                   <span itemProp="name">{item.label}</span>
                 </Link>
               ) : (
-                <span className={isLast ? "text-foreground font-medium" : ""} itemProp="name">{item.label}</span>
+                <span className={isLast ? "text-[color-mix(in_oklab,var(--gold)_85%,transparent)]" : ""} itemProp="name">{item.label}</span>
               )}
               <meta itemProp="position" content={String(position)} />
             </li>
