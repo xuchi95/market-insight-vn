@@ -130,8 +130,9 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
             <div className="eyebrow opacity-60">Nguồn · sjc.com.vn</div>
           </div>
 
-          <div className="flex flex-wrap items-end gap-x-8 gap-y-3 mb-5 md:mb-6">
-            <div>
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-4 mb-5 md:mb-6">
+            <div className="min-w-0">
+              <div className="text-xs text-muted-foreground mb-1.5">Giá bán ra hôm nay</div>
               {sjc ? (
                 <FormattedNumber
                   value={sjc.sell}
@@ -146,40 +147,36 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
               ) : (
                 <div className="font-display text-4xl md:text-6xl leading-none text-muted-foreground">—</div>
               )}
+              {sjc && (
+                <div className="mt-2"><ChangePill value={sjc.changePct} /></div>
+              )}
             </div>
-            <InlineKV label="Mua vào" loading={goldLoading} compact={compact} value={sjc?.buy} />
-            <InlineKV label="Bán ra" loading={goldLoading} compact={compact} value={sjc?.sell} />
-            {sjc && <ChangePill value={sjc.changePct} />}
+            <div className="flex items-end gap-6 md:gap-8 pb-1">
+              <InlineKV label="Mua vào" loading={goldLoading} compact={compact} value={sjc?.buy} />
+              <InlineKV
+                label="Chênh lệch"
+                loading={goldLoading}
+                compact={compact}
+                value={sjc ? sjc.sell - sjc.buy : undefined}
+              />
+            </div>
           </div>
 
           {/* Hairline separator */}
-          <div className="h-px bg-border mb-4 md:mb-5" />
+          <div className="h-px bg-border mb-3 md:mb-4" />
+          <div className="text-xs text-muted-foreground mb-3 md:mb-4">Tham khảo các thương hiệu khác</div>
 
           {/* Vàng khác — DOJI / PNJ / XAU/USD, 3 cột cân đối với divider dọc */}
           <div
             data-testid="bento-gold-mini-grid"
-            className="grid grid-cols-3 mb-5 md:mb-6 divide-x divide-border items-stretch"
+            className="grid grid-cols-3 divide-x divide-border items-stretch"
           >
             <GoldMini label="DOJI" gold={doji} loading={goldLoading} compact={compact} />
             <GoldMini label="PNJ" gold={pnj} loading={goldLoading} compact={compact} />
             <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd compact={compact} />
           </div>
 
-          <div className="flex items-end gap-1 h-12 md:h-20 lg:h-28">
-            {Array.from({ length: 24 }).map((_, i) => {
-              const h = 30 + Math.abs(Math.sin((i + (sjc?.changePct ?? 0)) * 0.7)) * 60;
-              const cur = i === 23;
-              return (
-                <div
-                  key={i}
-                  className={`flex-1 ${cur ? "bg-[var(--gold)]" : "bg-[var(--gold)]/15"}`}
-                  style={{ height: `${h}%` }}
-                />
-              );
-            })}
-          </div>
-
-          <div className="mt-auto pt-4 md:pt-5 flex items-center justify-between eyebrow text-[var(--gold)] opacity-90 group-hover:opacity-100">
+          <div className="mt-auto pt-5 md:pt-6 flex items-center justify-between text-sm text-[var(--gold)] opacity-90 group-hover:opacity-100">
             <span>Xem bảng giá vàng đầy đủ</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </div>
