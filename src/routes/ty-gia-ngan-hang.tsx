@@ -4,6 +4,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { BankRateTable } from "@/components/site/BankRateTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { PageHero } from "@/components/site/PageHero";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/ty-gia-ngan-hang`;
@@ -76,11 +77,14 @@ function BankRatesPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-10 space-y-8">
-          <Breadcrumbs />
-          <header className="space-y-2">
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Tỷ giá Vietcombank hôm nay</h1>
-          </header>
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="pt-6"><Breadcrumbs /></div>
+          <PageHero
+            eyebrow="Ngân hàng · Tỷ giá chính thức"
+            title={<>Tỷ giá <em className="not-italic text-[var(--gold)]">Vietcombank</em> hôm nay</>}
+            description={<>Giá mua tiền mặt, mua chuyển khoản và bán ra của USD, EUR, JPY, CNY, GBP, KRW, SGD và nhiều ngoại tệ khác — lấy trực tiếp từ trang chính thức Vietcombank.</>}
+          />
+          <div className="py-8 lg:py-10 space-y-8">
           <BankRateTable />
           <section className="prose prose-invert max-w-none space-y-3">
             <h2 className="text-2xl font-bold tracking-tight">Về dữ liệu tỷ giá</h2>
@@ -89,6 +93,7 @@ function BankRatesPage() {
             </p>
           </section>
           <RelatedLinks current="bank-rates" />
+          </div>
         </div>
       </main>
       <Footer />
