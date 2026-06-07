@@ -8,6 +8,7 @@ const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/lien-he`;
 const TITLE = "Liên hệ MarketWatch — Email hỗ trợ, hợp tác & phản ánh nội dung";
 const DESC = "Liên hệ MarketWatch qua email contact@marketwatch.vn (hỗ trợ người dùng, góp ý dữ liệu, hợp tác) hoặc legal@marketwatch.vn (phản ánh nội dung, yêu cầu từ cơ quan nhà nước). Phản hồi trong 24–72 giờ làm việc.";
+const OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b8c9b171-48fc-42a5-b09c-62d699f826fa";
 
 export const Route = createFileRoute("/lien-he")({
   head: () => ({
@@ -20,8 +21,19 @@ export const Route = createFileRoute("/lien-he")({
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "vi_VN" },
+      { property: "og:site_name", content: "MarketWatch" },
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:secure_url", content: OG_IMAGE },
+      { property: "og:image:type", content: "image/png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "MarketWatch — Liên hệ hỗ trợ và hợp tác" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@marketwatchvn" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESC },
+      { name: "twitter:image", content: OG_IMAGE },
+      { name: "twitter:image:alt", content: "MarketWatch — Liên hệ hỗ trợ và hợp tác" },
     ],
     links: [{ rel: "canonical", href: URL }],
     scripts: [
