@@ -8,6 +8,7 @@ import { GoldPriceTable } from "@/components/site/GoldPriceTable";
 import { MetalsTable } from "@/components/site/MetalsTable";
 import { PriceChart } from "@/components/site/PriceChart";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { PageHero } from "@/components/site/PageHero";
 import { getInitialGold } from "@/lib/initial-gold.functions";
 
 const SITE = "https://marketwatch.vn";
@@ -122,11 +123,14 @@ function GoldPage() {
     <div className="min-h-screen flex flex-col">
       <Header onSearch={setSearch} />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-10 space-y-8">
-          <Breadcrumbs />
-          <header className="space-y-2">
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Giá vàng SJC hôm nay — DOJI, PNJ, BTMC realtime</h1>
-          </header>
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="pt-6"><Breadcrumbs /></div>
+          <PageHero
+            eyebrow="Kim loại quý · Realtime"
+            title={<>Giá <em className="not-italic text-[var(--gold)]">vàng SJC</em> hôm nay — DOJI, PNJ, BTMC</>}
+            description={<>Bảng giá vàng miếng và nhẫn tròn trơn các thương hiệu lớn nhất Việt Nam: SJC, DOJI, PNJ, Bảo Tín Minh Châu, Phú Quý. Kèm giá vàng thế giới XAU/USD — cập nhật mỗi 5 giây.</>}
+          />
+          <div className="py-8 lg:py-10 space-y-8">
           <GoldPriceTable search={search} />
           <MetalsTable />
           <PriceChart defaultAsset="gold-sjc" assets={["gold-sjc"]} />
@@ -158,6 +162,7 @@ function GoldPage() {
             </div>
           </section>
           <RelatedLinks current="gold" />
+          </div>
         </div>
       </main>
       <Footer />
