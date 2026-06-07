@@ -31,6 +31,18 @@ import { useTheme } from "@/hooks/useTheme";
 import { useBinanceTicker } from "@/hooks/useBinanceTicker";
 import { keepPreviousData } from "@tanstack/react-query";
 import { CryptoCommunityFeed } from "@/components/site/CryptoCommunityFeed";
+import {
+  Panel,
+  SectionLabel,
+  LivePing,
+  KpiStrip,
+  StatRow,
+  ChartError,
+  ChartEmpty,
+  AssetHero,
+  type KpiCell,
+  type HeroProps,
+} from "@/components/site/AssetShell";
 
 // Map các CoinGecko-id phổ biến → ticker để 301 redirect về URL canonical.
 // Sitemap chỉ chứa dạng ticker, nên đây là form duy nhất Google nên index.
