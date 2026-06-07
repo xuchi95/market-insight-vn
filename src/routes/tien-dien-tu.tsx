@@ -8,6 +8,7 @@ import { PriceChart } from "@/components/site/PriceChart";
 import { PriceAlerts } from "@/components/site/PriceAlerts";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { FearGreedGauge } from "@/components/site/FearGreedGauge";
+import { PageHero } from "@/components/site/PageHero";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/tien-dien-tu`;
@@ -83,11 +84,14 @@ function CryptoPage() {
     <div className="min-h-screen flex flex-col">
       <Header onSearch={setSearch} />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-10 space-y-8">
-          <Breadcrumbs />
-          <header className="space-y-2">
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Giá Bitcoin hôm nay — BTC, ETH, USDT, BNB, SOL realtime</h1>
-          </header>
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="pt-6"><Breadcrumbs /></div>
+          <PageHero
+            eyebrow="Tiền mã hoá · 24/7"
+            title={<>Giá <em className="not-italic text-[var(--gold)]">Bitcoin</em> hôm nay — BTC, ETH, USDT, BNB, SOL</>}
+            description={<>Giá BTC, ETH, USDT, BNB, Solana, XRP, Dogecoin, TON và hàng trăm altcoin theo USD và quy đổi VND — kèm vốn hoá, volume 24h và biến động giá, cập nhật mỗi 15 giây.</>}
+          />
+          <div className="py-8 lg:py-10 space-y-8">
           <CryptoPriceTable search={search} />
           <FearGreedGauge />
           <PriceAlerts />
@@ -120,6 +124,7 @@ function CryptoPage() {
             </div>
           </section>
           <RelatedLinks current="crypto" />
+          </div>
         </div>
       </main>
       <Footer />
