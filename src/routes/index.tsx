@@ -89,13 +89,6 @@ function Index() {
           <section className="py-10 md:py-14">
             <div className="flex items-baseline justify-between mb-5 md:mb-6 gap-4">
               <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Bảng giá thị trường</h2>
-              <div className="hidden sm:inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--gold)] opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
-                </span>
-                Cập nhật {new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })} · Realtime
-              </div>
             </div>
             <BentoTiles initial={initialPrices} />
           </section>
