@@ -5,6 +5,7 @@ import { Footer } from "@/components/site/Footer";
 import { StockIndexTable } from "@/components/site/StockIndexTable";
 import { UsStockTable } from "@/components/site/UsStockTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { PageHero } from "@/components/site/PageHero";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/chung-khoan`;
