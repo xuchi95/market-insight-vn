@@ -71,7 +71,7 @@ function PrivacyPage() {
 
           <PolicyToc contentRef={contentRef} />
 
-          <section ref={contentRef} className="prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
+          <section ref={contentRef} className="policy-prose prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
             <p>
               MarketWatch (sau đây gọi là “Chúng tôi”, “Website”) cam kết tôn trọng và bảo vệ dữ liệu cá nhân của Người dùng (sau đây gọi là “Bạn”, “Chủ thể dữ liệu”) theo đúng quy định pháp luật Việt Nam, đặc biệt là <strong>Nghị định 13/2023/NĐ-CP ngày 17/4/2023 về bảo vệ dữ liệu cá nhân</strong>, Luật An toàn thông tin mạng 2015, Luật An ninh mạng 2018, Luật Giao dịch điện tử 2023, Luật Bảo vệ quyền lợi người tiêu dùng 2023 và các văn bản pháp luật liên quan. Chính sách này (“Chính sách”) giải thích Chúng tôi thu thập dữ liệu gì, với mục đích nào, xử lý ra sao và Bạn có những quyền gì.
             </p>
