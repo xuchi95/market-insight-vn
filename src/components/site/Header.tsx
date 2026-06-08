@@ -611,16 +611,17 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </button>
             </form>
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-background px-2 py-2">
-            <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-background px-2 py-2 [scrollbar-gutter:stable]">
+            <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 transition-opacity duration-150">
               {q.trim() ? `Kết quả (${suggestions.length})` : "Gợi ý phổ biến"}
             </div>
-            {suggestions.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                Không tìm thấy "{q}"
-              </div>
-            ) : (
-              <ul data-testid="header-mobile-search-results" className="space-y-0.5">
+            <div className="relative min-h-[60vh]">
+              {suggestions.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground animate-in fade-in duration-150">
+                  Không tìm thấy "{q}"
+                </div>
+              ) : (
+                <ul data-testid="header-mobile-search-results" className="space-y-0.5">
                 {suggestions.map((s, idx) => (
                   <li key={s.symbol} data-testid={idx === 0 ? "header-mobile-search-result-first" : undefined}>
                     <button
@@ -628,7 +629,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                       onMouseDown={(e) => { e.preventDefault(); goToSuggestion(s); }}
                       onClick={() => goToSuggestion(s)}
                       onMouseEnter={() => setActiveIdx(idx)}
-                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors duration-150 ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
                     >
                       <span className="inline-flex min-w-[52px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-2 py-1 text-[11px] font-bold tracking-wider text-[var(--gold)]">
                         {highlightMatch(s.symbol, q)}
@@ -640,8 +641,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     </button>
                   </li>
                 ))}
-              </ul>
-            )}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       )}
