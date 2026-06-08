@@ -125,7 +125,7 @@ export const resubmitSitemapToGsc = createServerFn({ method: "POST" })
           type: json.type as string | undefined,
           errors: Number(json.errors ?? 0),
           warnings: Number(json.warnings ?? 0),
-          contents: json.contents,
+          contents: json.contents ? JSON.stringify(json.contents).slice(0, 1000) : undefined,
         };
       } else {
         result.sitemapError = `GET ${getRes.status}: ${(await getRes.text()).slice(0, 200)}`;
