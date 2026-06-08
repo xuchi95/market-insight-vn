@@ -357,36 +357,39 @@ function topicCard(s: DigestSeries): string {
 }
 
 function weekAheadBlock(topics: Set<DigestTopic>): string {
+  const hasGold = topics.has("gold") || topics.has("gold-sjc");
+  const hasCrypto = topics.has("btc") || topics.has("eth") || topics.has("sol") || topics.has("bnb");
+  const hasFx = topics.has("usd") || topics.has("eur");
   const items: { title: string; desc: string; href: string; show: boolean }[] = [
     {
       title: "Lịch sự kiện kinh tế tuần",
       desc: "Theo dõi CPI Mỹ, biên bản FOMC, dữ liệu PMI và các phát biểu của quan chức Fed có thể tác động mạnh tới vàng và crypto.",
       href: `${SITE}/lich-kinh-te`,
-      show: true, // luôn liên quan
+      show: true,
     },
     {
       title: "Lãi suất tiết kiệm ngân hàng",
       desc: "So sánh biểu lãi suất mới nhất tại các ngân hàng để cân nhắc kênh giữ tiền VND.",
       href: `${SITE}/lai-suat-tiet-kiem`,
-      show: topics.has("usd"),
+      show: hasFx,
     },
     {
       title: "Vĩ mô Việt Nam",
       desc: "Cập nhật CPI, GDP, FDI, dự trữ ngoại hối và lãi suất điều hành của NHNN.",
       href: `${SITE}/vi-mo-viet-nam`,
-      show: topics.has("usd") || topics.has("gold"),
+      show: hasFx || hasGold,
     },
     {
       title: "Giá vàng SJC – PNJ – DOJI",
       desc: "Theo dõi chênh lệch mua – bán và biến động trong ngày của các thương hiệu vàng lớn trong nước.",
       href: `${SITE}/gia-vang`,
-      show: topics.has("gold"),
+      show: hasGold,
     },
     {
       title: "Thị trường tiền điện tử",
       desc: "Top coin theo vốn hoá, biến động 24h và dòng vốn ETF Bitcoin mới nhất.",
       href: `${SITE}/tien-dien-tu`,
-      show: topics.has("btc"),
+      show: hasCrypto,
     },
   ].filter((x) => x.show);
   if (items.length === 0) return "";
@@ -402,13 +405,16 @@ function weekAheadBlock(topics: Set<DigestTopic>): string {
 }
 
 function toolsBlock(topics: Set<DigestTopic>): string {
+  const hasGold = topics.has("gold") || topics.has("gold-sjc");
+  const hasCrypto = topics.has("btc") || topics.has("eth") || topics.has("sol") || topics.has("bnb");
+  const hasFx = topics.has("usd") || topics.has("eur");
   const tools: { label: string; href: string; show: boolean }[] = [
-    { label: "Tính lãi suất tiết kiệm", href: `${SITE}/tinh-lai-suat-tiet-kiem`, show: topics.has("usd") },
-    { label: "Mô phỏng DCA crypto", href: `${SITE}/cong-cu/dca-roi`, show: topics.has("btc") },
-    { label: "Quy đổi tiền tệ", href: `${SITE}/quy-doi-tien-te`, show: topics.has("usd") || topics.has("gold") },
-    { label: "Tỷ giá ngân hàng", href: `${SITE}/ty-gia-ngan-hang`, show: topics.has("usd") },
-    { label: "Giá vàng SJC", href: `${SITE}/gia-vang`, show: topics.has("gold") },
-    { label: "Bitcoin & altcoin", href: `${SITE}/tien-dien-tu`, show: topics.has("btc") },
+    { label: "Tính lãi suất tiết kiệm", href: `${SITE}/tinh-lai-suat-tiet-kiem`, show: hasFx },
+    { label: "Mô phỏng DCA crypto", href: `${SITE}/cong-cu/dca-roi`, show: hasCrypto },
+    { label: "Quy đổi tiền tệ", href: `${SITE}/quy-doi-tien-te`, show: hasFx || hasGold },
+    { label: "Tỷ giá ngân hàng", href: `${SITE}/ty-gia-ngan-hang`, show: hasFx },
+    { label: "Giá vàng SJC", href: `${SITE}/gia-vang`, show: hasGold },
+    { label: "Bitcoin & altcoin", href: `${SITE}/tien-dien-tu`, show: hasCrypto },
   ].filter((t) => t.show);
   if (tools.length === 0) return "";
   const cells = tools.map((t) =>
