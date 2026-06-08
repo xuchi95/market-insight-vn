@@ -291,6 +291,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   };
 
   return (
+    <>
     <header data-testid="site-header" className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center gap-3 lg:gap-4 px-4 md:px-5 lg:px-6 py-2.5 md:py-3">
         <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -789,5 +790,8 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </nav>
       )}
     </header>
+    {/* Khung quảng cáo dưới header (leaderboard). Tự ẩn nếu chưa cấu hình VITE_ADSENSE_CLIENT. */}
+    <AdSlot placement="header" slot={import.meta.env.VITE_ADSENSE_SLOT_HEADER as string | undefined} className="my-3 md:my-4" />
+    </>
   );
 }
