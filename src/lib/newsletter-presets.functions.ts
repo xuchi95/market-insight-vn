@@ -76,7 +76,7 @@ export const updatePreset = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = {};
+    const patch: { name?: string; topics?: string[] } = {};
     if (data.name !== undefined) patch.name = data.name;
     if (data.topics !== undefined) patch.topics = data.topics;
     if (Object.keys(patch).length === 0) return { ok: true };
