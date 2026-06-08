@@ -351,7 +351,7 @@ function StockDetail() {
                       <ChartEmpty />
                     ) : (
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chart.points}>
+                        <AreaChart data={chartPoints}>
                           <defs>
                             <linearGradient id="stockGrad" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="var(--gold)" stopOpacity={0.35} />
