@@ -120,7 +120,7 @@ export type HeroProps = {
   title: string;
   pills: string[];
   meta: { k: string; v: string }[];
-  price: string;
+  price: ReactNode;
   priceSuffix?: string;
   subPrice?: string;
   subPriceTone?: "up" | "down";
