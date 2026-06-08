@@ -102,7 +102,6 @@ export function FearGreedGauge() {
       meta={
         <span className="inline-flex items-center gap-1.5">
           {isFetching && <Loader2 className="h-3 w-3 animate-spin" />}
-          {data && <>Nguồn: {data.source}</>}
         </span>
       }
     >

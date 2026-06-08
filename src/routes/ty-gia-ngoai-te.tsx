@@ -6,6 +6,7 @@ import { Footer } from "@/components/site/Footer";
 import { ForexRateTable } from "@/components/site/ForexRateTable";
 import { PriceChart } from "@/components/site/PriceChart";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/ty-gia-ngoai-te`;
@@ -103,6 +104,7 @@ function ForexPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Giá USD hôm nay — Tỷ giá EUR, JPY, CNY, GBP realtime</h1>
+            <DataDisclaimer />
           </header>
           <ForexRateTable search={search} />
           <PriceChart

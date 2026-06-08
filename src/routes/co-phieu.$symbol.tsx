@@ -8,6 +8,7 @@ import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { AssetHero, KpiStrip, Panel, SectionLabel, StatRow, ChartError, ChartEmpty } from "@/components/site/AssetShell";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fmtNum, fmtTime } from "@/lib/format";
@@ -275,6 +276,7 @@ function StockDetail() {
               }
               subPriceTone={positive ? "up" : "down"}
             />
+            <DataDisclaimer className="mt-3" />
 
             <KpiStrip
               cells={[
@@ -427,9 +429,6 @@ function StockDetail() {
                         {data.established && <> · Thành lập {data.established}</>}
                       </p>
                     )}
-                    <p className="text-[11px] text-muted-foreground/70 italic pt-1">
-                      Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
-                    </p>
                   </div>
                 </Panel>
               </div>

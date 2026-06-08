@@ -5,6 +5,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ConverterTool } from "@/components/site/ConverterTool";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/quy-doi-tien-te`;
@@ -72,6 +73,7 @@ function ConverterPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Đổi ngoại tệ — Quy đổi USD, EUR, JPY, CNY sang VND</h1>
+            <DataDisclaimer />
           </header>
           <ConverterTool />
 

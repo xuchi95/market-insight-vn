@@ -253,7 +253,7 @@ function AiPredictPage() {
           <section className="aip-hero">
             <span className="aip-eyebrow">
               <Sparkles className="h-3.5 w-3.5" />
-              Trí tuệ nhân tạo <span className="aip-mid">·</span> Tham khảo
+              Trí tuệ nhân tạo
             </span>
             <h1 className="aip-h1">
               AI dự đoán giá <span className="aip-au">vàng</span>, xăng dầu,{" "}
@@ -261,20 +261,11 @@ function AiPredictPage() {
             </h1>
             <p className="aip-lead">
               Chọn tài sản và khung thời gian — AI phân tích dữ liệu thị trường thời gian thực
-              để đưa ra ước lượng xu hướng, biên độ&nbsp;% thay đổi và 3 kịch bản tham khảo.
-              Kết quả <b>không phải lời khuyên đầu tư</b>.
+              để đưa ra ước lượng xu hướng, biên độ&nbsp;% thay đổi và 3 kịch bản dự báo.
             </p>
-            <div className="aip-hero-chips">
-              <span className="aip-chip">
-                <Clock className="h-3.5 w-3.5" /> Cập nhật mỗi 60 giây
-              </span>
-              <span className="aip-chip">
-                <Database className="h-3.5 w-3.5" /> 4 nhóm · {PREDICTABLE_ASSETS.length} tài sản
-              </span>
-              <span className="aip-chip">
-                <LineChart className="h-3.5 w-3.5" /> 3 kịch bản dự báo
-              </span>
-            </div>
+            <p className="text-xs text-muted-foreground italic mt-3">
+              Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
+            </p>
           </section>
 
           <div className="aip-rule" />

@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ECONOMIC_EVENTS, flagEmoji, type EconImpact, type EconomicEvent } from "@/lib/data/economicCalendar";
@@ -90,12 +91,6 @@ const AFFECTS_LABEL: Record<string, string> = {
   vnd: "VND",
 };
 
-const SOURCE_LABEL: Record<string, string> = {
-  fmp: "FMP",
-  forexfactory: "ForexFactory",
-  reference: "lịch tham khảo",
-};
-
 function fmtVN(date: Date) {
   return new Intl.DateTimeFormat("vi-VN", {
     timeZone: "Asia/Ho_Chi_Minh",
@@ -111,7 +106,7 @@ function EconomicCalendarPage() {
   const [impact, setImpact] = useState<"all" | EconImpact>("all");
   const [range, setRange] = useState<RangeValue>("month");
 
-  const { data, isLoading, isFetching, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["economic-calendar"],
     queryFn: async () => {
       const res = await fetch("/api/public/economic-calendar", { headers: { accept: "application/json" } });
@@ -156,30 +151,12 @@ function EconomicCalendarPage() {
           <Breadcrumbs />
           <header className="mt-4 mb-8">
             <h1 className="font-display text-3xl md:text-5xl">Lịch kinh tế</h1>
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              {isLoading && (
-                <span className="inline-flex items-center gap-1.5">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Đang tải dữ liệu realtime…
-                </span>
-              )}
-              {!isLoading && !usingFallback && data && (
-                <>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    {data.source === "reference" ? "Dữ liệu dự phòng" : "Dữ liệu realtime"} · nguồn {SOURCE_LABEL[data.source] ?? data.source ?? "API"}
-                  </span>
-                  <span>· Cập nhật {new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }).format(new Date(data.fetchedAt))}</span>
-                  {isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  {data.stale && <span className="text-amber-500">(cache cũ)</span>}
-                </>
-              )}
-              {!isLoading && usingFallback && (
-                <span className="inline-flex items-center gap-1.5 text-amber-500">
-                  <AlertTriangle className="h-3.5 w-3.5" />
-                  Không tải được dữ liệu realtime — đang hiển thị lịch tham khảo.
-                </span>
-              )}
-            </div>
+            <DataDisclaimer className="mt-3" />
+            {isLoading && (
+              <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Đang tải…
+              </div>
+            )}
           </header>
 
           <div className="flex flex-wrap gap-2 mb-5">
@@ -269,9 +246,6 @@ function EconomicCalendarPage() {
             })}
           </div>
 
-          <p className="mt-4 text-xs text-muted-foreground">
-            Dữ liệu được biên soạn từ các nguồn công khai (Fed, ECB, BLS, Tổng cục Thống kê…) chỉ mang tính tham khảo. MarketWatch không chịu trách nhiệm về quyết định đầu tư dựa trên dữ liệu này.
-          </p>
         </div>
       </main>
       <Footer />

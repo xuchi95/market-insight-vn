@@ -9,6 +9,7 @@ import { PriceAlerts } from "@/components/site/PriceAlerts";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { FearGreedGauge } from "@/components/site/FearGreedGauge";
 import { PageHero } from "@/components/site/PageHero";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/tien-dien-tu`;
@@ -87,10 +88,11 @@ function CryptoPage() {
         <div className="mx-auto max-w-6xl px-5">
           <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
-            eyebrow="Tiền mã hoá · 24/7"
+            eyebrow="Tiền mã hoá"
             title={<>Giá <em className="not-italic text-[var(--gold)]">Bitcoin</em> hôm nay — BTC, ETH, USDT, BNB, SOL</>}
             description={<>Giá BTC, ETH, USDT, BNB, Solana, XRP, Dogecoin, TON và hàng trăm altcoin theo USD và quy đổi VND — kèm vốn hoá, volume 24h và biến động giá, cập nhật mỗi 15 giây.</>}
           />
+          <DataDisclaimer className="mt-3" />
           <div className="py-8 lg:py-10 space-y-8">
           <CryptoPriceTable search={search} />
           <FearGreedGauge />

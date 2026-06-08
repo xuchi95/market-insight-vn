@@ -444,7 +444,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
             <div className="text-sm text-muted-foreground tabular">
               Khung thời gian: <span className="text-foreground/80 font-semibold">{rangeLabel}</span>
               <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground/70">range={range}</span>
-              {source ? <> — Nguồn: {source}</> : null}
             </div>
           </div>
           <div className="text-right text-xs text-muted-foreground tabular leading-tight">
@@ -460,7 +459,6 @@ export function ConverterPairChart({ from, to }: { from: PairChartAsset | null; 
             <div className="text-sm font-semibold">Biến động {from!.code}/{to!.code}</div>
             <div className="text-sm text-muted-foreground">
               Xu hướng tỷ giá {rangeLabel}
-              {source ? <> — Nguồn: {source}</> : null}
             </div>
           </div>
         </div>

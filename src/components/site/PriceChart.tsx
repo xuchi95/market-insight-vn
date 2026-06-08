@@ -503,21 +503,6 @@ export function PriceChart({
           </span>
           <span className="ml-auto hidden md:inline text-muted-foreground">Di chuột để xem chi tiết · Kéo thanh dưới biểu đồ để zoom</span>
         </div>
-        {source && (
-          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-xs text-muted-foreground border-t border-border/40 pt-2">
-            <span>Nguồn dữ liệu:</span>
-            <a href={source.url} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground/80 hover:text-primary hover:underline">{source.name}</a>
-            {source.unit && <span className="text-muted-foreground/80">• Đơn vị {source.unit}</span>}
-            {source.latest && (
-              <span className="text-muted-foreground/80 hidden sm:inline">
-                • Mua {fmtVal(source.latest.buy)} / Bán {fmtVal(source.latest.sell)}
-              </span>
-            )}
-            {source.updatedAt && (
-              <span className="sm:ml-auto">Cập nhật: {new Date(source.updatedAt).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })}</span>
-            )}
-          </div>
-        )}
       </div>
     </SectionCard>
   );

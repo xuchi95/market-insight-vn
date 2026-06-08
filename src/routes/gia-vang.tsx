@@ -9,6 +9,7 @@ import { MetalsTable } from "@/components/site/MetalsTable";
 import { PriceChart } from "@/components/site/PriceChart";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { PageHero } from "@/components/site/PageHero";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 import { getInitialGold } from "@/lib/initial-gold.functions";
 
 const SITE = "https://marketwatch.vn";
@@ -126,10 +127,11 @@ function GoldPage() {
         <div className="mx-auto max-w-6xl px-5">
           <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
-            eyebrow="Kim loại quý · Realtime"
+            eyebrow="Kim loại quý"
             title={<>Giá <em className="not-italic text-[var(--gold)]">vàng SJC</em> hôm nay — DOJI, PNJ, BTMC</>}
             description={<>Bảng giá vàng miếng và nhẫn tròn trơn các thương hiệu lớn nhất Việt Nam: SJC, DOJI, PNJ, Bảo Tín Minh Châu, Phú Quý. Kèm giá vàng thế giới XAU/USD — cập nhật mỗi 5 giây.</>}
           />
+          <DataDisclaimer className="mt-3" />
           <div className="py-8 lg:py-10 space-y-8">
           <GoldPriceTable search={search} />
           <MetalsTable />

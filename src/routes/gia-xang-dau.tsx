@@ -6,6 +6,7 @@ import { OilPriceTable } from "@/components/site/OilPriceTable";
 import { VnFuelPriceTable } from "@/components/site/VnFuelPriceTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { PageHero } from "@/components/site/PageHero";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 
 const SITE = "https://marketwatch.vn";
@@ -107,23 +108,22 @@ function Page() {
         <div className="mx-auto max-w-6xl px-5">
           <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
-            eyebrow="Hàng hoá · Năng lượng"
+            eyebrow="Hàng hoá"
             title={<>Giá <em className="not-italic text-[var(--gold)]">xăng dầu</em> hôm nay</>}
             description={<>Cập nhật <strong>giá xăng dầu hôm nay</strong> ({today}): bảng giá bán lẻ Petrolimex các mặt hàng RON 95-V, E5 RON 92, Diesel, Dầu hỏa theo kỳ điều hành mới nhất, cùng giá dầu thô Brent (ICE) và WTI (NYMEX) thế giới realtime theo USD/thùng.</>}
           />
+          <DataDisclaimer className="mt-3" />
 
           <section className="py-10 md:py-14">
-            <div className="flex items-baseline justify-between mb-5 md:mb-6">
+            <div className="mb-5 md:mb-6">
               <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Giá dầu thế giới</h2>
-              <div className="eyebrow opacity-60 hidden sm:block">Brent &amp; WTI · realtime</div>
             </div>
             <OilPriceTable />
           </section>
 
           <section className="py-10 md:py-14 border-t border-border">
-            <div className="flex items-baseline justify-between mb-5 md:mb-6">
+            <div className="mb-5 md:mb-6">
               <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Giá xăng dầu trong nước hôm nay</h2>
-              <div className="eyebrow opacity-60 hidden sm:block">Petrolimex · 34 tỉnh thành</div>
             </div>
             <VnFuelPriceTable />
           </section>

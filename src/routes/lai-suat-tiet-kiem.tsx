@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownAZ, ArrowUpDown, Info } from "lucide-react";
+import { ArrowDownAZ, ArrowUpDown } from "lucide-react";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SectionCard } from "@/components/site/SectionCard";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 import { Input } from "@/components/ui/input";
-import { SAVINGS_RATES, SAVINGS_UPDATED_AT, TENORS, type SavingsRate } from "@/lib/data/savingsRates";
+import { SAVINGS_RATES, TENORS, type SavingsRate } from "@/lib/data/savingsRates";
 import { cn } from "@/lib/utils";
 
 const SITE = "https://marketwatch.vn";
@@ -69,8 +70,6 @@ function SavingsPage() {
   const [sortKey, setSortKey] = useState<keyof SavingsRate["rates"] | "bank">("m12");
   const [desc, setDesc] = useState(true);
   const [items, setItems] = useState<SavingsRate[]>(SAVINGS_RATES);
-  const [updatedAt, setUpdatedAt] = useState<string>(SAVINGS_UPDATED_AT);
-  const [source, setSource] = useState<string>("Đang tải...");
 
   useEffect(() => {
     let cancelled = false;
@@ -80,8 +79,6 @@ function SavingsPage() {
         if (cancelled) return;
         if (Array.isArray(d?.items) && d.items.length > 0) {
           setItems(d.items as SavingsRate[]);
-          if (d.updatedAt) setUpdatedAt(d.updatedAt);
-          if (d.source) setSource(d.source);
         }
       })
       .catch(() => {});
@@ -129,8 +126,9 @@ function SavingsPage() {
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Lãi suất tiết kiệm ngân hàng hôm nay</h1>
             <p className="text-muted-foreground max-w-2xl">
-              So sánh <strong>lãi suất gửi tiết kiệm</strong> tại {items.length}+ ngân hàng cho các kỳ hạn 1 – 36 tháng (VND, gửi tại quầy, lĩnh lãi cuối kỳ). Cập nhật: <strong>{updatedAt}</strong> · Nguồn: {source}.
+              So sánh <strong>lãi suất gửi tiết kiệm</strong> tại {items.length}+ ngân hàng cho các kỳ hạn 1 – 36 tháng (VND, gửi tại quầy, lĩnh lãi cuối kỳ).
             </p>
+            <DataDisclaimer />
           </header>
 
           <SectionCard
@@ -183,12 +181,6 @@ function SavingsPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
-            <div className="flex items-start gap-2 px-4 py-3 border-t border-border bg-muted/30 text-sm text-muted-foreground">
-              <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-              <p>
-                Dữ liệu tham khảo, tổng hợp từ trang chính thức của các ngân hàng. Lãi suất có thể thay đổi theo từng chương trình ưu đãi, số tiền gửi và kênh gửi (quầy/online). Vui lòng xác nhận trực tiếp tại ngân hàng trước khi quyết định.
-              </p>
             </div>
           </SectionCard>
 
