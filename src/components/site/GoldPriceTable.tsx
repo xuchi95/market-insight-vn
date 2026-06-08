@@ -69,7 +69,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
             <tr>
               <th className="text-left px-1.5 sm:px-4 py-3 font-semibold">Thương hiệu</th>
               <th className="text-left px-2 sm:px-4 py-3 font-semibold hidden sm:table-cell">Loại vàng</th>
-              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Mua</th>
+              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold hidden min-[440px]:table-cell">Mua</th>
               <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Bán</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Giá trung bình</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Chênh lệch</th>
@@ -104,7 +104,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
                       {g.type}
                     </Link>
                   </td>
-                  <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums"><AnimatedNumber value={g.buy} format={fmt} /></td>
+                  <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums hidden min-[440px]:table-cell"><AnimatedNumber value={g.buy} format={fmt} /></td>
                   <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={g.sell} format={fmt} /></td>
                   <td className="px-4 py-3 text-right hidden md:table-cell"><AnimatedNumber value={mid} format={fmt} noFlash minChars={isUsd ? 8 : 7} /></td>
                   <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={g.sell - g.buy} format={fmt} noFlash minChars={isUsd ? 6 : 5} /></td>
