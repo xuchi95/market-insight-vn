@@ -220,11 +220,26 @@
 }
 .animate-marquee {
   display: inline-flex;
-  animation: marquee 40s linear infinite;
+  animation: marquee 60s linear infinite;
+}
+@media (min-width: 768px) {
+  .animate-marquee { animation-duration: 50s; }
 }
 .ticker-marquee:hover .animate-marquee,
 .ticker-marquee:focus-within .animate-marquee {
   animation-play-state: paused;
+}
+
+/* Subtle sparkle for CTA accents */
+@keyframes sparkle-pulse {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.18); }
+}
+.animate-sparkle-pulse {
+  animation: sparkle-pulse 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-sparkle-pulse { animation: none; }
 }
 
 @keyframes slide {

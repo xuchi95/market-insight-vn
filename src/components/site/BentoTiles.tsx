@@ -121,7 +121,7 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const ethVol = liveTicks.ethereum?.volume24h ?? eth?.volume24h ?? 0;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
+    <div className="grid grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
       {/* Gold — large hero tile */}
       <TileFrame className="col-span-2 md:col-span-4 md:row-span-2 flex flex-col">
         <Link to="/gia-vang" className="flex flex-col h-full group">

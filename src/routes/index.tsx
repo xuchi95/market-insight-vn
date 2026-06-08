@@ -64,8 +64,8 @@ function Index() {
           {/* Hero — editorial masthead */}
           <section className="py-10 md:py-14 border-b border-border">
             <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-end">
-              <div className="md:col-span-7">
-                <h1 className="font-display font-bold text-[2.6rem] sm:text-[3.2rem] md:text-[3.75rem] lg:text-[4.4rem] leading-[1.02] tracking-[-0.018em] text-foreground text-balance">
+              <div className="md:col-span-7 animate-fade-in">
+                <h1 className="font-display font-bold text-[2.15rem] sm:text-[3.2rem] md:text-[3.75rem] lg:text-[4.4rem] leading-[1.04] tracking-[-0.018em] text-foreground text-balance">
                   Theo dõi giá
                   <br />
                   <em className="not-italic text-[var(--gold)]">vàng, crypto</em> &amp;
@@ -73,11 +73,11 @@ function Index() {
                   tỷ giá ngoại tệ.
                 </h1>
               </div>
-              <div className="md:col-span-5 md:pb-2">
+              <div className="md:col-span-5 md:pb-2 animate-fade-in" style={{ animationDelay: "120ms", animationFillMode: "both" }}>
                 <p className="text-[15px] text-muted-foreground leading-relaxed text-pretty max-w-[42ch]">
                   Công cụ trực quan hoá dữ liệu tài chính Việt Nam — giá vàng, tiền số, ngoại tệ và lãi suất, cập nhật theo từng phút.
                 </p>
-                <div className="mt-4 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
+                <div className="mt-4 inline-flex items-center gap-2 text-[12px] md:text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">
                   <span aria-hidden className="inline-block w-[22px] h-px bg-[color-mix(in_oklab,var(--gold)_70%,transparent)]" />
                   Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường
                 </div>
@@ -110,14 +110,15 @@ function Index() {
               <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
                 <div className="flex-1">
                   <div className="mb-2 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">
-                    ✦ Mới · Trí tuệ nhân tạo
+                    <span aria-hidden className="inline-block animate-sparkle-pulse">✦</span>
+                    Mới · Trí tuệ nhân tạo
                   </div>
                   <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight text-foreground">
                     AI dự đoán giá vàng, xăng dầu, Bitcoin &amp; ngoại tệ
                   </h2>
                 </div>
-                <div className="shrink-0">
-                  <span className="inline-flex items-center gap-2 rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-2.5 text-sm font-semibold shadow-[0_1px_0_rgba(255,255,255,.18)_inset] transition-colors group-hover:bg-[var(--gold-light)]">
+                <div className="shrink-0 w-full md:w-auto">
+                  <span className="inline-flex w-full md:w-auto justify-center items-center gap-2 rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-3 md:py-2.5 text-sm font-semibold shadow-[0_1px_0_rgba(255,255,255,.18)_inset] transition-colors group-hover:bg-[var(--gold-light)]">
                     Thử ngay →
                   </span>
                 </div>
