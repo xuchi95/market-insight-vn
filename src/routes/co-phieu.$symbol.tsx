@@ -14,6 +14,7 @@ import { fmtNum, fmtTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { isVnMarketOpen } from "@/lib/vn-market";
 import { AnimatedNumber } from "@/components/site/AnimatedNumber";
+import { OhlcvTooltip } from "@/components/site/OhlcvTooltip";
 
 const SITE = "https://marketwatch.vn";
 
@@ -45,7 +46,11 @@ interface VnStock {
   source: string;
 }
 
-interface ChartPayload { points: { t: number; v: number }[]; source: string; resolution?: string }
+interface ChartPayload {
+  points: { t: number; v: number; o?: number; h?: number; l?: number; vol?: number }[];
+  source: string;
+  resolution?: string;
+}
 
 async function fetchStock(sym: string): Promise<VnStock> {
   const r = await fetch(`/api/public/vn-stock?symbol=${encodeURIComponent(sym)}`);
@@ -360,13 +365,8 @@ function StockDetail() {
                           />
                           <YAxis stroke="var(--muted-foreground)" fontSize={11} domain={["auto", "auto"]} tickLine={false} axisLine={false} width={56} />
                           <Tooltip
-                            contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
-                            labelFormatter={(t) =>
-                              intraday
-                                ? new Date(t).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
-                                : new Date(t).toLocaleDateString("vi-VN")
-                            }
-                            formatter={(v: number) => [fmtNum(v, 2), SYM]}
+                            cursor={{ stroke: "var(--muted-foreground)", strokeOpacity: 0.4, strokeDasharray: "3 3" }}
+                            content={(p) => <OhlcvTooltip {...p} opts={{ intraday, unit: "nghìn ₫", digits: 2 }} />}
                           />
                           <Area type="monotone" dataKey="v" stroke="var(--gold)" strokeWidth={2} fill="url(#stockGrad)" isAnimationActive={false} />
                         </AreaChart>
