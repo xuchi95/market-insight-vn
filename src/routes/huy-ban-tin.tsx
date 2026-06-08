@@ -37,7 +37,15 @@ function UnsubscribePage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setErrMsg(data?.error === "not_found" ? "Đường dẫn không hợp lệ hoặc đã hết hạn." : "Có lỗi xảy ra.");
+        if (data?.error === "expired") {
+          setErrMsg(
+            "Đường dẫn huỷ đăng ký đã hết hạn (quá 180 ngày). Vui lòng mở email bản tin mới nhất để dùng đường dẫn mới.",
+          );
+        } else if (data?.error === "not_found") {
+          setErrMsg("Đường dẫn không hợp lệ hoặc đã được dùng. Vui lòng dùng đường dẫn trong email mới nhất.");
+        } else {
+          setErrMsg("Có lỗi xảy ra.");
+        }
         setState("error");
         return;
       }

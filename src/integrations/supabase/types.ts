@@ -452,6 +452,7 @@ export type Database = {
           source: string | null
           topics: string[]
           unsubscribe_token: string
+          unsubscribe_token_issued_at: string
           unsubscribed_at: string | null
           user_id: string | null
         }
@@ -464,6 +465,7 @@ export type Database = {
           source?: string | null
           topics?: string[]
           unsubscribe_token?: string
+          unsubscribe_token_issued_at?: string
           unsubscribed_at?: string | null
           user_id?: string | null
         }
@@ -476,6 +478,7 @@ export type Database = {
           source?: string | null
           topics?: string[]
           unsubscribe_token?: string
+          unsubscribe_token_issued_at?: string
           unsubscribed_at?: string | null
           user_id?: string | null
         }
@@ -1263,6 +1266,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      rotate_expired_unsubscribe_tokens: {
+        Args: { ttl_days?: number }
+        Returns: number
       }
     }
     Enums: {
