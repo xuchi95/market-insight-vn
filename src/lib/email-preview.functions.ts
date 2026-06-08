@@ -13,7 +13,13 @@ import {
   cryptoDigestEmail,
   fxDigestEmail,
 } from "@/lib/email/templates.server";
-import { buildDigestEmail, fetchDigestData, type DigestTopic } from "@/lib/email/digest.server";
+import {
+  buildDigestEmail,
+  fetchDigestData,
+  ALL_DIGEST_TOPICS,
+  DIGEST_TOPIC_META,
+  type DigestTopic,
+} from "@/lib/email/digest.server";
 import {
   fetchDailyGoldRows,
   fetchDailyCryptoRows,
@@ -78,7 +84,16 @@ export const SAMPLE_DATA: Record<EmailTemplateId, Record<string, unknown>> = {
 };
 
 function mockDigestSeries(topic: DigestTopic) {
-  const base = topic === "gold" ? 2650 : topic === "btc" ? 100000 : 25400;
+  const meta = DIGEST_TOPIC_META[topic];
+  const base =
+    topic === "gold" ? 2650 :
+    topic === "gold-sjc" ? 84_500_000 :
+    topic === "btc" ? 100_000 :
+    topic === "eth" ? 3_600 :
+    topic === "sol" ? 220 :
+    topic === "bnb" ? 680 :
+    topic === "usd" ? 25_400 :
+    topic === "eur" ? 27_900 : 100;
   const series30 = Array.from({ length: 30 }, (_, i) =>
     base * (1 + Math.sin((i / 29) * Math.PI * 2) * 0.05 + (i / 29) * 0.02),
   );
@@ -89,8 +104,8 @@ function mockDigestSeries(topic: DigestTopic) {
   const changeAbs = current - previous;
   return {
     topic,
-    label: topic === "gold" ? "Vàng (XAU/USD)" : topic === "btc" ? "Bitcoin (BTC)" : "Tỷ giá USD/VND",
-    unit: topic === "usd" ? "VND" : "USD",
+    label: meta.label,
+    unit: meta.unit,
     current,
     previous,
     changeAbs,
@@ -111,7 +126,7 @@ const PreviewSchema = z.object({
 });
 
 async function renderTemplate(template: string, data: Record<string, any>): Promise<{ subject: string; html: string }> {
-  const VALID_TOPICS: DigestTopic[] = ["gold", "btc", "usd"];
+  const VALID_TOPICS: DigestTopic[] = ALL_DIGEST_TOPICS;
   const unsubUrl = "https://marketwatch.vn/huy-ban-tin?token=preview";
   const dateLabel = todayLabel();
   const emptyLive = (label: string) => ({

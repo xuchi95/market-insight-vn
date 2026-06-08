@@ -1,6 +1,5 @@
 import { sendEmail } from "./resend.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const SITE = "https://marketwatch.vn";
 const GOLD = "#C9A24A";
