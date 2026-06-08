@@ -719,6 +719,15 @@ function AipStyles() {
       html.light .aip .aip-bg-grain { opacity:.025; mix-blend-mode:multiply; }
       html.light .aip .aip-bar { background:rgba(26,20,8,.08); }
       html.light .aip .aip-context pre { background:rgba(26,20,8,.04); }
+      html.light .aip {
+        /* Slightly deeper up/down hues for AA contrast on light bg */
+        --aip-up:#2f8a4f;
+        --aip-down:#c05a4f;
+      }
+
+      /* Shared sub-utilities so children never reach for global tokens */
+      .aip .aip-sub-h2 { font-size:1rem; font-weight:600; color:var(--aip-ink-2); margin-top:8px; }
+      .aip .aip-disclaimer-inline { font-size:.78rem; font-style:italic; color:var(--aip-ink-3); margin-top:12px; }
       .aip .aip-bg-glow {
         position:absolute; inset:0; z-index:0; pointer-events:none;
         background:
