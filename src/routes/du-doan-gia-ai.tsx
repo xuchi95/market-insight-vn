@@ -859,7 +859,18 @@ function AipStyles() {
       .aip .aip-btn-ghost:hover { background:rgba(203,167,95,.1); }
 
       /* result */
-      .aip .aip-result { border-top:1px solid var(--aip-line-strong); padding:32px 34px 38px; display:flex; flex-direction:column; gap:24px; animation:aip-rise .5s ease both; }
+      .aip .aip-result {
+        border-top:1px solid var(--aip-line-strong);
+        padding:32px 34px 38px;
+        display:flex; flex-direction:column; gap:24px;
+        animation:aip-rise .5s ease both;
+        background:
+          radial-gradient(120% 80% at 50% -10%, color-mix(in oklab, var(--aip-gold) 9%, transparent) 0%, transparent 55%),
+          linear-gradient(180deg, color-mix(in oklab, var(--aip-panel-hi-color, #ffffff) 60%, transparent), transparent 40%),
+          var(--aip-panel);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+      }
+      html.dark .aip .aip-result { box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
       @keyframes aip-rise { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
       .aip .aip-res-head { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
       .aip .aip-res-title { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
@@ -890,8 +901,40 @@ function AipStyles() {
       .aip .aip-res-title h3 { font-weight:600; font-size:1.35rem; color:var(--aip-ink); letter-spacing:-.012em; }
       .aip .aip-res-conf { text-align:right; font-size:.72rem; color:var(--aip-ink-3); letter-spacing:.04em; }
       .aip .aip-res-conf b { color:var(--aip-ink); font-size:1.05rem; display:block; }
-      .aip .aip-res-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-      .aip .aip-metric { padding:16px 18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); box-shadow:var(--aip-shadow-card); }
+      .aip .aip-res-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+      .aip .aip-metric {
+        padding:18px 18px 16px;
+        border:1px solid var(--aip-line-strong);
+        border-radius:var(--aip-r-md);
+        background:
+          linear-gradient(180deg, color-mix(in oklab, var(--aip-ink) 0%, transparent), color-mix(in oklab, var(--aip-ink) 3%, transparent)),
+          var(--aip-panel);
+        box-shadow:
+          0 1px 0 rgba(255,255,255,.6) inset,
+          0 1px 2px rgba(80,60,20,.06),
+          0 12px 24px -16px rgba(80,60,20,.32);
+        transition:transform .2s ease, box-shadow .25s ease, border-color .25s;
+      }
+      .aip .aip-metric:hover {
+        transform:translateY(-1px);
+        border-color: color-mix(in oklab, var(--aip-gold) 38%, var(--aip-line-strong));
+        box-shadow:
+          0 1px 0 rgba(255,255,255,.7) inset,
+          0 2px 4px rgba(80,60,20,.08),
+          0 18px 32px -16px rgba(80,60,20,.42);
+      }
+      html.dark .aip .aip-metric {
+        box-shadow:
+          0 1px 0 rgba(255,255,255,.04) inset,
+          0 1px 2px rgba(0,0,0,.35),
+          0 14px 28px -18px rgba(0,0,0,.7);
+      }
+      html.dark .aip .aip-metric:hover {
+        box-shadow:
+          0 1px 0 rgba(255,255,255,.06) inset,
+          0 2px 4px rgba(0,0,0,.4),
+          0 20px 36px -18px rgba(0,0,0,.8);
+      }
       .aip .aip-metric-k { font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--aip-ink-3); }
       .aip .aip-metric-v { margin-top:8px; font-size:1.25rem; font-weight:600; color:var(--aip-ink); display:flex; align-items:center; gap:8px; font-variant-numeric:tabular-nums; }
       .aip .aip-bar { margin-top:10px; height:6px; border-radius:99px; background:rgba(246,241,231,.08); overflow:hidden; }
@@ -902,8 +945,43 @@ function AipStyles() {
       .aip .aip-amber-ic { color:#e0a458; flex:none; margin-top:4px; }
       .aip .aip-summary { font-size:1rem; line-height:1.72; color:var(--aip-ink-2); }
 
-      .aip .aip-scenarios { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-      .aip .aip-scn { padding:18px 18px 16px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); border-top:3px solid var(--aip-gold); box-shadow:var(--aip-shadow-card); }
+      .aip .aip-scenarios { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+      .aip .aip-scn {
+        position:relative;
+        padding:20px 18px 18px;
+        border:1px solid var(--aip-line-strong);
+        border-radius:var(--aip-r-md);
+        background:
+          linear-gradient(180deg, color-mix(in oklab, var(--aip-gold) 5%, transparent), transparent 60%),
+          var(--aip-panel);
+        border-top:3px solid var(--aip-gold);
+        box-shadow:
+          0 1px 0 rgba(255,255,255,.6) inset,
+          0 1px 2px rgba(80,60,20,.06),
+          0 14px 26px -16px rgba(80,60,20,.36);
+        transition:transform .2s ease, box-shadow .25s ease, border-color .25s;
+      }
+      .aip .aip-scn:hover {
+        transform:translateY(-1px);
+        box-shadow:
+          0 1px 0 rgba(255,255,255,.7) inset,
+          0 2px 4px rgba(80,60,20,.08),
+          0 20px 36px -16px rgba(80,60,20,.48);
+      }
+      html.dark .aip .aip-scn {
+        box-shadow:
+          0 1px 0 rgba(255,255,255,.04) inset,
+          0 1px 2px rgba(0,0,0,.35),
+          0 16px 30px -18px rgba(0,0,0,.75);
+      }
+      html.dark .aip .aip-scn:hover {
+        box-shadow:
+          0 1px 0 rgba(255,255,255,.06) inset,
+          0 2px 4px rgba(0,0,0,.4),
+          0 22px 40px -18px rgba(0,0,0,.85);
+      }
+      .aip .aip-scn.optimistic { background:linear-gradient(180deg, color-mix(in oklab, var(--aip-up) 7%, transparent), transparent 60%), var(--aip-panel); }
+      .aip .aip-scn.pessimistic { background:linear-gradient(180deg, color-mix(in oklab, var(--aip-down) 7%, transparent), transparent 60%), var(--aip-panel); }
       .aip .aip-scn.optimistic { border-top-color:var(--aip-up); }
       .aip .aip-scn.base { border-top-color:var(--aip-gold); }
       .aip .aip-scn.pessimistic { border-top-color:var(--aip-down); }
