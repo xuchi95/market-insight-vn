@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { getSeoAuditOverview, runSeoAuditNow } from "@/lib/admin/seo-audit.functions";
-import { AlertTriangle, CheckCircle2, RefreshCw, ExternalLink, TrendingUp, FileCode } from "lucide-react";
+import { resubmitSitemapToGsc } from "@/lib/admin/sitemap-submit.functions";
+import { AlertTriangle, CheckCircle2, RefreshCw, ExternalLink, TrendingUp, FileCode, Send } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/mw-admin/seo")({
   component: SeoAuditPage,
@@ -38,6 +39,7 @@ function SeoAuditPage() {
   const qc = useQueryClient();
   const fetchOverview = useServerFn(getSeoAuditOverview);
   const runNow = useServerFn(runSeoAuditNow);
+  const resubmitSitemap = useServerFn(resubmitSitemapToGsc);
   const [filter, setFilter] = useState<"all" | "issues">("issues");
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -48,6 +50,10 @@ function SeoAuditPage() {
   const runMutation = useMutation({
     mutationFn: () => runNow(),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "seo-audit"] }),
+  });
+
+  const resubmitMutation = useMutation({
+    mutationFn: () => resubmitSitemap(),
   });
 
   const latest = data?.latest;
@@ -77,6 +83,15 @@ function SeoAuditPage() {
             <RefreshCw className="mr-1 inline h-3 w-3" /> Tải lại
           </button>
           <button
+            onClick={() => resubmitMutation.mutate()}
+            disabled={resubmitMutation.isPending}
+            className="rounded-md border border-[var(--gold)]/60 bg-transparent px-3 py-1.5 text-xs font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/10 disabled:opacity-50"
+            title="Gửi lại sitemap.xml lên Google Search Console"
+          >
+            <Send className="mr-1 inline h-3 w-3" />
+            {resubmitMutation.isPending ? "Đang gửi…" : "Resubmit sitemap"}
+          </button>
+          <button
             onClick={() => runMutation.mutate()}
             disabled={runMutation.isPending}
             className="rounded-md bg-[var(--gold)] px-3 py-1.5 text-xs font-semibold text-[var(--gold-foreground)] hover:opacity-90 disabled:opacity-50"
@@ -100,6 +115,16 @@ function SeoAuditPage() {
       {runMutation.isSuccess && (
         <div className="mb-4 rounded-md border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-4 text-sm text-foreground">
           Audit hoàn tất: {runMutation.data.total} URL, {runMutation.data.withIssues} có vấn đề.
+        </div>
+      )}
+      {resubmitMutation.isError && (
+        <div className="mb-4 rounded-md border border-[var(--down)]/40 bg-[var(--down)]/5 p-4 text-sm text-[var(--down)]">
+          Không resubmit được sitemap: {(resubmitMutation.error as Error).message}
+        </div>
+      )}
+      {resubmitMutation.isSuccess && (
+        <div className="mb-4 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-4 text-sm text-foreground">
+          Đã gửi <code className="text-[var(--gold)]">{resubmitMutation.data.submitted}</code> lên Google Search Console lúc {fmtDate(resubmitMutation.data.at)}. Googlebot sẽ re-crawl trong vài giờ–vài ngày.
         </div>
       )}
 
