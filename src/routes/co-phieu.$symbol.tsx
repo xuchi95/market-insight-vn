@@ -236,8 +236,15 @@ function StockDetail() {
                 ...(data.companyName ? [{ k: "Công ty", v: data.companyName }] : []),
                 ...(data.industry ? [{ k: "Ngành", v: data.industry }] : []),
                 { k: "Cập nhật", v: fmtTime(data.fetchedAt) },
+                { k: "Trạng thái", v: marketOpen ? "Đang giao dịch" : "Đóng cửa" },
               ]}
-              price={fmtPrice(data.price)}
+              price={
+                data.price !== null ? (
+                  <AnimatedNumber value={data.price / 1000} format={(v) => fmtNum(v, 2)} duration={500} />
+                ) : (
+                  "—"
+                )
+              }
               priceSuffix="nghìn ₫"
               changePct={data.changePct}
               subPrice={
@@ -250,11 +257,43 @@ function StockDetail() {
 
             <KpiStrip
               cells={[
-                { k: "Mở cửa", v: fmtPrice(data.open) },
+                {
+                  k: "Mở cửa",
+                  v:
+                    data.open !== null ? (
+                      <AnimatedNumber value={data.open / 1000} format={(v) => fmtNum(v, 2)} noFlash />
+                    ) : (
+                      "—"
+                    ),
+                },
                 { k: "Tham chiếu", v: fmtPrice(data.prevClose) },
-                { k: "Cao nhất phiên", v: fmtPrice(data.high) },
-                { k: "Thấp nhất phiên", v: fmtPrice(data.low) },
-                { k: "Khối lượng", v: fmtInt(data.volume) },
+                {
+                  k: "Cao nhất phiên",
+                  v:
+                    data.high !== null ? (
+                      <AnimatedNumber value={data.high / 1000} format={(v) => fmtNum(v, 2)} />
+                    ) : (
+                      "—"
+                    ),
+                },
+                {
+                  k: "Thấp nhất phiên",
+                  v:
+                    data.low !== null ? (
+                      <AnimatedNumber value={data.low / 1000} format={(v) => fmtNum(v, 2)} />
+                    ) : (
+                      "—"
+                    ),
+                },
+                {
+                  k: "Khối lượng",
+                  v:
+                    data.volume !== null ? (
+                      <AnimatedNumber value={data.volume} format={(v) => Math.round(v).toLocaleString("vi-VN")} noFlash />
+                    ) : (
+                      "—"
+                    ),
+                },
                 { k: "Vốn hoá", v: fmtMarketCap(data.marketCap) },
               ]}
             />
