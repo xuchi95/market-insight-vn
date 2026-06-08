@@ -231,7 +231,12 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
   const goToSuggestion = (s: SearchSuggestion) => {
     onSearch?.(s.symbol.toLowerCase());
-    navigate({ to: s.to as never });
+    if (s.to.startsWith("/tai-san/")) {
+      const symbol = s.to.slice("/tai-san/".length);
+      navigate({ to: "/tai-san/$symbol", params: { symbol } });
+    } else {
+      navigate({ to: s.to as never });
+    }
     setSearchOpen(false);
     setSuggestOpen(false);
     setQ("");
