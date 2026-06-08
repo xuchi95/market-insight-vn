@@ -231,9 +231,6 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
                 </button>
               </div>
             )}
-            <p className="mt-4 text-[11px] text-muted-foreground text-center">
-              Nguồn: CoinDesk Data API. MarketWatch không chịu trách nhiệm về nội dung của bên thứ ba.
-            </p>
           </>
         )}
       </div>
