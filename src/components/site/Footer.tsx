@@ -1,9 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import logoUrl from "@/assets/logo.png";
+import { AdSlot } from "@/components/site/AdSlot";
 
 export function Footer() {
   return (
     <footer className="mt-16 border-t border-border bg-card/30">
+      {/* Khung quảng cáo trên cùng footer. Tự ẩn nếu chưa cấu hình VITE_ADSENSE_CLIENT. */}
+      <AdSlot placement="footer" slot={import.meta.env.VITE_ADSENSE_SLOT_FOOTER as string | undefined} className="mt-0 mb-4 md:mb-6" />
       <div className="mx-auto max-w-6xl px-5 py-12">
         <div className="grid gap-10 md:grid-cols-12">
           <div className="md:col-span-5">
