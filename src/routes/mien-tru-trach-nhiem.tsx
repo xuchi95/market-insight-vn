@@ -66,7 +66,7 @@ function DisclaimerPage() {
             <p className="mt-2 text-sm text-muted-foreground">Cập nhật lần cuối: {new Date().toLocaleDateString("vi-VN")}</p>
           </header>
 
-          <section className="prose prose-invert max-w-none space-y-4 text-muted-foreground leading-relaxed">
+          <section className="prose dark:prose-invert max-w-none space-y-4 text-muted-foreground leading-relaxed">
             <h2 className="text-xl font-semibold text-foreground">1. Tính chất thông tin</h2>
             <p>
               MarketWatch (sau đây gọi là “Website”) là <strong>công cụ phần mềm phân tích, trực quan hoá và hiển thị số liệu thị trường tài chính theo thời gian thực</strong> (giá vàng, tỷ giá ngoại tệ, lãi suất, giá tài sản mã hoá, chỉ số chứng khoán, giá nhiên liệu). Toàn bộ dữ liệu hiển thị được truy xuất tự động qua API từ các nguồn công khai của bên thứ ba (PNJ, SJC, ngân hàng thương mại, các sàn giao dịch quốc tế, nhà cung cấp dữ liệu thị trường) và <strong>không phải là báo giá chính thức</strong> của Website. Website <strong>không sản xuất, biên tập tin tức, bài viết</strong> và <strong>không cho phép người dùng đăng tải, chia sẻ nội dung công khai</strong>.
