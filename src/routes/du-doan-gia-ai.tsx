@@ -712,9 +712,7 @@ function AipStyles() {
           linear-gradient(180deg, var(--aip-bg) 0%, var(--aip-bg-2) 55%, var(--aip-bg) 100%);
       }
       html.light .aip .aip-bg-grid {
-        background-image:
-          linear-gradient(to right, rgba(26,20,8,.05) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(26,20,8,.05) 1px, transparent 1px);
+        display:none;
       }
       html.light .aip .aip-bg-grain { opacity:.025; mix-blend-mode:multiply; }
       html.light .aip .aip-bar { background:rgba(26,20,8,.08); }
