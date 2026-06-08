@@ -688,6 +688,37 @@ function AipStyles() {
         line-height:1.6;
       }
       .aip main { background:var(--aip-bg); }
+
+      /* Light theme overrides — kept here so the scoped .aip palette
+         follows the global ThemeToggle (html.light / html.dark). */
+      html.light .aip {
+        --aip-bg:#faf7f1;
+        --aip-bg-2:#f3ede1;
+        --aip-ink:#1a1408;
+        --aip-ink-2:#3d3424;
+        --aip-ink-3:#6b6249;
+        --aip-ink-4:#9a9079;
+        --aip-line:rgba(160,126,54,.22);
+        --aip-line-soft:rgba(26,20,8,.08);
+        --aip-panel:rgba(255,255,255,.7);
+        --aip-panel-2:rgba(255,255,255,.92);
+        --aip-panel-hi:rgba(203,167,95,.14);
+        --aip-shadow-deep:0 30px 70px -40px rgba(80,60,20,.35);
+      }
+      html.light .aip .aip-bg-glow {
+        background:
+          radial-gradient(900px 520px at 18% -8%, rgba(203,167,95,.22), transparent 60%),
+          radial-gradient(700px 600px at 100% 4%, rgba(160,126,54,.10), transparent 55%),
+          linear-gradient(180deg, var(--aip-bg) 0%, var(--aip-bg-2) 55%, var(--aip-bg) 100%);
+      }
+      html.light .aip .aip-bg-grid {
+        background-image:
+          linear-gradient(to right, rgba(26,20,8,.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(26,20,8,.05) 1px, transparent 1px);
+      }
+      html.light .aip .aip-bg-grain { opacity:.025; mix-blend-mode:multiply; }
+      html.light .aip .aip-bar { background:rgba(26,20,8,.08); }
+      html.light .aip .aip-context pre { background:rgba(26,20,8,.04); }
       .aip .aip-bg-glow {
         position:absolute; inset:0; z-index:0; pointer-events:none;
         background:
