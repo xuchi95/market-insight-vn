@@ -571,7 +571,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
       </div>
 
       {/* Mobile search sheet */}
-      {searchVisible && (
+      {searchVisible && typeof document !== "undefined" && createPortal(
         <div
           data-testid="header-mobile-search-panel"
           data-state={searchOpen ? "open" : "closed"}
@@ -651,7 +651,8 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Mobile nav */}
