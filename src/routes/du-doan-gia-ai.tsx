@@ -714,6 +714,9 @@ function AipStyles() {
       html.light .aip .aip-bg-grid {
         display:none;
       }
+      /* Defensive: nếu bất kỳ component con nào dùng .bg-grid toàn cục,
+         ẩn nó trong scope .aip ở cả 2 theme để không lặp lưới nền. */
+      .aip .bg-grid { display:none; }
       html.light .aip .aip-bg-grain { opacity:.025; mix-blend-mode:multiply; }
       html.light .aip .aip-bar { background:rgba(26,20,8,.08); }
       html.light .aip .aip-context pre { background:rgba(26,20,8,.04); }
