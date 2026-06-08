@@ -191,10 +191,27 @@
 .flash-up   { animation: price-flash-up   700ms ease-out both; }
 .flash-down { animation: price-flash-down 700ms ease-out both; }
 
-/* Shorter + lighter on touch devices to avoid long-running paints. */
+/* Constrain repaints to the cell itself so the rest of the table
+ * (sticky header, neighbour rows) doesn't get invalidated. */
+.price-flash-up, .price-flash-down,
+.flash-up, .flash-down {
+  contain: paint;
+  will-change: background-color;
+}
+
+/* Shorter + lighter flashes on touch devices: many cells often update
+ * at once, so we keep the paint area tiny and the duration short. */
 @media (hover: none) and (pointer: coarse) {
+  @keyframes price-flash-up {
+    0%   { background-color: color-mix(in oklab, var(--up) 18%, transparent); }
+    100% { background-color: transparent; }
+  }
+  @keyframes price-flash-down {
+    0%   { background-color: color-mix(in oklab, var(--down) 18%, transparent); }
+    100% { background-color: transparent; }
+  }
   .price-flash-up, .price-flash-down,
-  .flash-up, .flash-down { animation-duration: 500ms; }
+  .flash-up, .flash-down { animation-duration: 320ms; }
 }
 
 @media (prefers-reduced-motion: reduce) {
