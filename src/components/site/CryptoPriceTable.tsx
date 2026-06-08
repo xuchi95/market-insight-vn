@@ -185,12 +185,12 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   #
                 </th>
                 <th
-                  className={`${stickyThClass} text-left px-2 sm:px-4 py-3 font-semibold w-[40%] sm:w-auto`}
+                  className={`${stickyThClass} text-left px-2 sm:px-4 py-3 font-semibold w-[36%] sm:w-auto`}
                 >
                   Coin
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[34%] sm:w-auto`}
+                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[30%] sm:w-auto`}
                 >
                   <SortBtn k="priceUsd" />
                 </th>
@@ -200,7 +200,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   <SortBtn k="priceVnd" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[22%] sm:w-auto`}
+                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[28%] sm:w-auto`}
                 >
                   <SortBtn k="change24h" shortLabel="24h" />
                 </th>
@@ -253,7 +253,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       </div>
                     </Link>
                   </td>
-                  <td className="px-2 sm:px-4 py-3 text-right font-semibold whitespace-nowrap text-sm sm:text-base">
+                  <td className="px-2 sm:px-4 py-3 text-right font-semibold whitespace-nowrap text-[13px] sm:text-base overflow-hidden">
                     <AnimatedNumber
                       value={c.priceUsd}
                       format={(v) => fmtUSD(v, c.priceUsd < 1 ? 4 : 2)}
