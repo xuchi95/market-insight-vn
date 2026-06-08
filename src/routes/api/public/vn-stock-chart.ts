@@ -9,12 +9,18 @@ import { createFileRoute } from "@tanstack/react-router";
  */
 
 const UPSTREAM_TIMEOUT_MS = 6000;
-const CACHE_MS = 5 * 60 * 1000;
 const SYMBOL_RE = /^[A-Z0-9]{2,8}$/;
-const ALLOWED_DAYS = new Set([7, 30, 90, 180, 365]);
+const ALLOWED_DAYS = new Set([1, 7, 30, 90, 180, 365]);
+const ALLOWED_RES = new Set(["1", "5", "15", "60", "D"]);
+// Intraday cache nhanh hơn để gần realtime; daily cache dài hơn.
+function cacheMsFor(res: string): number {
+  if (res === "1" || res === "5") return 30 * 1000;
+  if (res === "15" || res === "60") return 2 * 60 * 1000;
+  return 5 * 60 * 1000;
+}
 
 interface Point { t: number; v: number; o?: number; h?: number; l?: number }
-interface Payload { symbol: string; days: number; points: Point[]; source: string; fetchedAt: number }
+interface Payload { symbol: string; days: number; resolution: string; points: Point[]; source: string; fetchedAt: number }
 
 const cache = new Map<string, { at: number; payload: Payload }>();
 
@@ -23,14 +29,14 @@ const CORS = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
 
-async function fetchVndirect(sym: string, days: number): Promise<Point[] | null> {
+async function fetchVndirect(sym: string, days: number, resolution: string): Promise<Point[] | null> {
   const now = Math.floor(Date.now() / 1000);
   const from = now - days * 86400;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
   try {
     const r = await fetch(
-      `https://dchart-api.vndirect.com.vn/dchart/history?resolution=D&symbol=${sym}&from=${from}&to=${now}`,
+      `https://dchart-api.vndirect.com.vn/dchart/history?resolution=${resolution}&symbol=${sym}&from=${from}&to=${now}`,
       {
         headers: {
           accept: "*/*",
@@ -63,13 +69,16 @@ async function fetchVndirect(sym: string, days: number): Promise<Point[] | null>
   }
 }
 
-async function fetchTcbs(sym: string, days: number): Promise<Point[] | null> {
+async function fetchTcbs(sym: string, days: number, resolution: string): Promise<Point[] | null> {
   const now = Math.floor(Date.now() / 1000);
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
   try {
+    // TCBS resolution: 1, 5, 15, 30, 60, D. countBack ~ số bar cần.
+    const barsPerDay = resolution === "D" ? 1 : Math.ceil(270 / Number(resolution));
+    const countBack = Math.min(Math.max(days * barsPerDay + 10, 50), 1500);
     const r = await fetch(
-      `https://apipubaws.tcbs.com.vn/stock-insight/v2/stock/bars-long-term?ticker=${sym}&type=stock&resolution=D&to=${now}&countBack=${Math.min(days + 5, 400)}`,
+      `https://apipubaws.tcbs.com.vn/stock-insight/v2/stock/bars-long-term?ticker=${sym}&type=stock&resolution=${resolution}&to=${now}&countBack=${countBack}`,
       {
         headers: {
           accept: "application/json",
@@ -108,31 +117,36 @@ export const Route = createFileRoute("/api/public/vn-stock-chart")({
         const url = new URL(request.url);
         const sym = (url.searchParams.get("symbol") ?? "").trim().toUpperCase();
         const days = Number(url.searchParams.get("days") ?? "90");
+        const resolution = (url.searchParams.get("resolution") ?? "D").trim();
         if (!SYMBOL_RE.test(sym)) {
           return Response.json({ error: "symbol không hợp lệ" }, { status: 400, headers: CORS });
         }
         if (!ALLOWED_DAYS.has(days)) {
-          return Response.json({ error: "days phải là 7, 30, 90, 180 hoặc 365" }, { status: 400, headers: CORS });
+          return Response.json({ error: "days phải là 1, 7, 30, 90, 180 hoặc 365" }, { status: 400, headers: CORS });
         }
-        const key = `${sym}:${days}`;
+        if (!ALLOWED_RES.has(resolution)) {
+          return Response.json({ error: "resolution phải là 1, 5, 15, 60 hoặc D" }, { status: 400, headers: CORS });
+        }
+        const key = `${sym}:${days}:${resolution}`;
+        const cacheMs = cacheMsFor(resolution);
         const cached = cache.get(key);
-        if (cached && Date.now() - cached.at < CACHE_MS) {
+        if (cached && Date.now() - cached.at < cacheMs) {
           return Response.json(cached.payload, {
-            headers: { "Cache-Control": "public, max-age=120, s-maxage=300", ...CORS },
+            headers: { "Cache-Control": `public, max-age=${Math.floor(cacheMs / 1000)}`, ...CORS },
           });
         }
         try {
-          let pts = await fetchVndirect(sym, days);
+          let pts = await fetchVndirect(sym, days, resolution);
           let source = "VNDirect dchart";
           if (!pts) {
-            pts = await fetchTcbs(sym, days);
+            pts = await fetchTcbs(sym, days, resolution);
             source = "TCBS bars-long-term";
           }
           if (!pts) throw new Error("Không có dữ liệu OHLC");
-          const payload: Payload = { symbol: sym, days, points: pts, source, fetchedAt: Date.now() };
+          const payload: Payload = { symbol: sym, days, resolution, points: pts, source, fetchedAt: Date.now() };
           cache.set(key, { at: Date.now(), payload });
           return Response.json(payload, {
-            headers: { "Cache-Control": "public, max-age=120, s-maxage=300", ...CORS },
+            headers: { "Cache-Control": `public, max-age=${Math.floor(cacheMs / 1000)}`, ...CORS },
           });
         } catch (err) {
           if (cached) return Response.json(cached.payload, { headers: CORS });
