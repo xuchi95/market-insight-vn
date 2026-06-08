@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AlertTriangle, ExternalLink, RefreshCw } from "lucide-react";
 import { Header } from "@/components/site/Header";
@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fmtNum, fmtTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { isVnMarketOpen } from "@/lib/vn-market";
+import { AnimatedNumber } from "@/components/site/AnimatedNumber";
 
 const SITE = "https://marketwatch.vn";
 
@@ -167,10 +169,19 @@ function StockDetail() {
   const SYM = symbol.toUpperCase();
   const [days, setDays] = useState(90);
 
+  // Trong giờ giao dịch HOSE (T2-T6, 9:00-11:30 và 13:00-15:00 giờ VN) poll
+  // mỗi 15s để giá nhảy gần realtime. Ngoài giờ giảm xuống 60s để tiết kiệm.
+  const [marketOpen, setMarketOpen] = useState(() => isVnMarketOpen());
+  useEffect(() => {
+    const id = setInterval(() => setMarketOpen(isVnMarketOpen()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["vn-stock", SYM],
     queryFn: () => fetchStock(SYM),
-    refetchInterval: 60_000,
+    refetchInterval: marketOpen ? 15_000 : 60_000,
+    refetchOnWindowFocus: true,
     retry: 1,
   });
 
@@ -225,8 +236,15 @@ function StockDetail() {
                 ...(data.companyName ? [{ k: "Công ty", v: data.companyName }] : []),
                 ...(data.industry ? [{ k: "Ngành", v: data.industry }] : []),
                 { k: "Cập nhật", v: fmtTime(data.fetchedAt) },
+                { k: "Trạng thái", v: marketOpen ? "Đang giao dịch" : "Đóng cửa" },
               ]}
-              price={fmtPrice(data.price)}
+              price={
+                data.price !== null ? (
+                  <AnimatedNumber value={data.price / 1000} format={(v) => fmtNum(v, 2)} duration={500} />
+                ) : (
+                  "—"
+                )
+              }
               priceSuffix="nghìn ₫"
               changePct={data.changePct}
               subPrice={
@@ -239,11 +257,43 @@ function StockDetail() {
 
             <KpiStrip
               cells={[
-                { k: "Mở cửa", v: fmtPrice(data.open) },
+                {
+                  k: "Mở cửa",
+                  v:
+                    data.open !== null ? (
+                      <AnimatedNumber value={data.open / 1000} format={(v) => fmtNum(v, 2)} noFlash />
+                    ) : (
+                      "—"
+                    ),
+                },
                 { k: "Tham chiếu", v: fmtPrice(data.prevClose) },
-                { k: "Cao nhất phiên", v: fmtPrice(data.high) },
-                { k: "Thấp nhất phiên", v: fmtPrice(data.low) },
-                { k: "Khối lượng", v: fmtInt(data.volume) },
+                {
+                  k: "Cao nhất phiên",
+                  v:
+                    data.high !== null ? (
+                      <AnimatedNumber value={data.high / 1000} format={(v) => fmtNum(v, 2)} />
+                    ) : (
+                      "—"
+                    ),
+                },
+                {
+                  k: "Thấp nhất phiên",
+                  v:
+                    data.low !== null ? (
+                      <AnimatedNumber value={data.low / 1000} format={(v) => fmtNum(v, 2)} />
+                    ) : (
+                      "—"
+                    ),
+                },
+                {
+                  k: "Khối lượng",
+                  v:
+                    data.volume !== null ? (
+                      <AnimatedNumber value={data.volume} format={(v) => Math.round(v).toLocaleString("vi-VN")} noFlash />
+                    ) : (
+                      "—"
+                    ),
+                },
                 { k: "Vốn hoá", v: fmtMarketCap(data.marketCap) },
               ]}
             />

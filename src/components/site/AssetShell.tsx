@@ -54,7 +54,7 @@ export function LivePing() {
   );
 }
 
-export type KpiCell = { k: string; v: string; tone?: "up" | "down" };
+export type KpiCell = { k: string; v: ReactNode; tone?: "up" | "down" };
 export function KpiStrip({ cells }: { cells: KpiCell[] }) {
   return (
     <section className="rise d2 mt-5 rounded-2xl border border-border bg-card overflow-hidden">
@@ -120,7 +120,7 @@ export type HeroProps = {
   title: string;
   pills: string[];
   meta: { k: string; v: string }[];
-  price: string;
+  price: ReactNode;
   priceSuffix?: string;
   subPrice?: string;
   subPriceTone?: "up" | "down";
