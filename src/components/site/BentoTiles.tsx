@@ -130,7 +130,7 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
             <div className="eyebrow opacity-60">Nguồn · sjc.com.vn</div>
           </div>
 
-          <div className="flex flex-wrap items-end gap-x-8 gap-y-4 mb-5 md:mb-6">
+          <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5 mb-5 md:mb-6">
             <div className="min-w-0">
               <div className="text-xs text-muted-foreground mb-1.5">Giá bán ra hôm nay</div>
               {sjc ? (
@@ -151,8 +151,9 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
                 <div className="mt-2"><ChangePill value={sjc.changePct} /></div>
               )}
             </div>
-            <div className="flex items-end gap-6 md:gap-8 pb-1">
+            <div className="flex items-stretch self-end pb-1.5 rounded-lg">
               <InlineKV label="Mua vào" loading={goldLoading} compact={compact} value={sjc?.buy} />
+              <div className="w-px bg-border mx-5 md:mx-6 self-stretch" aria-hidden />
               <InlineKV
                 label="Chênh lệch"
                 loading={goldLoading}
@@ -250,9 +251,9 @@ function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
 
 function InlineKV({ label, value, loading, compact = true }: { label: string; value?: number; loading?: boolean; compact?: boolean }) {
   return (
-    <div className="min-w-0">
-      <div className="text-xs text-muted-foreground mb-1.5">{label}</div>
-      <div className="tabular text-base md:text-lg text-foreground leading-none">
+    <div className="min-w-[88px] md:min-w-[104px] flex flex-col justify-end">
+      <div className="text-[11px] md:text-xs text-muted-foreground mb-1.5 tracking-wide">{label}</div>
+      <div className="tabular text-base md:text-lg font-semibold text-foreground leading-none">
         {typeof value === "number" ? (
           <AnimatedNumber
             value={value}
