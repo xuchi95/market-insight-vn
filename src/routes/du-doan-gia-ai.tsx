@@ -194,7 +194,7 @@ function AiPredictPage() {
               <h1 className="aip-h1">
                 Dự đoán giá <span className="aip-au">vàng</span>, Bitcoin &amp; xăng dầu bằng AI
               </h1>
-              <h2 className="text-base font-semibold text-muted-foreground mt-2">
+              <h2 className="aip-sub-h2">
                 Đăng nhập để mở khoá tính năng
               </h2>
               <p className="aip-lead">
@@ -266,7 +266,7 @@ function AiPredictPage() {
               Chọn tài sản và khung thời gian — AI phân tích dữ liệu thị trường thời gian thực
               để đưa ra ước lượng xu hướng, biên độ&nbsp;% thay đổi và 3 kịch bản dự báo.
             </p>
-            <p className="text-xs text-muted-foreground italic mt-3">
+            <p className="aip-disclaimer-inline">
               Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
             </p>
           </section>
