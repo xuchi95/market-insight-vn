@@ -6,6 +6,7 @@ import { StockIndexTable } from "@/components/site/StockIndexTable";
 import { UsStockTable } from "@/components/site/UsStockTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { PageHero } from "@/components/site/PageHero";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/chung-khoan`;
@@ -79,10 +80,11 @@ function StocksPage() {
         <div className="mx-auto max-w-6xl px-5">
           <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
-            eyebrow="Chứng khoán · Phiên giao dịch"
+            eyebrow="Chứng khoán"
             title={<><em className="not-italic text-[var(--gold)]">VN-Index</em> hôm nay — Chỉ số chứng khoán Việt Nam</>}
             description={<>VN-Index, VN30, HNX-Index, HNX30, UPCOM-Index — điểm số, thay đổi và khối lượng giao dịch theo phiên gần nhất, cùng các chỉ số chính của thị trường Mỹ.</>}
           />
+          <DataDisclaimer className="mt-3" />
           <div className="py-8 lg:py-10 space-y-8">
           <StockIndexTable />
           <UsStockTable />
@@ -97,12 +99,6 @@ function StocksPage() {
                 </li>
               ))}
             </ul>
-          </section>
-          <section className="prose prose-invert max-w-none space-y-3">
-            <h2 className="text-2xl font-bold tracking-tight">Về dữ liệu chỉ số</h2>
-            <p className="text-muted-foreground">
-              Dữ liệu được tổng hợp từ nguồn công khai (VNDirect) và mang tính tham khảo. Tỷ lệ thay đổi tính trên giá đóng cửa phiên trước. Trong giờ giao dịch, giá trị cập nhật mỗi vài phút; ngoài giờ giao dịch, hiển thị kết quả đóng cửa phiên gần nhất. Xem thêm <Link to="/ty-gia-ngoai-te" className="text-primary hover:underline">tỷ giá USD/VND hôm nay</Link>, <Link to="/gia-vang" className="text-primary hover:underline">giá vàng SJC</Link> và <Link to="/tien-dien-tu" className="text-primary hover:underline">giá Bitcoin</Link> để theo dõi toàn cảnh thị trường.
-            </p>
           </section>
           <RelatedLinks current="stocks" />
           </div>

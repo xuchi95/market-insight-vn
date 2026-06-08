@@ -5,6 +5,7 @@ import { Footer } from "@/components/site/Footer";
 import { BankRateTable } from "@/components/site/BankRateTable";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { PageHero } from "@/components/site/PageHero";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/ty-gia-ngan-hang`;
@@ -80,18 +81,13 @@ function BankRatesPage() {
         <div className="mx-auto max-w-6xl px-5">
           <div className="pt-6 md:pt-8"><Breadcrumbs /></div>
           <PageHero
-            eyebrow="Ngân hàng · Tỷ giá chính thức"
+            eyebrow="Ngân hàng"
             title={<>Tỷ giá <em className="not-italic text-[var(--gold)]">Vietcombank</em> hôm nay</>}
             description={<>Giá mua tiền mặt, mua chuyển khoản và bán ra của USD, EUR, JPY, CNY, GBP, KRW, SGD và nhiều ngoại tệ khác — lấy trực tiếp từ trang chính thức Vietcombank.</>}
           />
+          <DataDisclaimer className="mt-3" />
           <div className="py-8 lg:py-10 space-y-8">
           <BankRateTable />
-          <section className="prose prose-invert max-w-none space-y-3">
-            <h2 className="text-2xl font-bold tracking-tight">Về dữ liệu tỷ giá</h2>
-            <p className="text-muted-foreground">
-              Tỷ giá được lấy trực tiếp từ trang chính thức của Vietcombank và mang tính tham khảo. Vietcombank có thể điều chỉnh tỷ giá nhiều lần trong ngày; vui lòng đối chiếu với ngân hàng trước khi giao dịch giá trị lớn. Quy đổi nhanh sang VND bằng <Link to="/quy-doi-tien-te" className="text-primary hover:underline">công cụ đổi ngoại tệ</Link> hoặc xem thêm <Link to="/ty-gia-ngoai-te" className="text-primary hover:underline">tỷ giá USD/VND realtime</Link>.
-            </p>
-          </section>
           <RelatedLinks current="bank-rates" />
           </div>
         </div>
