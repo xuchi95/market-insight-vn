@@ -5,6 +5,7 @@ import { Footer } from "@/components/site/Footer";
 import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
 import { PolicyToc } from "@/components/site/PolicyToc";
 import { BackToTop } from "@/components/site/BackToTop";
+import { ReadingProgress } from "@/components/site/ReadingProgress";
 import { useRef } from "react";
 
 const SITE = "https://marketwatch.vn";
@@ -60,6 +61,7 @@ function TermsPage() {
   const contentRef = useRef<HTMLElement>(null);
   return (
     <div className="min-h-screen flex flex-col">
+      <ReadingProgress />
       <Header />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-12 max-w-3xl space-y-6">
