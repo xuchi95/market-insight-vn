@@ -537,7 +537,11 @@ function ResultBody({ result }: { result: PredictionResult }) {
     <>
       <div className="aip-res-head">
         <div className="aip-res-title">
-          <span className="aip-res-tag">Phân tích AI</span>
+          <span className="aip-res-tag" aria-label="Phân tích AI">
+            <span className="aip-res-tag-dot" aria-hidden="true" />
+            <span className="aip-res-tag-text">AI<span className="aip-res-tag-sep">/</span>ANALYSIS</span>
+            <span className="aip-res-tag-ver" aria-hidden="true">v1</span>
+          </span>
           <h3>
             {meta.label} · {horizonLabel}
           </h3>
