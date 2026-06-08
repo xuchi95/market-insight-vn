@@ -267,12 +267,40 @@ function topicCard(s: DigestSeries): string {
   </table>`;
 }
 
-function weekAheadBlock(): string {
-  const items = [
-    { title: "Lịch sự kiện kinh tế tuần", desc: "Theo dõi CPI Mỹ, biên bản FOMC, dữ liệu PMI và các phát biểu của quan chức Fed có thể tác động mạnh tới vàng và crypto.", href: `${SITE}/lich-kinh-te` },
-    { title: "Lãi suất tiết kiệm ngân hàng", desc: "So sánh biểu lãi suất mới nhất tại các ngân hàng để cân nhắc kênh giữ tiền VND.", href: `${SITE}/lai-suat-tiet-kiem` },
-    { title: "Vĩ mô Việt Nam", desc: "Cập nhật CPI, GDP, FDI, dự trữ ngoại hối và lãi suất điều hành của NHNN.", href: `${SITE}/vi-mo-viet-nam` },
-  ];
+function weekAheadBlock(topics: Set<DigestTopic>): string {
+  const items: { title: string; desc: string; href: string; show: boolean }[] = [
+    {
+      title: "Lịch sự kiện kinh tế tuần",
+      desc: "Theo dõi CPI Mỹ, biên bản FOMC, dữ liệu PMI và các phát biểu của quan chức Fed có thể tác động mạnh tới vàng và crypto.",
+      href: `${SITE}/lich-kinh-te`,
+      show: true, // luôn liên quan
+    },
+    {
+      title: "Lãi suất tiết kiệm ngân hàng",
+      desc: "So sánh biểu lãi suất mới nhất tại các ngân hàng để cân nhắc kênh giữ tiền VND.",
+      href: `${SITE}/lai-suat-tiet-kiem`,
+      show: topics.has("usd"),
+    },
+    {
+      title: "Vĩ mô Việt Nam",
+      desc: "Cập nhật CPI, GDP, FDI, dự trữ ngoại hối và lãi suất điều hành của NHNN.",
+      href: `${SITE}/vi-mo-viet-nam`,
+      show: topics.has("usd") || topics.has("gold"),
+    },
+    {
+      title: "Giá vàng SJC – PNJ – DOJI",
+      desc: "Theo dõi chênh lệch mua – bán và biến động trong ngày của các thương hiệu vàng lớn trong nước.",
+      href: `${SITE}/gia-vang`,
+      show: topics.has("gold"),
+    },
+    {
+      title: "Thị trường tiền điện tử",
+      desc: "Top coin theo vốn hoá, biến động 24h và dòng vốn ETF Bitcoin mới nhất.",
+      href: `${SITE}/tien-dien-tu`,
+      show: topics.has("btc"),
+    },
+  ].filter((x) => x.show);
+  if (items.length === 0) return "";
   const rows = items.map((it) => `
     <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">
       <a href="${it.href}" style="font-size:14px;font-weight:600;color:#111;text-decoration:none;">${escape(it.title)} →</a>
@@ -284,18 +312,21 @@ function weekAheadBlock(): string {
   </div>`;
 }
 
-function toolsBlock(): string {
-  const tools = [
-    { label: "Tính lãi suất tiết kiệm", href: `${SITE}/tinh-lai-suat-tiet-kiem` },
-    { label: "Mô phỏng DCA crypto", href: `${SITE}/cong-cu/dca-roi` },
-    { label: "Quy đổi tiền tệ", href: `${SITE}/quy-doi-tien-te` },
-    { label: "Giá xăng dầu", href: `${SITE}/gia-xang-dau` },
-  ];
+function toolsBlock(topics: Set<DigestTopic>): string {
+  const tools: { label: string; href: string; show: boolean }[] = [
+    { label: "Tính lãi suất tiết kiệm", href: `${SITE}/tinh-lai-suat-tiet-kiem`, show: topics.has("usd") },
+    { label: "Mô phỏng DCA crypto", href: `${SITE}/cong-cu/dca-roi`, show: topics.has("btc") },
+    { label: "Quy đổi tiền tệ", href: `${SITE}/quy-doi-tien-te`, show: topics.has("usd") || topics.has("gold") },
+    { label: "Tỷ giá ngân hàng", href: `${SITE}/ty-gia-ngan-hang`, show: topics.has("usd") },
+    { label: "Giá vàng SJC", href: `${SITE}/gia-vang`, show: topics.has("gold") },
+    { label: "Bitcoin & altcoin", href: `${SITE}/tien-dien-tu`, show: topics.has("btc") },
+  ].filter((t) => t.show);
+  if (tools.length === 0) return "";
   const cells = tools.map((t) =>
     `<a href="${t.href}" style="display:inline-block;margin:4px 6px 4px 0;padding:8px 12px;border:1px solid #ececec;border-radius:999px;font-size:12px;color:#444;text-decoration:none;background:#fafafa;">${escape(t.label)}</a>`,
   ).join("");
   return `<div style="margin:20px 0 0;padding-top:16px;border-top:1px solid #f0f0f0;">
-    <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px;font-weight:700;">Công cụ trên MarketWatch</div>
+    <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px;font-weight:700;">Công cụ liên quan cho bạn</div>
     ${cells}
   </div>`;
 }
@@ -309,16 +340,20 @@ export function buildDigestEmail(opts: {
     .map((s) => `${s.label.split(" ")[0]} ${fmtPct(s.changePct)}`)
     .join(" · ");
   const cards = opts.series.map(topicCard).join("");
+  const topicSet = new Set<DigestTopic>(opts.series.map((s) => s.topic));
+  const topicSummary = opts.series.length
+    ? opts.series.map((s) => s.label.split(" ")[0]).join(", ")
+    : "các chủ đề bạn chọn";
   const inner = `
     <h1 style="font-size:24px;margin:0 0 6px;color:#111;line-height:1.3;letter-spacing:-0.01em;">Bản tin tuần ${escape(week)}</h1>
-    <p style="margin:0 0 16px;font-size:14px;color:#555;line-height:1.65;">Tổng hợp biến động 7 ngày, xu hướng 30 ngày, vùng giá đỉnh – đáy và bình luận ngắn cho từng chủ đề bạn đang theo dõi trên MarketWatch.</p>
+    <p style="margin:0 0 16px;font-size:14px;color:#555;line-height:1.65;">Bản tin này được cá nhân hoá theo chủ đề bạn đã chọn: <strong style="color:#111;">${escape(topicSummary)}</strong>. Gồm biến động 7 ngày, xu hướng 30 ngày, vùng giá đỉnh – đáy và bình luận ngắn cho từng tài sản.</p>
     ${marketOverview(opts.series)}
     ${cards.length ? cards : '<p style="color:#666;font-size:14px;">Chưa có dữ liệu cho các chủ đề bạn chọn. Vui lòng thử lại sau.</p>'}
-    ${weekAheadBlock()}
+    ${weekAheadBlock(topicSet)}
     <table role="presentation" cellspacing="0" cellpadding="0" style="margin:18px 0 0;"><tr><td style="background:${GOLD};border-radius:8px;">
       <a href="${SITE}" style="display:inline-block;padding:12px 22px;color:#111;font-weight:600;text-decoration:none;font-size:14px;">Mở dashboard MarketWatch</a>
     </td></tr></table>
-    ${toolsBlock()}
+    ${toolsBlock(topicSet)}
     <p style="margin:18px 0 0;font-size:12px;color:#999;line-height:1.6;">Dữ liệu được tổng hợp tự động từ các nguồn công khai (CoinGecko, FMP, NHNN) tại thời điểm gửi và chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.</p>`;
   return {
     subject: `Bản tin tuần MarketWatch — ${headline || week}`,
