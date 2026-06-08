@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, Star, User as UserIcon, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Input } from "@/components/ui/input";
 import logoUrl from "@/assets/logo.png";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
@@ -570,7 +571,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
       </div>
 
       {/* Mobile search sheet */}
-      {searchVisible && (
+      {searchVisible && typeof document !== "undefined" && createPortal(
         <div
           data-testid="header-mobile-search-panel"
           data-state={searchOpen ? "open" : "closed"}
@@ -650,7 +651,8 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Mobile nav */}
