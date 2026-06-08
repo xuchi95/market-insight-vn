@@ -481,6 +481,36 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_topic_presets: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          topics: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          topics: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          topics?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolio_holdings: {
         Row: {
           asset_type: Database["public"]["Enums"]["holding_asset_type"]

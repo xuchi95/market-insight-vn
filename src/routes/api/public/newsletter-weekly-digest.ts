@@ -25,12 +25,30 @@ export const Route = createFileRoute("/api/public/newsletter-weekly-digest")({
 
         const { data: subs, error } = await supabaseAdmin
           .from("newsletter_subscribers")
-          .select("id, email, topics, unsubscribe_token")
+          .select("id, email, topics, unsubscribe_token, user_id")
           .is("unsubscribed_at", null)
           .not("confirmed_at", "is", null);
         if (error) {
           console.error("digest: load subs failed", error);
           return Response.json({ error: "db_error" }, { status: 500 });
+        }
+
+        // Load default presets in one shot for subscribers that have a user_id.
+        const userIds = Array.from(
+          new Set((subs ?? []).map((s) => s.user_id).filter(Boolean) as string[]),
+        );
+        const defaultsByUser = new Map<string, string[]>();
+        if (userIds.length) {
+          const { data: presets } = await supabaseAdmin
+            .from("newsletter_topic_presets")
+            .select("user_id, topics")
+            .in("user_id", userIds)
+            .eq("is_default", true);
+          for (const p of presets ?? []) {
+            if (p.user_id && Array.isArray(p.topics)) {
+              defaultsByUser.set(p.user_id, p.topics as string[]);
+            }
+          }
         }
 
         // Pre-fetch full data once; trim per recipient by their topics.
@@ -40,7 +58,8 @@ export const Route = createFileRoute("/api/public/newsletter-weekly-digest")({
         let sent = 0;
         let failed = 0;
         for (const sub of subs ?? []) {
-          const topics = normalizeTopics(sub.topics);
+          const presetTopics = sub.user_id ? defaultsByUser.get(sub.user_id) : undefined;
+          const topics = normalizeTopics(presetTopics ?? sub.topics);
           const series = topics
             .map((t) => seriesByTopic.get(t))
             .filter((s): s is NonNullable<typeof s> => !!s);
