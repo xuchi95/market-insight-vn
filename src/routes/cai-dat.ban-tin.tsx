@@ -393,6 +393,8 @@ function SettingsCard() {
           ))}
         </section>
       )}
+
+      {active && <PresetsManager currentTopics={topics} />}
     </div>
   );
 }
