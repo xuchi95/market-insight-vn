@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownAZ, ArrowUpDown, Info } from "lucide-react";
+import { ArrowDownAZ, ArrowUpDown } from "lucide-react";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -8,7 +8,7 @@ import { SectionCard } from "@/components/site/SectionCard";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 import { Input } from "@/components/ui/input";
-import { SAVINGS_RATES, SAVINGS_UPDATED_AT, TENORS, type SavingsRate } from "@/lib/data/savingsRates";
+import { SAVINGS_RATES, TENORS, type SavingsRate } from "@/lib/data/savingsRates";
 import { cn } from "@/lib/utils";
 
 const SITE = "https://marketwatch.vn";

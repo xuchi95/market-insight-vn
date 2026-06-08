@@ -8,6 +8,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SectionCard } from "@/components/site/SectionCard";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 import { cn } from "@/lib/utils";
 
 const SITE = "https://marketwatch.vn";
@@ -201,12 +202,12 @@ function MacroPage() {
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Kinh tế vĩ mô Việt Nam</h1>
+            <DataDisclaimer />
           </header>
 
           {sbv && (
             <SectionCard
               title="Chính sách tiền tệ — Ngân hàng Nhà nước (SBV)"
-              meta={<span className="text-muted-foreground text-xs">Nguồn: {sbv.source}</span>}
             >
               <div className="p-4 lg:p-5 space-y-4">
                 {sbv.centralRate.value && (
@@ -238,17 +239,6 @@ function MacroPage() {
 
           <SectionCard
             title="Tổng quan chỉ số vĩ mô"
-            meta={
-              data ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-muted-foreground">Nguồn: {data.source}</span>
-                  <span className="text-muted-foreground/60 hidden sm:inline">·</span>
-                  <span className="text-muted-foreground/60 text-xs tabular-nums hidden sm:inline">
-                    Cập nhật: {formatFetchedAt(data.fetchedAt)}
-                  </span>
-                </div>
-              ) : null
-            }
           >
             <div className="p-4 lg:p-5 space-y-4">
               <div className="flex items-center justify-end">
