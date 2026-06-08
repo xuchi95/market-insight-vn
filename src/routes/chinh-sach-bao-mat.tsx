@@ -3,6 +3,8 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
+import { PolicyToc } from "@/components/site/PolicyToc";
+import { useRef } from "react";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/chinh-sach-bao-mat`;
