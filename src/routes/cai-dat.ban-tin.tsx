@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
+import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical, Star, Plus, Trash2, BookmarkCheck } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,13 @@ import {
   changeNewsletterEmail,
   updateNewsletterTopics,
 } from "@/lib/newsletter.functions";
+import {
+  listMyPresets,
+  createPreset,
+  updatePreset,
+  deletePreset,
+  setDefaultPreset,
+} from "@/lib/newsletter-presets.functions";
 
 const TITLE = "Quản lý bản tin — MarketWatch";
 const DESC = "Đăng ký, đổi địa chỉ email hoặc huỷ nhận bản tin tổng hợp vàng, crypto và ngoại tệ từ MarketWatch.";
