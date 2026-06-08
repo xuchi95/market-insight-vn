@@ -68,7 +68,7 @@ function CookiePolicyPage() {
             </p>
           </header>
 
-          <section className="prose prose-invert max-w-none space-y-4 text-muted-foreground leading-relaxed">
+          <section className="prose dark:prose-invert max-w-none space-y-4 text-muted-foreground leading-relaxed">
             <p>
               Chính sách Cookie này (“Chính sách”) giải thích cách <strong>MarketWatch</strong> (sau đây gọi là “Chúng tôi”, “Website”) sử dụng cookie và các công nghệ lưu trữ cục bộ tương tự (LocalStorage, SessionStorage, IndexedDB, pixel, tag, fingerprint kỹ thuật) khi Bạn truy cập tên miền <a href="https://marketwatch.vn" className="text-foreground underline">marketwatch.vn</a> và các tên miền phụ. Chính sách này là một phần không tách rời của <Link to="/chinh-sach-bao-mat" className="text-foreground underline">Chính sách dữ liệu &amp; quyền riêng tư</Link> và <Link to="/dieu-khoan-su-dung" className="text-foreground underline">Điều khoản sử dụng</Link>.
             </p>
