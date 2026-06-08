@@ -45,15 +45,17 @@ interface VnStock {
   source: string;
 }
 
-interface ChartPayload { points: { t: number; v: number }[]; source: string }
+interface ChartPayload { points: { t: number; v: number }[]; source: string; resolution?: string }
 
 async function fetchStock(sym: string): Promise<VnStock> {
   const r = await fetch(`/api/public/vn-stock?symbol=${encodeURIComponent(sym)}`);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
-async function fetchChart(sym: string, days: number): Promise<ChartPayload> {
-  const r = await fetch(`/api/public/vn-stock-chart?symbol=${encodeURIComponent(sym)}&days=${days}`);
+async function fetchChart(sym: string, days: number, resolution: string): Promise<ChartPayload> {
+  const r = await fetch(
+    `/api/public/vn-stock-chart?symbol=${encodeURIComponent(sym)}&days=${days}&resolution=${resolution}`,
+  );
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
@@ -156,18 +158,21 @@ export const Route = createFileRoute("/co-phieu/$symbol")({
   component: StockDetail,
 });
 
-const RANGES = [
-  { label: "7N", days: 7 },
-  { label: "30N", days: 30 },
-  { label: "90N", days: 90 },
-  { label: "180N", days: 180 },
-  { label: "1N", days: 365 },
+const RANGES: { key: string; label: string; days: number; resolution: string; intraday?: boolean }[] = [
+  { key: "1D", label: "1D", days: 1, resolution: "1", intraday: true },
+  { key: "1W", label: "1W", days: 7, resolution: "5", intraday: true },
+  { key: "1M", label: "1M", days: 30, resolution: "15", intraday: true },
+  { key: "3M", label: "3M", days: 90, resolution: "D" },
+  { key: "6M", label: "6M", days: 180, resolution: "D" },
+  { key: "1Y", label: "1Y", days: 365, resolution: "D" },
 ];
 
 function StockDetail() {
   const { symbol } = useParams({ from: "/co-phieu/$symbol" });
   const SYM = symbol.toUpperCase();
-  const [days, setDays] = useState(90);
+  const [rangeKey, setRangeKey] = useState("1D");
+  const range = RANGES.find((r) => r.key === rangeKey) ?? RANGES[0];
+  const { days, resolution, intraday } = range;
 
   // Trong giờ giao dịch HOSE (T2-T6, 9:00-11:30 và 13:00-15:00 giờ VN) poll
   // mỗi 15s để giá nhảy gần realtime. Ngoài giờ giảm xuống 60s để tiết kiệm.
@@ -185,10 +190,12 @@ function StockDetail() {
     retry: 1,
   });
 
+  // Intraday refresh nhanh hơn để giá nhảy realtime; daily refresh chậm.
+  const chartRefetch = intraday ? (marketOpen ? 30_000 : 2 * 60_000) : 5 * 60_000;
   const { data: chart, isLoading: chartLoading, isError: chartError, refetch: refetchChart } = useQuery({
-    queryKey: ["vn-stock-chart", SYM, days],
-    queryFn: () => fetchChart(SYM, days),
-    refetchInterval: 5 * 60_000,
+    queryKey: ["vn-stock-chart", SYM, days, resolution],
+    queryFn: () => fetchChart(SYM, days, resolution),
+    refetchInterval: chartRefetch,
     retry: 1,
   });
 
@@ -306,12 +313,12 @@ function StockDetail() {
                     title={`Biểu đồ giá ${SYM}`}
                     sub={chart?.source}
                     right={
-                      <Tabs value={String(days)} onValueChange={(v) => setDays(Number(v))} className="ml-auto">
+                      <Tabs value={rangeKey} onValueChange={setRangeKey} className="ml-auto">
                         <TabsList className="h-9 rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card/60 p-1 gap-0.5">
                           {RANGES.map((r) => (
                             <TabsTrigger
-                              key={r.days}
-                              value={String(r.days)}
+                              key={r.key}
+                              value={r.key}
                               className="rounded-xl text-xs px-3 data-[state=active]:bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] data-[state=active]:text-[var(--gold)] data-[state=active]:border data-[state=active]:border-[color-mix(in_oklab,var(--gold)_40%,transparent)] data-[state=active]:shadow-none"
                             >
                               {r.label}
@@ -340,16 +347,25 @@ function StockDetail() {
                           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                           <XAxis
                             dataKey="t"
-                            tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
+                            tickFormatter={(t) =>
+                              intraday
+                                ? new Date(t).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+                                : new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })
+                            }
                             stroke="var(--muted-foreground)"
                             fontSize={11}
                             tickLine={false}
                             axisLine={false}
+                            minTickGap={32}
                           />
                           <YAxis stroke="var(--muted-foreground)" fontSize={11} domain={["auto", "auto"]} tickLine={false} axisLine={false} width={56} />
                           <Tooltip
                             contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
-                            labelFormatter={(t) => new Date(t).toLocaleDateString("vi-VN")}
+                            labelFormatter={(t) =>
+                              intraday
+                                ? new Date(t).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+                                : new Date(t).toLocaleDateString("vi-VN")
+                            }
                             formatter={(v: number) => [fmtNum(v, 2), SYM]}
                           />
                           <Area type="monotone" dataKey="v" stroke="var(--gold)" strokeWidth={2} fill="url(#stockGrad)" isAnimationActive={false} />
@@ -359,10 +375,10 @@ function StockDetail() {
                   </div>
                   {stats && (
                     <div className="border-t border-border grid grid-cols-3 divide-x divide-border">
-                      <MiniStat label={`Cao nhất ${days}N`} value={fmtNum(stats.max, 2)} />
-                      <MiniStat label={`Thấp nhất ${days}N`} value={fmtNum(stats.min, 2)} />
+                      <MiniStat label={`Cao nhất ${range.label}`} value={fmtNum(stats.max, 2)} />
+                      <MiniStat label={`Thấp nhất ${range.label}`} value={fmtNum(stats.min, 2)} />
                       <MiniStat
-                        label={`Biến động ${days}N`}
+                        label={`Biến động ${range.label}`}
                         value={`${stats.changePct >= 0 ? "+" : ""}${stats.changePct.toFixed(2)}%`}
                         tone={stats.changePct >= 0 ? "up" : "down"}
                       />
