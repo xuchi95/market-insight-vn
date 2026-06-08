@@ -121,12 +121,18 @@ function fmtVal(s: DigestSeries): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: max }).format(s.current);
 }
 
+function fmtRaw(s: DigestSeries, n: number): string {
+  if (s.topic === "usd") return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(n) + " ₫";
+  const max = n < 1 ? 4 : 2;
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: max }).format(n);
+}
+
 function fmtPct(p: number): string {
   const sign = p > 0 ? "+" : "";
   return `${sign}${p.toFixed(2)}%`;
 }
 
-function sparkline(series: number[], color: string, w = 220, h = 60): string {
+function sparkline(series: number[], color: string, w = 520, h = 110): string {
   if (series.length < 2) return "";
   const min = Math.min(...series);
   const max = Math.max(...series);
@@ -139,7 +145,7 @@ function sparkline(series: number[], color: string, w = 220, h = 60): string {
   });
   const path = `M ${pts.join(" L ")}`;
   const area = `M 0,${h} L ${pts.join(" L ")} L ${w},${h} Z`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="display:block;width:100%;">
     <path d="${area}" fill="${color}" fill-opacity="0.12"/>
     <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
