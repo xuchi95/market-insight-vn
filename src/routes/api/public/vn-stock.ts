@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { isVnMarketOpen } from "@/lib/vn-market";
 
 /**
  * Lấy dữ liệu cổ phiếu VN từ SSI iBoard (iboard-api.ssi.com.vn) — public, không
@@ -15,7 +16,8 @@ import { createFileRoute } from "@tanstack/react-router";
  */
 
 const UPSTREAM_TIMEOUT_MS = 6000;
-const CACHE_MS = 5 * 60 * 1000;
+const CACHE_OPEN_MS = 20 * 1000;       // giờ giao dịch: 20s để bám sát giá
+const CACHE_CLOSED_MS = 5 * 60 * 1000; // ngoài giờ: 5 phút
 const HARD_CAP_MS = 30 * 60 * 1000;
 
 const SYMBOL_RE = /^[A-Z0-9]{2,8}$/;
@@ -92,40 +94,95 @@ async function build(symbol: string): Promise<VnStockPayload> {
   const SYM = symbol.toUpperCase();
 
   const now = Math.floor(Date.now() / 1000);
-  const from = now - 30 * 86400; // 30 ngày để đủ lấy 2 phiên gần nhất kể cả nghỉ lễ
+  const fromDaily = now - 30 * 86400;    // 30 ngày → đủ 2 phiên gần nhất (kể cả nghỉ lễ)
+  const fromIntraday = now - 2 * 86400;  // 2 ngày → đủ phiên gần nhất theo nến 1 phút
 
-  const [chartJson, profileJson, statsJson] = await Promise.all([
+  const [dailyJson, intradayJson, profileJson, statsJson] = await Promise.all([
     fetchJson(
-      `https://iboard-api.ssi.com.vn/statistics/charts/history?resolution=1D&symbol=${SYM}&from=${from}&to=${now}`,
+      `https://iboard-api.ssi.com.vn/statistics/charts/history?resolution=1D&symbol=${SYM}&from=${fromDaily}&to=${now}`,
+    ),
+    fetchJson(
+      `https://iboard-api.ssi.com.vn/statistics/charts/history?resolution=1&symbol=${SYM}&from=${fromIntraday}&to=${now}`,
     ),
     fetchJson(`https://iboard-api.ssi.com.vn/statistics/company/company-profile?symbol=${SYM}`),
     fetchJson(`https://iboard-api.ssi.com.vn/statistics/company/company-statistics?symbol=${SYM}`),
   ]);
 
-  const chart: any = chartJson?.data ?? null;
+  const daily: any = dailyJson?.data ?? null;
+  const intra: any = intradayJson?.data ?? null;
   const profile: any = profileJson?.data ?? null;
   const stats: any = statsJson?.data ?? null;
 
-  // SSI charts/history trả về cột song song t/o/h/l/c (đơn vị NGÀN VND).
-  const c: number[] = Array.isArray(chart?.c) ? chart.c : [];
-  const o: number[] = Array.isArray(chart?.o) ? chart.o : [];
-  const h: number[] = Array.isArray(chart?.h) ? chart.h : [];
-  const l: number[] = Array.isArray(chart?.l) ? chart.l : [];
-  const v: number[] = Array.isArray(chart?.v) ? chart.v : [];
-  const lastIdx = c.length - 1;
-  const prevIdx = c.length - 2;
+  // SSI charts/history trả về cột song song t/o/h/l/c/v (đơn vị NGÀN VND cho giá).
+  const dc: number[] = Array.isArray(daily?.c) ? daily.c : [];
+  const dLast = dc.length - 1;
+  const dPrev = dc.length - 2;
+
+  const ic: number[] = Array.isArray(intra?.c) ? intra.c : [];
+  const io: number[] = Array.isArray(intra?.o) ? intra.o : [];
+  const ih: number[] = Array.isArray(intra?.h) ? intra.h : [];
+  const il: number[] = Array.isArray(intra?.l) ? intra.l : [];
+  const iv: number[] = Array.isArray(intra?.v) ? intra.v : [];
+  const it: number[] = Array.isArray(intra?.t) ? intra.t : [];
+  const iLast = ic.length - 1;
+
+  // Tìm chỉ số bar đầu tiên của *phiên gần nhất* trong dữ liệu intraday
+  // (so sánh ngày theo giờ VN). Dùng để tổng hợp O/H/L/V của phiên đó.
+  function vnDateKey(epochSec: number): string {
+    const d = new Date((epochSec + 7 * 3600) * 1000);
+    return `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
+  }
+  let sessionStart = iLast;
+  if (iLast >= 0) {
+    const key = vnDateKey(it[iLast]);
+    while (sessionStart > 0 && vnDateKey(it[sessionStart - 1]) === key) sessionStart--;
+  }
 
   // Quy đổi sang VND/cp (× 1000) cho khớp các trang khác đã dùng VND.
   const toVnd = (x: number | null | undefined) =>
     x === null || x === undefined || !Number.isFinite(x) ? null : Math.round(x * 1000);
 
-  const price = lastIdx >= 0 ? toVnd(c[lastIdx]) : null;
-  const prevClose = prevIdx >= 0 ? toVnd(c[prevIdx]) : null;
+  // price: ưu tiên nến intraday mới nhất; fallback nến daily mới nhất.
+  const price = iLast >= 0 ? toVnd(ic[iLast]) : dLast >= 0 ? toVnd(dc[dLast]) : null;
+
+  // prevClose (tham chiếu): close của phiên trước.
+  // - Nếu daily có ≥ 2 nến: lấy daily[length-2] khi daily[length-1] là phiên hôm nay,
+  //   ngược lại daily[length-1] đã là phiên trước.
+  let prevClose: number | null = null;
+  if (dLast >= 0) {
+    const todayKey = iLast >= 0 ? vnDateKey(it[iLast]) : null;
+    const dailyLastKey = Array.isArray(daily?.t) && daily.t[dLast] ? vnDateKey(daily.t[dLast]) : null;
+    if (todayKey && dailyLastKey === todayKey && dPrev >= 0) prevClose = toVnd(dc[dPrev]);
+    else prevClose = toVnd(dc[dLast]);
+  }
+
   const change = price !== null && prevClose !== null ? price - prevClose : null;
   const changePct =
     price !== null && prevClose && prevClose > 0
       ? ((price - prevClose) / prevClose) * 100
       : null;
+
+  // O/H/L/V của *phiên* (không chỉ riêng 1 nến) — tổng hợp từ intraday.
+  let openPx: number | null = null;
+  let highPx: number | null = null;
+  let lowPx: number | null = null;
+  let volSession = 0;
+  if (iLast >= 0) {
+    openPx = toVnd(io[sessionStart]);
+    for (let k = sessionStart; k <= iLast; k++) {
+      if (Number.isFinite(ih[k])) highPx = highPx === null ? toVnd(ih[k]) : Math.max(highPx, toVnd(ih[k]) ?? 0);
+      if (Number.isFinite(il[k])) lowPx = lowPx === null ? toVnd(il[k]) : Math.min(lowPx, toVnd(il[k]) ?? Infinity);
+      if (Number.isFinite(iv[k])) volSession += iv[k];
+    }
+  }
+  // Fallback về daily nếu intraday rỗng.
+  if (openPx === null && dLast >= 0) openPx = toVnd((daily?.o ?? [])[dLast]);
+  if (highPx === null && dLast >= 0) highPx = toVnd((daily?.h ?? [])[dLast]);
+  if (lowPx === null && dLast >= 0) lowPx = toVnd((daily?.l ?? [])[dLast]);
+  let volume: number | null = volSession > 0 ? Math.round(volSession) : null;
+  if (volume === null && dLast >= 0 && Number.isFinite((daily?.v ?? [])[dLast])) {
+    volume = Math.round((daily.v as number[])[dLast]);
+  }
 
   // SSI company-statistics: marketCap & EPS đã ở đơn vị VND nguyên;
   // roe/roa/dividendYield trả về dạng tỉ lệ (0.31 = 31%).
@@ -162,10 +219,10 @@ async function build(symbol: string): Promise<VnStockPayload> {
     prevClose,
     change,
     changePct,
-    high: lastIdx >= 0 ? toVnd(h[lastIdx]) : null,
-    low: lastIdx >= 0 ? toVnd(l[lastIdx]) : null,
-    open: lastIdx >= 0 ? toVnd(o[lastIdx]) : null,
-    volume: lastIdx >= 0 && Number.isFinite(v[lastIdx]) ? Math.round(v[lastIdx]) : null,
+    high: highPx,
+    low: lowPx,
+    open: openPx,
+    volume,
     pe,
     eps,
     roe,
@@ -174,7 +231,7 @@ async function build(symbol: string): Promise<VnStockPayload> {
     pb,
     marketCap,
     fetchedAt: Date.now(),
-    source: "SSI iBoard (charts/history + company-profile + company-statistics)",
+    source: "SSI iBoard (intraday 1m + daily + company-profile + statistics)",
   };
 }
 
@@ -207,8 +264,9 @@ export const Route = createFileRoute("/api/public/vn-stock")({
         }
         try {
           const cached = cache.get(sym);
+          const ttl = isVnMarketOpen() ? CACHE_OPEN_MS : CACHE_CLOSED_MS;
           let payload: VnStockPayload;
-          if (cached && Date.now() - cached.at < CACHE_MS) {
+          if (cached && Date.now() - cached.at < ttl) {
             payload = cached.payload;
           } else {
             try {
@@ -220,7 +278,9 @@ export const Route = createFileRoute("/api/public/vn-stock")({
           }
           return Response.json(payload, {
             headers: {
-              "Cache-Control": "public, max-age=120, s-maxage=300, stale-while-revalidate=900",
+              "Cache-Control": isVnMarketOpen()
+                ? "public, max-age=15, s-maxage=15, stale-while-revalidate=120"
+                : "public, max-age=120, s-maxage=300, stale-while-revalidate=900",
               ...CORS,
             },
           });
