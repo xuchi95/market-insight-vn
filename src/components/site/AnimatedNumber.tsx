@@ -21,6 +21,15 @@ function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
 }
 
+// Detect coarse-pointer / low-power devices once. On mobile the per-frame
+// DOM writes of the number tween are the dominant jank source when many
+// rows update at the same time — we keep the cheap background flash but
+// snap the number to its final value.
+const IS_COARSE_POINTER =
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+
 /**
  * Smoothly tweens a number between its previous and current value while
  * keeping column width stable via `tabular-nums` + an optional `min-w` hint.
@@ -35,7 +44,9 @@ export function AnimatedNumber({
   noFlash,
 }: Props) {
   const { animate } = useMotionPref();
-  const effDuration = animate ? duration : 0;
+  // Skip the number tween on coarse-pointer devices (mobile/tablets) —
+  // animating the bg via CSS is much cheaper than per-frame text writes.
+  const effDuration = animate && !IS_COARSE_POINTER ? duration : 0;
   const effNoFlash = noFlash || !animate;
   const elRef = useRef<HTMLSpanElement | null>(null);
   const fromRef = useRef(value);
