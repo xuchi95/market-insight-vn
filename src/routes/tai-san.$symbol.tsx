@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect, useParams } from "@tanstack/react-router";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { DataDisclaimer } from "@/components/site/DataDisclaimer";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Header } from "@/components/site/Header";
@@ -512,13 +513,14 @@ function AssetDetail() {
               logo={<span className="text-2xl">🛢️</span>}
               title={`Giá ${oil.nameVi} hôm nay`}
               pills={[oil.name, oil.exchange]}
-              meta={[{ k: "Đơn vị", v: "USD/thùng" }, { k: "Nguồn", v: oil.exchange }]}
+              meta={[{ k: "Đơn vị", v: "USD/thùng" }]}
               price={`$${fmtNum(oil.priceUsd, 2)}`}
               subPrice={`${oil.changeAbs >= 0 ? "+" : ""}${fmtNum(oil.changeAbs, 2)} USD`}
               subPriceTone={oil.changeAbs >= 0 ? "up" : "down"}
               changePct={oil.changePct}
               actions={<WatchButton item={{ symbol: lower, label: oil.nameVi, category: "Dầu thô", to: `/tai-san/${lower}` }} />}
             />
+            <DataDisclaimer className="mt-3" />
 
             <KpiStrip
               cells={[
@@ -527,7 +529,6 @@ function AssetDetail() {
                 { k: `Thấp nhất · ${rangeLabel}`, v: oilStats ? `$${fmtNum(oilStats.min, 2)}` : "—" },
                 { k: "Biến động phiên", v: `${oil.changePct >= 0 ? "+" : ""}${oil.changePct.toFixed(2)}%`, tone: oil.changePct >= 0 ? "up" : "down" },
                 { k: `Biến động · ${rangeLabel}`, v: oilStats ? `${oilStats.changePct >= 0 ? "+" : ""}${oilStats.changePct.toFixed(2)}%` : "—", tone: (oilStats?.changePct ?? 0) >= 0 ? "up" : "down" },
-                { k: "Cập nhật", v: fmtTime(oil.updatedAt) },
               ]}
             />
 
@@ -600,6 +601,7 @@ function AssetDetail() {
               changePct={gold.changePct}
               actions={<WatchButton item={{ symbol: lower, label: `${gold.brand} ${gold.type}`, category: "Vàng", to: `/tai-san/${lower}` }} />}
             />
+            <DataDisclaimer className="mt-3" />
 
             <KpiStrip
               cells={[
@@ -608,7 +610,6 @@ function AssetDetail() {
                 { k: "Chênh lệch", v: gold.unit.includes("USD") ? `$${fmtNum(gold.sell - gold.buy, 2)} /oz` : `${fmtTrieu(gold.sell - gold.buy)} tr/chỉ` },
                 { k: "Biến động", v: `${gold.changePct >= 0 ? "+" : ""}${gold.changePct.toFixed(2)}%`, tone: gold.changePct >= 0 ? "up" : "down" },
                 { k: "Đơn vị", v: gold.unit },
-                { k: "Cập nhật", v: fmtTime(gold.updatedAt) },
               ]}
             />
 
@@ -639,6 +640,7 @@ function AssetDetail() {
               subPrice={`VND / ${bankRow.code} (bán ra)`}
               actions={<WatchButton item={{ symbol: lower, label: `Vietcombank · ${bankRow.code}`, category: "Ngân hàng", to: `/tai-san/${lower}` }} />}
             />
+            <DataDisclaimer className="mt-3" />
 
             <KpiStrip
               cells={[
@@ -647,7 +649,6 @@ function AssetDetail() {
                 { k: "Bán", v: bankRow.sell ? fmtNum(bankRow.sell, 2) : "—" },
                 { k: "Mã tiền tệ", v: bankRow.code },
                 { k: "Ngân hàng", v: "Vietcombank" },
-                { k: "Cập nhật", v: fmtTime(bankRow.updatedAt) },
               ]}
             />
 
@@ -674,6 +675,7 @@ function AssetDetail() {
               changePct={stock.changePct}
               actions={<WatchButton item={{ symbol: lower, label: stock.name, category: "Chứng khoán", to: `/tai-san/${lower}` }} />}
             />
+            <DataDisclaimer className="mt-3" />
 
             <KpiStrip
               cells={[
@@ -682,7 +684,6 @@ function AssetDetail() {
                 { k: "Khối lượng GD", v: new Intl.NumberFormat("vi-VN").format(stock.volume) },
                 { k: "Thay đổi", v: `${stock.change >= 0 ? "+" : ""}${fmtNum(stock.change, 2)}`, tone: stock.change >= 0 ? "up" : "down" },
                 { k: "% Thay đổi", v: `${stock.changePct >= 0 ? "+" : ""}${stock.changePct.toFixed(2)}%`, tone: stock.changePct >= 0 ? "up" : "down" },
-                { k: "Cập nhật", v: fmtTime(stock.updatedAt) },
               ]}
             />
 
@@ -703,6 +704,7 @@ function AssetDetail() {
               changePct={fx.changePct}
               actions={<WatchButton item={{ symbol: lower, label: fx.name, category: "Ngoại tệ", to: `/tai-san/${lower}` }} />}
             />
+            <DataDisclaimer className="mt-3" />
 
             <KpiStrip
               cells={[
@@ -711,7 +713,6 @@ function AssetDetail() {
                 { k: "Trung bình", v: fmtNum(fx.mid, 2) },
                 { k: "% Thay đổi", v: `${fx.changePct >= 0 ? "+" : ""}${fx.changePct.toFixed(2)}%`, tone: fx.changePct >= 0 ? "up" : "down" },
                 { k: "Mã", v: fx.code },
-                { k: "Cập nhật", v: fmtTime(fx.updatedAt) },
               ]}
             />
 
@@ -731,7 +732,7 @@ function AssetDetail() {
               logo={<img src={coin.image} alt={coin.name} className="h-full w-full rounded-full object-cover" />}
               title={coin.name}
               pills={[coin.symbol, "Crypto"]}
-              meta={[{ k: "Cặp", v: `${coin.symbol}/USDT` }, { k: "Sàn", v: "Binance" }, { k: "Khung", v: rangeLabel }]}
+              meta={[{ k: "Cặp", v: `${coin.symbol}/USDT` }, { k: "Khung", v: rangeLabel }]}
               price={fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)}
               subPrice={`≈ ${fmtVND(coin.priceVnd)}`}
               changePct={coin.change24h}
@@ -747,6 +748,7 @@ function AssetDetail() {
               }
               actions={<WatchButton item={{ symbol: coin.symbol, label: coin.name, category: "Tiền điện tử", to: `/tai-san/${coin.symbol.toLowerCase()}` }} />}
             />
+            <DataDisclaimer className="mt-3" />
 
             <KpiStrip
               cells={[
@@ -845,17 +847,11 @@ function AssetDetail() {
                   <SectionLabel title={`Giới thiệu về ${coin.name}`} />
                   <div className="p-5 space-y-3 text-sm text-muted-foreground leading-relaxed">
                     <p>
-                      <strong className="text-foreground">{coin.name} ({coin.symbol})</strong> là tài sản tiền điện tử được giao dịch realtime trên các sàn lớn như Binance, Coinbase và OKX.
-                      Giá {coin.symbol}/USDT trên trang này được cập nhật trực tiếp từ Binance WebSocket.
+                      <strong className="text-foreground">{coin.name} ({coin.symbol})</strong> là tài sản tiền điện tử được giao dịch trên các sàn lớn như Binance, Coinbase và OKX.
                     </p>
                     <p>
                       Vốn hoá hiện tại {fmtCompactUSD(coin.marketCap)} với khối lượng giao dịch 24h đạt {fmtCompactUSD(coin.volume24h)}. Bạn có thể theo dõi sự biến động giá, đặt cảnh báo email và quy đổi sang VND theo tỷ giá thực thời gian.
                     </p>
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {["Tiền điện tử", "Realtime", "Crypto", "Giao dịch 24/7"].map((t) => (
-                        <span key={t} className="text-xs font-semibold text-muted-foreground bg-muted/40 border border-border px-2.5 py-1 rounded-md">{t}</span>
-                      ))}
-                    </div>
                   </div>
                 </Panel>
               </div>
@@ -913,8 +909,6 @@ function AssetDetail() {
             <div className="rise d5 mt-5">
               <CryptoCommunityFeed symbol={coin.symbol} name={coin.name} />
             </div>
-
-            <div className="mt-5 text-xs text-muted-foreground">Cập nhật lần cuối: {fmtTime(Date.now())}</div>
           </>
         )}
       </main>
