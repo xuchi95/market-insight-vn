@@ -59,10 +59,41 @@ const POPULAR_BANK = [
 
 // Cổ phiếu VN phổ biến (HOSE/HNX) — index trực tiếp trang chi tiết.
 const POPULAR_VN_TICKERS = [
-  "VNM", "VCB", "BID", "CTG", "TCB", "MBB", "VPB", "ACB", "HDB", "STB", "MSB", "SHB",
-  "HPG", "HSG", "NKG", "FPT", "MWG", "PNJ", "MSN", "VIC", "VHM", "VRE", "NVL", "KDH",
-  "GAS", "PLX", "BSR", "POW", "REE", "GVR", "DGC", "DCM", "DPM", "VJC", "HVN", "SSI",
-  "VND", "VCI", "HCM",
+  // Ngân hàng
+  "VCB", "BID", "CTG", "TCB", "MBB", "VPB", "ACB", "HDB", "STB", "MSB", "SHB",
+  "VIB", "OCB", "EIB", "LPB", "TPB", "NAB", "BAB", "ABB", "KLB", "PGB", "BVB", "SGB", "VBB",
+  // Thép / vật liệu
+  "HPG", "HSG", "NKG", "SMC", "TVN", "POM", "VGS", "TLH",
+  // Công nghệ / bán lẻ
+  "FPT", "MWG", "PNJ", "FRT", "DGW", "PET", "CMG", "ELC", "ICT",
+  // Vinhomes / bất động sản
+  "VIC", "VHM", "VRE", "NVL", "KDH", "DXG", "PDR", "DIG", "NLG", "KBC", "KHG", "HDC",
+  "CEO", "IJC", "ITA", "HAG", "HNG", "VCG", "CII", "SCR", "TCH", "QCG", "DXS",
+  // Năng lượng / xăng dầu
+  "GAS", "PLX", "BSR", "POW", "PVD", "PVS", "PVT", "PVC", "PVB", "PXS", "PVG",
+  "REE", "GEX", "GEG", "PC1", "NT2", "VSH", "HDG", "TBC",
+  // Hoá chất / phân bón
+  "GVR", "DGC", "DCM", "DPM", "BFC", "LAS", "VHC", "ANV", "IDI",
+  // Hàng không / logistics
+  "VJC", "HVN", "ACV", "SCS", "GMD", "VSC", "HAH", "VTP", "TMS",
+  // Chứng khoán
+  "SSI", "VND", "VCI", "HCM", "FTS", "BSI", "MBS", "ORS", "AGR", "VIX", "BVS", "VDS",
+  // Tiêu dùng / thực phẩm
+  "VNM", "MSN", "SAB", "BHN", "VEA", "QNS", "KDC", "LSS", "SBT", "SLS",
+  // Bảo hiểm
+  "BVH", "BMI", "PVI", "MIG", "PGI", "BIC",
+  // Công nghiệp / KCN
+  "BCM", "IDC", "SZC", "SIP", "TIP", "LHG", "D2D",
+  // Xây dựng / VLXD
+  "CTD", "HBC", "VCG", "FCN", "PHC", "BMP", "NTP", "BCC", "HT1", "BCG",
+  // Viễn thông / công nghệ Viettel
+  "CTR", "VGI", "FOX",
+  // Cao su / nông nghiệp
+  "DPR", "PHR", "TRC", "BFC",
+  // Thuỷ sản
+  "MPC", "FMC", "CMX", "ACL", "ASM",
+  // Khác phổ biến
+  "MWG", "DHG", "TRA", "IMP", "DMC", "DBD", "PME", "OGC", "ROS",
 ];
 
 async function fetchAssetEntries(): Promise<SitemapEntry[]> {
@@ -122,11 +153,19 @@ function bankEntries(): SitemapEntry[] {
 }
 
 function vnStockEntries(): SitemapEntry[] {
-  return POPULAR_VN_TICKERS.map((sym) => ({
-    path: `/co-phieu/${sym.toLowerCase()}`,
-    changefreq: "hourly" as const,
-    priority: "0.8",
-  }));
+  const seen = new Set<string>();
+  const entries: SitemapEntry[] = [];
+  for (const sym of POPULAR_VN_TICKERS) {
+    const slug = sym.toLowerCase();
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    entries.push({
+      path: `/co-phieu/${slug}`,
+      changefreq: "hourly",
+      priority: "0.8",
+    });
+  }
+  return entries;
 }
 
 function escapeXml(str: string): string {
