@@ -45,15 +45,15 @@ export function ForexRateTable({ search }: { search?: string }) {
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm sm:text-base">
+        <table className="w-full text-[13px] sm:text-base">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="text-left px-2 sm:px-4 py-3 font-semibold">Mã</th>
+              <th className="text-left px-1.5 sm:px-4 py-3 font-semibold">Mã</th>
               <th className="text-left px-2 sm:px-4 py-3 font-semibold hidden sm:table-cell">Tiền tệ</th>
-              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Mua</th>
-              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Bán</th>
+              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Mua</th>
+              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Bán</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Trung bình</th>
-              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Δ</th>
+              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Δ</th>
               <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell">Cập nhật</th>
             </tr>
           </thead>
@@ -63,7 +63,7 @@ export function ForexRateTable({ search }: { search?: string }) {
             ))}
             {rows.map((r) => (
               <tr key={r.code} className="hover:bg-muted/30 transition-colors">
-                <td className="px-2 sm:px-4 py-3 font-bold min-w-0">
+                <td className="px-1.5 sm:px-4 py-3 font-bold min-w-0 max-w-[88px] sm:max-w-none">
                   <Link to="/tai-san/$symbol" params={{ symbol: r.code.toLowerCase() }} className="text-gold hover:underline block truncate">
                     {r.code}
                   </Link>
@@ -74,10 +74,10 @@ export function ForexRateTable({ search }: { search?: string }) {
                     {r.name}
                   </Link>
                 </td>
-                <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap"><AnimatedNumber value={r.buy} format={(v) => fmtNum(v, 2)} /></td>
-                <td className="px-2 sm:px-4 py-3 text-right font-semibold whitespace-nowrap"><AnimatedNumber value={r.sell} format={(v) => fmtNum(v, 2)} /></td>
+                <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums"><AnimatedNumber value={r.buy} format={(v) => fmtNum(v, 2)} /></td>
+                <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={r.sell} format={(v) => fmtNum(v, 2)} /></td>
                 <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={r.mid} format={(v) => fmtNum(v, 2)} noFlash minChars={9} /></td>
-                <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap"><ChangeBadge value={r.changePct} /></td>
+                <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap"><ChangeBadge value={r.changePct} /></td>
                 <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(r.updatedAt)}</td>
               </tr>
             ))}
