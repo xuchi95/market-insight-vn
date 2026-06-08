@@ -501,7 +501,8 @@ function AssetDetail() {
         {isLoading && !isGold && !isBank && <Skeleton className="h-40 w-full mt-5" />}
         {!isLoading && !coin && !stock && !fx && !gold && !bankRow && !oil && (
           <div className="text-center py-20">
-            <h1 className="text-2xl font-bold">Không tìm thấy tài sản "{symbol.toUpperCase()}"</h1>
+            <h1 className="text-2xl font-bold">Tài sản {symbol.toUpperCase()} — Giá &amp; biểu đồ realtime</h1>
+            <h2 className="text-lg font-semibold text-muted-foreground mt-3">Không tìm thấy mã "{symbol.toUpperCase()}"</h2>
             <p className="text-muted-foreground mt-2">Trang chi tiết hỗ trợ crypto, chỉ số chứng khoán, ngoại tệ, vàng và tỷ giá ngân hàng.</p>
           </div>
         )}
