@@ -1,14 +1,38 @@
 import { sendEmail } from "./resend.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const SITE = "https://marketwatch.vn";
 const GOLD = "#C9A24A";
 
-export type DigestTopic = "gold" | "btc" | "usd";
+export type DigestTopic =
+  | "gold"        // XAU/USD (vàng thế giới)
+  | "gold-sjc"    // Vàng SJC 1L (VND/lượng)
+  | "btc"
+  | "eth"
+  | "sol"
+  | "bnb"
+  | "usd"         // USD/VND
+  | "eur";        // EUR/VND
+
+export const ALL_DIGEST_TOPICS: DigestTopic[] = [
+  "gold", "gold-sjc", "btc", "eth", "sol", "bnb", "usd", "eur",
+];
+
+export const DIGEST_TOPIC_META: Record<DigestTopic, { label: string; short: string; unit: "USD" | "VND"; group: "gold" | "crypto" | "fx" }> = {
+  "gold":      { label: "Vàng (XAU/USD)",      short: "Vàng XAU",  unit: "USD", group: "gold"   },
+  "gold-sjc":  { label: "Vàng SJC 1 lượng",    short: "Vàng SJC",  unit: "VND", group: "gold"   },
+  "btc":       { label: "Bitcoin (BTC)",        short: "BTC",       unit: "USD", group: "crypto" },
+  "eth":       { label: "Ethereum (ETH)",       short: "ETH",       unit: "USD", group: "crypto" },
+  "sol":       { label: "Solana (SOL)",         short: "SOL",       unit: "USD", group: "crypto" },
+  "bnb":       { label: "BNB",                  short: "BNB",       unit: "USD", group: "crypto" },
+  "usd":       { label: "Tỷ giá USD/VND",       short: "USD/VND",   unit: "VND", group: "fx"     },
+  "eur":       { label: "Tỷ giá EUR/VND",       short: "EUR/VND",   unit: "VND", group: "fx"     },
+};
 
 export interface DigestSeries {
   topic: DigestTopic;
   label: string;
-  unit: string;
+  unit: "USD" | "VND";
   current: number;
   previous: number;
   changePct: number;
