@@ -3,6 +3,8 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
+import { PolicyToc } from "@/components/site/PolicyToc";
+import { useRef } from "react";
 
 const SITE = "https://marketwatch.vn";
 const URL = `${SITE}/chinh-sach-cookie`;
@@ -55,6 +57,7 @@ export const Route = createFileRoute("/chinh-sach-cookie")({
 
 function CookiePolicyPage() {
   const updated = new Date().toLocaleDateString("vi-VN", { year: "numeric", month: "long", day: "numeric" });
+  const contentRef = useRef<HTMLElement>(null);
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -68,7 +71,9 @@ function CookiePolicyPage() {
             </p>
           </header>
 
-          <section className="prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
+          <PolicyToc contentRef={contentRef} />
+
+          <section ref={contentRef} className="prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
             <p>
               Chính sách Cookie này (“Chính sách”) giải thích cách <strong>MarketWatch</strong> (sau đây gọi là “Chúng tôi”, “Website”) sử dụng cookie và các công nghệ lưu trữ cục bộ tương tự (LocalStorage, SessionStorage, IndexedDB, pixel, tag, fingerprint kỹ thuật) khi Bạn truy cập tên miền <a href="https://marketwatch.vn" className="text-primary underline-offset-4 hover:underline font-medium">marketwatch.vn</a> và các tên miền phụ. Chính sách này là một phần không tách rời của <Link to="/chinh-sach-bao-mat" className="text-primary underline-offset-4 hover:underline font-medium">Chính sách dữ liệu &amp; quyền riêng tư</Link> và <Link to="/dieu-khoan-su-dung" className="text-primary underline-offset-4 hover:underline font-medium">Điều khoản sử dụng</Link>.
             </p>
