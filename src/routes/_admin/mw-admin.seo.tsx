@@ -122,11 +122,92 @@ function SeoAuditPage() {
           Không resubmit được sitemap: {(resubmitMutation.error as Error).message}
         </div>
       )}
-      {resubmitMutation.isSuccess && (
-        <div className="mb-4 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-4 text-sm text-foreground">
-          Đã gửi <code className="text-[var(--gold)]">{resubmitMutation.data.submitted}</code> lên Google Search Console lúc {fmtDate(resubmitMutation.data.at)}. Googlebot sẽ re-crawl trong vài giờ–vài ngày.
-        </div>
-      )}
+      {resubmitMutation.isSuccess && (() => {
+        const d = resubmitMutation.data as {
+          submitted: string;
+          site: string;
+          at: string;
+          durationMs: number;
+          status: number;
+          statusText: string;
+          requestId: string | null;
+          headers: Record<string, string>;
+          body: string | null;
+          sitemap: null | {
+            path?: string;
+            lastSubmitted?: string;
+            lastDownloaded?: string;
+            isPending?: boolean;
+            type?: string;
+            errors?: number;
+            warnings?: number;
+            contents?: string;
+          };
+          sitemapError: string | null;
+        };
+        return (
+          <div className="mb-4 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-4 text-sm text-foreground">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+              <strong className="text-emerald-400">Đã gửi sitemap lên Google Search Console</strong>
+              <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-mono text-emerald-400">
+                HTTP {d.status} {d.statusText}
+              </span>
+              <span className="text-[10px] text-muted-foreground">{d.durationMs} ms</span>
+            </div>
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
+              <div><dt className="inline text-muted-foreground">Sitemap: </dt><dd className="inline font-mono text-[var(--gold)]">{d.submitted}</dd></div>
+              <div><dt className="inline text-muted-foreground">Site: </dt><dd className="inline font-mono">{d.site}</dd></div>
+              <div><dt className="inline text-muted-foreground">Thời điểm: </dt><dd className="inline">{fmtDate(d.at)}</dd></div>
+              <div><dt className="inline text-muted-foreground">Request ID: </dt><dd className="inline font-mono break-all">{d.requestId ?? "—"}</dd></div>
+            </dl>
+
+            {d.sitemap && (
+              <div className="mt-3 rounded border border-border bg-card/40 p-3">
+                <div className="mb-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Snapshot sitemap (sau khi submit)</div>
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
+                  <div><dt className="inline text-muted-foreground">lastSubmitted: </dt><dd className="inline">{fmtDate(d.sitemap.lastSubmitted)}</dd></div>
+                  <div><dt className="inline text-muted-foreground">lastDownloaded: </dt><dd className="inline">{fmtDate(d.sitemap.lastDownloaded)}</dd></div>
+                  <div><dt className="inline text-muted-foreground">isPending: </dt><dd className="inline">{String(d.sitemap.isPending ?? false)}</dd></div>
+                  <div><dt className="inline text-muted-foreground">type: </dt><dd className="inline">{d.sitemap.type ?? "—"}</dd></div>
+                  <div><dt className="inline text-muted-foreground">errors: </dt><dd className={`inline ${(d.sitemap.errors ?? 0) > 0 ? "text-[var(--down)]" : ""}`}>{d.sitemap.errors ?? 0}</dd></div>
+                  <div><dt className="inline text-muted-foreground">warnings: </dt><dd className={`inline ${(d.sitemap.warnings ?? 0) > 0 ? "text-amber-400" : ""}`}>{d.sitemap.warnings ?? 0}</dd></div>
+                </dl>
+              </div>
+            )}
+            {d.sitemapError && (
+              <div className="mt-2 text-xs text-amber-400">Không đọc được snapshot sitemap: {d.sitemapError}</div>
+            )}
+
+            <details className="mt-3 text-xs">
+              <summary className="cursor-pointer text-muted-foreground hover:text-foreground">Xem response headers & body</summary>
+              <div className="mt-2 space-y-2">
+                <div>
+                  <div className="text-[10px] uppercase text-muted-foreground">Headers</div>
+                  <pre className="overflow-x-auto rounded bg-background/60 p-2 font-mono text-[11px]">{Object.entries(d.headers).map(([k, v]) => `${k}: ${v}`).join("\n") || "—"}</pre>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase text-muted-foreground">Body</div>
+                  <pre className="overflow-x-auto rounded bg-background/60 p-2 font-mono text-[11px]">{d.body || "(empty)"}</pre>
+                </div>
+              </div>
+            </details>
+
+            <div className="mt-2 text-[11px] text-muted-foreground">
+              Googlebot sẽ re-crawl trong vài giờ – vài ngày tuỳ độ ưu tiên crawl của Google.
+            </div>
+          </div>
+        );
+      })()}
+      {resubmitMutation.isError && (() => {
+        const detail = (resubmitMutation.error as Error & { detail?: { status?: number; requestId?: string | null; body?: string | null } }).detail;
+        return detail ? (
+          <div className="mb-4 rounded-md border border-[var(--down)]/40 bg-[var(--down)]/5 p-4 text-xs text-[var(--down)]">
+            <div className="font-mono">HTTP {detail.status} • Request ID: {detail.requestId ?? "—"}</div>
+            {detail.body && <pre className="mt-2 overflow-x-auto rounded bg-background/60 p-2 font-mono text-[11px] text-foreground/80">{detail.body}</pre>}
+          </div>
+        ) : null;
+      })()}
 
       {data && !latest && (
         <div className="rounded-md border border-border bg-card p-6 text-center text-sm text-muted-foreground">
