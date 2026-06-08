@@ -153,11 +153,19 @@ function bankEntries(): SitemapEntry[] {
 }
 
 function vnStockEntries(): SitemapEntry[] {
-  return POPULAR_VN_TICKERS.map((sym) => ({
-    path: `/co-phieu/${sym.toLowerCase()}`,
-    changefreq: "hourly" as const,
-    priority: "0.8",
-  }));
+  const seen = new Set<string>();
+  const entries: SitemapEntry[] = [];
+  for (const sym of POPULAR_VN_TICKERS) {
+    const slug = sym.toLowerCase();
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    entries.push({
+      path: `/co-phieu/${slug}`,
+      changefreq: "hourly",
+      priority: "0.8",
+    });
+  }
+  return entries;
 }
 
 function escapeXml(str: string): string {
