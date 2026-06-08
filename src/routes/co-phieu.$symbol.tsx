@@ -427,13 +427,8 @@ function StockDetail() {
                         {data.established && <> · Thành lập {data.established}</>}
                       </p>
                     )}
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {["Cổ phiếu", data.exchange ?? "HOSE", data.industry ?? "Niêm yết", "Realtime"].filter(Boolean).map((t) => (
-                        <span key={t} className="text-xs font-semibold text-muted-foreground bg-muted/40 border border-border px-2.5 py-1 rounded-md">{t}</span>
-                      ))}
-                    </div>
                     <p className="text-[11px] text-muted-foreground/70 italic pt-1">
-                      Nguồn dữ liệu: {data.source} + VNDirect dchart. Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
+                      Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
                     </p>
                   </div>
                 </Panel>
