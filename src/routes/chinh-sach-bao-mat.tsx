@@ -64,14 +64,15 @@ function PrivacyPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-12 max-w-3xl space-y-6">
           <Breadcrumbs />
-          <header>
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Chính sách dữ liệu & quyền riêng tư</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân</p>
+          <header className="border-b border-border pb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Văn bản pháp lý</p>
+            <h1 className="mt-3 text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Chính sách dữ liệu & quyền riêng tư</h1>
+            <p className="mt-3 text-sm text-muted-foreground">Tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân</p>
           </header>
 
           <PolicyToc contentRef={contentRef} />
 
-          <section ref={contentRef} className="prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
+          <section ref={contentRef} className="policy-prose prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
             <p>
               MarketWatch (sau đây gọi là “Chúng tôi”, “Website”) cam kết tôn trọng và bảo vệ dữ liệu cá nhân của Người dùng (sau đây gọi là “Bạn”, “Chủ thể dữ liệu”) theo đúng quy định pháp luật Việt Nam, đặc biệt là <strong>Nghị định 13/2023/NĐ-CP ngày 17/4/2023 về bảo vệ dữ liệu cá nhân</strong>, Luật An toàn thông tin mạng 2015, Luật An ninh mạng 2018, Luật Giao dịch điện tử 2023, Luật Bảo vệ quyền lợi người tiêu dùng 2023 và các văn bản pháp luật liên quan. Chính sách này (“Chính sách”) giải thích Chúng tôi thu thập dữ liệu gì, với mục đích nào, xử lý ra sao và Bạn có những quyền gì.
             </p>

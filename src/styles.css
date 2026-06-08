@@ -296,3 +296,82 @@
   .rise { animation: none; opacity: 1; }
   .live-dot-ring { animation: none; }
 }
+
+/* ============================================================
+   Policy pages — refined editorial typography
+   ============================================================ */
+section.policy-prose {
+  /* Lead intro paragraph — the first <p> right after the header */
+  & > p:first-of-type {
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: color-mix(in oklab, var(--foreground) 88%, transparent);
+    padding: 1rem 1.125rem 1rem 1.25rem;
+    border-left: 3px solid var(--primary);
+    background: color-mix(in oklab, var(--primary) 6%, var(--card));
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+
+  /* Section dividers with a small gold accent bar on every H2 */
+  & > h2 {
+    position: relative;
+    padding-top: 1.75rem;
+    margin-top: 2.5rem !important;
+    border-top: 1px solid var(--border);
+  }
+  & > h2::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 2.25rem;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  /* Sub-section H3 — small accent bar on the left */
+  & > h3 {
+    padding-left: 0.875rem;
+    border-left: 2px solid color-mix(in oklab, var(--primary) 55%, transparent);
+  }
+
+  /* Emphasis */
+  & strong {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  /* Inline code pills */
+  & code {
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.3rem;
+    background: color-mix(in oklab, var(--muted) 80%, transparent);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    font-size: 0.85em;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+
+  /* Lists — a bit more breathing room and hanging indent */
+  & ul > li,
+  & ol > li {
+    padding-left: 0.25rem;
+    margin-block: 0.35rem;
+  }
+  & ul ul,
+  & ol ol {
+    margin-top: 0.5rem;
+  }
+
+  /* Links — subtle underline that strengthens on hover */
+  & a:not(.not-prose a) {
+    text-decoration-color: color-mix(in oklab, var(--primary) 45%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s ease;
+  }
+  & a:hover {
+    text-decoration-color: var(--primary);
+  }
+}

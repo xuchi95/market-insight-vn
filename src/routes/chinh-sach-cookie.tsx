@@ -65,16 +65,17 @@ function CookiePolicyPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-12 max-w-3xl space-y-6">
           <Breadcrumbs />
-          <header>
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Chính sách Cookie</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <header className="border-b border-border pb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Văn bản pháp lý</p>
+            <h1 className="mt-3 text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Chính sách Cookie</h1>
+            <p className="mt-3 text-sm text-muted-foreground">
               Áp dụng từ ngày {updated} · Phiên bản 1.0 · Tuân thủ Nghị định 13/2023/NĐ-CP, Luật An ninh mạng 2018, Luật Giao dịch điện tử 2023, Luật Bảo vệ quyền lợi người tiêu dùng 2023.
             </p>
           </header>
 
           <PolicyToc contentRef={contentRef} />
 
-          <section ref={contentRef} className="prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
+          <section ref={contentRef} className="policy-prose prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
             <p>
               Chính sách Cookie này (“Chính sách”) giải thích cách <strong>MarketWatch</strong> (sau đây gọi là “Chúng tôi”, “Website”) sử dụng cookie và các công nghệ lưu trữ cục bộ tương tự (LocalStorage, SessionStorage, IndexedDB, pixel, tag, fingerprint kỹ thuật) khi Bạn truy cập tên miền <a href="https://marketwatch.vn" className="text-primary underline-offset-4 hover:underline font-medium">marketwatch.vn</a> và các tên miền phụ. Chính sách này là một phần không tách rời của <Link to="/chinh-sach-bao-mat" className="text-primary underline-offset-4 hover:underline font-medium">Chính sách dữ liệu &amp; quyền riêng tư</Link> và <Link to="/dieu-khoan-su-dung" className="text-primary underline-offset-4 hover:underline font-medium">Điều khoản sử dụng</Link>.
             </p>

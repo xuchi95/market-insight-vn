@@ -64,14 +64,15 @@ function TermsPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-12 max-w-3xl space-y-6">
           <Breadcrumbs />
-          <header>
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Điều khoản sử dụng</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Cập nhật lần cuối: {new Date().toLocaleDateString("vi-VN")}</p>
+          <header className="border-b border-border pb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Văn bản pháp lý</p>
+            <h1 className="mt-3 text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Điều khoản sử dụng</h1>
+            <p className="mt-3 text-sm text-muted-foreground">Cập nhật lần cuối: {new Date().toLocaleDateString("vi-VN")}</p>
           </header>
 
           <PolicyToc contentRef={contentRef} />
 
-          <section ref={contentRef} className="prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
+          <section ref={contentRef} className="policy-prose prose prose-slate dark:prose-invert max-w-none space-y-5 text-[15px] leading-7 text-muted-foreground">
             <p>
               Điều khoản sử dụng này (sau đây gọi là “Điều khoản”) là thỏa thuận pháp lý có hiệu lực giữa <strong>người sử dụng</strong> (sau đây gọi là “Người dùng”, “Bạn”) và <strong>MarketWatch</strong> (sau đây gọi là “Website”, “Chúng tôi”) khi truy cập, sử dụng các nội dung, công cụ, dữ liệu, dịch vụ được cung cấp tại tên miền <a href="https://marketwatch.vn" className="text-primary underline-offset-4 hover:underline font-medium">marketwatch.vn</a> và các tên miền phụ liên quan. Điều khoản được xây dựng tuân thủ pháp luật Việt Nam hiện hành, bao gồm nhưng không giới hạn: Bộ luật Dân sự 2015, Luật Giao dịch điện tử 2023, Luật An ninh mạng 2018, Luật An toàn thông tin mạng 2015, Luật Bảo vệ quyền lợi người tiêu dùng 2023, Luật Sở hữu trí tuệ (sửa đổi 2022), Luật Quảng cáo, Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân, Nghị định 147/2024/NĐ-CP về quản lý, cung cấp, sử dụng dịch vụ Internet và thông tin trên mạng (thay thế Nghị định 72/2013/NĐ-CP và Nghị định 27/2018/NĐ-CP), Nghị định 53/2022/NĐ-CP quy định chi tiết Luật An ninh mạng, Nghị định 80/2016/NĐ-CP về thanh toán không dùng tiền mặt, Nghị định 24/2012/NĐ-CP về quản lý hoạt động kinh doanh vàng, Pháp lệnh Ngoại hối 2005 (sửa đổi 2013), Luật Các tổ chức tín dụng 2024, Luật Chứng khoán 2019, Luật Quản lý thuế 2019 và các văn bản hướng dẫn liên quan.
             </p>
