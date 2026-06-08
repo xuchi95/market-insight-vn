@@ -53,11 +53,6 @@ async function fetchSbv(): Promise<SbvPayload> {
   return res.json();
 }
 
-function formatFetchedAt(ts: number): string {
-  const d = new Date(ts);
-  return d.toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" });
-}
-
 function fmtCompactUsd(n: number): string {
   const abs = Math.abs(n);
   if (abs >= 1e12) return `${(n / 1e12).toFixed(2)} nghìn tỷ USD`;
