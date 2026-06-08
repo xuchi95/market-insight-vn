@@ -216,6 +216,15 @@ function StockDetail() {
     };
   }, [chart]);
 
+  // Gắn close của nến trước vào mỗi điểm để tooltip tính Δ và %.
+  const chartPoints = useMemo(() => {
+    if (!chart?.points?.length) return [];
+    return chart.points.map((p, i) => ({
+      ...p,
+      prev: i > 0 ? chart.points[i - 1].v : undefined,
+    }));
+  }, [chart]);
+
   const positive = (data?.changePct ?? 0) >= 0;
 
   return (
