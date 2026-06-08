@@ -554,8 +554,8 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
       {/* Mobile search sheet */}
       {searchOpen && (
-        <div data-testid="header-mobile-search-panel" className="md:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-xl animate-in fade-in duration-150">
-          <div className="mx-auto max-w-6xl px-4 pt-3 pb-4 border-b border-border bg-background">
+        <div data-testid="header-mobile-search-panel" className="md:hidden fixed inset-0 z-[100] flex flex-col bg-background animate-in fade-in duration-150">
+          <div className="shrink-0 px-4 pt-3 pb-3 border-b border-border bg-background">
             <form
               data-testid="header-mobile-search-form"
               className="relative flex items-center gap-2"
@@ -595,7 +595,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </button>
             </form>
           </div>
-          <div className="mx-auto max-w-6xl px-2 py-2 overflow-auto" style={{ maxHeight: "calc(100vh - 88px)" }}>
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-background px-2 py-2">
             <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
               {q.trim() ? `Kết quả (${suggestions.length})` : "Gợi ý phổ biến"}
             </div>
