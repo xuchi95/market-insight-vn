@@ -119,6 +119,7 @@ import { Route as ApiPublicV1SnapshotRouteImport } from './routes/api/public/v1/
 import { Route as ApiPublicHooksSeoAuditRouteImport } from './routes/api/public/hooks/seo-audit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 import { Route as ApiPublicHooksRefreshFuelPricesRouteImport } from './routes/api/public/hooks/refresh-fuel-prices'
+import { Route as ApiPublicHooksGscResubmitSitemapRouteImport } from './routes/api/public/hooks/gsc-resubmit-sitemap'
 import { Route as AdminMwAdminFuelPricesHistoryRouteImport } from './routes/_admin/mw-admin.fuel-prices_.history'
 
 const YeuCauApiKeyRoute = YeuCauApiKeyRouteImport.update({
@@ -687,6 +688,12 @@ const ApiPublicHooksRefreshFuelPricesRoute =
     path: '/api/public/hooks/refresh-fuel-prices',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksGscResubmitSitemapRoute =
+  ApiPublicHooksGscResubmitSitemapRouteImport.update({
+    id: '/api/public/hooks/gsc-resubmit-sitemap',
+    path: '/api/public/hooks/gsc-resubmit-sitemap',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminMwAdminFuelPricesHistoryRoute =
   AdminMwAdminFuelPricesHistoryRouteImport.update({
     id: '/mw-admin/fuel-prices_/history',
@@ -797,6 +804,7 @@ export interface FileRoutesByFullPath {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
   '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
+  '/api/public/hooks/gsc-resubmit-sitemap': typeof ApiPublicHooksGscResubmitSitemapRoute
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
@@ -909,6 +917,7 @@ export interface FileRoutesByTo {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
   '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
+  '/api/public/hooks/gsc-resubmit-sitemap': typeof ApiPublicHooksGscResubmitSitemapRoute
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
@@ -1023,6 +1032,7 @@ export interface FileRoutesById {
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
   '/_admin/mw-admin/fuel-prices_/history': typeof AdminMwAdminFuelPricesHistoryRoute
+  '/api/public/hooks/gsc-resubmit-sitemap': typeof ApiPublicHooksGscResubmitSitemapRoute
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
@@ -1137,6 +1147,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/mw-admin/'
     | '/mw-admin/fuel-prices/history'
+    | '/api/public/hooks/gsc-resubmit-sitemap'
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
@@ -1249,6 +1260,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/mw-admin'
     | '/mw-admin/fuel-prices/history'
+    | '/api/public/hooks/gsc-resubmit-sitemap'
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
@@ -1362,6 +1374,7 @@ export interface FileRouteTypes {
     | '/api/public/xau'
     | '/_admin/mw-admin/'
     | '/_admin/mw-admin/fuel-prices_/history'
+    | '/api/public/hooks/gsc-resubmit-sitemap'
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
@@ -1459,6 +1472,7 @@ export interface RootRouteChildren {
   ApiPublicVnStockChartRoute: typeof ApiPublicVnStockChartRoute
   ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
+  ApiPublicHooksGscResubmitSitemapRoute: typeof ApiPublicHooksGscResubmitSitemapRoute
   ApiPublicHooksRefreshFuelPricesRoute: typeof ApiPublicHooksRefreshFuelPricesRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
   ApiPublicHooksSeoAuditRoute: typeof ApiPublicHooksSeoAuditRoute
@@ -2241,6 +2255,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRefreshFuelPricesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/gsc-resubmit-sitemap': {
+      id: '/api/public/hooks/gsc-resubmit-sitemap'
+      path: '/api/public/hooks/gsc-resubmit-sitemap'
+      fullPath: '/api/public/hooks/gsc-resubmit-sitemap'
+      preLoaderRoute: typeof ApiPublicHooksGscResubmitSitemapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_admin/mw-admin/fuel-prices_/history': {
       id: '/_admin/mw-admin/fuel-prices_/history'
       path: '/mw-admin/fuel-prices/history'
@@ -2380,6 +2401,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicVnStockChartRoute: ApiPublicVnStockChartRoute,
   ApiPublicWatchlistAlertsCronRoute: ApiPublicWatchlistAlertsCronRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
+  ApiPublicHooksGscResubmitSitemapRoute: ApiPublicHooksGscResubmitSitemapRoute,
   ApiPublicHooksRefreshFuelPricesRoute: ApiPublicHooksRefreshFuelPricesRoute,
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
