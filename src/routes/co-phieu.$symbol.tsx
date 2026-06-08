@@ -427,9 +427,6 @@ function StockDetail() {
                         {data.established && <> · Thành lập {data.established}</>}
                       </p>
                     )}
-                    <p className="text-[11px] text-muted-foreground/70 italic pt-1">
-                      Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
-                    </p>
                   </div>
                 </Panel>
               </div>
