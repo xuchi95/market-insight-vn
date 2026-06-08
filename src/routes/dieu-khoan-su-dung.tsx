@@ -4,6 +4,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { CompanyInfoCard } from "@/components/site/CompanyInfoCard";
 import { PolicyToc } from "@/components/site/PolicyToc";
+import { BackToTop } from "@/components/site/BackToTop";
 import { useRef } from "react";
 
 const SITE = "https://marketwatch.vn";
@@ -229,6 +230,7 @@ function TermsPage() {
           </section>
         </div>
       </main>
+      <BackToTop />
       <Footer />
     </div>
   );
