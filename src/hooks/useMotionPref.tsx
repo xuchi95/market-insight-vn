@@ -23,6 +23,13 @@ export function MotionPrefProvider({ children }: { children: ReactNode }) {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw === "0") setAnimateState(false);
       else if (raw === "1") setAnimateState(true);
+      else if (
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        // Honour OS-level reduce-motion when the user hasn't picked a preference.
+        setAnimateState(false);
+      }
     } catch {/* ignore */}
   }, []);
 
