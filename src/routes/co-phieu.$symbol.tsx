@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fmtNum, fmtTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { isVnMarketOpen } from "@/lib/vn-market";
+import { AnimatedNumber } from "@/components/site/AnimatedNumber";
 
 const SITE = "https://marketwatch.vn";
 
@@ -167,10 +169,19 @@ function StockDetail() {
   const SYM = symbol.toUpperCase();
   const [days, setDays] = useState(90);
 
+  // Trong giờ giao dịch HOSE (T2-T6, 9:00-11:30 và 13:00-15:00 giờ VN) poll
+  // mỗi 15s để giá nhảy gần realtime. Ngoài giờ giảm xuống 60s để tiết kiệm.
+  const [marketOpen, setMarketOpen] = useState(() => isVnMarketOpen());
+  useEffect(() => {
+    const id = setInterval(() => setMarketOpen(isVnMarketOpen()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["vn-stock", SYM],
     queryFn: () => fetchStock(SYM),
-    refetchInterval: 60_000,
+    refetchInterval: marketOpen ? 15_000 : 60_000,
+    refetchOnWindowFocus: true,
     retry: 1,
   });
 
