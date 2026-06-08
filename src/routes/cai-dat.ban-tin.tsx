@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2 } from "lucide-react";
+import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Input } from "@/components/ui/input";
@@ -115,6 +115,28 @@ function SettingsCard() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function handleReorder(next: Topic[]) {
+    if (!active) return;
+    setBusy(true);
+    try {
+      await updateTopics({ data: { email: active.email, topics: next } });
+      toast.success("Đã cập nhật thứ tự");
+      qc.invalidateQueries({ queryKey: ["my-newsletter"] });
+    } catch (e: any) {
+      toast.error("Không thể sắp xếp", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function moveTopic(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= topics.length) return;
+    const next = [...topics];
+    [next[index], next[target]] = [next[target], next[index]];
+    handleReorder(next);
   }
 
   async function handleSubscribe(email: string) {
