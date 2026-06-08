@@ -313,12 +313,12 @@ function StockDetail() {
                     title={`Biểu đồ giá ${SYM}`}
                     sub={chart?.source}
                     right={
-                      <Tabs value={String(days)} onValueChange={(v) => setDays(Number(v))} className="ml-auto">
+                      <Tabs value={rangeKey} onValueChange={setRangeKey} className="ml-auto">
                         <TabsList className="h-9 rounded-2xl border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] bg-card/60 p-1 gap-0.5">
                           {RANGES.map((r) => (
                             <TabsTrigger
-                              key={r.days}
-                              value={String(r.days)}
+                              key={r.key}
+                              value={r.key}
                               className="rounded-xl text-xs px-3 data-[state=active]:bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] data-[state=active]:text-[var(--gold)] data-[state=active]:border data-[state=active]:border-[color-mix(in_oklab,var(--gold)_40%,transparent)] data-[state=active]:shadow-none"
                             >
                               {r.label}
@@ -347,16 +347,25 @@ function StockDetail() {
                           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                           <XAxis
                             dataKey="t"
-                            tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
+                            tickFormatter={(t) =>
+                              intraday
+                                ? new Date(t).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+                                : new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })
+                            }
                             stroke="var(--muted-foreground)"
                             fontSize={11}
                             tickLine={false}
                             axisLine={false}
+                            minTickGap={32}
                           />
                           <YAxis stroke="var(--muted-foreground)" fontSize={11} domain={["auto", "auto"]} tickLine={false} axisLine={false} width={56} />
                           <Tooltip
                             contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
-                            labelFormatter={(t) => new Date(t).toLocaleDateString("vi-VN")}
+                            labelFormatter={(t) =>
+                              intraday
+                                ? new Date(t).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+                                : new Date(t).toLocaleDateString("vi-VN")
+                            }
                             formatter={(v: number) => [fmtNum(v, 2), SYM]}
                           />
                           <Area type="monotone" dataKey="v" stroke="var(--gold)" strokeWidth={2} fill="url(#stockGrad)" isAnimationActive={false} />
@@ -366,10 +375,10 @@ function StockDetail() {
                   </div>
                   {stats && (
                     <div className="border-t border-border grid grid-cols-3 divide-x divide-border">
-                      <MiniStat label={`Cao nhất ${days}N`} value={fmtNum(stats.max, 2)} />
-                      <MiniStat label={`Thấp nhất ${days}N`} value={fmtNum(stats.min, 2)} />
+                      <MiniStat label={`Cao nhất ${range.label}`} value={fmtNum(stats.max, 2)} />
+                      <MiniStat label={`Thấp nhất ${range.label}`} value={fmtNum(stats.min, 2)} />
                       <MiniStat
-                        label={`Biến động ${days}N`}
+                        label={`Biến động ${range.label}`}
                         value={`${stats.changePct >= 0 ? "+" : ""}${stats.changePct.toFixed(2)}%`}
                         tone={stats.changePct >= 0 ? "up" : "down"}
                       />
