@@ -537,7 +537,11 @@ function ResultBody({ result }: { result: PredictionResult }) {
     <>
       <div className="aip-res-head">
         <div className="aip-res-title">
-          <span className="aip-res-tag">Phân tích AI</span>
+          <span className="aip-res-tag" aria-label="Phân tích AI">
+            <span className="aip-res-tag-dot" aria-hidden="true" />
+            <span className="aip-res-tag-text">AI<span className="aip-res-tag-sep">/</span>ANALYSIS</span>
+            <span className="aip-res-tag-ver" aria-hidden="true">v1</span>
+          </span>
           <h3>
             {meta.label} · {horizonLabel}
           </h3>
@@ -837,7 +841,30 @@ function AipStyles() {
       @keyframes aip-rise { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
       .aip .aip-res-head { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
       .aip .aip-res-title { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-      .aip .aip-res-tag { font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:var(--aip-gold-bright); padding:5px 11px; border-radius:999px; border:1px solid rgba(203,167,95,.4); background:rgba(203,167,95,.08); }
+      /* Professional editorial badge — solid, deliberate, not pale */
+      .aip .aip-res-tag {
+        display:inline-flex; align-items:stretch; gap:0; padding:0;
+        font-family:var(--font-mono, ui-monospace, monospace);
+        font-size:.66rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+        border-radius:6px; overflow:hidden;
+        border:1px solid var(--aip-ink); background:var(--aip-ink);
+        color:var(--aip-bg);
+        box-shadow:0 1px 0 rgba(0,0,0,.04), 0 6px 14px -10px rgba(0,0,0,.4);
+      }
+      .aip .aip-res-tag-dot {
+        align-self:center; width:6px; height:6px; margin:0 9px 0 10px;
+        border-radius:99px; background:var(--aip-gold-bright);
+        box-shadow:0 0 0 2px rgba(203,167,95,.18);
+      }
+      .aip .aip-res-tag-text { display:inline-flex; align-items:center; padding:6px 10px 6px 0; }
+      .aip .aip-res-tag-sep { opacity:.55; margin:0 5px; font-weight:500; }
+      .aip .aip-res-tag-ver {
+        display:inline-flex; align-items:center; padding:6px 10px;
+        background:var(--aip-gold-bright); color:#1a1206;
+        letter-spacing:.12em; font-weight:700;
+        border-left:1px solid color-mix(in oklab, var(--aip-ink) 30%, transparent);
+      }
+      html.light .aip .aip-res-tag-ver { color:#231803; }
       .aip .aip-res-title h3 { font-weight:600; font-size:1.35rem; color:var(--aip-ink); letter-spacing:-.012em; }
       .aip .aip-res-conf { text-align:right; font-size:.72rem; color:var(--aip-ink-3); letter-spacing:.04em; }
       .aip .aip-res-conf b { color:var(--aip-ink); font-size:1.05rem; display:block; }
