@@ -677,14 +677,24 @@ function AipStyles() {
         --aip-gold-soft:#d8bc78;
         --aip-up:#7cc492;
         --aip-down:#db8278;
-        --aip-line:rgba(203,167,95,.14);
-        --aip-line-soft:rgba(246,241,231,.07);
-        --aip-panel:rgba(255,255,255,.018);
-        --aip-panel-2:rgba(255,255,255,.028);
-        --aip-panel-hi:rgba(203,167,95,.06);
-        --aip-r-lg:22px;
-        --aip-r-md:15px;
-        --aip-shadow-deep:0 40px 90px -40px rgba(0,0,0,.9);
+        --aip-line:rgba(203,167,95,.22);
+        --aip-line-strong:rgba(203,167,95,.32);
+        --aip-line-soft:rgba(246,241,231,.08);
+        --aip-panel:rgba(255,255,255,.032);
+        --aip-panel-2:rgba(255,255,255,.05);
+        --aip-panel-hi:rgba(203,167,95,.08);
+        --aip-r-lg:18px;
+        --aip-r-md:12px;
+        --aip-shadow-deep:
+          0 1px 0 rgba(255,255,255,.04) inset,
+          0 0 0 1px rgba(0,0,0,.25),
+          0 30px 80px -30px rgba(0,0,0,.75);
+        --aip-shadow-card:
+          0 1px 0 rgba(255,255,255,.04) inset,
+          0 6px 18px -10px rgba(0,0,0,.55);
+        --aip-shadow-card-hover:
+          0 1px 0 rgba(255,255,255,.06) inset,
+          0 14px 32px -14px rgba(0,0,0,.65);
         --aip-gold-grad:linear-gradient(135deg,#f0d999 0%,#cba75f 42%,#a07e36 100%);
         background:var(--aip-bg);
         color:var(--aip-ink);
@@ -702,12 +712,24 @@ function AipStyles() {
         --aip-ink-2:#3d3424;
         --aip-ink-3:#6b6249;
         --aip-ink-4:#9a9079;
-        --aip-line:rgba(160,126,54,.22);
-        --aip-line-soft:rgba(26,20,8,.08);
-        --aip-panel:rgba(255,255,255,.7);
-        --aip-panel-2:rgba(255,255,255,.92);
-        --aip-panel-hi:rgba(203,167,95,.14);
-        --aip-shadow-deep:0 30px 70px -40px rgba(80,60,20,.35);
+        --aip-line:rgba(120,90,30,.18);
+        --aip-line-strong:rgba(120,90,30,.30);
+        --aip-line-soft:rgba(26,20,8,.09);
+        --aip-panel:#ffffff;
+        --aip-panel-2:#ffffff;
+        --aip-panel-hi:rgba(203,167,95,.12);
+        --aip-shadow-deep:
+          0 1px 0 rgba(255,255,255,.9) inset,
+          0 0 0 1px rgba(120,90,30,.10),
+          0 24px 60px -28px rgba(80,60,20,.28);
+        --aip-shadow-card:
+          0 1px 0 rgba(255,255,255,.9) inset,
+          0 1px 2px rgba(80,60,20,.06),
+          0 8px 22px -14px rgba(80,60,20,.22);
+        --aip-shadow-card-hover:
+          0 1px 0 rgba(255,255,255,.95) inset,
+          0 2px 4px rgba(80,60,20,.08),
+          0 18px 36px -16px rgba(80,60,20,.32);
       }
       html.light .aip .aip-bg-glow {
         background:
@@ -783,8 +805,8 @@ function AipStyles() {
       .aip .aip-rule { height:1px; background:linear-gradient(90deg, var(--aip-line) 0%, transparent 80%); margin:8px 0 0; }
 
       /* panel */
-      .aip .aip-panel { position:relative; margin-top:40px; border:1px solid var(--aip-line); border-radius:var(--aip-r-lg); background:linear-gradient(180deg, rgba(203,167,95,.04), transparent 26%), var(--aip-bg-2); box-shadow:var(--aip-shadow-deep); overflow:hidden; }
-      .aip .aip-step { padding:34px 36px; }
+      .aip .aip-panel { position:relative; margin-top:40px; border:1px solid var(--aip-line-strong); border-radius:var(--aip-r-lg); background:linear-gradient(180deg, rgba(203,167,95,.04), transparent 26%), var(--aip-bg-2); box-shadow:var(--aip-shadow-deep); overflow:hidden; }
+      .aip .aip-step { padding:32px 34px; }
       .aip .aip-step + .aip-step { border-top:1px solid var(--aip-line-soft); }
       .aip .aip-step-head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
       .aip .aip-step-title { display:flex; align-items:center; gap:15px; }
@@ -794,18 +816,18 @@ function AipStyles() {
 
       /* cats */
       .aip .aip-cats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-      .aip .aip-cat { display:flex; align-items:center; gap:12px; padding:15px 17px; cursor:pointer; text-align:left; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); color:var(--aip-ink-2); font-size:.96rem; font-weight:500; transition:transform .2s ease, border-color .25s, background .25s, color .25s, box-shadow .25s; }
+      .aip .aip-cat { display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; text-align:left; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); color:var(--aip-ink-2); font-size:.96rem; font-weight:500; box-shadow:var(--aip-shadow-card); transition:transform .2s ease, border-color .25s, background .25s, color .25s, box-shadow .25s; }
       .aip .aip-cat-ic { width:30px; height:30px; flex:none; display:grid; place-items:center; border-radius:9px; color:var(--aip-ink-3); border:1px solid var(--aip-line-soft); transition:.25s; }
-      .aip .aip-cat:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.3); color:var(--aip-ink); }
+      .aip .aip-cat:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.4); color:var(--aip-ink); box-shadow:var(--aip-shadow-card-hover); }
       .aip .aip-cat:hover .aip-cat-ic { color:var(--aip-gold-soft); }
       .aip .aip-cat.on { color:var(--aip-ink); border-color:rgba(203,167,95,.55); background:linear-gradient(180deg, rgba(203,167,95,.12), rgba(203,167,95,.03)); box-shadow:inset 0 1px 0 rgba(231,205,140,.18), 0 10px 30px -18px rgba(203,167,95,.5); }
       .aip .aip-cat.on .aip-cat-ic { color:var(--aip-gold-bright); border-color:rgba(203,167,95,.4); background:rgba(203,167,95,.1); }
 
       /* assets */
       .aip .aip-assets { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; }
-      .aip .aip-asset { position:relative; cursor:pointer; text-align:left; padding:16px 17px 15px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); transition:transform .2s ease, border-color .25s, background .25s, box-shadow .25s; animation:aip-pop .4s ease both; }
+      .aip .aip-asset { position:relative; cursor:pointer; text-align:left; padding:16px 17px 15px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); box-shadow:var(--aip-shadow-card); transition:transform .2s ease, border-color .25s, background .25s, box-shadow .25s; animation:aip-pop .4s ease both; }
       @keyframes aip-pop { from{ opacity:0; transform:translateY(8px) scale(.985);} to{ opacity:1; transform:translateY(0) scale(1);} }
-      .aip .aip-asset:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.32); background:var(--aip-panel-2); }
+      .aip .aip-asset:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.4); background:var(--aip-panel-2); box-shadow:var(--aip-shadow-card-hover); }
       .aip .aip-asset.on { border-color:rgba(203,167,95,.6); background:linear-gradient(180deg, rgba(203,167,95,.11), rgba(203,167,95,.025)); box-shadow:inset 0 1px 0 rgba(231,205,140,.2), 0 14px 34px -20px rgba(203,167,95,.55); }
       .aip .aip-asset-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
       .aip .aip-asset-name { font-weight:600; font-size:1rem; color:var(--aip-ink); letter-spacing:-.01em; }
@@ -816,17 +838,17 @@ function AipStyles() {
 
       /* frames */
       .aip .aip-frames { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-      .aip .aip-frame { cursor:pointer; text-align:left; padding:18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); transition:transform .2s ease, border-color .25s, background .25s, box-shadow .25s; display:flex; gap:14px; align-items:center; }
+      .aip .aip-frame { cursor:pointer; text-align:left; padding:18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); box-shadow:var(--aip-shadow-card); transition:transform .2s ease, border-color .25s, background .25s, box-shadow .25s; display:flex; gap:14px; align-items:center; }
       .aip .aip-frame-ic { width:34px; height:34px; flex:none; border-radius:10px; display:grid; place-items:center; border:1px solid var(--aip-line-soft); color:var(--aip-ink-3); transition:.25s; }
       .aip .aip-frame-txt b { display:block; font-weight:600; font-size:1rem; color:var(--aip-ink); letter-spacing:-.01em; }
       .aip .aip-frame-txt span { font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--aip-ink-3); }
-      .aip .aip-frame:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.3); }
+      .aip .aip-frame:hover { transform:translateY(-2px); border-color:rgba(203,167,95,.4); box-shadow:var(--aip-shadow-card-hover); }
       .aip .aip-frame:hover .aip-frame-ic { color:var(--aip-gold-soft); }
       .aip .aip-frame.on { border-color:rgba(203,167,95,.55); background:linear-gradient(180deg, rgba(203,167,95,.12), rgba(203,167,95,.03)); box-shadow:inset 0 1px 0 rgba(231,205,140,.18), 0 12px 32px -20px rgba(203,167,95,.5); }
       .aip .aip-frame.on .aip-frame-ic { color:var(--aip-gold-bright); border-color:rgba(203,167,95,.4); background:rgba(203,167,95,.1); }
 
       /* cta */
-      .aip .aip-cta { display:flex; align-items:center; justify-content:space-between; gap:22px; padding:22px 28px 22px 32px; border-top:1px solid var(--aip-line); background:linear-gradient(180deg, rgba(203,167,95,.05), transparent); }
+      .aip .aip-cta { display:flex; align-items:center; justify-content:space-between; gap:22px; padding:22px 28px 22px 32px; border-top:1px solid var(--aip-line-strong); background:linear-gradient(180deg, rgba(203,167,95,.06), transparent); }
       .aip .aip-cta-info .aip-cta-lbl { font-size:.7rem; letter-spacing:.22em; text-transform:uppercase; color:var(--aip-ink-3); }
       .aip .aip-cta-info .aip-cta-sel { margin-top:6px; font-size:1.25rem; font-weight:600; color:var(--aip-ink); letter-spacing:-.012em; }
 
@@ -837,7 +859,7 @@ function AipStyles() {
       .aip .aip-btn-ghost:hover { background:rgba(203,167,95,.1); }
 
       /* result */
-      .aip .aip-result { border-top:1px solid var(--aip-line); padding:32px 36px 38px; display:flex; flex-direction:column; gap:24px; animation:aip-rise .5s ease both; }
+      .aip .aip-result { border-top:1px solid var(--aip-line-strong); padding:32px 34px 38px; display:flex; flex-direction:column; gap:24px; animation:aip-rise .5s ease both; }
       @keyframes aip-rise { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
       .aip .aip-res-head { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
       .aip .aip-res-title { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
@@ -869,7 +891,7 @@ function AipStyles() {
       .aip .aip-res-conf { text-align:right; font-size:.72rem; color:var(--aip-ink-3); letter-spacing:.04em; }
       .aip .aip-res-conf b { color:var(--aip-ink); font-size:1.05rem; display:block; }
       .aip .aip-res-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-      .aip .aip-metric { padding:16px 18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); }
+      .aip .aip-metric { padding:16px 18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); box-shadow:var(--aip-shadow-card); }
       .aip .aip-metric-k { font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--aip-ink-3); }
       .aip .aip-metric-v { margin-top:8px; font-size:1.25rem; font-weight:600; color:var(--aip-ink); display:flex; align-items:center; gap:8px; font-variant-numeric:tabular-nums; }
       .aip .aip-bar { margin-top:10px; height:6px; border-radius:99px; background:rgba(246,241,231,.08); overflow:hidden; }
@@ -881,7 +903,7 @@ function AipStyles() {
       .aip .aip-summary { font-size:1rem; line-height:1.72; color:var(--aip-ink-2); }
 
       .aip .aip-scenarios { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-      .aip .aip-scn { padding:17px 18px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); border-top:2px solid var(--aip-gold); }
+      .aip .aip-scn { padding:18px 18px 16px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); border-top:3px solid var(--aip-gold); box-shadow:var(--aip-shadow-card); }
       .aip .aip-scn.optimistic { border-top-color:var(--aip-up); }
       .aip .aip-scn.base { border-top-color:var(--aip-gold); }
       .aip .aip-scn.pessimistic { border-top-color:var(--aip-down); }
@@ -908,7 +930,7 @@ function AipStyles() {
       .aip .aip-err { display:flex; align-items:center; gap:10px; color:var(--aip-down); padding:14px 16px; border:1px solid rgba(219,130,120,.3); background:rgba(219,130,120,.06); border-radius:var(--aip-r-md); font-size:.9rem; }
 
       /* disclaimer */
-      .aip .aip-disclaimer { margin-top:30px; display:flex; gap:16px; border:1px solid var(--aip-line); border-left:3px solid var(--aip-gold); border-radius:var(--aip-r-md); padding:20px 24px; background:linear-gradient(90deg, rgba(203,167,95,.05), transparent 60%); }
+      .aip .aip-disclaimer { margin-top:30px; display:flex; gap:16px; border:1px solid var(--aip-line); border-left:3px solid var(--aip-gold); border-radius:var(--aip-r-md); padding:20px 24px; background:linear-gradient(90deg, rgba(203,167,95,.06), transparent 60%); box-shadow:var(--aip-shadow-card); }
       .aip .aip-disc-ic { flex:none; color:var(--aip-gold-soft); margin-top:2px; }
       .aip .aip-disc-lbl { font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--aip-gold-soft); margin-bottom:7px; }
       .aip .aip-disclaimer p { font-size:.92rem; line-height:1.65; color:var(--aip-ink-2); }
@@ -920,7 +942,7 @@ function AipStyles() {
       .aip .aip-how-body { max-width:720px; font-size:1rem; line-height:1.78; color:var(--aip-ink-2); }
       .aip .aip-how-body b { color:var(--aip-ink); font-weight:600; }
       .aip .aip-flow { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:38px; }
-      .aip .aip-flow-card { position:relative; padding:24px 22px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); }
+      .aip .aip-flow-card { position:relative; padding:24px 22px; border:1px solid var(--aip-line); border-radius:var(--aip-r-md); background:var(--aip-panel); box-shadow:var(--aip-shadow-card); }
       .aip .aip-flow-n { font-size:.72rem; color:var(--aip-gold-soft); letter-spacing:.12em; font-variant-numeric:tabular-nums; }
       .aip .aip-flow-ic { width:40px; height:40px; border-radius:11px; display:grid; place-items:center; margin:14px 0 16px; border:1px solid var(--aip-line); color:var(--aip-gold-bright); background:rgba(203,167,95,.06); }
       .aip .aip-flow-card h4 { font-weight:600; font-size:1.1rem; color:var(--aip-ink); margin-bottom:8px; letter-spacing:-.012em; }
