@@ -79,11 +79,13 @@ export const SAMPLE_DATA: Record<EmailTemplateId, Record<string, unknown>> = {
 
 function mockDigestSeries(topic: DigestTopic) {
   const base = topic === "gold" ? 2650 : topic === "btc" ? 100000 : 25400;
-  const series = Array.from({ length: 8 }, (_, i) =>
-    base * (1 + Math.sin((i / 7) * Math.PI) * 0.04 + (i / 7) * 0.015),
+  const series30 = Array.from({ length: 30 }, (_, i) =>
+    base * (1 + Math.sin((i / 29) * Math.PI * 2) * 0.05 + (i / 29) * 0.02),
   );
+  const series = series30.slice(-8);
   const current = series[series.length - 1];
   const previous = series[0];
+  const first30 = series30[0];
   const changeAbs = current - previous;
   return {
     topic,
@@ -94,6 +96,12 @@ function mockDigestSeries(topic: DigestTopic) {
     changeAbs,
     changePct: (changeAbs / previous) * 100,
     series,
+    series30,
+    high7: Math.max(...series),
+    low7: Math.min(...series),
+    high30: Math.max(...series30),
+    low30: Math.min(...series30),
+    changePct30: first30 ? ((current - first30) / first30) * 100 : 0,
   };
 }
 
