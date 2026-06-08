@@ -19,7 +19,7 @@ function cacheMsFor(res: string): number {
   return 5 * 60 * 1000;
 }
 
-interface Point { t: number; v: number; o?: number; h?: number; l?: number }
+interface Point { t: number; v: number; o?: number; h?: number; l?: number; vol?: number }
 interface Payload { symbol: string; days: number; resolution: string; points: Point[]; source: string; fetchedAt: number }
 
 const cache = new Map<string, { at: number; payload: Payload }>();
@@ -59,6 +59,7 @@ async function fetchVndirect(sym: string, days: number, resolution: string): Pro
         o: Number(j.o?.[i]) || undefined,
         h: Number(j.h?.[i]) || undefined,
         l: Number(j.l?.[i]) || undefined,
+        vol: Number(j.v?.[i]) || undefined,
       });
     }
     return pts.length ? pts : null;
@@ -99,6 +100,7 @@ async function fetchTcbs(sym: string, days: number, resolution: string): Promise
         o: Number(row.open) || undefined,
         h: Number(row.high) || undefined,
         l: Number(row.low) || undefined,
+        vol: Number(row.volume) || undefined,
       }))
       .filter((p) => Number.isFinite(p.v))
       .sort((a, b) => a.t - b.t);
