@@ -64,9 +64,10 @@ function TermsPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8 lg:py-12 max-w-3xl space-y-6">
           <Breadcrumbs />
-          <header>
-            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Điều khoản sử dụng</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Cập nhật lần cuối: {new Date().toLocaleDateString("vi-VN")}</p>
+          <header className="border-b border-border pb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Văn bản pháp lý</p>
+            <h1 className="mt-3 text-3xl lg:text-4xl font-bold tracking-tight leading-tight">Điều khoản sử dụng</h1>
+            <p className="mt-3 text-sm text-muted-foreground">Cập nhật lần cuối: {new Date().toLocaleDateString("vi-VN")}</p>
           </header>
 
           <PolicyToc contentRef={contentRef} />
