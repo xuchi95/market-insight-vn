@@ -45,15 +45,17 @@ interface VnStock {
   source: string;
 }
 
-interface ChartPayload { points: { t: number; v: number }[]; source: string }
+interface ChartPayload { points: { t: number; v: number }[]; source: string; resolution?: string }
 
 async function fetchStock(sym: string): Promise<VnStock> {
   const r = await fetch(`/api/public/vn-stock?symbol=${encodeURIComponent(sym)}`);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
-async function fetchChart(sym: string, days: number): Promise<ChartPayload> {
-  const r = await fetch(`/api/public/vn-stock-chart?symbol=${encodeURIComponent(sym)}&days=${days}`);
+async function fetchChart(sym: string, days: number, resolution: string): Promise<ChartPayload> {
+  const r = await fetch(
+    `/api/public/vn-stock-chart?symbol=${encodeURIComponent(sym)}&days=${days}&resolution=${resolution}`,
+  );
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
@@ -156,18 +158,21 @@ export const Route = createFileRoute("/co-phieu/$symbol")({
   component: StockDetail,
 });
 
-const RANGES = [
-  { label: "7N", days: 7 },
-  { label: "30N", days: 30 },
-  { label: "90N", days: 90 },
-  { label: "180N", days: 180 },
-  { label: "1N", days: 365 },
+const RANGES: { key: string; label: string; days: number; resolution: string; intraday?: boolean }[] = [
+  { key: "1D", label: "1D", days: 1, resolution: "1", intraday: true },
+  { key: "1W", label: "1W", days: 7, resolution: "5", intraday: true },
+  { key: "1M", label: "1M", days: 30, resolution: "15", intraday: true },
+  { key: "3M", label: "3M", days: 90, resolution: "D" },
+  { key: "6M", label: "6M", days: 180, resolution: "D" },
+  { key: "1Y", label: "1Y", days: 365, resolution: "D" },
 ];
 
 function StockDetail() {
   const { symbol } = useParams({ from: "/co-phieu/$symbol" });
   const SYM = symbol.toUpperCase();
-  const [days, setDays] = useState(90);
+  const [rangeKey, setRangeKey] = useState("1D");
+  const range = RANGES.find((r) => r.key === rangeKey) ?? RANGES[0];
+  const { days, resolution, intraday } = range;
 
   // Trong giờ giao dịch HOSE (T2-T6, 9:00-11:30 và 13:00-15:00 giờ VN) poll
   // mỗi 15s để giá nhảy gần realtime. Ngoài giờ giảm xuống 60s để tiết kiệm.
@@ -185,10 +190,12 @@ function StockDetail() {
     retry: 1,
   });
 
+  // Intraday refresh nhanh hơn để giá nhảy realtime; daily refresh chậm.
+  const chartRefetch = intraday ? (marketOpen ? 30_000 : 2 * 60_000) : 5 * 60_000;
   const { data: chart, isLoading: chartLoading, isError: chartError, refetch: refetchChart } = useQuery({
-    queryKey: ["vn-stock-chart", SYM, days],
-    queryFn: () => fetchChart(SYM, days),
-    refetchInterval: 5 * 60_000,
+    queryKey: ["vn-stock-chart", SYM, days, resolution],
+    queryFn: () => fetchChart(SYM, days, resolution),
+    refetchInterval: chartRefetch,
     retry: 1,
   });
 
