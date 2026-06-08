@@ -64,16 +64,16 @@ export function GoldPriceTable({ search }: { search?: string }) {
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm sm:text-base">
+        <table className="w-full text-[13px] sm:text-base">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="text-left px-2 sm:px-4 py-3 font-semibold">Thương hiệu</th>
+              <th className="text-left px-1.5 sm:px-4 py-3 font-semibold">Thương hiệu</th>
               <th className="text-left px-2 sm:px-4 py-3 font-semibold hidden sm:table-cell">Loại vàng</th>
-              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Mua</th>
-              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Bán</th>
+              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold hidden min-[440px]:table-cell">Mua</th>
+              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Bán</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Giá trung bình</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Chênh lệch</th>
-              <th className="text-right px-2 sm:px-4 py-3 font-semibold">Δ</th>
+              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Δ</th>
               <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell">Cập nhật</th>
             </tr>
           </thead>
@@ -93,7 +93,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
               const mid = g.mid ?? midOf(g.buy, g.sell);
               return (
                 <tr key={g.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-2 sm:px-4 py-3 font-semibold min-w-0">
+                  <td className="px-1.5 sm:px-4 py-3 font-semibold min-w-0 max-w-[110px] sm:max-w-none">
                     <Link to="/tai-san/$symbol" params={{ symbol: `gold-${g.id}` }} className="hover:text-gold hover:underline block truncate">
                       {g.brand}
                     </Link>
@@ -104,11 +104,11 @@ export function GoldPriceTable({ search }: { search?: string }) {
                       {g.type}
                     </Link>
                   </td>
-                  <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap"><AnimatedNumber value={g.buy} format={fmt} /></td>
-                  <td className="px-2 sm:px-4 py-3 text-right font-semibold whitespace-nowrap"><AnimatedNumber value={g.sell} format={fmt} /></td>
+                  <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums hidden min-[440px]:table-cell"><AnimatedNumber value={g.buy} format={fmt} /></td>
+                  <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={g.sell} format={fmt} /></td>
                   <td className="px-4 py-3 text-right hidden md:table-cell"><AnimatedNumber value={mid} format={fmt} noFlash minChars={isUsd ? 8 : 7} /></td>
                   <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={g.sell - g.buy} format={fmt} noFlash minChars={isUsd ? 6 : 5} /></td>
-                  <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap"><ChangeBadge value={g.changePct} /></td>
+                  <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap"><ChangeBadge value={g.changePct} /></td>
                   <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(g.updatedAt)}</td>
                 </tr>
               );
