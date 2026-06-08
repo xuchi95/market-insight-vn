@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ExternalLink, Loader2, MessageSquareText, RefreshCw, AlertTriangle, Newspaper, Pause, Play } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -80,19 +80,7 @@ export function CryptoCommunityFeed({ symbol, name }: { symbol: string; name?: s
       successMsg: (n) => `Đã cập nhật ${n} tin mới nhất về ${sym}`,
     });
 
-  // Auto-refresh: hẹn giờ 5 phút, mỗi tick cũng hiện toast/loading giống nút "Làm mới".
-  useEffect(() => {
-    if (!autoRefresh) return;
-    const id = setInterval(() => {
-      runRefresh({
-        bust: false,
-        loadingMsg: `Tự động cập nhật tin ${sym}…`,
-        successMsg: (n) => `Đã tự động cập nhật ${n} tin về ${sym}`,
-      });
-    }, 5 * 60_000);
-    return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoRefresh, sym]);
+  // Auto-refresh chạy ngầm qua `refetchInterval` của React Query — không hiện toast.
 
   const toggleAutoRefresh = () => {
     setAutoRefresh((v) => {
