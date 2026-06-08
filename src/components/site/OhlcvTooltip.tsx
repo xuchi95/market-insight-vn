@@ -1,4 +1,3 @@
-import { TooltipProps } from "recharts";
 import { fmtNum } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +30,12 @@ export function OhlcvTooltip({
   payload,
   label,
   opts,
-}: TooltipProps<number, string> & { opts?: OhlcvTooltipOptions }) {
+}: {
+  active?: boolean;
+  payload?: any[];
+  label?: string | number;
+  opts?: OhlcvTooltipOptions;
+}) {
   if (!active || !payload?.length) return null;
   const p: any = payload[0].payload ?? {};
   const { intraday, unit = "", digits = 2, scale = 1, closeLabel } = opts ?? {};
