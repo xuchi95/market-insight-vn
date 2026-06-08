@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2 } from "lucide-react";
+import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Input } from "@/components/ui/input";
@@ -115,6 +115,28 @@ function SettingsCard() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function handleReorder(next: Topic[]) {
+    if (!active) return;
+    setBusy(true);
+    try {
+      await updateTopics({ data: { email: active.email, topics: next } });
+      toast.success("Đã cập nhật thứ tự");
+      qc.invalidateQueries({ queryKey: ["my-newsletter"] });
+    } catch (e: any) {
+      toast.error("Không thể sắp xếp", { description: e?.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function moveTopic(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= topics.length) return;
+    const next = [...topics];
+    [next[index], next[target]] = [next[target], next[index]];
+    handleReorder(next);
   }
 
   async function handleSubscribe(email: string) {
@@ -268,6 +290,62 @@ function SettingsCard() {
         <section className="rounded-2xl border border-border bg-card/40 p-6">
           <h2 className="font-display text-lg text-foreground mb-1">Chủ đề bản tin tuần</h2>
           <p className="text-xs text-muted-foreground mb-3">Email chỉ chứa các khối nội dung tương ứng với chủ đề bạn chọn.</p>
+
+          <div className="mb-5 rounded-xl border border-border bg-background/40 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <div className="text-sm font-medium text-foreground">Thứ tự hiển thị trong email</div>
+                <div className="text-xs text-muted-foreground">Kéo lên/xuống để sắp xếp — block phía trên sẽ xuất hiện trước trong bản tin.</div>
+              </div>
+              <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground hidden sm:inline">{topics.length} chủ đề</span>
+            </div>
+            <ol className="space-y-1.5">
+              {topics.map((t, i) => {
+                const labelMap: Record<Topic, string> = {
+                  "gold": "Vàng thế giới (XAU/USD)",
+                  "gold-sjc": "Vàng SJC (VND/lượng)",
+                  "btc": "Bitcoin (BTC)",
+                  "eth": "Ethereum (ETH)",
+                  "sol": "Solana (SOL)",
+                  "bnb": "BNB",
+                  "usd": "USD/VND",
+                  "eur": "EUR/VND",
+                };
+                return (
+                  <li
+                    key={t}
+                    className="flex items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2"
+                  >
+                    <GripVertical className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-[var(--gold)]/15 text-[11px] font-semibold text-[var(--gold)] shrink-0">
+                      {i + 1}
+                    </span>
+                    <span className="flex-1 text-sm text-foreground truncate">{labelMap[t]}</span>
+                    <button
+                      type="button"
+                      onClick={() => moveTopic(i, -1)}
+                      disabled={busy || i === 0}
+                      className="rounded-md border border-border bg-background p-1.5 text-muted-foreground hover:text-foreground hover:border-foreground/40 disabled:opacity-30 disabled:cursor-not-allowed"
+                      aria-label="Di chuyển lên"
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveTopic(i, 1)}
+                      disabled={busy || i === topics.length - 1}
+                      className="rounded-md border border-border bg-background p-1.5 text-muted-foreground hover:text-foreground hover:border-foreground/40 disabled:opacity-30 disabled:cursor-not-allowed"
+                      aria-label="Di chuyển xuống"
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground mb-2">Bật / tắt chủ đề</div>
           {([
             { group: "Vàng",   items: [{ key: "gold", label: "Vàng thế giới (XAU/USD)" }, { key: "gold-sjc", label: "Vàng SJC (VND/lượng)" }] },
             { group: "Crypto", items: [{ key: "btc", label: "Bitcoin (BTC)" }, { key: "eth", label: "Ethereum (ETH)" }, { key: "sol", label: "Solana (SOL)" }, { key: "bnb", label: "BNB" }] },
