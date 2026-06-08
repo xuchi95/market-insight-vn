@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { NumberFormatToggle } from "@/components/site/NumberFormatToggle";
 import { Button } from "@/components/ui/button";
+import { AdSlot } from "@/components/site/AdSlot";
 import {
   DropdownMenu,
   DropdownMenuContent,
