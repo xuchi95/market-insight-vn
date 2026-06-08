@@ -36,8 +36,8 @@ export function ReadingProgress({ topOffset = 0 }: { topOffset?: number }) {
   return (
     <div
       aria-hidden="true"
-      className="fixed left-0 right-0 z-40 h-[3px] bg-border/40 pointer-events-none"
-      style={{ top: topOffset }}
+      className="fixed left-0 right-0 top-0 z-50 h-[3px] bg-border/30 pointer-events-none"
+      style={topOffset ? { top: topOffset } : undefined}
     >
       <div
         className="h-full bg-primary transition-[width] duration-100 ease-out shadow-[0_0_10px_color-mix(in_oklab,var(--primary)_60%,transparent)]"
