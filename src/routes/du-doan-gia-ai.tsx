@@ -192,8 +192,11 @@ function AiPredictPage() {
                 Trí tuệ nhân tạo <span className="aip-mid">·</span> Đăng nhập
               </span>
               <h1 className="aip-h1">
-                Đăng nhập để mở khóa <span className="aip-au">Dự đoán giá AI</span>
+                Dự đoán giá <span className="aip-au">vàng</span>, Bitcoin &amp; xăng dầu bằng AI
               </h1>
+              <h2 className="text-base font-semibold text-muted-foreground mt-2">
+                Đăng nhập để mở khoá tính năng
+              </h2>
               <p className="aip-lead">
                 Tính năng yêu cầu tài khoản miễn phí để bảo vệ hạn mức và chống lạm dụng.
                 Đăng nhập hoặc tạo tài khoản chỉ mất 30 giây.
