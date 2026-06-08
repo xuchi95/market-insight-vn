@@ -14,6 +14,12 @@ export interface DigestSeries {
   changePct: number;
   changeAbs: number;
   series: number[]; // 7+ daily points, oldest → newest
+  series30?: number[];
+  high7: number;
+  low7: number;
+  high30: number;
+  low30: number;
+  changePct30: number;
 }
 
 // ---------------- Data fetchers ----------------
@@ -26,7 +32,7 @@ async function fetchBtcSeries(): Promise<DigestSeries | null> {
   try {
     const url = new URL("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart");
     url.searchParams.set("vs_currency", "usd");
-    url.searchParams.set("days", "7");
+    url.searchParams.set("days", "30");
     url.searchParams.set("interval", "daily");
     const headers: Record<string, string> = { accept: "application/json" };
     const key = process.env.COINGECKO_API_KEY;
@@ -49,7 +55,7 @@ async function fetchFmpHistorical(symbol: string): Promise<number[] | null> {
   if (!key) return null;
   try {
     const url = new URL(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}`);
-    url.searchParams.set("timeseries", "10");
+    url.searchParams.set("timeseries", "35");
     url.searchParams.set("apikey", key);
     const res = await fetch(url, { headers: { accept: "application/json" } });
     if (!res.ok) return null;
@@ -59,7 +65,7 @@ async function fetchFmpHistorical(symbol: string): Promise<number[] | null> {
       .map((h) => Number(h?.close))
       .filter(isFiniteNum)
       .reverse(); // FMP returns newest first
-    return pts.length >= 2 ? pts.slice(-8) : null;
+    return pts.length >= 2 ? pts.slice(-30) : null;
   } catch (e) {
     console.error("digest: fmp fetch failed", symbol, e);
     return null;
@@ -78,12 +84,23 @@ async function fetchUsdVndSeries(): Promise<DigestSeries | null> {
   return buildSeries("usd", "Tỷ giá USD/VND", "VND", pts);
 }
 
-function buildSeries(topic: DigestTopic, label: string, unit: string, series: number[]): DigestSeries {
+function buildSeries(topic: DigestTopic, label: string, unit: string, full: number[]): DigestSeries {
+  const series30 = full.slice(-30);
+  const series = full.slice(-8);
   const current = series[series.length - 1];
   const previous = series[0];
   const changeAbs = current - previous;
   const changePct = previous !== 0 ? (changeAbs / previous) * 100 : 0;
-  return { topic, label, unit, current, previous, changePct, changeAbs, series };
+  const first30 = series30[0];
+  const changePct30 = first30 ? ((current - first30) / first30) * 100 : 0;
+  return {
+    topic, label, unit, current, previous, changePct, changeAbs, series, series30,
+    high7: Math.max(...series),
+    low7: Math.min(...series),
+    high30: Math.max(...series30),
+    low30: Math.min(...series30),
+    changePct30,
+  };
 }
 
 export async function fetchDigestData(topics: DigestTopic[]): Promise<DigestSeries[]> {
