@@ -178,6 +178,18 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  // Keep the mobile search panel mounted briefly while playing the exit
+  // animation, then unmount once the transition completes.
+  const [searchVisible, setSearchVisible] = useState(false);
+  useEffect(() => {
+    if (searchOpen) {
+      setSearchVisible(true);
+      return;
+    }
+    if (!searchVisible) return;
+    const t = window.setTimeout(() => setSearchVisible(false), 220);
+    return () => window.clearTimeout(t);
+  }, [searchOpen, searchVisible]);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { list, remove, synced } = useWatchlist();
