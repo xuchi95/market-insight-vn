@@ -9,7 +9,9 @@ const EmailSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
 });
 
-const VALID_TOPICS = ["gold", "btc", "usd"] as const;
+const VALID_TOPICS = [
+  "gold", "gold-sjc", "btc", "eth", "sol", "bnb", "usd", "eur",
+] as const;
 const TopicSchema = z.enum(VALID_TOPICS);
 
 export const getMySubscriptions = createServerFn({ method: "GET" })
@@ -41,7 +43,7 @@ export const updateNewsletterTopics = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z.object({
       email: z.string().trim().toLowerCase().email().max(254),
-      topics: z.array(TopicSchema).min(1).max(3),
+      topics: z.array(TopicSchema).min(1).max(VALID_TOPICS.length),
     }).parse(input),
   )
   .handler(async ({ data }) => {

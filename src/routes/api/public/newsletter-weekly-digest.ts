@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { fetchDigestData, sendDigestTo, type DigestTopic } from "@/lib/email/digest.server";
+import { fetchDigestData, sendDigestTo, ALL_DIGEST_TOPICS, type DigestTopic } from "@/lib/email/digest.server";
 
-const VALID_TOPICS: DigestTopic[] = ["gold", "btc", "usd"];
+const VALID_TOPICS: DigestTopic[] = ALL_DIGEST_TOPICS;
+const DEFAULT_TOPICS: DigestTopic[] = ["gold", "btc", "usd"];
 
 function normalizeTopics(input: unknown): DigestTopic[] {
-  if (!Array.isArray(input)) return [...VALID_TOPICS];
+  if (!Array.isArray(input)) return [...DEFAULT_TOPICS];
   const out = input
     .map((s) => String(s).toLowerCase())
     .filter((s): s is DigestTopic => (VALID_TOPICS as string[]).includes(s));
-  return out.length ? out : [...VALID_TOPICS];
+  return out.length ? out : [...DEFAULT_TOPICS];
 }
 
 export const Route = createFileRoute("/api/public/newsletter-weekly-digest")({

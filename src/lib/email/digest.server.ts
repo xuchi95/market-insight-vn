@@ -1,14 +1,38 @@
 import { sendEmail } from "./resend.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const SITE = "https://marketwatch.vn";
 const GOLD = "#C9A24A";
 
-export type DigestTopic = "gold" | "btc" | "usd";
+export type DigestTopic =
+  | "gold"        // XAU/USD (vàng thế giới)
+  | "gold-sjc"    // Vàng SJC 1L (VND/lượng)
+  | "btc"
+  | "eth"
+  | "sol"
+  | "bnb"
+  | "usd"         // USD/VND
+  | "eur";        // EUR/VND
+
+export const ALL_DIGEST_TOPICS: DigestTopic[] = [
+  "gold", "gold-sjc", "btc", "eth", "sol", "bnb", "usd", "eur",
+];
+
+export const DIGEST_TOPIC_META: Record<DigestTopic, { label: string; short: string; unit: "USD" | "VND"; group: "gold" | "crypto" | "fx" }> = {
+  "gold":      { label: "Vàng (XAU/USD)",      short: "Vàng XAU",  unit: "USD", group: "gold"   },
+  "gold-sjc":  { label: "Vàng SJC 1 lượng",    short: "Vàng SJC",  unit: "VND", group: "gold"   },
+  "btc":       { label: "Bitcoin (BTC)",        short: "BTC",       unit: "USD", group: "crypto" },
+  "eth":       { label: "Ethereum (ETH)",       short: "ETH",       unit: "USD", group: "crypto" },
+  "sol":       { label: "Solana (SOL)",         short: "SOL",       unit: "USD", group: "crypto" },
+  "bnb":       { label: "BNB",                  short: "BNB",       unit: "USD", group: "crypto" },
+  "usd":       { label: "Tỷ giá USD/VND",       short: "USD/VND",   unit: "VND", group: "fx"     },
+  "eur":       { label: "Tỷ giá EUR/VND",       short: "EUR/VND",   unit: "VND", group: "fx"     },
+};
 
 export interface DigestSeries {
   topic: DigestTopic;
   label: string;
-  unit: string;
+  unit: "USD" | "VND";
   current: number;
   previous: number;
   changePct: number;
@@ -28,9 +52,18 @@ function isFiniteNum(n: unknown): n is number {
   return typeof n === "number" && Number.isFinite(n);
 }
 
-async function fetchBtcSeries(): Promise<DigestSeries | null> {
+const COINGECKO_IDS: Partial<Record<DigestTopic, string>> = {
+  btc: "bitcoin",
+  eth: "ethereum",
+  sol: "solana",
+  bnb: "binancecoin",
+};
+
+async function fetchCoinSeries(topic: DigestTopic): Promise<DigestSeries | null> {
+  const id = COINGECKO_IDS[topic];
+  if (!id) return null;
   try {
-    const url = new URL("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart");
+    const url = new URL(`https://api.coingecko.com/api/v3/coins/${id}/market_chart`);
     url.searchParams.set("vs_currency", "usd");
     url.searchParams.set("days", "30");
     url.searchParams.set("interval", "daily");
@@ -43,9 +76,10 @@ async function fetchBtcSeries(): Promise<DigestSeries | null> {
     const prices: [number, number][] = json?.prices ?? [];
     const series = prices.map((p) => Number(p[1])).filter(isFiniteNum);
     if (series.length < 2) return null;
-    return buildSeries("btc", "Bitcoin (BTC)", "USD", series);
+    const meta = DIGEST_TOPIC_META[topic];
+    return buildSeries(topic, meta.label, meta.unit, series);
   } catch (e) {
-    console.error("digest: btc fetch failed", e);
+    console.error("digest: coin fetch failed", topic, e);
     return null;
   }
 }
@@ -75,16 +109,48 @@ async function fetchFmpHistorical(symbol: string): Promise<number[] | null> {
 async function fetchGoldSeries(): Promise<DigestSeries | null> {
   const pts = await fetchFmpHistorical("XAUUSD");
   if (!pts) return null;
-  return buildSeries("gold", "Vàng (XAU/USD)", "USD/oz", pts);
+  return buildSeries("gold", DIGEST_TOPIC_META.gold.label, "USD", pts);
 }
 
 async function fetchUsdVndSeries(): Promise<DigestSeries | null> {
   const pts = await fetchFmpHistorical("USDVND");
   if (!pts) return null;
-  return buildSeries("usd", "Tỷ giá USD/VND", "VND", pts);
+  return buildSeries("usd", DIGEST_TOPIC_META.usd.label, "VND", pts);
 }
 
-function buildSeries(topic: DigestTopic, label: string, unit: string, full: number[]): DigestSeries {
+async function fetchEurVndSeries(): Promise<DigestSeries | null> {
+  const pts = await fetchFmpHistorical("EURVND");
+  if (!pts) return null;
+  return buildSeries("eur", DIGEST_TOPIC_META.eur.label, "VND", pts);
+}
+
+async function fetchSjcSeries(): Promise<DigestSeries | null> {
+  try {
+    const since = new Date(Date.now() - 35 * 24 * 3600 * 1000).toISOString();
+    const { data, error } = await supabaseAdmin
+      .from("price_history")
+      .select("price, captured_at")
+      .eq("symbol", "GOLD:sjc-1l")
+      .gte("captured_at", since)
+      .order("captured_at", { ascending: true })
+      .limit(2000);
+    if (error || !data?.length) return null;
+    const byDay = new Map<string, number>();
+    for (const row of data) {
+      const day = String(row.captured_at).slice(0, 10);
+      const v = Number(row.price);
+      if (Number.isFinite(v)) byDay.set(day, v);
+    }
+    const pts = [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, v]) => v).slice(-30);
+    if (pts.length < 2) return null;
+    return buildSeries("gold-sjc", DIGEST_TOPIC_META["gold-sjc"].label, "VND", pts);
+  } catch (e) {
+    console.error("digest: sjc fetch failed", e);
+    return null;
+  }
+}
+
+function buildSeries(topic: DigestTopic, label: string, unit: "USD" | "VND", full: number[]): DigestSeries {
   const series30 = full.slice(-30);
   const series = full.slice(-8);
   const current = series[series.length - 1];
@@ -107,22 +173,30 @@ export async function fetchDigestData(topics: DigestTopic[]): Promise<DigestSeri
   const wanted = new Set(topics);
   const tasks: Promise<DigestSeries | null>[] = [];
   if (wanted.has("gold")) tasks.push(fetchGoldSeries());
-  if (wanted.has("btc")) tasks.push(fetchBtcSeries());
+  if (wanted.has("gold-sjc")) tasks.push(fetchSjcSeries());
+  if (wanted.has("btc")) tasks.push(fetchCoinSeries("btc"));
+  if (wanted.has("eth")) tasks.push(fetchCoinSeries("eth"));
+  if (wanted.has("sol")) tasks.push(fetchCoinSeries("sol"));
+  if (wanted.has("bnb")) tasks.push(fetchCoinSeries("bnb"));
   if (wanted.has("usd")) tasks.push(fetchUsdVndSeries());
+  if (wanted.has("eur")) tasks.push(fetchEurVndSeries());
   const out = await Promise.all(tasks);
-  return out.filter((x): x is DigestSeries => x !== null);
+  const filtered = out.filter((x): x is DigestSeries => x !== null);
+  const order = new Map(topics.map((t, i) => [t, i]));
+  filtered.sort((a, b) => (order.get(a.topic) ?? 99) - (order.get(b.topic) ?? 99));
+  return filtered;
 }
 
 // ---------------- Rendering ----------------
 
 function fmtVal(s: DigestSeries): string {
-  if (s.topic === "usd") return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(s.current) + " ₫";
+  if (s.unit === "VND") return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(s.current) + " ₫";
   const max = s.current < 1 ? 4 : 2;
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: max }).format(s.current);
 }
 
 function fmtRaw(s: DigestSeries, n: number): string {
-  if (s.topic === "usd") return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(n) + " ₫";
+  if (s.unit === "VND") return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(n) + " ₫";
   const max = n < 1 ? 4 : 2;
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: max }).format(n);
 }
@@ -182,9 +256,14 @@ function shell(title: string, inner: string, unsubUrl: string): string {
 }
 
 const TOPIC_LINK: Record<DigestTopic, { path: string; cta: string }> = {
-  gold: { path: "/gia-vang", cta: "Xem giá vàng chi tiết" },
-  btc: { path: "/tien-dien-tu", cta: "Xem thị trường crypto" },
-  usd: { path: "/ty-gia-ngan-hang", cta: "Xem tỷ giá ngân hàng" },
+  "gold":     { path: "/gia-vang",          cta: "Xem giá vàng thế giới" },
+  "gold-sjc": { path: "/gia-vang",          cta: "Xem giá vàng SJC chi tiết" },
+  "btc":      { path: "/tien-dien-tu",      cta: "Xem thị trường crypto" },
+  "eth":      { path: "/tien-dien-tu",      cta: "Xem Ethereum & DeFi" },
+  "sol":      { path: "/tien-dien-tu",      cta: "Xem Solana & altcoin" },
+  "bnb":      { path: "/tien-dien-tu",      cta: "Xem BNB & BSC" },
+  "usd":      { path: "/ty-gia-ngan-hang",  cta: "Xem tỷ giá USD chi tiết" },
+  "eur":      { path: "/ty-gia-ngan-hang",  cta: "Xem tỷ giá EUR chi tiết" },
 };
 
 function commentary(s: DigestSeries): string {
@@ -199,10 +278,20 @@ function commentary(s: DigestSeries): string {
   switch (s.topic) {
     case "btc":
       return `Bitcoin ${dir} ${strength} trong 7 ngày (${fmtPct(s.changePct)}), dao động ${volWord} từ ${fmtRaw(s, s.low7)} đến ${fmtRaw(s, s.high7)}. Tính trong 30 ngày, BTC ${trend30}${trend30Strength} (${fmtPct(s.changePct30)}). Tâm lý nhà đầu tư crypto thường nhạy với lãi suất Fed, dữ liệu CPI Mỹ và dòng vốn ETF.`;
+    case "eth":
+      return `Ethereum ${dir} ${strength} ${fmtPct(s.changePct)} trong tuần, ${volWord} (${fmtRaw(s, s.low7)} – ${fmtRaw(s, s.high7)}). Trong 30 ngày ETH ${trend30}${trend30Strength} (${fmtPct(s.changePct30)}). Diễn biến chịu ảnh hưởng bởi dòng vốn vào ETF ETH, hoạt động Layer-2, và xu hướng staking.`;
+    case "sol":
+      return `Solana ${dir} ${strength} ${fmtPct(s.changePct)} trong tuần (${fmtRaw(s, s.low7)} – ${fmtRaw(s, s.high7)}), ${volWord}. Tính 30 ngày SOL ${trend30}${trend30Strength} (${fmtPct(s.changePct30)}). SOL nhạy với khối lượng DEX, memecoin và các đợt nâng cấp mạng.`;
+    case "bnb":
+      return `BNB ${dir} ${strength} ${fmtPct(s.changePct)} trong tuần, ${volWord} (${fmtRaw(s, s.low7)} – ${fmtRaw(s, s.high7)}). 30 ngày qua BNB ${trend30}${trend30Strength} (${fmtPct(s.changePct30)}). BNB thường biến động theo sàn Binance, BNB Chain và cơ chế burn quý.`;
     case "gold":
       return `Giá vàng thế giới ${dir} ${strength} ${fmtPct(s.changePct)} trong tuần, ${volWord} (${fmtRaw(s, s.low7)} – ${fmtRaw(s, s.high7)}). Trong 30 ngày, XAU/USD ${trend30}${trend30Strength} (${fmtPct(s.changePct30)}). Diễn biến chịu ảnh hưởng bởi kỳ vọng lãi suất, sức mạnh đồng USD (DXY) và nhu cầu trú ẩn an toàn.`;
+    case "gold-sjc":
+      return `Giá vàng SJC 1 lượng ${dir} ${strength} ${fmtPct(s.changePct)} trong 7 ngày, biên độ ${fmtRaw(s, s.low7)} – ${fmtRaw(s, s.high7)}. 30 ngày qua SJC ${trend30}${trend30Strength} (${fmtPct(s.changePct30)}). Vàng trong nước chịu ảnh hưởng kép từ giá thế giới và chính sách quản lý của NHNN, chênh lệch so với vàng thế giới thường cao hơn 10–18 triệu/lượng.`;
     case "usd":
       return `Tỷ giá USD/VND ${dir} ${strength} ${fmtPct(s.changePct)} trong 7 ngày, dao động từ ${fmtRaw(s, s.low7)} đến ${fmtRaw(s, s.high7)}. Trong 30 ngày tỷ giá ${trend30}${trend30Strength} (${fmtPct(s.changePct30)}). Áp lực chính đến từ DXY, chênh lệch lãi suất USD-VND và cán cân thanh toán; NHNN điều hành qua tỷ giá trung tâm và biên độ ±5%.`;
+    case "eur":
+      return `Tỷ giá EUR/VND ${dir} ${strength} ${fmtPct(s.changePct)} trong 7 ngày (${fmtRaw(s, s.low7)} – ${fmtRaw(s, s.high7)}), ${volWord}. 30 ngày qua EUR/VND ${trend30}${trend30Strength} (${fmtPct(s.changePct30)}). EUR biến động theo chính sách ECB, dữ liệu lạm phát eurozone và sức mạnh tương đối so với USD.`;
   }
 }
 
@@ -268,36 +357,39 @@ function topicCard(s: DigestSeries): string {
 }
 
 function weekAheadBlock(topics: Set<DigestTopic>): string {
+  const hasGold = topics.has("gold") || topics.has("gold-sjc");
+  const hasCrypto = topics.has("btc") || topics.has("eth") || topics.has("sol") || topics.has("bnb");
+  const hasFx = topics.has("usd") || topics.has("eur");
   const items: { title: string; desc: string; href: string; show: boolean }[] = [
     {
       title: "Lịch sự kiện kinh tế tuần",
       desc: "Theo dõi CPI Mỹ, biên bản FOMC, dữ liệu PMI và các phát biểu của quan chức Fed có thể tác động mạnh tới vàng và crypto.",
       href: `${SITE}/lich-kinh-te`,
-      show: true, // luôn liên quan
+      show: true,
     },
     {
       title: "Lãi suất tiết kiệm ngân hàng",
       desc: "So sánh biểu lãi suất mới nhất tại các ngân hàng để cân nhắc kênh giữ tiền VND.",
       href: `${SITE}/lai-suat-tiet-kiem`,
-      show: topics.has("usd"),
+      show: hasFx,
     },
     {
       title: "Vĩ mô Việt Nam",
       desc: "Cập nhật CPI, GDP, FDI, dự trữ ngoại hối và lãi suất điều hành của NHNN.",
       href: `${SITE}/vi-mo-viet-nam`,
-      show: topics.has("usd") || topics.has("gold"),
+      show: hasFx || hasGold,
     },
     {
       title: "Giá vàng SJC – PNJ – DOJI",
       desc: "Theo dõi chênh lệch mua – bán và biến động trong ngày của các thương hiệu vàng lớn trong nước.",
       href: `${SITE}/gia-vang`,
-      show: topics.has("gold"),
+      show: hasGold,
     },
     {
       title: "Thị trường tiền điện tử",
       desc: "Top coin theo vốn hoá, biến động 24h và dòng vốn ETF Bitcoin mới nhất.",
       href: `${SITE}/tien-dien-tu`,
-      show: topics.has("btc"),
+      show: hasCrypto,
     },
   ].filter((x) => x.show);
   if (items.length === 0) return "";
@@ -313,13 +405,16 @@ function weekAheadBlock(topics: Set<DigestTopic>): string {
 }
 
 function toolsBlock(topics: Set<DigestTopic>): string {
+  const hasGold = topics.has("gold") || topics.has("gold-sjc");
+  const hasCrypto = topics.has("btc") || topics.has("eth") || topics.has("sol") || topics.has("bnb");
+  const hasFx = topics.has("usd") || topics.has("eur");
   const tools: { label: string; href: string; show: boolean }[] = [
-    { label: "Tính lãi suất tiết kiệm", href: `${SITE}/tinh-lai-suat-tiet-kiem`, show: topics.has("usd") },
-    { label: "Mô phỏng DCA crypto", href: `${SITE}/cong-cu/dca-roi`, show: topics.has("btc") },
-    { label: "Quy đổi tiền tệ", href: `${SITE}/quy-doi-tien-te`, show: topics.has("usd") || topics.has("gold") },
-    { label: "Tỷ giá ngân hàng", href: `${SITE}/ty-gia-ngan-hang`, show: topics.has("usd") },
-    { label: "Giá vàng SJC", href: `${SITE}/gia-vang`, show: topics.has("gold") },
-    { label: "Bitcoin & altcoin", href: `${SITE}/tien-dien-tu`, show: topics.has("btc") },
+    { label: "Tính lãi suất tiết kiệm", href: `${SITE}/tinh-lai-suat-tiet-kiem`, show: hasFx },
+    { label: "Mô phỏng DCA crypto", href: `${SITE}/cong-cu/dca-roi`, show: hasCrypto },
+    { label: "Quy đổi tiền tệ", href: `${SITE}/quy-doi-tien-te`, show: hasFx || hasGold },
+    { label: "Tỷ giá ngân hàng", href: `${SITE}/ty-gia-ngan-hang`, show: hasFx },
+    { label: "Giá vàng SJC", href: `${SITE}/gia-vang`, show: hasGold },
+    { label: "Bitcoin & altcoin", href: `${SITE}/tien-dien-tu`, show: hasCrypto },
   ].filter((t) => t.show);
   if (tools.length === 0) return "";
   const cells = tools.map((t) =>

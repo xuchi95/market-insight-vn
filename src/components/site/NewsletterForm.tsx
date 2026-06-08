@@ -3,11 +3,19 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-type Topic = "gold" | "btc" | "usd";
+type Topic =
+  | "gold" | "gold-sjc"
+  | "btc" | "eth" | "sol" | "bnb"
+  | "usd" | "eur";
 const TOPIC_OPTIONS: { key: Topic; label: string }[] = [
-  { key: "gold", label: "Vàng" },
-  { key: "btc", label: "Bitcoin" },
-  { key: "usd", label: "USD/VND" },
+  { key: "gold",     label: "Vàng XAU" },
+  { key: "gold-sjc", label: "Vàng SJC" },
+  { key: "btc",      label: "BTC" },
+  { key: "eth",      label: "ETH" },
+  { key: "sol",      label: "SOL" },
+  { key: "bnb",      label: "BNB" },
+  { key: "usd",      label: "USD/VND" },
+  { key: "eur",      label: "EUR/VND" },
 ];
 
 export function NewsletterForm() {
@@ -24,7 +32,7 @@ export function NewsletterForm() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (topics.length === 0) {
-      toast.error("Chọn ít nhất 1 chủ đề", { description: "Vàng, Bitcoin hoặc USD/VND." });
+      toast.error("Chọn ít nhất 1 chủ đề", { description: "Vàng, crypto hoặc tỷ giá." });
       return;
     }
     setLoading(true);

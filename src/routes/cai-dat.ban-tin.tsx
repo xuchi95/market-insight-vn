@@ -95,9 +95,10 @@ function SettingsCard() {
 
   const accountEmail = data?.accountEmail ?? "";
   const active = (data?.subscriptions ?? []).find((s) => !s.unsubscribed_at);
-  const topics = (active?.topics ?? ["gold", "btc", "usd"]) as ("gold" | "btc" | "usd")[];
+  type Topic = "gold" | "gold-sjc" | "btc" | "eth" | "sol" | "bnb" | "usd" | "eur";
+  const topics = (active?.topics ?? ["gold", "btc", "usd"]) as Topic[];
 
-  async function handleToggleTopic(topic: "gold" | "btc" | "usd") {
+  async function handleToggleTopic(topic: Topic) {
     if (!active) return;
     const next = topics.includes(topic) ? topics.filter((t) => t !== topic) : [...topics, topic];
     if (next.length === 0) {
@@ -266,12 +267,16 @@ function SettingsCard() {
       {active && (
         <section className="rounded-2xl border border-border bg-card/40 p-6">
           <h2 className="font-display text-lg text-foreground mb-1">Chủ đề bản tin tuần</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {([
-              { key: "gold", label: "Vàng (XAU/USD)" },
-              { key: "btc", label: "Bitcoin (BTC)" },
-              { key: "usd", label: "Tỷ giá USD/VND" },
-            ] as const).map((t) => {
+          <p className="text-xs text-muted-foreground mb-3">Email chỉ chứa các khối nội dung tương ứng với chủ đề bạn chọn.</p>
+          {([
+            { group: "Vàng",   items: [{ key: "gold", label: "Vàng thế giới (XAU/USD)" }, { key: "gold-sjc", label: "Vàng SJC (VND/lượng)" }] },
+            { group: "Crypto", items: [{ key: "btc", label: "Bitcoin (BTC)" }, { key: "eth", label: "Ethereum (ETH)" }, { key: "sol", label: "Solana (SOL)" }, { key: "bnb", label: "BNB" }] },
+            { group: "Tỷ giá", items: [{ key: "usd", label: "USD/VND" }, { key: "eur", label: "EUR/VND" }] },
+          ] as const).map((grp) => (
+            <div key={grp.group} className="mb-3 last:mb-0">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground mb-1.5">{grp.group}</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {grp.items.map((t) => {
               const on = topics.includes(t.key);
               return (
                 <button
@@ -297,8 +302,10 @@ function SettingsCard() {
                   </div>
                 </button>
               );
-            })}
-          </div>
+                })}
+              </div>
+            </div>
+          ))}
         </section>
       )}
     </div>
