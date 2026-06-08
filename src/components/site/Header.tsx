@@ -565,9 +565,13 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
       </div>
 
       {/* Mobile search sheet */}
-      {searchOpen && (
-        <div data-testid="header-mobile-search-panel" className="md:hidden fixed inset-0 z-[100] flex flex-col bg-background animate-in fade-in duration-150">
-          <div className="shrink-0 px-4 pt-3 pb-3 border-b border-border bg-background">
+      {searchVisible && (
+        <div
+          data-testid="header-mobile-search-panel"
+          data-state={searchOpen ? "open" : "closed"}
+          className="md:hidden fixed inset-0 z-[100] flex flex-col bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in data-[state=closed]:fade-out duration-200"
+        >
+          <div className="shrink-0 px-4 pt-3 pb-3 border-b border-border bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-top-4 data-[state=closed]:slide-out-to-top-4 duration-200" data-state={searchOpen ? "open" : "closed"}>
             <form
               data-testid="header-mobile-search-form"
               className="relative flex items-center gap-2"
