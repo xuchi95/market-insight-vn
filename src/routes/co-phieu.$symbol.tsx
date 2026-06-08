@@ -234,13 +234,20 @@ function StockDetail() {
       <main className="flex-1 container mx-auto px-4 py-8 space-y-6">
         <Breadcrumbs extra={[{ label: "Chứng khoán", to: "/chung-khoan" }, { label: `Cổ phiếu ${SYM}` }]} />
 
+        {/* H1 cố định cho SEO — luôn render dù đang loading hay lỗi, để Google không lấy H1 trong khối lỗi làm title */}
+        {!data && (
+          <h1 className="text-2xl md:text-[26px] font-bold tracking-tight">
+            Cổ phiếu {SYM} — Giá, P/E, EPS, biểu đồ {SYM} hôm nay
+          </h1>
+        )}
+
         {isLoading && <Skeleton className="h-40 w-full" />}
 
         {isError && (
           <div className="rounded-2xl border border-border bg-card p-8 text-center space-y-3">
             <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto" />
-            <h1 className="text-2xl font-bold">Không tải được dữ liệu cổ phiếu {SYM}</h1>
-            <p className="text-muted-foreground">Mã có thể chưa được hỗ trợ, hoặc nguồn TCBS tạm thời không phản hồi.</p>
+            <h2 className="text-xl font-semibold">Dữ liệu đang tạm thời không khả dụng</h2>
+            <p className="text-muted-foreground">Mã {SYM} có thể chưa được hỗ trợ, hoặc nguồn dữ liệu tạm thời không phản hồi. Vui lòng thử lại sau ít phút.</p>
             <button onClick={() => refetch()} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-accent">
               <RefreshCw className="h-3.5 w-3.5" /> Thử lại
             </button>
