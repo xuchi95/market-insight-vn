@@ -194,7 +194,7 @@ function AiPredictPage() {
               <h1 className="aip-h1">
                 Dự đoán giá <span className="aip-au">vàng</span>, Bitcoin &amp; xăng dầu bằng AI
               </h1>
-              <h2 className="text-base font-semibold text-muted-foreground mt-2">
+              <h2 className="aip-sub-h2">
                 Đăng nhập để mở khoá tính năng
               </h2>
               <p className="aip-lead">
@@ -266,7 +266,7 @@ function AiPredictPage() {
               Chọn tài sản và khung thời gian — AI phân tích dữ liệu thị trường thời gian thực
               để đưa ra ước lượng xu hướng, biên độ&nbsp;% thay đổi và 3 kịch bản dự báo.
             </p>
-            <p className="text-xs text-muted-foreground italic mt-3">
+            <p className="aip-disclaimer-inline">
               Thông tin chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
             </p>
           </section>
@@ -719,6 +719,15 @@ function AipStyles() {
       html.light .aip .aip-bg-grain { opacity:.025; mix-blend-mode:multiply; }
       html.light .aip .aip-bar { background:rgba(26,20,8,.08); }
       html.light .aip .aip-context pre { background:rgba(26,20,8,.04); }
+      html.light .aip {
+        /* Slightly deeper up/down hues for AA contrast on light bg */
+        --aip-up:#2f8a4f;
+        --aip-down:#c05a4f;
+      }
+
+      /* Shared sub-utilities so children never reach for global tokens */
+      .aip .aip-sub-h2 { font-size:1rem; font-weight:600; color:var(--aip-ink-2); margin-top:8px; }
+      .aip .aip-disclaimer-inline { font-size:.78rem; font-style:italic; color:var(--aip-ink-3); margin-top:12px; }
       .aip .aip-bg-glow {
         position:absolute; inset:0; z-index:0; pointer-events:none;
         background:
