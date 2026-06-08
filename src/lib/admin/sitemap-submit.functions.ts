@@ -89,7 +89,7 @@ export const resubmitSitemapToGsc = createServerFn({ method: "POST" })
         type?: string;
         errors?: number;
         warnings?: number;
-        contents?: unknown;
+        contents?: string;
       },
       sitemapError: null as null | string,
     };
