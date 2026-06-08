@@ -47,6 +47,10 @@ export function OhlcvTooltip({
   const l = p.l as number | undefined;
   const c = (p.v ?? p.c) as number | undefined;
   const vol = (p.vol ?? p.volume) as number | undefined;
+  const prev = p.prev as number | undefined;
+  const diff = c != null && prev != null ? c - prev : null;
+  const diffPct = diff != null && prev ? (diff / prev) * 100 : null;
+  const diffUp = diff != null ? diff >= 0 : true;
 
   const ts = typeof label === "number" ? label : Number(label);
   const when = Number.isFinite(ts)
@@ -94,6 +98,16 @@ export function OhlcvTooltip({
           <>
             <span className="text-muted-foreground">KL</span>
             <span className="text-right text-foreground">{fmtVol(vol)}</span>
+          </>
+        )}
+        {diff != null && diffPct != null && (
+          <>
+            <span className="text-muted-foreground">Δ</span>
+            <span className={cn("text-right font-semibold", diffUp ? "text-[var(--up)]" : "text-[var(--down)]")}>
+              {diffUp ? "+" : ""}
+              {fmtNum(diff / scale, digits)} ({diffUp ? "+" : ""}
+              {diffPct.toFixed(2)}%)
+            </span>
           </>
         )}
       </div>
