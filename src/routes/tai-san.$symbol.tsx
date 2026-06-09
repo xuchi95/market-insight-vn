@@ -954,6 +954,14 @@ function AssetDetail() {
                     </div>
                   </Panel>
                 )}
+
+                {/* Sidebar ad — chỉ hiện ở desktop (sidebar không xuất hiện trên mobile). */}
+                <AdSlot
+                  placement="sidebar"
+                  format="auto"
+                  slot={import.meta.env.VITE_ADSENSE_SLOT_ASSET_SIDEBAR as string | undefined}
+                  className="hidden lg:block"
+                />
               </aside>
             </div>
 
