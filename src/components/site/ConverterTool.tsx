@@ -238,13 +238,19 @@ export function ConverterTool() {
                 result.b.kind,
                 result.b.key,
               );
-              const long = full.length > 14;
+              const len = full.length;
+              const sizeClass =
+                len > 16
+                  ? "text-lg sm:text-2xl"
+                  : len > 12
+                    ? "text-xl sm:text-3xl"
+                    : "text-3xl sm:text-4xl";
               return (
                 <div className="min-h-16 flex flex-col justify-center select-text">
                   <div
                     className={cn(
-                      "tabular font-semibold tracking-tight text-foreground break-all leading-tight",
-                      long ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl",
+                      "tabular font-semibold tracking-tight text-foreground leading-tight whitespace-nowrap",
+                      sizeClass,
                     )}
                   >
                     {full}
