@@ -65,7 +65,7 @@ function DisclaimerPage() {
       <ReadingProgress />
       <Header />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-12 max-w-3xl space-y-6">
+        <div className="mx-auto max-w-6xl px-5 py-8 lg:py-12 space-y-6">
           <Breadcrumbs />
           <header className="border-b border-border pb-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Văn bản pháp lý</p>

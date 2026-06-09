@@ -95,7 +95,7 @@ function ContactPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-12 max-w-3xl space-y-6">
+        <div className="mx-auto max-w-6xl px-5 py-8 lg:py-12 space-y-6">
           <Breadcrumbs />
           <header>
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Liên hệ MarketWatch</h1>
