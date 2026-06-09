@@ -1292,6 +1292,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_cron_job_summary: {
+        Args: never
+        Returns: {
+          active: boolean
+          avg_duration_ms: number
+          failures_1h: number
+          failures_24h: number
+          jobid: number
+          jobname: string
+          last_message: string
+          last_start: string
+          last_status: string
+          runs_1h: number
+          runs_24h: number
+          schedule: string
+        }[]
+      }
+      admin_cron_minute_timeline: {
+        Args: { p_minutes?: number }
+        Returns: {
+          bucket: string
+          failures: number
+          jobname: string
+          runs: number
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
