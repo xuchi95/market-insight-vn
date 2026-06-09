@@ -32,6 +32,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useBinanceTicker } from "@/hooks/useBinanceTicker";
 import { keepPreviousData } from "@tanstack/react-query";
 import { CryptoCommunityFeed } from "@/components/site/CryptoCommunityFeed";
+import { AdSlot } from "@/components/site/AdSlot";
 import {
   Panel,
   SectionLabel,
@@ -539,7 +540,15 @@ function AssetDetail() {
               ]}
             />
 
+            <AdSlot
+              placement="in-article"
+              format="auto"
+              slot={import.meta.env.VITE_ADSENSE_SLOT_ASSET_INARTICLE as string | undefined}
+              className="mt-5"
+            />
+
             <Panel className="rise d3 mt-5 relative">
+
               <SectionLabel
                 title={`Lịch sử giá ${oil.nameVi}`}
                 badge={<LivePing />}
@@ -620,6 +629,13 @@ function AssetDetail() {
               ]}
             />
 
+            <AdSlot
+              placement="in-article"
+              format="auto"
+              slot={import.meta.env.VITE_ADSENSE_SLOT_ASSET_INARTICLE as string | undefined}
+              className="mt-5"
+            />
+
             {historyKey && (
               <div className="rise d3 mt-5">
                 <PriceHistory
@@ -659,6 +675,13 @@ function AssetDetail() {
               ]}
             />
 
+            <AdSlot
+              placement="in-article"
+              format="auto"
+              slot={import.meta.env.VITE_ADSENSE_SLOT_ASSET_INARTICLE as string | undefined}
+              className="mt-5"
+            />
+
             {historyKey && (
               <div className="rise d3 mt-5">
                 <PriceHistory assetKey={historyKey} title={`Lịch sử tỷ giá ${bankRow.code}/VND`} decimals={2} unit="VND" />
@@ -694,6 +717,13 @@ function AssetDetail() {
               ]}
             />
 
+            <AdSlot
+              placement="in-article"
+              format="auto"
+              slot={import.meta.env.VITE_ADSENSE_SLOT_ASSET_INARTICLE as string | undefined}
+              className="mt-5"
+            />
+
             <Link to="/chung-khoan" className="mt-5 inline-flex items-center gap-1 text-sm text-gold hover:underline">Xem toàn bộ chỉ số →</Link>
           </>
         )}
@@ -721,6 +751,13 @@ function AssetDetail() {
                 { k: "% Thay đổi", v: `${fx.changePct >= 0 ? "+" : ""}${fx.changePct.toFixed(2)}%`, tone: fx.changePct >= 0 ? "up" : "down" },
                 { k: "Mã", v: fx.code },
               ]}
+            />
+
+            <AdSlot
+              placement="in-article"
+              format="auto"
+              slot={import.meta.env.VITE_ADSENSE_SLOT_ASSET_INARTICLE as string | undefined}
+              className="mt-5"
             />
 
             {historyKey && (
@@ -766,6 +803,13 @@ function AssetDetail() {
                 { k: "Thay đổi · 24h", v: `${coin.change24h >= 0 ? "+" : ""}${coin.change24h.toFixed(2)}%`, tone: coin.change24h >= 0 ? "up" : "down" },
                 { k: "Biến động · 7N", v: typeof change7d === "number" ? `${change7d >= 0 ? "+" : ""}${change7d.toFixed(2)}%` : "—", tone: (change7d ?? 0) >= 0 ? "up" : "down" },
               ]}
+            />
+
+            <AdSlot
+              placement="in-article"
+              format="auto"
+              slot={import.meta.env.VITE_ADSENSE_SLOT_ASSET_INARTICLE as string | undefined}
+              className="mt-5"
             />
 
             <div className="rise d3 mt-5 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_348px] gap-5 items-start">
@@ -910,6 +954,14 @@ function AssetDetail() {
                     </div>
                   </Panel>
                 )}
+
+                {/* Sidebar ad — chỉ hiện ở desktop (sidebar không xuất hiện trên mobile). */}
+                <AdSlot
+                  placement="sidebar"
+                  format="auto"
+                  slot={import.meta.env.VITE_ADSENSE_SLOT_ASSET_SIDEBAR as string | undefined}
+                  className="hidden lg:block"
+                />
               </aside>
             </div>
 

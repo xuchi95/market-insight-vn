@@ -5,6 +5,7 @@ import { Ticker } from "@/components/site/Ticker";
 import { BentoTiles } from "@/components/site/BentoTiles";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { WatchlistPanel } from "@/components/site/WatchlistPanel";
+import { AdSlot } from "@/components/site/AdSlot";
 import { useAuth } from "@/hooks/useAuth";
 import { getInitialPrices } from "@/lib/initial-prices.functions";
 
@@ -92,6 +93,14 @@ function Index() {
             </div>
             <BentoTiles initial={initialPrices} />
           </section>
+
+          {/* In-article ad — sau bảng giá thị trường */}
+          <AdSlot
+            placement="in-article"
+            format="auto"
+            slot={import.meta.env.VITE_ADSENSE_SLOT_HOME_INARTICLE as string | undefined}
+            className="mb-10 md:mb-14"
+          />
 
           {/* AI dự đoán giá — CTA */}
           <section className="pb-10 md:pb-14">
