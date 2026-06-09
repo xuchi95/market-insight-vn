@@ -43,12 +43,15 @@ function detectTestMode(): boolean {
 }
 
 /** Bắn analytics cho lifecycle của một ad slot.
- *  - `ad_view`: slot đã nằm trong viewport (≥ 50% trong ≥ 1s).
- *  - `ad_render`: AdSense đã render iframe có kích thước > 0 (fill).
- *  Gửi qua gtag/dataLayer nếu có, đồng thời dispatch CustomEvent
- *  `lovable:ad` trên window để các tracker khác có thể subscribe. */
+ *  - `ad_request`: đã push lệnh tải ad (mẫu số của fill rate).
+ *  - `ad_render`: AdSense trả về `data-ad-status="filled"` (đã fill thật).
+ *  - `ad_view`: viewable impression theo IAB MRC — ≥50% pixel hiển thị
+ *    trong ≥1s liên tục KHI tab đang visible.
+ *  - `ad_click`: heuristic khi window mất focus và activeElement là iframe
+ *    quảng cáo nằm trong slot.
+ *  Không bắn bất kỳ sự kiện nào ở testMode để giữ thống kê sạch. */
 function trackAdEvent(
-  event: "ad_view" | "ad_render",
+  event: "ad_view" | "ad_render" | "ad_request" | "ad_click",
   payload: { slot: string; placement: Placement; format?: string },
 ) {
   if (typeof window === "undefined") return;
@@ -56,7 +59,7 @@ function trackAdEvent(
     const detail = { event, ...payload, ts: Date.now() };
     window.dispatchEvent(new CustomEvent("lovable:ad", { detail }));
     // Gửi về backend analytics_events (tự gating bằng consent + DNT).
-    trackAd(event, payload);
+    trackAd(event as "ad_view" | "ad_render" | "ad_click", payload);
     if (typeof window.gtag === "function") {
       window.gtag("event", event, {
         ad_slot: payload.slot,
