@@ -185,12 +185,12 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   #
                 </th>
                 <th
-                  className={`${stickyThClass} text-left px-2 sm:px-4 py-3 font-semibold w-[36%] sm:w-auto`}
+                  className={`${stickyThClass} text-left px-2 sm:px-4 py-3 font-semibold w-[56%] sm:w-auto`}
                 >
                   Coin
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[30%] sm:w-auto`}
+                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[36%] sm:w-auto`}
                 >
                   <SortBtn k="priceUsd" />
                 </th>
@@ -200,7 +200,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   <SortBtn k="priceVnd" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-2 sm:px-4 py-3 font-semibold w-[28%] sm:w-auto`}
+                  className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden md:table-cell`}
                 >
                   <SortBtn k="change24h" shortLabel="24h" />
                 </th>
@@ -267,7 +267,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       format={(v) => fmtSmartVND(v, compact)}
                     />
                   </td>
-                  <td className="px-2 sm:px-4 py-3 text-right whitespace-nowrap">
+                  <td className="px-4 py-3 text-right whitespace-nowrap hidden md:table-cell">
                     <ChangeBadge value={c.change24h} />
                   </td>
                   <td className="px-4 py-3 text-right text-muted-foreground hidden lg:table-cell">
