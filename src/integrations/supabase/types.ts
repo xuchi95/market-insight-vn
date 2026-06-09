@@ -382,6 +382,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ban_appeals: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          email: string
+          id: string
+          ip: string | null
+          reason: string
+          status: Database["public"]["Enums"]["ban_appeal_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email: string
+          id?: string
+          ip?: string | null
+          reason: string
+          status?: Database["public"]["Enums"]["ban_appeal_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email?: string
+          id?: string
+          ip?: string | null
+          reason?: string
+          status?: Database["public"]["Enums"]["ban_appeal_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
@@ -1359,6 +1401,7 @@ export type Database = {
       alert_asset_type: "crypto" | "gold"
       alert_direction: "above" | "below"
       app_role: "admin" | "user"
+      ban_appeal_status: "pending" | "approved" | "rejected"
       code_injection_location: "head" | "body_start" | "body_end"
       holding_asset_type: "crypto" | "gold"
       transaction_side: "buy" | "sell"
@@ -1492,6 +1535,7 @@ export const Constants = {
       alert_asset_type: ["crypto", "gold"],
       alert_direction: ["above", "below"],
       app_role: ["admin", "user"],
+      ban_appeal_status: ["pending", "approved", "rejected"],
       code_injection_location: ["head", "body_start", "body_end"],
       holding_asset_type: ["crypto", "gold"],
       transaction_side: ["buy", "sell"],
