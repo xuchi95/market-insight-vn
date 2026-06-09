@@ -151,6 +151,17 @@
 
 @layer base {
   * { border-color: var(--color-border); }
+  /* Global typographic scale bump for better readability on both mobile and
+   * desktop. Because Tailwind sizes (text-sm, text-base, …) are rem-based,
+   * raising the html font-size scales the entire UI proportionally without
+   * touching every component. Tuned to be noticeable but not "quá lố". */
+  html { font-size: 17px; }                 /* mobile base: 16 → 17 (+6.25%) */
+  @media (min-width: 768px) {
+    html { font-size: 17.5px; }             /* tablet */
+  }
+  @media (min-width: 1024px) {
+    html { font-size: 18px; }               /* desktop: 16 → 18 (+12.5%) */
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
