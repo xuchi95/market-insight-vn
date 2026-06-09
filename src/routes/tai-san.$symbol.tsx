@@ -322,7 +322,9 @@ function AssetDetail() {
   const isBank = lower.startsWith("bank-");
   const isOil = lower === "oil-brent" || lower === "oil-wti";
   const oilId = isOil ? (lower === "oil-brent" ? "brent" : "wti") : null;
-  const goldId = isGold ? lower.slice("gold-".length) : null;
+  // Accept both prefixed (`gold-sjc-1l`) and bare (`sjc-1l`) slugs so
+  // older watchlist entries stored without the `gold-` prefix still resolve.
+  const goldId = isGold ? lower.slice("gold-".length) : lower;
   const bankCode = isBank ? lower.slice("bank-".length).toUpperCase() : null;
 
   // Skip generic asset queries when on a gold/bank-specific detail page.
@@ -352,7 +354,11 @@ function AssetDetail() {
     };
   }, [baseCoin, liveTick]);
 
-  const { data: golds } = useQuery({ queryKey: ["gold"], queryFn: fetchGoldPrices, enabled: isGold });
+  const { data: golds } = useQuery({
+    queryKey: ["gold"],
+    queryFn: fetchGoldPrices,
+    enabled: !isBank && !isOil,
+  });
   const gold = golds?.find((g) => g.id.toLowerCase() === goldId);
 
   const { data: bank } = useQuery({ queryKey: ["bank-rates"], queryFn: fetchBankRates, enabled: isBank });
