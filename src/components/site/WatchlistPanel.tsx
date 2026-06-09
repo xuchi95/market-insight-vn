@@ -325,6 +325,8 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
                           {q.unit && <span className="ml-0.5 text-[11.5px] font-semibold text-muted-foreground">{q.unit}</span>}
                         </div>
                       </>
+                    ) : loadingPrices ? (
+                      <Skeleton className="h-4 w-20 ml-auto" />
                     ) : (
                       <div className="text-xs text-muted-foreground italic">—</div>
                     )}
@@ -343,6 +345,8 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
                         <span aria-hidden className="text-[0.7em] leading-none">{up ? "▲" : "▼"}</span>
                         {Math.abs(change).toFixed(2)}%
                       </span>
+                    ) : loadingPrices ? (
+                      <Skeleton className="h-5 w-12" />
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
                     )}
