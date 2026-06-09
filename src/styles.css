@@ -473,12 +473,13 @@ main {
   overflow-x: clip;
 }
 
-/* Bảo hiểm: không phần tử nào được rộng quá viewport trên mobile. */
-@media (max-width: 767px) {
-  img, video, iframe, table, pre, svg {
-    max-width: 100%;
-  }
+/* Bảo hiểm: không phần tử nào được rộng quá viewport. Áp dụng cho mọi
+ * breakpoint để chặn tràn ngang từ ảnh/iframe/table/svg/pre, không chỉ
+ * mobile. */
+img, video, iframe, table, pre, svg, canvas {
+  max-width: 100%;
 }
+
 
 /* Thu hẹp cột nội dung mặc định trên desktop để chừa khoảng trống hai
  * bên (chuẩn bị chỗ cho ad rails sau này, đồng thời tránh dòng văn bản
