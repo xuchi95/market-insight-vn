@@ -34,6 +34,16 @@ const DEFAULT_MIN_H: Record<Placement, number> = {
   sidebar: 250,
 };
 
+/** Reserved height responsive theo breakpoint, dùng làn CSS clamp-like
+ *  để tránh CLS khi AdSense thay iframe nhiều kích thước (mobile banner
+ *  ~100px → leaderboard 90px desktop; medium rectangle 250–280px). */
+const RESPONSIVE_MIN_H: Record<Placement, { base: number; md: number; lg: number }> = {
+  header:       { base: 100, md: 90,  lg: 90  },
+  "in-article": { base: 280, md: 250, lg: 250 },
+  footer:       { base: 100, md: 90,  lg: 90  },
+  sidebar:      { base: 250, md: 600, lg: 600 },
+};
+
 /**
  * Khung quảng cáo dùng chung cho mọi trang.
  *
@@ -94,6 +104,15 @@ export function AdSlot({
   if (!CLIENT && !children) return null;
 
   const reserved = minHeight ?? DEFAULT_MIN_H[placement];
+  const responsive = RESPONSIVE_MIN_H[placement];
+  // CSS custom prop cho phép set min-height tăng dần theo breakpoint
+  // (xem rule trong src/styles.css). Khi caller truyền minHeight tay,
+  // dùng cùng giá trị cho cả 3 breakpoint để giữ tương thích.
+  const cssVars = {
+    "--ad-min-h":    `${minHeight ?? responsive.base}px`,
+    "--ad-min-h-md": `${minHeight ?? responsive.md}px`,
+    "--ad-min-h-lg": `${minHeight ?? responsive.lg}px`,
+  } as React.CSSProperties;
 
   return (
     <aside
@@ -103,6 +122,7 @@ export function AdSlot({
         "mx-auto w-full min-w-0 max-w-6xl px-4 md:px-5 lg:px-6 my-6 md:my-8 overflow-hidden",
         className,
       )}
+      style={cssVars}
     >
       {!hideLabel && (
         <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/70">
@@ -110,7 +130,7 @@ export function AdSlot({
         </div>
       )}
       <div
-        className="relative w-full min-w-0 overflow-hidden rounded-lg border border-dashed border-border/70 bg-muted/20"
+        className="ad-slot-frame relative w-full min-w-0 overflow-hidden rounded-lg border border-dashed border-border/70 bg-muted/20"
         style={{ minHeight: reserved }}
       >
         {children ? (
@@ -121,7 +141,7 @@ export function AdSlot({
         ) : slot && CLIENT ? (
           <ins
             ref={insRef}
-            className="adsbygoogle"
+            className="adsbygoogle ad-slot-ins"
             style={{ display: "block", width: "100%", maxWidth: "100%", minHeight: reserved, overflow: "hidden" }}
             data-ad-client={CLIENT}
             data-ad-slot={slot}
