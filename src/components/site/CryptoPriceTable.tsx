@@ -14,7 +14,6 @@ import { fmtCompactUSD, fmtUSD, fmtVND, fmtSmartVND } from "@/lib/format";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 import { AnimatedNumber } from "./AnimatedNumber";
-import { ChangeBadge } from "./ChangeBadge";
 import { Sparkline } from "./Sparkline";
 import { SectionCard } from "./SectionCard";
 import { Button } from "@/components/ui/button";
