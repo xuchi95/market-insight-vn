@@ -45,6 +45,8 @@ export function Footer() {
           <div className="md:col-span-2">
             <h4 className="eyebrow mb-4">Pháp lý</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground whitespace-nowrap">
+              <li><Link to="/ve-chung-toi" className="hover:text-foreground">Về MarketWatch</Link></li>
+              <li><Link to="/nguon-du-lieu" className="hover:text-foreground">Nguồn dữ liệu</Link></li>
               <li><Link to="/dieu-khoan-su-dung" className="hover:text-foreground">Điều khoản sử dụng</Link></li>
               <li><Link to="/chinh-sach-bao-mat" className="hover:text-foreground">Chính sách dữ liệu</Link></li>
               <li><Link to="/chinh-sach-cookie" className="hover:text-foreground">Chính sách Cookie</Link></li>

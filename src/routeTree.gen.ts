@@ -13,6 +13,7 @@ import { Route as YeuCauApiKeyRouteImport } from './routes/yeu-cau-api-key'
 import { Route as XacThucDangNhapRouteImport } from './routes/xac-thuc-dang-nhap'
 import { Route as XacThuc2faRouteImport } from './routes/xac-thuc-2fa'
 import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
+import { Route as VeChungToiRouteImport } from './routes/ve-chung-toi'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
 import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
 import { Route as TinhLaiSuatTietKiemRouteImport } from './routes/tinh-lai-suat-tiet-kiem'
@@ -24,6 +25,7 @@ import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
 import { Route as QuenMatKhauRouteImport } from './routes/quen-mat-khau'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as NguonDuLieuRouteImport } from './routes/nguon-du-lieu'
 import { Route as MienTruTrachNhiemRouteImport } from './routes/mien-tru-trach-nhiem'
 import { Route as LienHeRouteImport } from './routes/lien-he'
 import { Route as LichKinhTeRouteImport } from './routes/lich-kinh-te'
@@ -144,6 +146,11 @@ const ViMoVietNamRoute = ViMoVietNamRouteImport.update({
   path: '/vi-mo-viet-nam',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VeChungToiRoute = VeChungToiRouteImport.update({
+  id: '/ve-chung-toi',
+  path: '/ve-chung-toi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TyGiaNgoaiTeRoute = TyGiaNgoaiTeRouteImport.update({
   id: '/ty-gia-ngoai-te',
   path: '/ty-gia-ngoai-te',
@@ -197,6 +204,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NguonDuLieuRoute = NguonDuLieuRouteImport.update({
+  id: '/nguon-du-lieu',
+  path: '/nguon-du-lieu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MienTruTrachNhiemRoute = MienTruTrachNhiemRouteImport.update({
@@ -740,6 +752,7 @@ export interface FileRoutesByFullPath {
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/nguon-du-lieu': typeof NguonDuLieuRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quen-mat-khau': typeof QuenMatKhauRoute
@@ -751,6 +764,7 @@ export interface FileRoutesByFullPath {
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/ve-chung-toi': typeof VeChungToiRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
@@ -855,6 +869,7 @@ export interface FileRoutesByTo {
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/nguon-du-lieu': typeof NguonDuLieuRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quen-mat-khau': typeof QuenMatKhauRoute
@@ -866,6 +881,7 @@ export interface FileRoutesByTo {
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/ve-chung-toi': typeof VeChungToiRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
@@ -972,6 +988,7 @@ export interface FileRoutesById {
   '/lich-kinh-te': typeof LichKinhTeRoute
   '/lien-he': typeof LienHeRoute
   '/mien-tru-trach-nhiem': typeof MienTruTrachNhiemRoute
+  '/nguon-du-lieu': typeof NguonDuLieuRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy': typeof PrivacyRoute
   '/quen-mat-khau': typeof QuenMatKhauRoute
@@ -983,6 +1000,7 @@ export interface FileRoutesById {
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
+  '/ve-chung-toi': typeof VeChungToiRoute
   '/vi-mo-viet-nam': typeof ViMoVietNamRoute
   '/xac-thuc-2fa': typeof XacThuc2faRoute
   '/xac-thuc-dang-nhap': typeof XacThucDangNhapRoute
@@ -1089,6 +1107,7 @@ export interface FileRouteTypes {
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/nguon-du-lieu'
     | '/portfolio'
     | '/privacy'
     | '/quen-mat-khau'
@@ -1100,6 +1119,7 @@ export interface FileRouteTypes {
     | '/tinh-lai-suat-tiet-kiem'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/ve-chung-toi'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
@@ -1204,6 +1224,7 @@ export interface FileRouteTypes {
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/nguon-du-lieu'
     | '/portfolio'
     | '/privacy'
     | '/quen-mat-khau'
@@ -1215,6 +1236,7 @@ export interface FileRouteTypes {
     | '/tinh-lai-suat-tiet-kiem'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/ve-chung-toi'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
@@ -1320,6 +1342,7 @@ export interface FileRouteTypes {
     | '/lich-kinh-te'
     | '/lien-he'
     | '/mien-tru-trach-nhiem'
+    | '/nguon-du-lieu'
     | '/portfolio'
     | '/privacy'
     | '/quen-mat-khau'
@@ -1331,6 +1354,7 @@ export interface FileRouteTypes {
     | '/tinh-lai-suat-tiet-kiem'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
+    | '/ve-chung-toi'
     | '/vi-mo-viet-nam'
     | '/xac-thuc-2fa'
     | '/xac-thuc-dang-nhap'
@@ -1437,6 +1461,7 @@ export interface RootRouteChildren {
   LichKinhTeRoute: typeof LichKinhTeRoute
   LienHeRoute: typeof LienHeRoute
   MienTruTrachNhiemRoute: typeof MienTruTrachNhiemRoute
+  NguonDuLieuRoute: typeof NguonDuLieuRoute
   PortfolioRoute: typeof PortfolioRoute
   PrivacyRoute: typeof PrivacyRoute
   QuenMatKhauRoute: typeof QuenMatKhauRoute
@@ -1448,6 +1473,7 @@ export interface RootRouteChildren {
   TinhLaiSuatTietKiemRoute: typeof TinhLaiSuatTietKiemRoute
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
+  VeChungToiRoute: typeof VeChungToiRoute
   ViMoVietNamRoute: typeof ViMoVietNamRoute
   XacThuc2faRoute: typeof XacThuc2faRoute
   XacThucDangNhapRoute: typeof XacThucDangNhapRoute
@@ -1539,6 +1565,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ViMoVietNamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ve-chung-toi': {
+      id: '/ve-chung-toi'
+      path: '/ve-chung-toi'
+      fullPath: '/ve-chung-toi'
+      preLoaderRoute: typeof VeChungToiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ty-gia-ngoai-te': {
       id: '/ty-gia-ngoai-te'
       path: '/ty-gia-ngoai-te'
@@ -1614,6 +1647,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio'
       fullPath: '/portfolio'
       preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nguon-du-lieu': {
+      id: '/nguon-du-lieu'
+      path: '/nguon-du-lieu'
+      fullPath: '/nguon-du-lieu'
+      preLoaderRoute: typeof NguonDuLieuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mien-tru-trach-nhiem': {
@@ -2383,6 +2423,7 @@ const rootRouteChildren: RootRouteChildren = {
   LichKinhTeRoute: LichKinhTeRoute,
   LienHeRoute: LienHeRoute,
   MienTruTrachNhiemRoute: MienTruTrachNhiemRoute,
+  NguonDuLieuRoute: NguonDuLieuRoute,
   PortfolioRoute: PortfolioRoute,
   PrivacyRoute: PrivacyRoute,
   QuenMatKhauRoute: QuenMatKhauRoute,
@@ -2394,6 +2435,7 @@ const rootRouteChildren: RootRouteChildren = {
   TinhLaiSuatTietKiemRoute: TinhLaiSuatTietKiemRoute,
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
+  VeChungToiRoute: VeChungToiRoute,
   ViMoVietNamRoute: ViMoVietNamRoute,
   XacThuc2faRoute: XacThuc2faRoute,
   XacThucDangNhapRoute: XacThucDangNhapRoute,
