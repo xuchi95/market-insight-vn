@@ -301,10 +301,17 @@
    Policy pages — refined editorial typography
    ============================================================ */
 section.policy-prose {
+  /* Type scale — synchronized across sm (≥640), md (≥768), lg (≥1024).
+     Base = mobile (<640). Body, lead, H2, H3 follow a consistent ramp. */
+
+  /* Body copy (default for all <p>, <li>, etc.) */
+  font-size: 1rem;            /* 16px */
+  line-height: 1.8;
+
   /* Lead intro paragraph — the first <p> right after the header */
   & > p:first-of-type {
-    font-size: 1.1875rem;
-    line-height: 1.8;
+    font-size: 1.125rem;      /* 18px */
+    line-height: 1.75;
     color: color-mix(in oklab, var(--foreground) 88%, transparent);
     padding: 1rem 1.125rem 1rem 1.25rem;
     border-left: 3px solid var(--primary);
@@ -312,13 +319,27 @@ section.policy-prose {
     border-radius: 0 0.5rem 0.5rem 0;
   }
 
-  /* Headings — bumped for readability on mobile and desktop */
-  & > h2 { font-size: 1.625rem; line-height: 1.3; }
-  & > h3 { font-size: 1.25rem; line-height: 1.4; }
-  @media (min-width: 768px) {
-    & > p:first-of-type { font-size: 1.25rem; }
-    & > h2 { font-size: 1.875rem; }
-    & > h3 { font-size: 1.375rem; }
+  /* Headings */
+  & > h2 { font-size: 1.375rem; line-height: 1.25; }   /* 22px */
+  & > h3 { font-size: 1.125rem; line-height: 1.4; }    /* 18px */
+
+  @media (min-width: 640px) {  /* sm */
+    font-size: 1.0625rem;                              /* 17px */
+    & > p:first-of-type { font-size: 1.1875rem; }      /* 19px */
+    & > h2 { font-size: 1.5rem; }                      /* 24px */
+    & > h3 { font-size: 1.1875rem; }                   /* 19px */
+  }
+  @media (min-width: 768px) {  /* md */
+    font-size: 1.125rem;                               /* 18px */
+    & > p:first-of-type { font-size: 1.25rem; }        /* 20px */
+    & > h2 { font-size: 1.75rem; }                     /* 28px */
+    & > h3 { font-size: 1.25rem; }                     /* 20px */
+  }
+  @media (min-width: 1024px) { /* lg */
+    font-size: 1.1875rem;                              /* 19px */
+    & > p:first-of-type { font-size: 1.3125rem; }      /* 21px */
+    & > h2 { font-size: 1.875rem; }                    /* 30px */
+    & > h3 { font-size: 1.375rem; }                    /* 22px */
   }
 
   /* Section dividers with a small gold accent bar on every H2 */
