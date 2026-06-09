@@ -17,6 +17,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 const EVENT_TYPES = [
   "ad_view",
   "ad_render",
+  "ad_request",
   "ad_click",
   "pageview",
   "scroll",
