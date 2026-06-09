@@ -158,6 +158,63 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          ad_slot: string | null
+          anon_id: string | null
+          country: string | null
+          device: string | null
+          event_type: string
+          format: string | null
+          id: number
+          meta: Json | null
+          placement: string | null
+          referrer_host: string | null
+          route: string | null
+          session_id: string | null
+          target: string | null
+          ts: string
+          user_id: string | null
+          value: number | null
+        }
+        Insert: {
+          ad_slot?: string | null
+          anon_id?: string | null
+          country?: string | null
+          device?: string | null
+          event_type: string
+          format?: string | null
+          id?: number
+          meta?: Json | null
+          placement?: string | null
+          referrer_host?: string | null
+          route?: string | null
+          session_id?: string | null
+          target?: string | null
+          ts?: string
+          user_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          ad_slot?: string | null
+          anon_id?: string | null
+          country?: string | null
+          device?: string | null
+          event_type?: string
+          format?: string | null
+          id?: number
+          meta?: Json | null
+          placement?: string | null
+          referrer_host?: string | null
+          route?: string | null
+          session_id?: string | null
+          target?: string | null
+          ts?: string
+          user_id?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
       api_key_requests: {
         Row: {
           admin_notes: string | null

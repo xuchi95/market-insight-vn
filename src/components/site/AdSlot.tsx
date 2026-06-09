@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
+import { trackAd } from "@/lib/analytics/tracker";
 
 declare global {
   interface Window {
@@ -25,6 +26,8 @@ function trackAdEvent(
   try {
     const detail = { event, ...payload, ts: Date.now() };
     window.dispatchEvent(new CustomEvent("lovable:ad", { detail }));
+    // Gửi về backend analytics_events (tự gating bằng consent + DNT).
+    trackAd(event, payload);
     if (typeof window.gtag === "function") {
       window.gtag("event", event, {
         ad_slot: payload.slot,

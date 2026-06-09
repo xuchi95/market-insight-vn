@@ -1,50 +1,81 @@
-## Tình trạng hiện tại của nút "Theo dõi"
+## Tổng quan
 
-Nút **không phải làm cảnh**: nó đã ghi vào bảng `watchlist_items` (cloud nếu đăng nhập, `localStorage` nếu khách) và hiển thị danh sách theo dõi ở header / một số nơi khác. **Nhưng** hệ thống chưa gửi email khi tài sản biến động — đó là phần cần làm thêm.
+Tạo trang `/mw-admin/analytics` cho admin, gồm:
+- Log sự kiện ẩn danh (ads, pageview, scroll/dwell, click, funnel) từ trình duyệt vào DB qua 1 endpoint công khai có rate-limit, chỉ chạy khi user đã đồng ý cookie Phân tích.
+- Dashboard với KPI cards, biểu đồ 30 ngày, heatmap 7×24, bảng top route/placement, bộ lọc khoảng thời gian + export CSV.
+- Tích hợp AdSense Management API (giai đoạn 2) để hiện impression/click/CTR/RPM/revenue thật.
 
-Bảng `user_price_alerts` đã tồn tại nhưng nó dành cho cảnh báo **ngưỡng giá cụ thể** (`>= X USD`), không phải "biến động bất cứ lúc nào". Mình sẽ làm một lớp riêng cho watchlist alerts.
+## Phần 1 — Thu thập sự kiện
 
----
+### DB schema (1 migration)
+- `analytics_events` (admin-only, không expose anon): `id`, `ts timestamptz default now()`, `event_type text` (`ad_view|ad_render|ad_click|pageview|scroll|dwell|click_outbound|click_cta|funnel_step`), `session_id text`, `anon_id text` (hash UA+IP+salt, đổi mỗi 24h), `route text`, `referrer_host text`, `device text` (`mobile|tablet|desktop`), `country text` (CF-IPCountry), `placement text`, `ad_slot text`, `format text`, `target text`, `value numeric`, `meta jsonb`, `user_id uuid` (nullable, không FK auth.users).
+- Index: `(ts desc)`, `(event_type, ts desc)`, `(route, ts desc)`, `(session_id)`.
+- Bảng `analytics_daily_agg` (rollup theo ngày + route + event_type) để truy vấn nhanh — refresh bằng pg_cron 5 phút/lần.
+- RLS: service_role + admin (qua `has_role`) đọc; không có policy anon/authenticated. Bổ sung memory ghi nhận tính chất admin-only.
 
-## Phạm vi sẽ build
+### Endpoint ingest: `POST /api/public/analytics/ingest`
+- `supabaseAdmin` insert, Zod validate.
+- Rate limit theo IP: tối đa 60 event/phút bằng bảng `rate_limit_buckets` đã có hoặc thêm bucket riêng; batch tối đa 20 event/request.
+- Lấy `cf-ipcountry`, `user-agent` để suy ra `device` + `country` ở server (không lưu IP/UA thô).
+- Drop event nếu thiếu `event_type` hoặc `route` vượt 256 ký tự, hoặc `meta` > 2KB.
 
-### 1. Database
-Migration mới:
-- `ALTER TABLE watchlist_items ADD COLUMN email_alerts_enabled boolean NOT NULL DEFAULT true, ADD COLUMN alert_threshold_pct numeric NOT NULL DEFAULT 5, ADD COLUMN last_alert_sent_at timestamptz, ADD COLUMN last_alert_price_usd numeric;`
-- `ALTER TABLE profiles ADD COLUMN watchlist_alerts_global_enabled boolean NOT NULL DEFAULT true;` (kill-switch toàn cục để opt-out hoàn toàn).
-- Bảng mới `watchlist_price_snapshots(symbol text primary key, asset_type text, price_usd numeric, captured_at timestamptz)` — dùng để so sánh biến động giữa các lần chạy cron.
+### Client tracker (`src/lib/analytics/tracker.ts`)
+- Queue + flush bằng `navigator.sendBeacon` khi tab ẩn / mỗi 5 s.
+- `session_id` lưu sessionStorage; `anon_id` lưu localStorage 24h.
+- Chỉ gửi khi `useCookieConsent().prefs.analytics === true`; tự dừng khi user thu hồi consent.
+- Wrapper:
+  - `trackPageview()` — gọi trong `__root.tsx` qua `router.subscribe('onResolved')`.
+  - `trackScroll()` + `trackDwell()` — hook `useEngagementTracking()` gắn 1 lần ở root, bắn ngưỡng 25/50/75/100% + dwell mỗi 15 s.
+  - `trackClick()` — listener `click` toàn cục: outbound link và bất kỳ phần tử có `data-cta="..."`.
+  - `trackFunnel(step)` — gọi tại các điểm: xem giá tài sản, thêm watchlist, tạo alert, đăng ký newsletter.
+  - `trackAd(event, payload)` — `AdSlot` chuyển từ chỉ bắn CustomEvent sang gọi trực tiếp tracker (giữ event window cho debug). Thêm bắt click iframe AdSense bằng `window.blur` heuristic phát sinh `ad_click`.
 
-### 2. Server function & route
-- `src/lib/watchlist/alerts.functions.ts`:
-  - `updateAlertPrefs({ symbol, emailEnabled, thresholdPct })` (auth required) — chỉnh per-item.
-  - `setGlobalAlertsEnabled({ enabled })` — toggle toàn cục.
-- `src/routes/api/public/cron/watchlist-alerts.ts` (server route, bảo vệ bằng `CRON_SECRET` header):
-  - Lấy snapshot giá hiện tại từ các service đã có (`fetchCryptoPrices`, `fetchStockIndices`, `fetchGoldPrices`, `fetchForexRates`).
-  - So sánh với `watchlist_price_snapshots` → tính % biến động.
-  - Với mỗi symbol vượt ngưỡng: tìm tất cả user trong `watchlist_items` có `email_alerts_enabled=true`, `profiles.watchlist_alerts_global_enabled=true`, ngưỡng cá nhân `<= biến động`, và `last_alert_sent_at` cách hiện tại >= cooldown (mặc định 6h) → enqueue email qua RPC `enqueue_email`.
-  - Cập nhật `last_alert_sent_at` + snapshot mới.
-- pg_cron job chạy mỗi 15 phút gọi endpoint trên (qua URL `project--{id}.lovable.app`).
+### Tích hợp UI
+- `AdSlot.tsx`: thay `trackAdEvent` bằng `tracker.trackAd`.
+- Watchlist/Alerts/Newsletter component gọi `trackFunnel`.
+- `data-cta` được thêm vào CTA chính: Đăng ký, Mở watchlist, Tạo alert, Đăng ký newsletter.
 
-### 3. Email template
-- Template `watchlist_alert` (HTML + text) trong queue payload: tên tài sản, giá hiện tại, % biến động, link tới trang chi tiết, link **"Tắt cảnh báo tài sản này"** (token) + link **"Tắt toàn bộ cảnh báo"** (token), dùng `email_unsubscribe_tokens` đã có.
+## Phần 2 — Server fns admin
 
-### 4. UI
-- Nâng cấp `WatchButton`: thay vì button đơn, dùng `Popover` — bấm vào hiện popover có:
-  - Toggle "Theo dõi" (giữ logic hiện tại).
-  - Toggle "Nhận email khi biến động ≥ X%" + select ngưỡng (3 / 5 / 10 / 15 %).
-  - Nếu chưa đăng nhập → toggle email bị disable + dòng "Đăng nhập để nhận email cảnh báo".
-- Trang mới `/tai-khoan/canh-bao` (route `_authenticated`): bảng tất cả tài sản đang theo dõi với toggle email + ngưỡng + nút xoá; ở đầu trang có Switch "Tạm dừng toàn bộ cảnh báo email" → `profiles.watchlist_alerts_global_enabled`.
-- Trang public `/email/unsubscribe?token=...` xử lý unsubscribe per-item hoặc global từ link email.
-- Admin: thêm trang `_admin/mw-admin.alerts.tsx` để xem số alert đã gửi 24h/7 ngày, top symbol có biến động.
+`src/lib/admin/analytics.functions.ts` (middleware `requireAdmin`):
+- `getAnalyticsKpis(range)` — views, unique, pageviews, ad_impressions, ad_clicks, CTR, avg dwell, so sánh kỳ trước.
+- `getAnalyticsTimeseries(range, bucket)` — daily/hourly.
+- `getAnalyticsHeatmap(range)` — matrix 7×24 ngày × giờ.
+- `getTopRoutes(range, limit)` + `getTopPlacements(range)`.
+- `getFunnel(range)` — counts cho 4 bước funnel.
+- `exportAnalyticsCsv(range, type)` — trả CSV string.
+Tất cả query bảng `analytics_daily_agg` khi range > 2 ngày, fallback `analytics_events` cho realtime.
 
-### 5. Secrets
-- Thêm secret `CRON_SECRET` (mình sẽ yêu cầu add_secret) để bảo vệ endpoint cron.
+## Phần 3 — Trang admin
 
----
+`src/routes/_admin/mw-admin.analytics.tsx`:
+- Date range picker (7/30/90/custom).
+- 6 KPI cards: Views, Unique, Pageviews, Ad impressions, Ad clicks (CTR), Avg dwell — kèm % vs kỳ trước.
+- LineChart 30 ngày (recharts) views vs ad_impressions.
+- Heatmap 7×24 (div grid).
+- Bảng Top Route (path, views, avg dwell, scroll>75%).
+- Bảng Top Placement (placement, impressions, clicks, CTR).
+- Funnel bar.
+- Nút Export CSV cho từng bảng.
+- Thêm vào menu admin sidebar.
 
-## Câu hỏi cần xác nhận trước khi build
+## Phần 4 — AdSense Management API (tùy chọn bật sau)
 
-1. **Ngưỡng mặc định** % biến động kích hoạt email là **5%** (so với lần snapshot trước), và **cooldown 6h** giữa các email cho cùng 1 user + 1 symbol — OK chứ?
-2. **Tần suất cron** mỗi **15 phút** OK chứ? (Crypto biến động nhanh; chứng khoán/vàng chỉ chạy trong giờ giao dịch — mình sẽ skip ngoài giờ với crypto vẫn 24/7.)
-3. User **chưa đăng nhập** bấm "Theo dõi" hiện chỉ lưu localStorage → có cần prompt đăng nhập để bật email không? (Đề xuất: vẫn cho lưu local, hiện CTA "Đăng nhập để nhận email" trong popover.)
-4. Có cần làm trang `/tai-khoan/canh-bao` + trang admin alerts ngay turn này không, hay chỉ làm phần button + cron + email trước, UI quản lý làm turn sau?
+- Connector `google_adsense` qua Lovable connectors (OAuth). Khi link, thêm:
+  - `src/lib/admin/adsense.server.ts` gọi `accounts.reports.generate` lấy revenue, RPM, CTR.
+  - Card AdSense doanh thu trên dashboard hiển thị khi có connection; nếu chưa link, hiện nút "Kết nối Google AdSense".
+- Không khóa tính năng dashboard chính vào AdSense API — phần này phụ thuộc admin thao tác.
+
+## Lưu ý kỹ thuật
+
+- Tracker phải tôn trọng `Do Not Track` (`navigator.doNotTrack === "1"`).
+- Không lưu PII: bỏ query string nhạy cảm khỏi `route` (giữ pathname + whitelist param: `?symbol`, `?tab`).
+- pg_cron daily 3:00 dọn `analytics_events` > 90 ngày để tránh phình DB; rollup giữ 13 tháng.
+- Tất cả endpoint ingest có timeout 5 s, fail-silent về client để không ảnh hưởng UX.
+- Cập nhật `mem://index.md`: thêm rule `analytics_events` admin-only.
+
+## Phạm vi loại trừ
+
+- Không thay Google Analytics / GA4 hiện có.
+- Không thực thi rule-engine cảnh báo bất thường (có thể làm sau).
+- AdSense API chỉ scaffold sau khi user link connector.
