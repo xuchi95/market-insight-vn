@@ -482,6 +482,7 @@ function StockDetail() {
             <RelatedLinks current="stocks" />
           </>
         )}
+        </div>
       </main>
       <Footer />
     </div>
