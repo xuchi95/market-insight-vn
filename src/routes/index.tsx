@@ -149,6 +149,39 @@ function Index() {
             <RelatedLinks current="home" title="Khám phá theo chủ đề" />
           </section>
 
+          {/* Trust strip — internal links to About + Data Sources for SEO discovery */}
+          <section aria-labelledby="trust-strip" className="py-10 md:py-14 border-t border-border">
+            <h2 id="trust-strip" className="font-display text-2xl md:text-3xl leading-tight tracking-tight mb-5 md:mb-6">
+              Minh bạch & nguồn dữ liệu
+            </h2>
+            <div className="grid gap-4 md:gap-5 sm:grid-cols-2">
+              <Link
+                to="/ve-chung-toi"
+                className="group rounded-xl border border-border/60 bg-card/60 p-5 md:p-6 transition-all hover:border-[var(--gold)]/70 hover:bg-accent/40 hover:-translate-y-0.5"
+              >
+                <div className="eyebrow opacity-80 mb-2">Về chúng tôi</div>
+                <div className="font-display text-lg md:text-xl leading-snug text-foreground mb-1.5">
+                  Về MarketWatch Việt Nam — đội ngũ &amp; sứ mệnh
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Công ty TNHH MTV Xuân Diệu Media vận hành, đặt tại Đà Nẵng. Sứ mệnh, người chịu trách nhiệm nội dung và định danh thương hiệu.
+                </p>
+              </Link>
+              <Link
+                to="/nguon-du-lieu"
+                className="group rounded-xl border border-border/60 bg-card/60 p-5 md:p-6 transition-all hover:border-[var(--gold)]/70 hover:bg-accent/40 hover:-translate-y-0.5"
+              >
+                <div className="eyebrow opacity-80 mb-2">Phương pháp</div>
+                <div className="font-display text-lg md:text-xl leading-snug text-foreground mb-1.5">
+                  Nguồn dữ liệu &amp; phương pháp tính giá vàng, crypto, ngoại tệ
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Liệt kê chi tiết nguồn API, tần suất cập nhật, múi giờ và công thức quy đổi VND cho từng nhóm dữ liệu.
+                </p>
+              </Link>
+            </div>
+          </section>
+
         </div>
       </main>
       <Footer />
