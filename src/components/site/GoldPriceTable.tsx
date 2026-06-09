@@ -73,13 +73,11 @@ export function GoldPriceTable({ search }: { search?: string }) {
               <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Bán</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Giá trung bình</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Chênh lệch</th>
-              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Δ</th>
-              <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell">Cập nhật</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {isLoading && Array.from({ length: 6 }).map((_, i) => (
-              <tr key={i}><td colSpan={8} className="px-4 py-3"><Skeleton className="h-6 w-full" /></td></tr>
+              <tr key={i}><td colSpan={6} className="px-4 py-3"><Skeleton className="h-6 w-full" /></td></tr>
             ))}
             {rows.map((g) => {
               const isUsd = g.unit.includes("USD");
@@ -108,14 +106,12 @@ export function GoldPriceTable({ search }: { search?: string }) {
                   <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={g.sell} format={fmt} /></td>
                   <td className="px-4 py-3 text-right hidden md:table-cell"><AnimatedNumber value={mid} format={fmt} noFlash minChars={isUsd ? 8 : 7} /></td>
                   <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={g.sell - g.buy} format={fmt} noFlash minChars={isUsd ? 6 : 5} /></td>
-                  <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap"><ChangeBadge value={g.changePct} /></td>
-                  <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(g.updatedAt)}</td>
                 </tr>
               );
             })}
             {!isLoading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center">
+                <td colSpan={6} className="px-4 py-10 text-center">
                   {isError ? (
                     <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
                       <AlertTriangle className="h-6 w-6 text-[var(--down)]" />
