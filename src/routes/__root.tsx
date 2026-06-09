@@ -239,18 +239,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
     scripts: [
-      // Google AdSense loader — chỉ chèn khi đã cấu hình VITE_ADSENSE_CLIENT.
+      // Google AdSense loader — verify publisher ca-pub-1602622310716271.
       // Mã `<ins class="adsbygoogle">` đặt trong <AdSlot> hoặc dán qua admin
       // code-injection sẽ tự động được fill bởi script này.
-      ...(import.meta.env.VITE_ADSENSE_CLIENT
-        ? [
-            {
-              async: true,
-              src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${import.meta.env.VITE_ADSENSE_CLIENT}`,
-              crossOrigin: "anonymous",
-            } as const,
-          ]
-        : []),
+      {
+        async: true,
+        src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${import.meta.env.VITE_ADSENSE_CLIENT || "ca-pub-1602622310716271"}`,
+        crossOrigin: "anonymous",
+      } as const,
       {
         type: "application/ld+json",
         children: JSON.stringify({
