@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 
 declare global {
   interface Window {
@@ -97,6 +98,11 @@ export function AdSlot({
   minHeight,
   hideLabel,
 }: AdSlotProps) {
+  const { prefs, decided } = useCookieConsent();
+  // AdSense yêu cầu đồng ý nhóm "marketing"; tracking sự kiện ad_view /
+  // ad_render thuộc nhóm "analytics".
+  const adsAllowed = decided && prefs.marketing;
+  const analyticsAllowed = decided && prefs.analytics;
   const pushed = useRef(false);
   const viewed = useRef(false);
   const rendered = useRef(false);
@@ -104,7 +110,7 @@ export function AdSlot({
   const frameRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!CLIENT || !slot || pushed.current) return;
+    if (!CLIENT || !slot || pushed.current || !adsAllowed) return;
     const el = insRef.current;
     const frame = frameRef.current;
     if (!el || !frame) return;
