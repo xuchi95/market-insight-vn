@@ -24,7 +24,7 @@ export function Footer() {
 
           <div className="md:col-span-2">
             <h4 className="eyebrow mb-4">Mục</h4>
-            <ul className="space-y-2.5 text-sm text-muted-foreground whitespace-nowrap">
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li><Link to="/gia-vang" className="hover:text-foreground">Giá vàng</Link></li>
               <li><Link to="/chung-khoan" className="hover:text-foreground">Chứng khoán</Link></li>
               <li><Link to="/tien-dien-tu" className="hover:text-foreground">Crypto</Link></li>
@@ -36,20 +36,20 @@ export function Footer() {
           </div>
           <div className="md:col-span-3">
             <h4 className="eyebrow mb-4">Nhà phát triển</h4>
-            <ul className="space-y-2.5 text-sm text-muted-foreground whitespace-nowrap">
-              <li><Link to="/api-cho-nha-phat-trien" className="hover:text-foreground">API &amp; SDK realtime</Link></li>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
+              <li><Link to="/api-cho-nha-phat-trien" className="hover:text-foreground">API &amp; SDK</Link></li>
               <li><a href="/api/public/v1/snapshot" className="hover:text-foreground" target="_blank" rel="noreferrer">REST snapshot</a></li>
-              <li><a href="https://www.npmjs.com/package/@marketwatch/sdk" className="hover:text-foreground" target="_blank" rel="noreferrer">SDK trên npm</a></li>
+              <li><a href="https://www.npmjs.com/package/@marketwatch/sdk" className="hover:text-foreground" target="_blank" rel="noreferrer">SDK npm</a></li>
             </ul>
           </div>
           <div className="md:col-span-2">
             <h4 className="eyebrow mb-4">Pháp lý</h4>
-            <ul className="space-y-2.5 text-sm text-muted-foreground whitespace-nowrap">
-              <li><Link to="/ve-chung-toi" className="hover:text-foreground">Giới thiệu đơn vị chủ quản</Link></li>
-              <li><Link to="/nguon-du-lieu" className="hover:text-foreground">Phương pháp tính &amp; nguồn dữ liệu tài chính</Link></li>
-              <li><Link to="/dieu-khoan-su-dung" className="hover:text-foreground">Điều khoản sử dụng</Link></li>
-              <li><Link to="/chinh-sach-bao-mat" className="hover:text-foreground">Chính sách dữ liệu</Link></li>
-              <li><Link to="/chinh-sach-cookie" className="hover:text-foreground">Chính sách Cookie</Link></li>
+            <ul className="space-y-2.5 text-sm text-muted-foreground">
+              <li><Link to="/ve-chung-toi" className="hover:text-foreground">Về chúng tôi</Link></li>
+              <li><Link to="/nguon-du-lieu" className="hover:text-foreground">Nguồn dữ liệu</Link></li>
+              <li><Link to="/dieu-khoan-su-dung" className="hover:text-foreground">Điều khoản</Link></li>
+              <li><Link to="/chinh-sach-bao-mat" className="hover:text-foreground">Bảo mật</Link></li>
+              <li><Link to="/chinh-sach-cookie" className="hover:text-foreground">Cookie</Link></li>
               <li>
                 <button
                   type="button"
