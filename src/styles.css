@@ -461,3 +461,21 @@ body {
   overflow-x: hidden;
   max-width: 100vw;
 }
+
+/* Belt-and-suspenders: chặn mọi overflow ngang ở cấp root container và
+ * main. Dùng `clip` thay vì `hidden` để không tạo scroll container phụ
+ * (giữ được `position: sticky` cho header/sidebar). Fallback `hidden`
+ * cho trình duyệt cũ. */
+#root,
+main {
+  max-width: 100vw;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* Bảo hiểm: không phần tử nào được rộng quá viewport trên mobile. */
+@media (max-width: 767px) {
+  img, video, iframe, table, pre, svg {
+    max-width: 100%;
+  }
+}
