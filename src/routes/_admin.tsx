@@ -2,7 +2,8 @@ import { createFileRoute, Link, Outlet, Navigate } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp, KeyRound, ShieldCheck, Inbox, Newspaper, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp, KeyRound, ShieldCheck, Inbox, Newspaper, BarChart3, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_admin")({
   component: AdminGate,
@@ -60,18 +61,58 @@ const NAV = [
 ] as const;
 
 function AdminShell() {
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      <aside className="w-60 shrink-0 border-r border-border bg-card/40 p-4">
+      {/* Mobile top bar */}
+      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur md:hidden">
+        <div>
+          <div className="text-[9px] uppercase tracking-[0.22em] text-[var(--gold)]">MarketWatch</div>
+          <div className="font-display text-sm leading-tight">Admin</div>
+        </div>
+        <button
+          onClick={() => setOpen(true)}
+          className="rounded-md border border-border p-2 text-muted-foreground hover:text-foreground"
+          aria-label="Mở menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Mobile drawer overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 overflow-y-auto border-r border-border bg-card p-4 transition-transform md:static md:z-auto md:w-60 md:shrink-0 md:translate-x-0 md:bg-card/40 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="mb-6">
-          <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--gold)]">MarketWatch</div>
-          <div className="font-display text-lg">Admin</div>
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--gold)]">MarketWatch</div>
+              <div className="font-display text-lg">Admin</div>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="rounded-md p-1 text-muted-foreground hover:text-foreground md:hidden"
+              aria-label="Đóng menu"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <nav className="space-y-1">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
+              onClick={() => setOpen(false)}
               activeOptions={{ exact: item.to === "/mw-admin" }}
               activeProps={{ className: "bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] text-[var(--gold)]" }}
               className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -83,7 +124,7 @@ function AdminShell() {
         </nav>
         <Link to="/" className="mt-6 block text-xs text-muted-foreground hover:text-foreground">← Về site</Link>
       </aside>
-      <main className="flex-1 p-6 md:p-8">
+      <main className="min-w-0 flex-1 p-4 pt-16 md:p-8 md:pt-8">
         <Outlet />
       </main>
     </div>
