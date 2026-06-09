@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { trackFunnel } from "@/lib/analytics/tracker";
 
 export interface WatchItem {
   symbol: string;
@@ -112,10 +113,16 @@ export function useWatchlist() {
         if (error) {
           setList((prev) => prev.filter((i) => i.symbol !== item.symbol));
           toast.error("Không thể lưu vào danh sách theo dõi", { description: error.message });
+          return;
         }
       } else {
         writeLocal(next);
       }
+      trackFunnel("watchlist.add", {
+        symbol: item.symbol,
+        category: item.category,
+        signed_in: !!user,
+      });
     },
     [list, user],
   );
@@ -136,10 +143,12 @@ export function useWatchlist() {
         if (error) {
           setList(prev);
           toast.error("Không thể xoá", { description: error.message });
+          return;
         }
       } else {
         writeLocal(next);
       }
+      trackFunnel("watchlist.remove", { symbol, signed_in: !!user });
     },
     [list, user],
   );
