@@ -4,10 +4,44 @@ import { cn } from "@/lib/utils";
 declare global {
   interface Window {
     adsbygoogle?: unknown[];
+    dataLayer?: Record<string, unknown>[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
 const CLIENT = (import.meta.env.VITE_ADSENSE_CLIENT as string | undefined) || "";
+
+/** Bắn analytics cho lifecycle của một ad slot.
+ *  - `ad_view`: slot đã nằm trong viewport (≥ 50% trong ≥ 1s).
+ *  - `ad_render`: AdSense đã render iframe có kích thước > 0 (fill).
+ *  Gửi qua gtag/dataLayer nếu có, đồng thời dispatch CustomEvent
+ *  `lovable:ad` trên window để các tracker khác có thể subscribe. */
+function trackAdEvent(
+  event: "ad_view" | "ad_render",
+  payload: { slot: string; placement: Placement; format?: string },
+) {
+  if (typeof window === "undefined") return;
+  try {
+    const detail = { event, ...payload, ts: Date.now() };
+    window.dispatchEvent(new CustomEvent("lovable:ad", { detail }));
+    if (typeof window.gtag === "function") {
+      window.gtag("event", event, {
+        ad_slot: payload.slot,
+        ad_placement: payload.placement,
+        ad_format: payload.format,
+      });
+    } else if (Array.isArray(window.dataLayer)) {
+      window.dataLayer.push({
+        event,
+        ad_slot: payload.slot,
+        ad_placement: payload.placement,
+        ad_format: payload.format,
+      });
+    }
+  } catch {
+    /* noop */
+  }
+}
 
 type Placement = "header" | "in-article" | "footer" | "sidebar";
 
@@ -64,6 +98,8 @@ export function AdSlot({
   hideLabel,
 }: AdSlotProps) {
   const pushed = useRef(false);
+  const viewed = useRef(false);
+  const rendered = useRef(false);
   const insRef = useRef<HTMLModElement | null>(null);
   const frameRef = useRef<HTMLDivElement | null>(null);
 
@@ -78,6 +114,58 @@ export function AdSlot({
     let cancelled = false;
     let ro: ResizeObserver | null = null;
     let io: IntersectionObserver | null = null;
+    let viewIo: IntersectionObserver | null = null;
+    let viewTimer: ReturnType<typeof setTimeout> | null = null;
+    let renderRo: ResizeObserver | null = null;
+
+    const watchRender = () => {
+      if (rendered.current) return;
+      const check = () => {
+        if (rendered.current) return true;
+        const status = el.getAttribute("data-ad-status");
+        const rect = el.getBoundingClientRect();
+        // AdSense set data-ad-status="filled" khi render thành công,
+        // hoặc "unfilled" khi không có ad. Coi cả 2 đều là đã "render".
+        const hasIframe = !!el.querySelector("iframe");
+        if ((status === "filled" || hasIframe) && rect.height > 1) {
+          rendered.current = true;
+          trackAdEvent("ad_render", { slot, placement, format });
+          renderRo?.disconnect();
+          return true;
+        }
+        return false;
+      };
+      if (check()) return;
+      renderRo = new ResizeObserver(() => {
+        check();
+      });
+      renderRo.observe(el);
+    };
+
+    // Theo dõi "viewable impression": ≥50% trong ≥1s (gần với chuẩn IAB).
+    const watchView = () => {
+      if (viewed.current) return;
+      viewIo = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.intersectionRatio >= 0.5) {
+              if (viewTimer) continue;
+              viewTimer = setTimeout(() => {
+                if (cancelled || viewed.current) return;
+                viewed.current = true;
+                trackAdEvent("ad_view", { slot, placement, format });
+                viewIo?.disconnect();
+              }, 1000);
+            } else if (viewTimer) {
+              clearTimeout(viewTimer);
+              viewTimer = null;
+            }
+          }
+        },
+        { threshold: [0, 0.5, 1] },
+      );
+      viewIo.observe(frame);
+    };
 
     const tryPush = () => {
       if (cancelled || pushed.current) return false;
@@ -89,6 +177,8 @@ export function AdSlot({
       } catch {
         /* noop */
       }
+      watchRender();
+      watchView();
       ro?.disconnect();
       io?.disconnect();
       return true;
@@ -129,8 +219,11 @@ export function AdSlot({
       cancelled = true;
       ro?.disconnect();
       io?.disconnect();
+      viewIo?.disconnect();
+      renderRo?.disconnect();
+      if (viewTimer) clearTimeout(viewTimer);
     };
-  }, [slot]);
+  }, [slot, placement, format]);
 
   // No client configured AND no manually-pasted unit → render nothing
   // (don't reserve space, don't show empty box).
