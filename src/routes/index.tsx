@@ -132,7 +132,7 @@ function Index() {
                 <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Theo dõi của bạn</h2>
                 <div className="eyebrow opacity-60 hidden sm:block">Đồng bộ giữa các thiết bị</div>
               </div>
-              <WatchlistPanel />
+              <WatchlistPanel compact />
             </section>
           )}
 
