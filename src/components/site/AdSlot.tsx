@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { trackAd } from "@/lib/analytics/tracker";
@@ -12,6 +12,35 @@ declare global {
 }
 
 const CLIENT = (import.meta.env.VITE_ADSENSE_CLIENT as string | undefined) || "";
+
+/** Bật AdSense "test mode" (data-adtest="on") khi:
+ *  - `VITE_ADSENSE_TEST=on` (override thủ công), HOẶC
+ *  - đang chạy ở dev (`import.meta.env.DEV`), HOẶC
+ *  - hostname không phải production (localhost, *.lovable.app preview, IP).
+ *  Test mode cho phép render ad placeholder để verify layout mà KHÔNG tính
+ *  impression/CTR thật → không vi phạm chính sách AdSense. */
+const TEST_ENV_FLAG =
+  String(import.meta.env.VITE_ADSENSE_TEST ?? "").toLowerCase() === "on";
+const PROD_HOSTS = new Set([
+  "marketwatch.vn",
+  "www.marketwatch.vn",
+  "market-insight-vn.lovable.app",
+]);
+function detectTestMode(): boolean {
+  if (TEST_ENV_FLAG) return true;
+  if (import.meta.env.DEV) return true;
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  if (!host) return false;
+  if (PROD_HOSTS.has(host)) return false;
+  // Bất kỳ preview/staging/localhost nào → test mode.
+  return (
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".lovable.app") ||
+    /^\d+\.\d+\.\d+\.\d+$/.test(host)
+  );
+}
 
 /** Bắn analytics cho lifecycle của một ad slot.
  *  - `ad_view`: slot đã nằm trong viewport (≥ 50% trong ≥ 1s).
@@ -102,6 +131,12 @@ export function AdSlot({
   hideLabel,
 }: AdSlotProps) {
   const { prefs, decided } = useCookieConsent();
+  // Tính test mode sau khi mount để tránh hydration mismatch (SSR không biết
+  // hostname). Default = false ⇒ SSR markup khớp với production host.
+  const [testMode, setTestMode] = useState<boolean>(TEST_ENV_FLAG || import.meta.env.DEV);
+  useEffect(() => {
+    setTestMode(detectTestMode());
+  }, []);
   // AdSense yêu cầu đồng ý nhóm "marketing"; tracking sự kiện ad_view /
   // ad_render thuộc nhóm "analytics".
   const adsAllowed = decided && prefs.marketing;
@@ -288,6 +323,7 @@ export function AdSlot({
             data-ad-slot={slot}
             data-ad-format={format}
             {...(layout ? { "data-ad-layout": layout } : {})}
+            {...(testMode ? { "data-adtest": "on" } : {})}
             data-full-width-responsive="true"
           />
         ) : null}
