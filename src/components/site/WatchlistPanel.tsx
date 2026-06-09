@@ -346,6 +346,17 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
             })}
           </ul>
 
+          {overflow && (
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              className="w-full flex items-center justify-center gap-1.5 border-t border-border px-5 md:px-6 py-3 text-[13px] font-semibold text-[var(--gold)] hover:bg-[color-mix(in_oklab,var(--gold)_5%,transparent)] transition-colors"
+            >
+              Xem tất cả ({hiddenCount} tài sản khác)
+              <ChevronDown className="h-3.5 w-3.5" />
+            </button>
+          )}
+
           <div className="flex justify-end border-t border-border px-5 md:px-6 py-3.5 bg-[color-mix(in_oklab,var(--gold)_2.5%,transparent)]">
             <a
               href="/cai-dat/canh-bao"
