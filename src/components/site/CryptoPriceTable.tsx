@@ -14,7 +14,6 @@ import { fmtCompactUSD, fmtUSD, fmtVND, fmtSmartVND } from "@/lib/format";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 import { AnimatedNumber } from "./AnimatedNumber";
-import { ChangeBadge } from "./ChangeBadge";
 import { Sparkline } from "./Sparkline";
 import { SectionCard } from "./SectionCard";
 import { Button } from "@/components/ui/button";
@@ -200,11 +199,6 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   <SortBtn k="priceVnd" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden md:table-cell`}
-                >
-                  <SortBtn k="change24h" shortLabel="24h" />
-                </th>
-                <th
                   className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden lg:table-cell`}
                 >
                   <SortBtn k="marketCap" />
@@ -266,9 +260,6 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       noFlash
                       format={(v) => fmtSmartVND(v, compact)}
                     />
-                  </td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap hidden md:table-cell">
-                    <ChangeBadge value={c.change24h} />
                   </td>
                   <td className="px-4 py-3 text-right text-muted-foreground hidden lg:table-cell">
                     <AnimatedNumber
