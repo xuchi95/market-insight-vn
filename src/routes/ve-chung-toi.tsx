@@ -90,7 +90,7 @@ function AboutPage() {
             <section aria-labelledby="how" className="space-y-4">
               <h2 id="how" className="text-2xl font-bold tracking-tight">Phương pháp thu thập dữ liệu</h2>
               <p className="text-muted-foreground">
-                Mọi chỉ số trên MarketWatch đều được <strong>thu thập tự động</strong> qua API công khai và các nguồn dữ liệu thị trường được công bố rộng rãi. Chi tiết từng nhóm dữ liệu (vàng, crypto, ngoại tệ, lãi suất, xăng dầu, chứng khoán) — <em>lấy từ đâu, tần suất cập nhật, múi giờ, cách quy đổi VND</em> — được liệt kê tại <Link to="/nguon-du-lieu" className="text-primary hover:underline">trang Nguồn dữ liệu &amp; phương pháp tính</Link>.
+                Mọi chỉ số trên MarketWatch đều được <strong>thu thập tự động</strong> qua API công khai và các nguồn dữ liệu thị trường được công bố rộng rãi. Chi tiết từng nhóm dữ liệu (vàng, crypto, ngoại tệ, lãi suất, xăng dầu, chứng khoán) — <em>lấy từ đâu, tần suất cập nhật, múi giờ, cách quy đổi VND</em> — được mô tả đầy đủ trong <Link to="/nguon-du-lieu" className="text-primary hover:underline">tài liệu cách MarketWatch tổng hợp dữ liệu tài chính</Link>.
               </p>
               <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                 <li>Crawler tự động, không có biên tập viên can thiệp vào con số.</li>
