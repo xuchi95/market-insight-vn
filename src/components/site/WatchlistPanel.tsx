@@ -7,6 +7,8 @@ import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { fmtSmartVND, fmtSmartUSD } from "@/lib/format";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +48,8 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
   const [fx, setFx] = useState<ForexRate[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [loadingPrices, setLoadingPrices] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -59,6 +63,16 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
       setGold(g);
       setCrypto(c);
       setFx(f);
+      setLoadingPrices(false);
+      setLastUpdated((prev) => {
+        if (prev !== null) {
+          toast.success("Dữ liệu theo dõi đã cập nhật", {
+            description: "Giá vàng, crypto và ngoại tệ vừa được làm mới.",
+            duration: 2400,
+          });
+        }
+        return Date.now();
+      });
     };
     load();
     const t = setInterval(load, 30_000);
@@ -221,7 +235,7 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
             </div>
             {!isEmpty && (
               <div className="text-xs text-muted-foreground mt-1 tabular">
-                {list.length} tài sản · cập nhật vừa rồi
+                {list.length} tài sản · {loadingPrices && !lastUpdated ? "đang tải…" : "cập nhật vừa rồi"}
               </div>
             )}
           </div>
@@ -311,6 +325,8 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
                           {q.unit && <span className="ml-0.5 text-[11.5px] font-semibold text-muted-foreground">{q.unit}</span>}
                         </div>
                       </>
+                    ) : loadingPrices ? (
+                      <Skeleton className="h-4 w-20 ml-auto" />
                     ) : (
                       <div className="text-xs text-muted-foreground italic">—</div>
                     )}
@@ -329,6 +345,8 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
                         <span aria-hidden className="text-[0.7em] leading-none">{up ? "▲" : "▼"}</span>
                         {Math.abs(change).toFixed(2)}%
                       </span>
+                    ) : loadingPrices ? (
+                      <Skeleton className="h-5 w-12" />
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
                     )}
