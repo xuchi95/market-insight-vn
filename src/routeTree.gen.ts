@@ -19,6 +19,7 @@ import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
 import { Route as TinhLaiSuatTietKiemRouteImport } from './routes/tinh-lai-suat-tiet-kiem'
 import { Route as TienDienTuRouteImport } from './routes/tien-dien-tu'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TaiKhoanBiCamRouteImport } from './routes/tai-khoan-bi-cam'
 import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
@@ -176,6 +177,11 @@ const TienDienTuRoute = TienDienTuRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TaiKhoanBiCamRoute = TaiKhoanBiCamRouteImport.update({
+  id: '/tai-khoan-bi-cam',
+  path: '/tai-khoan-bi-cam',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StocksRoute = StocksRouteImport.update({
@@ -772,6 +778,7 @@ export interface FileRoutesByFullPath {
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
+  '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
@@ -891,6 +898,7 @@ export interface FileRoutesByTo {
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
+  '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
@@ -1012,6 +1020,7 @@ export interface FileRoutesById {
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
+  '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
@@ -1133,6 +1142,7 @@ export interface FileRouteTypes {
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
+    | '/tai-khoan-bi-cam'
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
@@ -1252,6 +1262,7 @@ export interface FileRouteTypes {
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
+    | '/tai-khoan-bi-cam'
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
@@ -1372,6 +1383,7 @@ export interface FileRouteTypes {
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
+    | '/tai-khoan-bi-cam'
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
@@ -1493,6 +1505,7 @@ export interface RootRouteChildren {
   QuyDoiTienTeRoute: typeof QuyDoiTienTeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StocksRoute: typeof StocksRoute
+  TaiKhoanBiCamRoute: typeof TaiKhoanBiCamRoute
   TermsRoute: typeof TermsRoute
   TienDienTuRoute: typeof TienDienTuRoute
   TinhLaiSuatTietKiemRoute: typeof TinhLaiSuatTietKiemRoute
@@ -1631,6 +1644,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tai-khoan-bi-cam': {
+      id: '/tai-khoan-bi-cam'
+      path: '/tai-khoan-bi-cam'
+      fullPath: '/tai-khoan-bi-cam'
+      preLoaderRoute: typeof TaiKhoanBiCamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stocks': {
@@ -2472,6 +2492,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuyDoiTienTeRoute: QuyDoiTienTeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StocksRoute: StocksRoute,
+  TaiKhoanBiCamRoute: TaiKhoanBiCamRoute,
   TermsRoute: TermsRoute,
   TienDienTuRoute: TienDienTuRoute,
   TinhLaiSuatTietKiemRoute: TinhLaiSuatTietKiemRoute,
