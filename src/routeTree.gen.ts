@@ -108,6 +108,7 @@ import { Route as AdminMwAdminNewsletterRouteImport } from './routes/_admin/mw-a
 import { Route as AdminMwAdminNewsSettingsRouteImport } from './routes/_admin/mw-admin.news-settings'
 import { Route as AdminMwAdminFuelPricesRouteImport } from './routes/_admin/mw-admin.fuel-prices'
 import { Route as AdminMwAdminEmailPreviewRouteImport } from './routes/_admin/mw-admin.email-preview'
+import { Route as AdminMwAdminCronActivityRouteImport } from './routes/_admin/mw-admin.cron-activity'
 import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admin.contact'
 import { Route as AdminMwAdminCodeInjectionRouteImport } from './routes/_admin/mw-admin.code-injection'
 import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
@@ -632,6 +633,12 @@ const AdminMwAdminEmailPreviewRoute =
     path: '/mw-admin/email-preview',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminMwAdminCronActivityRoute =
+  AdminMwAdminCronActivityRouteImport.update({
+    id: '/mw-admin/cron-activity',
+    path: '/mw-admin/cron-activity',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminMwAdminContactRoute = AdminMwAdminContactRouteImport.update({
   id: '/mw-admin/contact',
   path: '/mw-admin/contact',
@@ -787,6 +794,7 @@ export interface FileRoutesByFullPath {
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/mw-admin/cron-activity': typeof AdminMwAdminCronActivityRoute
   '/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
   '/mw-admin/news-settings': typeof AdminMwAdminNewsSettingsRoute
@@ -904,6 +912,7 @@ export interface FileRoutesByTo {
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/mw-admin/cron-activity': typeof AdminMwAdminCronActivityRoute
   '/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
   '/mw-admin/news-settings': typeof AdminMwAdminNewsSettingsRoute
@@ -1023,6 +1032,7 @@ export interface FileRoutesById {
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/_admin/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/_admin/mw-admin/contact': typeof AdminMwAdminContactRoute
+  '/_admin/mw-admin/cron-activity': typeof AdminMwAdminCronActivityRoute
   '/_admin/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/_admin/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
   '/_admin/mw-admin/news-settings': typeof AdminMwAdminNewsSettingsRoute
@@ -1142,6 +1152,7 @@ export interface FileRouteTypes {
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
+    | '/mw-admin/cron-activity'
     | '/mw-admin/email-preview'
     | '/mw-admin/fuel-prices'
     | '/mw-admin/news-settings'
@@ -1259,6 +1270,7 @@ export interface FileRouteTypes {
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
+    | '/mw-admin/cron-activity'
     | '/mw-admin/email-preview'
     | '/mw-admin/fuel-prices'
     | '/mw-admin/news-settings'
@@ -1377,6 +1389,7 @@ export interface FileRouteTypes {
     | '/_admin/mw-admin/broadcasts'
     | '/_admin/mw-admin/code-injection'
     | '/_admin/mw-admin/contact'
+    | '/_admin/mw-admin/cron-activity'
     | '/_admin/mw-admin/email-preview'
     | '/_admin/mw-admin/fuel-prices'
     | '/_admin/mw-admin/news-settings'
@@ -2230,6 +2243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminEmailPreviewRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/cron-activity': {
+      id: '/_admin/mw-admin/cron-activity'
+      path: '/mw-admin/cron-activity'
+      fullPath: '/mw-admin/cron-activity'
+      preLoaderRoute: typeof AdminMwAdminCronActivityRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/contact': {
       id: '/_admin/mw-admin/contact'
       path: '/mw-admin/contact'
@@ -2359,6 +2379,7 @@ interface AdminRouteChildren {
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
   AdminMwAdminCodeInjectionRoute: typeof AdminMwAdminCodeInjectionRoute
   AdminMwAdminContactRoute: typeof AdminMwAdminContactRoute
+  AdminMwAdminCronActivityRoute: typeof AdminMwAdminCronActivityRoute
   AdminMwAdminEmailPreviewRoute: typeof AdminMwAdminEmailPreviewRoute
   AdminMwAdminFuelPricesRoute: typeof AdminMwAdminFuelPricesRoute
   AdminMwAdminNewsSettingsRoute: typeof AdminMwAdminNewsSettingsRoute
@@ -2380,6 +2401,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
   AdminMwAdminCodeInjectionRoute: AdminMwAdminCodeInjectionRoute,
   AdminMwAdminContactRoute: AdminMwAdminContactRoute,
+  AdminMwAdminCronActivityRoute: AdminMwAdminCronActivityRoute,
   AdminMwAdminEmailPreviewRoute: AdminMwAdminEmailPreviewRoute,
   AdminMwAdminFuelPricesRoute: AdminMwAdminFuelPricesRoute,
   AdminMwAdminNewsSettingsRoute: AdminMwAdminNewsSettingsRoute,
