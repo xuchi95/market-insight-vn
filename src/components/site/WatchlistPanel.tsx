@@ -310,7 +310,7 @@ export function WatchlistPanel() {
                   </div>
 
                   {/* Change pill + remove */}
-                  <div className="col-start-2 md:col-start-auto row-start-2 md:row-start-auto flex items-center gap-1.5 justify-start md:justify-end -mt-1 md:mt-0">
+                  <div className="col-start-2 row-start-3 md:row-start-auto md:col-start-auto flex items-center gap-1.5 justify-start md:justify-end -mt-1 md:mt-0">
                     {q && q.changePct !== null ? (
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[9px] text-[12.5px] font-bold tabular tracking-tight ${
