@@ -141,12 +141,14 @@ export function AdSlot({
     setTestMode(detectTestMode());
   }, []);
   // AdSense yêu cầu đồng ý nhóm "marketing"; tracking sự kiện ad_view /
-  // ad_render thuộc nhóm "analytics".
+  // ad_render thuộc nhóm "analytics". Ở testMode KHÔNG bắn analytics để
+  // tránh làm sai impression/CTR thật.
   const adsAllowed = decided && prefs.marketing;
-  const analyticsAllowed = decided && prefs.analytics;
+  const analyticsAllowed = decided && prefs.analytics && !testMode;
   const pushed = useRef(false);
   const viewed = useRef(false);
   const rendered = useRef(false);
+  const clicked = useRef(false);
   const insRef = useRef<HTMLModElement | null>(null);
   const frameRef = useRef<HTMLDivElement | null>(null);
 
@@ -171,10 +173,10 @@ export function AdSlot({
         if (rendered.current) return true;
         const status = el.getAttribute("data-ad-status");
         const rect = el.getBoundingClientRect();
-        // AdSense set data-ad-status="filled" khi render thành công,
-        // hoặc "unfilled" khi không có ad. Coi cả 2 đều là đã "render".
+        // CHỈ tính fill khi AdSense xác nhận "filled" + có iframe + height>1.
+        // Bỏ "unfilled" để fill rate (render/request) chính xác.
         const hasIframe = !!el.querySelector("iframe");
-        if ((status === "filled" || hasIframe) && rect.height > 1) {
+        if (status === "filled" && hasIframe && rect.height > 1) {
           rendered.current = true;
           if (analyticsAllowed) {
             trackAdEvent("ad_render", { slot, placement, format });
@@ -191,30 +193,57 @@ export function AdSlot({
       renderRo.observe(el);
     };
 
-    // Theo dõi "viewable impression": ≥50% trong ≥1s (gần với chuẩn IAB).
+    // IAB MRC viewable impression: ≥50% pixel hiển thị trong ≥1s liên tục
+    // KHI tab visible. Tab ẩn / cuộn ra khỏi viewport ⇒ reset timer.
     const watchView = () => {
       if (viewed.current) return;
+      const fireIfReady = (visible: boolean) => {
+        if (viewed.current) return;
+        if (!visible || document.visibilityState !== "visible") {
+          if (viewTimer) { clearTimeout(viewTimer); viewTimer = null; }
+          return;
+        }
+        if (viewTimer) return;
+        viewTimer = setTimeout(() => {
+          if (cancelled || viewed.current) return;
+          viewed.current = true;
+          trackAdEvent("ad_view", { slot, placement, format });
+          viewIo?.disconnect();
+          document.removeEventListener("visibilitychange", onVis);
+        }, 1000);
+      };
+      let lastVisible = false;
+      const onVis = () => fireIfReady(lastVisible);
+      document.addEventListener("visibilitychange", onVis);
       viewIo = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
-            if (entry.intersectionRatio >= 0.5) {
-              if (viewTimer) continue;
-              viewTimer = setTimeout(() => {
-                if (cancelled || viewed.current) return;
-                viewed.current = true;
-                trackAdEvent("ad_view", { slot, placement, format });
-                viewIo?.disconnect();
-              }, 1000);
-            } else if (viewTimer) {
-              clearTimeout(viewTimer);
-              viewTimer = null;
-            }
+            lastVisible = entry.intersectionRatio >= 0.5;
+            fireIfReady(lastVisible);
           }
         },
         { threshold: [0, 0.5, 1] },
       );
       viewIo.observe(frame);
     };
+
+    // Heuristic đếm click: AdSense iframe cross-origin nên không nghe trực
+    // tiếp được click. Khi window mất focus và activeElement là iframe nằm
+    // trong slot → người dùng vừa click ad. Chuẩn ngành (GA4, Quantcast).
+    const onBlur = () => {
+      if (clicked.current) return;
+      // Dùng timeout 0 để document.activeElement cập nhật xong.
+      setTimeout(() => {
+        if (clicked.current || cancelled) return;
+        const active = document.activeElement;
+        if (!active || active.tagName !== "IFRAME") return;
+        if (!frame.contains(active)) return;
+        clicked.current = true;
+        if (analyticsAllowed) trackAdEvent("ad_click", { slot, placement, format });
+        window.removeEventListener("blur", onBlur);
+      }, 0);
+    };
+    if (analyticsAllowed) window.addEventListener("blur", onBlur);
 
     const tryPush = () => {
       if (cancelled || pushed.current) return false;
@@ -223,6 +252,7 @@ export function AdSlot({
       pushed.current = true;
       try {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
+        if (analyticsAllowed) trackAdEvent("ad_request", { slot, placement, format });
       } catch {
         /* noop */
       }
@@ -271,6 +301,7 @@ export function AdSlot({
       viewIo?.disconnect();
       renderRo?.disconnect();
       if (viewTimer) clearTimeout(viewTimer);
+      window.removeEventListener("blur", onBlur);
     };
   }, [slot, placement, format, adsAllowed, analyticsAllowed]);
 
