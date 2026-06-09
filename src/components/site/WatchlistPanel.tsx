@@ -31,7 +31,7 @@ type Quote = {
 };
 
 const QUICK_ADD: WatchItem[] = [
-  { symbol: "sjc-1l", label: "Vàng SJC 1L", category: "Vàng", to: "/tai-san/sjc-1l" },
+  { symbol: "gold-sjc-1l", label: "Vàng SJC 1L", category: "Vàng", to: "/tai-san/gold-sjc-1l" },
   { symbol: "BTC", label: "Bitcoin", category: "Tiền điện tử", to: "/tai-san/btc" },
   { symbol: "USD", label: "USD/VND", category: "Ngoại tệ", to: "/tai-san/usd" },
 ];
@@ -68,7 +68,8 @@ export function WatchlistPanel() {
   const resolveQuote = useMemo(() => {
     return (item: WatchItem): Quote | null => {
       const sym = item.symbol.toLowerCase();
-      const g = gold.find((x) => x.id.toLowerCase() === sym);
+      const goldKey = sym.startsWith("gold-") ? sym.slice("gold-".length) : sym;
+      const g = gold.find((x) => x.id.toLowerCase() === goldKey);
       if (g) {
         const mid = g.mid ?? (g.buy + g.sell) / 2;
         // Compact mode: show price in "triệu ₫" / "tỷ ₫" matching the
@@ -92,10 +93,10 @@ export function WatchlistPanel() {
 
   const allOptions = useMemo<WatchItem[]>(() => {
     const goldOpts: WatchItem[] = gold.map((g) => ({
-      symbol: g.id,
+      symbol: `gold-${g.id.toLowerCase()}`,
       label: `${g.brand} ${g.type}`.trim(),
       category: "Vàng",
-      to: `/tai-san/${g.id.toLowerCase()}`,
+      to: `/tai-san/gold-${g.id.toLowerCase()}`,
     }));
     const cryptoOpts: WatchItem[] = crypto.map((c) => ({
       symbol: c.symbol.toUpperCase(),
