@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AdSlot } from "./AdSlot";
 
 /** Hai cột quảng cáo dọc (skyscraper 160×600) cố định hai bên nội dung,
@@ -32,7 +33,13 @@ function Rail({ side, slot }: { side: "left" | "right"; slot: string }) {
 export function SideAdRails() {
   // Không có slot nào được cấu hình → không render gì cả, layout chính
   // giữ nguyên width như chưa có ad rail.
-  if (!LEFT && !RIGHT) return null;
+  const active = Boolean(LEFT || RIGHT);
+  useEffect(() => {
+    if (typeof document === "undefined" || !active) return;
+    document.body.classList.add("with-ad-rails");
+    return () => document.body.classList.remove("with-ad-rails");
+  }, [active]);
+  if (!active) return null;
   return (
     <>
       <Rail side="left" slot={LEFT} />
