@@ -271,7 +271,7 @@ export function CookieConsent() {
           <div className="relative">
             {!showDetails ? (
               <div className="px-4 pb-5 pt-4 sm:px-5 sm:pb-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <h2 id="mw-cookie-title" className="font-display text-lg leading-snug text-foreground sm:text-xl">
+                <h2 id="mw-cookie-title" className="text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl">
                   Chúng tôi dùng <span className="text-[var(--gold)]">cookie</span> để giữ phiên đăng nhập và đo lường hiệu năng.
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -314,7 +314,7 @@ export function CookieConsent() {
             ) : (
               <div className="flex max-h-[78vh] flex-col sm:max-h-none">
                 <div className="overflow-y-auto px-4 pb-4 pt-4 sm:px-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <h2 id="mw-cookie-title" className="font-display text-lg leading-snug text-foreground sm:text-xl">
+                  <h2 id="mw-cookie-title" className="text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl">
                     Tuỳ chỉnh <span className="text-[var(--gold)]">Cookie</span>
                   </h2>
                   <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
