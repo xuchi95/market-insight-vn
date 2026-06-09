@@ -244,7 +244,7 @@ export function WatchlistPanel() {
       ) : (
         <>
           {/* Column header */}
-          <div className="hidden sm:grid grid-cols-[52px_minmax(0,1fr)_auto_auto] gap-4 items-center px-5 md:px-6 py-3 border-y border-border bg-[color-mix(in_oklab,var(--gold)_3%,transparent)]">
+          <div className="hidden md:grid grid-cols-[52px_minmax(0,1fr)_auto_auto] gap-4 items-center px-5 md:px-6 py-3 border-y border-border bg-[color-mix(in_oklab,var(--gold)_3%,transparent)]">
             <span />
             <span className="text-[10.5px] font-bold tracking-[0.09em] uppercase text-muted-foreground">Tài sản</span>
             <span className="text-[10.5px] font-bold tracking-[0.09em] uppercase text-muted-foreground text-right">Giá hiện tại</span>
@@ -271,10 +271,10 @@ export function WatchlistPanel() {
               return (
                 <li
                   key={item.symbol}
-                  className="group grid grid-cols-[52px_minmax(0,1fr)_auto_auto] gap-4 items-center px-5 md:px-6 py-4 border-b border-border/60 last:border-b-0 transition-colors hover:bg-[linear-gradient(90deg,color-mix(in_oklab,var(--gold)_6%,transparent),color-mix(in_oklab,var(--gold)_1.5%,transparent))]"
+                  className="group grid grid-cols-[46px_minmax(0,1fr)] md:grid-cols-[52px_minmax(0,1fr)_auto_auto] gap-x-3 gap-y-2 md:gap-4 items-center px-4 md:px-6 py-4 border-b border-border/60 last:border-b-0 transition-colors hover:bg-[linear-gradient(90deg,color-mix(in_oklab,var(--gold)_6%,transparent),color-mix(in_oklab,var(--gold)_1.5%,transparent))]"
                 >
                   {/* Tile */}
-                  <div className={`relative h-[46px] w-[46px] rounded-[14px] grid place-items-center font-bold text-[12px] tracking-wide overflow-hidden shadow-[inset_0_1px_0_color-mix(in_oklab,white_40%,transparent),0_3px_8px_-4px_color-mix(in_oklab,var(--foreground)_30%,transparent)] ${tileGradient}`}>
+                  <div className={`relative h-[46px] w-[46px] rounded-[14px] grid place-items-center font-bold text-[12px] tracking-wide overflow-hidden shadow-[inset_0_1px_0_color-mix(in_oklab,white_40%,transparent),0_3px_8px_-4px_color-mix(in_oklab,var(--foreground)_30%,transparent)] row-span-2 md:row-span-1 ${tileGradient}`}>
                     <span className="relative z-10 px-1 truncate max-w-full">{item.symbol.slice(0, 4)}</span>
                     <span className="absolute inset-0 bg-[radial-gradient(60%_60%_at_30%_22%,color-mix(in_oklab,white_45%,transparent),transparent_60%)] pointer-events-none" />
                   </div>
@@ -287,19 +287,19 @@ export function WatchlistPanel() {
                     >
                       {item.label}
                     </a>
-                    <div className="flex items-center gap-1.5 mt-1 text-[12px] text-muted-foreground">
+                    <div className="flex items-center gap-1.5 mt-1 text-[12px] text-muted-foreground min-w-0">
                       <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
-                      {item.category}
+                      <span className="truncate">{item.category}</span>
                       <span className="opacity-50">·</span>
-                      <span className="tabular text-[10.5px] font-semibold tracking-wider uppercase opacity-80">{item.symbol}</span>
+                      <span className="tabular text-[10.5px] font-semibold tracking-wider uppercase opacity-80 truncate">{item.symbol}</span>
                     </div>
                   </div>
 
                   {/* Price */}
-                  <div className="text-right tabular whitespace-nowrap">
+                  <div className="col-start-2 md:col-start-auto text-left md:text-right tabular whitespace-nowrap min-w-0">
                     {q ? (
                       <>
-                        <div className="text-[15px] font-bold tracking-tight text-foreground">
+                        <div className="text-[15px] font-bold tracking-tight text-foreground truncate">
                           {q.priceLabel}
                           {q.unit && <span className="ml-0.5 text-[11.5px] font-semibold text-muted-foreground">{q.unit}</span>}
                         </div>
@@ -310,7 +310,7 @@ export function WatchlistPanel() {
                   </div>
 
                   {/* Change pill + remove */}
-                  <div className="flex items-center gap-1.5 justify-end">
+                  <div className="col-start-2 row-start-3 md:row-start-auto md:col-start-auto flex items-center gap-1.5 justify-start md:justify-end -mt-1 md:mt-0">
                     {q && q.changePct !== null ? (
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[9px] text-[12.5px] font-bold tabular tracking-tight ${
@@ -329,7 +329,7 @@ export function WatchlistPanel() {
                       type="button"
                       onClick={() => void remove(item.symbol)}
                       aria-label={`Xoá ${item.label}`}
-                      className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
