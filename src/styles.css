@@ -418,3 +418,27 @@ section.policy-prose {
     text-decoration-color: var(--primary);
   }
 }
+
+/* ────────────── Google AdSense safety rules ──────────────
+   - Ngăn iframe / ins quảng cáo tràn viewport trên mobile.
+   - Bắt buộc display:block để AdSense đo được width chính xác.
+*/
+ins.adsbygoogle,
+ins.adsbygoogle * {
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+ins.adsbygoogle {
+  display: block !important;
+  overflow: hidden !important;
+  width: 100% !important;
+}
+ins.adsbygoogle iframe {
+  max-width: 100% !important;
+}
+/* Tránh tràn ngang toàn site do nội dung quảng cáo / bảng rộng */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
