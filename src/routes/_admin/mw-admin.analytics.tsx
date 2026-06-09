@@ -103,6 +103,12 @@ function AnalyticsPage() {
 
       <div className="rounded-lg border border-border bg-card/40 p-3 text-sm">
         CTR quảng cáo: <span className="font-semibold">{((cur?.ctr ?? 0) * 100).toFixed(2)}%</span>
+        <span className="mx-3 text-muted-foreground">·</span>
+        Fill rate: <span className="font-semibold">{((cur?.fillRate ?? 0) * 100).toFixed(2)}%</span>
+        <span className="mx-3 text-muted-foreground">·</span>
+        Ad requests: <span className="font-semibold">{fmt(cur?.adRequests ?? 0)}</span>
+        <span className="mx-3 text-muted-foreground">·</span>
+        Renders: <span className="font-semibold">{fmt(cur?.adRenders ?? 0)}</span>
       </div>
 
       {/* Timeseries */}

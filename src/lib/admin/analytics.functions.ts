@@ -32,7 +32,7 @@ export const getAnalyticsOverview = createServerFn({ method: "POST" })
     };
 
     const summarize = (rows: Row[]) => {
-      let pageviews = 0, adView = 0, adRender = 0, adClick = 0;
+      let pageviews = 0, adView = 0, adRender = 0, adRequest = 0, adClick = 0;
       let dwellSum = 0, dwellCount = 0;
       const sessions = new Set<string>();
       const anons = new Set<string>();
@@ -42,6 +42,7 @@ export const getAnalyticsOverview = createServerFn({ method: "POST" })
         if (r.event_type === "pageview") pageviews++;
         else if (r.event_type === "ad_view") adView++;
         else if (r.event_type === "ad_render") adRender++;
+        else if (r.event_type === "ad_request") adRequest++;
         else if (r.event_type === "ad_click") adClick++;
         else if (r.event_type === "dwell" && r.value != null) {
           dwellSum += Number(r.value);
@@ -54,8 +55,10 @@ export const getAnalyticsOverview = createServerFn({ method: "POST" })
         uniques: anons.size,
         adImpressions: adView,
         adRenders: adRender,
+        adRequests: adRequest,
         adClicks: adClick,
         ctr: adView > 0 ? adClick / adView : 0,
+        fillRate: adRequest > 0 ? adRender / adRequest : 0,
         avgDwell: dwellCount > 0 ? dwellSum / dwellCount : 0,
       };
     };

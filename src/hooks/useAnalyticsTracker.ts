@@ -16,6 +16,7 @@ import {
 export function useAnalyticsTracker() {
   const router = useRouter();
   const lastRouteRef = useRef<string | null>(null);
+  const lastPageviewAtRef = useRef<number>(0);
   const dwellStartRef = useRef<number>(Date.now());
   const scrollHitRef = useRef<Set<number>>(new Set());
 
@@ -24,13 +25,17 @@ export function useAnalyticsTracker() {
     const fire = () => {
       const route = getCurrentRoute();
       if (lastRouteRef.current === route) return;
+      // Dedupe: cùng route trong <500ms = router resolve lại, không đếm.
+      const now = Date.now();
+      if (now - lastPageviewAtRef.current < 500 && lastRouteRef.current === route) return;
       // Dwell của route trước đó.
       if (lastRouteRef.current) {
-        const secs = (Date.now() - dwellStartRef.current) / 1000;
+        const secs = (now - dwellStartRef.current) / 1000;
         if (secs >= 2 && secs < 60 * 30) trackDwell(secs);
       }
       lastRouteRef.current = route;
-      dwellStartRef.current = Date.now();
+      dwellStartRef.current = now;
+      lastPageviewAtRef.current = now;
       scrollHitRef.current = new Set();
       trackPageview(route);
     };
