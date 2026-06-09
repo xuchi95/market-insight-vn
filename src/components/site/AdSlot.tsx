@@ -135,7 +135,9 @@ export function AdSlot({
         const hasIframe = !!el.querySelector("iframe");
         if ((status === "filled" || hasIframe) && rect.height > 1) {
           rendered.current = true;
-          trackAdEvent("ad_render", { slot, placement, format });
+          if (analyticsAllowed) {
+            trackAdEvent("ad_render", { slot, placement, format });
+          }
           renderRo?.disconnect();
           return true;
         }
@@ -184,7 +186,7 @@ export function AdSlot({
         /* noop */
       }
       watchRender();
-      watchView();
+      if (analyticsAllowed) watchView();
       ro?.disconnect();
       io?.disconnect();
       return true;
@@ -229,11 +231,14 @@ export function AdSlot({
       renderRo?.disconnect();
       if (viewTimer) clearTimeout(viewTimer);
     };
-  }, [slot, placement, format]);
+  }, [slot, placement, format, adsAllowed, analyticsAllowed]);
 
   // No client configured AND no manually-pasted unit → render nothing
   // (don't reserve space, don't show empty box).
   if (!CLIENT && !children) return null;
+  // Chưa có quyết định cookie hoặc người dùng từ chối nhóm marketing →
+  // không render slot AdSense / raw unit và không reserve khoảng trống.
+  if (!adsAllowed) return null;
 
   const reserved = minHeight ?? DEFAULT_MIN_H[placement];
   const responsive = RESPONSIVE_MIN_H[placement];
