@@ -157,12 +157,12 @@
    * desktop. Because Tailwind sizes (text-sm, text-base, …) are rem-based,
    * raising the html font-size scales the entire UI proportionally without
    * touching every component. Tuned to be noticeable but not "quá lố". */
-  html { font-size: 18px; }                 /* mobile base: 16 → 18 (+12.5%) */
+  html { font-size: 15px; }                 /* mobile base — compact */
   @media (min-width: 768px) {
-    html { font-size: 19px; }               /* tablet: 16 → 19 (+18.75%) */
+    html { font-size: 15.5px; }             /* tablet */
   }
   @media (min-width: 1024px) {
-    html { font-size: 20px; }               /* desktop: 16 → 20 (+25%) */
+    html { font-size: 16px; }               /* desktop — chuẩn 16px */
   }
   body {
     background-color: var(--color-background);
@@ -478,6 +478,16 @@ main {
   img, video, iframe, table, pre, svg {
     max-width: 100%;
   }
+}
+
+/* Thu hẹp cột nội dung mặc định trên desktop để chừa khoảng trống hai
+ * bên (chuẩn bị chỗ cho ad rails sau này, đồng thời tránh dòng văn bản
+ * quá dài khó đọc trên màn hình rộng). */
+@media (min-width: 1280px) {
+  .max-w-6xl { max-width: 60rem; }
+}
+@media (min-width: 1536px) {
+  .max-w-6xl { max-width: 64rem; }
 }
 
 /* ──────────────────────────────────────────────────────────────────────
