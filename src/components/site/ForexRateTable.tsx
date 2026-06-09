@@ -5,7 +5,6 @@ import { Link } from "@tanstack/react-router";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fmtNum, fmtTime } from "@/lib/format";
 import { AnimatedNumber } from "./AnimatedNumber";
-import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
