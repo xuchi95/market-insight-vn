@@ -669,28 +669,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             >
               Tổng quan
             </Link>
-            {/* Mobile watchlist */}
-            {list.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 px-1">
-                  Theo dõi
-                </div>
-                <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background/40 p-1">
-                  {list.map((item) => (
-                    <Link
-                      key={item.symbol}
-                      to={item.to}
-                      activeOptions={{ exact: true }}
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-foreground/90 hover:bg-accent data-[status=active]:bg-accent/70 data-[status=active]:text-[var(--gold)]"
-                    >
-                      <Star className="h-3 w-3 text-[var(--gold)] shrink-0" />
-                      <span className="truncate">{item.symbol}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Mobile watchlist removed to keep menu compact — full watchlist available on home page */}
             {NAV_GROUPS.map((group) => (
               <div key={group.label} className="space-y-1.5">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 px-1">
