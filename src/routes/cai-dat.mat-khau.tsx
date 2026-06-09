@@ -110,7 +110,7 @@ function ChangePasswordPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="mx-auto max-w-2xl px-5 py-10">
+      <main className="mx-auto max-w-6xl px-5 py-10">
         <nav className="mb-6 text-xs text-muted-foreground">
           <Link to="/" className="hover:text-foreground">Trang chủ</Link>
           <span className="mx-2 opacity-50">/</span>
