@@ -67,7 +67,7 @@ function DcaRoiPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <div className="mx-auto max-w-5xl px-5 py-8">
+        <div className="mx-auto max-w-6xl px-5 py-8">
           <Breadcrumbs />
           <header className="mt-4 mb-8">
             <h1 className="font-display text-3xl md:text-5xl">Máy tính DCA &amp; ROI</h1>

@@ -184,7 +184,7 @@ function ApiKeyRequestPage() {
 
   if (submitted) {
     return (
-      <main className="mx-auto max-w-2xl px-5 py-16">
+      <main className="mx-auto max-w-6xl px-5 py-16">
         <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-8 text-center">
           <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[var(--gold)]/15">
             <CheckCircle2 className="h-8 w-8 text-[var(--gold)]" />
@@ -217,7 +217,7 @@ function ApiKeyRequestPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-10 md:py-14">
+    <main className="mx-auto max-w-6xl px-5 py-10 md:py-14">
       <div className="mb-8">
         <Link
           to="/api-cho-nha-phat-trien"

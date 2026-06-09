@@ -100,7 +100,7 @@ function ForexPage() {
     <div className="min-h-screen flex flex-col">
       <Header onSearch={setSearch} />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-10 space-y-8">
+        <div className="mx-auto max-w-6xl px-5 py-8 lg:py-10 space-y-8">
           <Breadcrumbs />
           <header className="space-y-2">
             <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Giá USD hôm nay — Tỷ giá EUR, JPY, CNY, GBP realtime</h1>

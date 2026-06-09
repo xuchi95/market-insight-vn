@@ -67,7 +67,7 @@ function DeveloperApiPage() {
     typeof window !== "undefined" ? window.location.origin : "https://marketwatch.vn";
 
   return (
-    <main className="mx-auto max-w-5xl px-5 py-12">
+    <main className="mx-auto max-w-6xl px-5 py-12">
       <div className="text-[11px] uppercase tracking-[0.2em] text-[var(--gold)]">
         Dành cho nhà phát triển
       </div>

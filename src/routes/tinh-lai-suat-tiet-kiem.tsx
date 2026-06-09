@@ -144,7 +144,7 @@ function SavingsCalcPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8 lg:py-10 space-y-10">
+        <div className="mx-auto max-w-6xl px-5 py-8 lg:py-10 space-y-10">
           <Breadcrumbs />
 
           <header className="space-y-3 max-w-3xl">
