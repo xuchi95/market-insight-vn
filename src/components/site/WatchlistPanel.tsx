@@ -235,7 +235,7 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
             </div>
             {!isEmpty && (
               <div className="text-xs text-muted-foreground mt-1 tabular">
-                {list.length} tài sản · cập nhật vừa rồi
+                {list.length} tài sản · {loadingPrices && !lastUpdated ? "đang tải…" : "cập nhật vừa rồi"}
               </div>
             )}
           </div>
