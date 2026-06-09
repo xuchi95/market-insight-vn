@@ -8,7 +8,6 @@ import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { fmtSmartVND, fmtSmartUSD } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
