@@ -5,7 +5,6 @@ import { Link } from "@tanstack/react-router";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import { fmtNum, fmtTime } from "@/lib/format";
 import { AnimatedNumber } from "./AnimatedNumber";
-import { ChangeBadge } from "./ChangeBadge";
 import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -53,13 +52,11 @@ export function ForexRateTable({ search }: { search?: string }) {
               <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Mua</th>
               <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Bán</th>
               <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Trung bình</th>
-              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Δ</th>
-              <th className="text-right px-4 py-3 font-semibold hidden lg:table-cell">Cập nhật</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {isLoading && Array.from({ length: 6 }).map((_, i) => (
-              <tr key={i}><td colSpan={7} className="px-4 py-3"><Skeleton className="h-6 w-full" /></td></tr>
+              <tr key={i}><td colSpan={5} className="px-4 py-3"><Skeleton className="h-6 w-full" /></td></tr>
             ))}
             {rows.map((r) => (
               <tr key={r.code} className="hover:bg-muted/30 transition-colors">
@@ -77,13 +74,11 @@ export function ForexRateTable({ search }: { search?: string }) {
                 <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums"><AnimatedNumber value={r.buy} format={(v) => fmtNum(v, 2)} /></td>
                 <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={r.sell} format={(v) => fmtNum(v, 2)} /></td>
                 <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={r.mid} format={(v) => fmtNum(v, 2)} noFlash minChars={9} /></td>
-                <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap"><ChangeBadge value={r.changePct} /></td>
-                <td className="px-4 py-3 text-right text-sm text-muted-foreground tabular-nums hidden lg:table-cell">{fmtTime(r.updatedAt)}</td>
               </tr>
             ))}
             {!isLoading && rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center">
+                <td colSpan={5} className="px-4 py-10 text-center">
                   {isError ? (
                     <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
                       <AlertTriangle className="h-6 w-6 text-[var(--down)]" />
