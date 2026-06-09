@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Star, X, Plus, ArrowUpRight } from "lucide-react";
+import { Star, X, Plus, ArrowUpRight, ChevronDown } from "lucide-react";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -36,13 +36,16 @@ const QUICK_ADD: WatchItem[] = [
   { symbol: "USD", label: "USD/VND", category: "Ngoại tệ", to: "/tai-san/usd" },
 ];
 
-export function WatchlistPanel() {
+const COMPACT_LIMIT = 5;
+
+export function WatchlistPanel({ compact: compactMode = false }: { compact?: boolean } = {}) {
   const { list, add, remove, isWatched, synced } = useWatchlist();
   const { compact } = useNumberFormat();
   const [gold, setGold] = useState<GoldPrice[]>([]);
   const [crypto, setCrypto] = useState<CryptoCoin[]>([]);
   const [fx, setFx] = useState<ForexRate[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -90,6 +93,9 @@ export function WatchlistPanel() {
   }, [gold, crypto, fx, compact]);
 
   const isEmpty = list.length === 0;
+  const overflow = compactMode && !expanded && list.length > COMPACT_LIMIT;
+  const visibleList = overflow ? list.slice(0, COMPACT_LIMIT) : list;
+  const hiddenCount = list.length - COMPACT_LIMIT;
 
   const allOptions = useMemo<WatchItem[]>(() => {
     const goldOpts: WatchItem[] = gold.map((g) => ({
@@ -253,7 +259,7 @@ export function WatchlistPanel() {
           </div>
 
           <ul>
-            {list.map((item) => {
+            {visibleList.map((item) => {
               const q = resolveQuote(item);
               const change = q?.changePct ?? 0;
               const up = change >= 0;
@@ -339,6 +345,17 @@ export function WatchlistPanel() {
               );
             })}
           </ul>
+
+          {overflow && (
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              className="w-full flex items-center justify-center gap-1.5 border-t border-border px-5 md:px-6 py-3 text-[13px] font-semibold text-[var(--gold)] hover:bg-[color-mix(in_oklab,var(--gold)_5%,transparent)] transition-colors"
+            >
+              Xem tất cả ({hiddenCount} tài sản khác)
+              <ChevronDown className="h-3.5 w-3.5" />
+            </button>
+          )}
 
           <div className="flex justify-end border-t border-border px-5 md:px-6 py-3.5 bg-[color-mix(in_oklab,var(--gold)_2.5%,transparent)]">
             <a
