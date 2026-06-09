@@ -479,3 +479,34 @@ main {
     max-width: 100%;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Layout 2 cột ad dọc (sidebar rails)
+ *
+ * Trên màn hình rộng (≥1280px) thu hẹp cột nội dung chính (max-w-6xl
+ * → 64rem ~1024px) để dành lề hai bên ~128–256px chứa skyscraper
+ * AdSense 120/160×600. Dưới 1280px giữ nguyên max-w-6xl (1152px) để
+ * không phá vỡ bố cục tablet/mobile.
+ * ────────────────────────────────────────────────────────────────── */
+@media (min-width: 1280px) {
+  .max-w-6xl { max-width: 64rem; }
+}
+
+/* Khung rail quảng cáo dọc cố định hai bên (sticky theo viewport).
+ * Ẩn dưới 1440px để tránh đè lên nội dung khi gutter < 160px + padding. */
+.side-ad-rail {
+  display: none;
+}
+@media (min-width: 1440px) {
+  .side-ad-rail {
+    display: block;
+    position: fixed;
+    top: 96px;
+    width: 160px;
+    max-height: calc(100vh - 120px);
+    z-index: 10;
+    pointer-events: auto;
+  }
+  .side-ad-rail--left  { left: max(16px, calc((100vw - 1024px) / 2 - 176px)); }
+  .side-ad-rail--right { right: max(16px, calc((100vw - 1024px) / 2 - 176px)); }
+}
