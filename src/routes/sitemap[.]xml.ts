@@ -29,6 +29,8 @@ const STATIC_ENTRIES: SitemapEntry[] = [
   { path: "/api-cho-nha-phat-trien", changefreq: "monthly", priority: "0.6" },
   { path: "/yeu-cau-api-key", changefreq: "monthly", priority: "0.5" },
   { path: "/lien-he", changefreq: "weekly", priority: "0.6" },
+  { path: "/ve-chung-toi", changefreq: "monthly", priority: "0.7" },
+  { path: "/nguon-du-lieu", changefreq: "monthly", priority: "0.7" },
   { path: "/chinh-sach-bao-mat", changefreq: "monthly", priority: "0.4" },
   { path: "/dieu-khoan-su-dung", changefreq: "monthly", priority: "0.4" },
   { path: "/mien-tru-trach-nhiem", changefreq: "monthly", priority: "0.4" },
