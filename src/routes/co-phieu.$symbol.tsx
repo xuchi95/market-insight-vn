@@ -231,7 +231,7 @@ function StockDetail() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 space-y-6">
+      <main className="flex-1"><div className="mx-auto max-w-6xl px-5 py-8 space-y-6">
         <Breadcrumbs extra={[{ label: "Chứng khoán", to: "/chung-khoan" }, { label: `Cổ phiếu ${SYM}` }]} />
 
         {/* H1 cố định cho SEO — luôn render dù đang loading hay lỗi, để Google không lấy H1 trong khối lỗi làm title */}
