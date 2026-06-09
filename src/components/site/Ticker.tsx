@@ -253,7 +253,7 @@ export function Ticker() {
       return list;
   })();
 
-  if (ticks.length === 0) return <div className="h-9 border-y border-border bg-card/40" />;
+  const isLoading = ticks.length === 0;
 
   const Row = () => (
     <div className="flex shrink-0 gap-10 px-5 text-xs font-medium tracking-[0.14em] uppercase">
@@ -270,6 +270,18 @@ export function Ticker() {
             {t.changePct.toFixed(2)}%
           </span>
         </Link>
+      ))}
+    </div>
+  );
+
+  const SkeletonRow = () => (
+    <div className="flex shrink-0 items-center gap-10 px-5 text-xs font-medium tracking-[0.14em] uppercase">
+      {["SJC", "XAU", "BTC", "ETH", "USD", "EUR", "JPY", "CNY"].map((lbl) => (
+        <div key={lbl} className="flex items-center gap-2">
+          <span className="text-muted-foreground/70">{lbl}</span>
+          <span className="inline-block h-3 w-14 rounded-sm bg-muted/60 animate-pulse" />
+          <span className="inline-block h-3 w-10 rounded-sm bg-muted/40 animate-pulse" />
+        </div>
       ))}
     </div>
   );
@@ -302,10 +314,17 @@ export function Ticker() {
           </div>
         </div>
         <div className="relative flex-1 overflow-hidden py-2.5">
-          <div className="animate-marquee whitespace-nowrap">
-            <Row />
-            <Row />
-          </div>
+          {isLoading ? (
+            <div className="animate-marquee whitespace-nowrap">
+              <SkeletonRow />
+              <SkeletonRow />
+            </div>
+          ) : (
+            <div className="animate-marquee whitespace-nowrap">
+              <Row />
+              <Row />
+            </div>
+          )}
           {/* edge fades */}
           <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent" />
