@@ -473,12 +473,22 @@ main {
   overflow-x: clip;
 }
 
-/* Bảo hiểm: không phần tử nào được rộng quá viewport trên mobile. */
-@media (max-width: 767px) {
-  img, video, iframe, table, pre, svg {
-    max-width: 100%;
-  }
+/* Bảo hiểm: không phần tử nào được rộng quá viewport. Áp dụng cho mọi
+ * breakpoint để chặn tràn ngang từ ảnh/iframe/table/svg/pre, không chỉ
+ * mobile. */
+img, video, iframe, table, pre, svg, canvas {
+  max-width: 100%;
 }
+
+/* Flex/grid children mặc định có `min-width: auto` → text/inline-block
+ * dài (URL, số tabular) có thể đẩy parent vượt viewport. Hai rule dưới
+ * trung hòa hiện tượng đó cho các container layout thường gặp. */
+main *, .max-w-6xl, .container { min-width: 0; }
+
+/* Hard cap: bất kỳ phần tử nào trong main cũng không được vượt quá bề
+ * rộng viewport. Đây là cơ chế cuối cùng — kết hợp với overflow:clip ở
+ * #root/main để đảm bảo trang không bao giờ scroll ngang. */
+main { max-width: 100vw; }
 
 /* Thu hẹp cột nội dung mặc định trên desktop để chừa khoảng trống hai
  * bên (chuẩn bị chỗ cho ad rails sau này, đồng thời tránh dòng văn bản
