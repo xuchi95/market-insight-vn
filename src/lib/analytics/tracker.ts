@@ -14,6 +14,7 @@ import { getCookieConsent } from "@/hooks/useCookieConsent";
 export type AnalyticsEventType =
   | "ad_view"
   | "ad_render"
+  | "ad_request"
   | "ad_click"
   | "pageview"
   | "scroll"
@@ -208,7 +209,7 @@ export function trackFunnel(step: string, meta?: Record<string, unknown>): void 
 }
 
 export function trackAd(
-  type: "ad_view" | "ad_render" | "ad_click",
+  type: "ad_view" | "ad_render" | "ad_request" | "ad_click",
   payload: { slot?: string; placement?: string; format?: string },
 ): void {
   enqueue({
