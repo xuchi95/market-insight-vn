@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, Navigate } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp, KeyRound, ShieldCheck, Inbox, Newspaper, BarChart3, Activity, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp, KeyRound, ShieldCheck, Inbox, Newspaper, BarChart3, Activity, Gavel, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_admin")({
@@ -44,6 +44,7 @@ const NAV = [
   { to: "/mw-admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/mw-admin/cron-activity", label: "Hoạt động cron", icon: Activity },
   { to: "/mw-admin/users", label: "Người dùng", icon: Users },
+  { to: "/mw-admin/ban-appeals", label: "Kháng nghị cấm", icon: Gavel },
   { to: "/mw-admin/popups", label: "Popup", icon: Layers },
   { to: "/mw-admin/broadcasts", label: "Email broadcast", icon: Megaphone },
   { to: "/mw-admin/email-preview", label: "Preview email", icon: MailOpen },
