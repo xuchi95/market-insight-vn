@@ -541,6 +541,7 @@ function AssetDetail() {
             />
 
             <Panel className="rise d3 mt-5 relative">
+
               <SectionLabel
                 title={`Lịch sử giá ${oil.nameVi}`}
                 badge={<LivePing />}
