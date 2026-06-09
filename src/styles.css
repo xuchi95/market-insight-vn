@@ -490,9 +490,10 @@ main {
   display: none;
 }
 @media (min-width: 1440px) {
-  /* Thu hẹp cột nội dung chính chỉ khi đủ rộng để chứa rail (≥1440px). */
-  .max-w-6xl { max-width: 64rem; }
-  .side-ad-rail {
+  /* Thu hẹp cột nội dung chính CHỈ khi rail đang active (body có class
+   * `with-ad-rails` do <SideAdRails> set khi slot đã cấu hình). */
+  body.with-ad-rails .max-w-6xl { max-width: 64rem; }
+  body.with-ad-rails .side-ad-rail {
     display: block;
     position: fixed;
     top: 96px;
@@ -501,6 +502,6 @@ main {
     z-index: 10;
     pointer-events: auto;
   }
-  .side-ad-rail--left  { left: max(16px, calc((100vw - 1024px) / 2 - 176px)); }
-  .side-ad-rail--right { right: max(16px, calc((100vw - 1024px) / 2 - 176px)); }
+  body.with-ad-rails .side-ad-rail--left  { left: max(16px, calc((100vw - 1024px) / 2 - 176px)); }
+  body.with-ad-rails .side-ad-rail--right { right: max(16px, calc((100vw - 1024px) / 2 - 176px)); }
 }
