@@ -1,9 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap');
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+
+/* Note: Google Fonts (DM Serif Display, JetBrains Mono) are loaded via
+ * <link> tags in src/routes/__root.tsx head().links — lightningcss in
+ * Vite 7 rejects @import url(...) after other at-rules. */
 
 /* Be Vietnam Pro — full Vietnamese diacritic support, self-hosted */
 @font-face {
