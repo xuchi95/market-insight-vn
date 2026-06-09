@@ -414,3 +414,35 @@ export function securityAlertEmail(opts: { event: string; ip?: string | null; us
   `);
   return { subject: `[Bảo mật] ${opts.event} — MarketWatch`, html };
 }
+
+// ---------- Kết quả kháng nghị tài khoản bị cấm ----------
+export function banAppealDecisionEmail(opts: {
+  approved: boolean;
+  email: string;
+  reason: string;
+  adminNote?: string | null;
+}) {
+  const title = opts.approved
+    ? "Kháng nghị được chấp nhận — tài khoản đã mở khoá"
+    : "Kháng nghị bị từ chối";
+  const intro = opts.approved
+    ? "Chúng tôi đã xem xét kháng nghị của bạn và quyết định mở khoá tài khoản. Bạn có thể đăng nhập lại ngay bây giờ."
+    : "Chúng tôi đã xem xét kháng nghị của bạn và quyết định giữ nguyên trạng thái khoá tài khoản. Theo chính sách, mỗi tài khoản chỉ được kháng nghị một lần.";
+  const noteBlock = opts.adminNote
+    ? `<div style="margin:14px 0;padding:12px 14px;border-left:3px solid ${GOLD};background:#fafafa;color:#444;font-size:13px;line-height:1.6;white-space:pre-wrap;"><strong style="color:#222;">Phản hồi từ đội ngũ:</strong><br/>${escape(opts.adminNote)}</div>`
+    : "";
+  const reasonBlock = `<div style="margin:14px 0;padding:12px 14px;border:1px solid #ececec;border-radius:6px;background:#fff;color:#555;font-size:13px;line-height:1.6;white-space:pre-wrap;"><strong style="color:#222;">Nội dung kháng nghị của bạn:</strong><br/>${escape(opts.reason)}</div>`;
+  const cta = opts.approved
+    ? button(SITE + "/dang-nhap", "Đăng nhập lại")
+    : `<p style="margin:0 0 12px;line-height:1.6;color:#666;font-size:13px;">Nếu bạn cho rằng có nhầm lẫn nghiêm trọng, vui lòng liên hệ <a href="mailto:contact@marketwatch.vn" style="color:#555;">contact@marketwatch.vn</a>.</p>`;
+  const html = shell(title, `
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Kết quả kháng nghị</div>
+    <h1 style="font-size:22px;margin:0 0 12px;color:#111;">${escape(title)}</h1>
+    <p style="margin:0 0 12px;line-height:1.6;color:#333;">Xin chào <strong>${escape(opts.email)}</strong>,</p>
+    <p style="margin:0 0 12px;line-height:1.6;color:#333;">${intro}</p>
+    ${noteBlock}
+    ${reasonBlock}
+    ${cta}
+  `);
+  return { subject: `[MarketWatch] ${title}`, html };
+}

@@ -19,6 +19,7 @@ import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
 import { Route as TinhLaiSuatTietKiemRouteImport } from './routes/tinh-lai-suat-tiet-kiem'
 import { Route as TienDienTuRouteImport } from './routes/tien-dien-tu'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TaiKhoanBiCamRouteImport } from './routes/tai-khoan-bi-cam'
 import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
@@ -91,6 +92,7 @@ import { Route as ApiPublicCryptoNewsRouteImport } from './routes/api/public/cry
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
+import { Route as ApiPublicBanAppealRouteImport } from './routes/api/public/ban-appeal'
 import { Route as ApiPublicAuthsignalPushRouteImport } from './routes/api/public/authsignal-push'
 import { Route as ApiPublicAuthsignalMagicLinkRouteImport } from './routes/api/public/authsignal-magic-link'
 import { Route as ApiPublicAuthsignalEmailRouteImport } from './routes/api/public/authsignal-email'
@@ -112,6 +114,7 @@ import { Route as AdminMwAdminCronActivityRouteImport } from './routes/_admin/mw
 import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admin.contact'
 import { Route as AdminMwAdminCodeInjectionRouteImport } from './routes/_admin/mw-admin.code-injection'
 import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
+import { Route as AdminMwAdminBanAppealsRouteImport } from './routes/_admin/mw-admin.ban-appeals'
 import { Route as AdminMwAdminApiKeysRouteImport } from './routes/_admin/mw-admin.api-keys'
 import { Route as AdminMwAdminApiKeyRequestsRouteImport } from './routes/_admin/mw-admin.api-key-requests'
 import { Route as AdminMwAdminAnalyticsRouteImport } from './routes/_admin/mw-admin.analytics'
@@ -175,6 +178,11 @@ const TienDienTuRoute = TienDienTuRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TaiKhoanBiCamRoute = TaiKhoanBiCamRouteImport.update({
+  id: '/tai-khoan-bi-cam',
+  path: '/tai-khoan-bi-cam',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StocksRoute = StocksRouteImport.update({
@@ -541,6 +549,11 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
   path: '/api/public/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBanAppealRoute = ApiPublicBanAppealRouteImport.update({
+  id: '/api/public/ban-appeal',
+  path: '/api/public/ban-appeal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAuthsignalPushRoute = ApiPublicAuthsignalPushRouteImport.update({
   id: '/api/public/authsignal-push',
   path: '/api/public/authsignal-push',
@@ -655,6 +668,11 @@ const AdminMwAdminBroadcastsRoute = AdminMwAdminBroadcastsRouteImport.update({
   path: '/mw-admin/broadcasts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminBanAppealsRoute = AdminMwAdminBanAppealsRouteImport.update({
+  id: '/mw-admin/ban-appeals',
+  path: '/mw-admin/ban-appeals',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMwAdminApiKeysRoute = AdminMwAdminApiKeysRouteImport.update({
   id: '/mw-admin/api-keys',
   path: '/mw-admin/api-keys',
@@ -766,6 +784,7 @@ export interface FileRoutesByFullPath {
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
+  '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
@@ -791,6 +810,7 @@ export interface FileRoutesByFullPath {
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
+  '/mw-admin/ban-appeals': typeof AdminMwAdminBanAppealsRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -812,6 +832,7 @@ export interface FileRoutesByFullPath {
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
+  '/api/public/ban-appeal': typeof ApiPublicBanAppealRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -884,6 +905,7 @@ export interface FileRoutesByTo {
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
+  '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
@@ -909,6 +931,7 @@ export interface FileRoutesByTo {
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
+  '/mw-admin/ban-appeals': typeof AdminMwAdminBanAppealsRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -930,6 +953,7 @@ export interface FileRoutesByTo {
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
+  '/api/public/ban-appeal': typeof ApiPublicBanAppealRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -1004,6 +1028,7 @@ export interface FileRoutesById {
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
+  '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
@@ -1029,6 +1054,7 @@ export interface FileRoutesById {
   '/_admin/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/_admin/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/_admin/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
+  '/_admin/mw-admin/ban-appeals': typeof AdminMwAdminBanAppealsRoute
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/_admin/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
   '/_admin/mw-admin/contact': typeof AdminMwAdminContactRoute
@@ -1050,6 +1076,7 @@ export interface FileRoutesById {
   '/api/public/authsignal-email': typeof ApiPublicAuthsignalEmailRoute
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
+  '/api/public/ban-appeal': typeof ApiPublicBanAppealRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -1124,6 +1151,7 @@ export interface FileRouteTypes {
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
+    | '/tai-khoan-bi-cam'
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
@@ -1149,6 +1177,7 @@ export interface FileRouteTypes {
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
     | '/mw-admin/api-keys'
+    | '/mw-admin/ban-appeals'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
@@ -1170,6 +1199,7 @@ export interface FileRouteTypes {
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
+    | '/api/public/ban-appeal'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -1242,6 +1272,7 @@ export interface FileRouteTypes {
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
+    | '/tai-khoan-bi-cam'
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
@@ -1267,6 +1298,7 @@ export interface FileRouteTypes {
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
     | '/mw-admin/api-keys'
+    | '/mw-admin/ban-appeals'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
     | '/mw-admin/contact'
@@ -1288,6 +1320,7 @@ export interface FileRouteTypes {
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
+    | '/api/public/ban-appeal'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -1361,6 +1394,7 @@ export interface FileRouteTypes {
     | '/quy-doi-tien-te'
     | '/sitemap.xml'
     | '/stocks'
+    | '/tai-khoan-bi-cam'
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
@@ -1386,6 +1420,7 @@ export interface FileRouteTypes {
     | '/_admin/mw-admin/analytics'
     | '/_admin/mw-admin/api-key-requests'
     | '/_admin/mw-admin/api-keys'
+    | '/_admin/mw-admin/ban-appeals'
     | '/_admin/mw-admin/broadcasts'
     | '/_admin/mw-admin/code-injection'
     | '/_admin/mw-admin/contact'
@@ -1407,6 +1442,7 @@ export interface FileRouteTypes {
     | '/api/public/authsignal-email'
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
+    | '/api/public/ban-appeal'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -1481,6 +1517,7 @@ export interface RootRouteChildren {
   QuyDoiTienTeRoute: typeof QuyDoiTienTeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StocksRoute: typeof StocksRoute
+  TaiKhoanBiCamRoute: typeof TaiKhoanBiCamRoute
   TermsRoute: typeof TermsRoute
   TienDienTuRoute: typeof TienDienTuRoute
   TinhLaiSuatTietKiemRoute: typeof TinhLaiSuatTietKiemRoute
@@ -1510,6 +1547,7 @@ export interface RootRouteChildren {
   ApiPublicAuthsignalEmailRoute: typeof ApiPublicAuthsignalEmailRoute
   ApiPublicAuthsignalMagicLinkRoute: typeof ApiPublicAuthsignalMagicLinkRoute
   ApiPublicAuthsignalPushRoute: typeof ApiPublicAuthsignalPushRoute
+  ApiPublicBanAppealRoute: typeof ApiPublicBanAppealRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
@@ -1618,6 +1656,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tai-khoan-bi-cam': {
+      id: '/tai-khoan-bi-cam'
+      path: '/tai-khoan-bi-cam'
+      fullPath: '/tai-khoan-bi-cam'
+      preLoaderRoute: typeof TaiKhoanBiCamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stocks': {
@@ -2124,6 +2169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ban-appeal': {
+      id: '/api/public/ban-appeal'
+      path: '/api/public/ban-appeal'
+      fullPath: '/api/public/ban-appeal'
+      preLoaderRoute: typeof ApiPublicBanAppealRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/authsignal-push': {
       id: '/api/public/authsignal-push'
       path: '/api/public/authsignal-push'
@@ -2271,6 +2323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminBroadcastsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/ban-appeals': {
+      id: '/_admin/mw-admin/ban-appeals'
+      path: '/mw-admin/ban-appeals'
+      fullPath: '/mw-admin/ban-appeals'
+      preLoaderRoute: typeof AdminMwAdminBanAppealsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/api-keys': {
       id: '/_admin/mw-admin/api-keys'
       path: '/mw-admin/api-keys'
@@ -2376,6 +2435,7 @@ interface AdminRouteChildren {
   AdminMwAdminAnalyticsRoute: typeof AdminMwAdminAnalyticsRoute
   AdminMwAdminApiKeyRequestsRoute: typeof AdminMwAdminApiKeyRequestsRoute
   AdminMwAdminApiKeysRoute: typeof AdminMwAdminApiKeysRoute
+  AdminMwAdminBanAppealsRoute: typeof AdminMwAdminBanAppealsRoute
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
   AdminMwAdminCodeInjectionRoute: typeof AdminMwAdminCodeInjectionRoute
   AdminMwAdminContactRoute: typeof AdminMwAdminContactRoute
@@ -2398,6 +2458,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminAnalyticsRoute: AdminMwAdminAnalyticsRoute,
   AdminMwAdminApiKeyRequestsRoute: AdminMwAdminApiKeyRequestsRoute,
   AdminMwAdminApiKeysRoute: AdminMwAdminApiKeysRoute,
+  AdminMwAdminBanAppealsRoute: AdminMwAdminBanAppealsRoute,
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
   AdminMwAdminCodeInjectionRoute: AdminMwAdminCodeInjectionRoute,
   AdminMwAdminContactRoute: AdminMwAdminContactRoute,
@@ -2452,6 +2513,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuyDoiTienTeRoute: QuyDoiTienTeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StocksRoute: StocksRoute,
+  TaiKhoanBiCamRoute: TaiKhoanBiCamRoute,
   TermsRoute: TermsRoute,
   TienDienTuRoute: TienDienTuRoute,
   TinhLaiSuatTietKiemRoute: TinhLaiSuatTietKiemRoute,
@@ -2481,6 +2543,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAuthsignalEmailRoute: ApiPublicAuthsignalEmailRoute,
   ApiPublicAuthsignalMagicLinkRoute: ApiPublicAuthsignalMagicLinkRoute,
   ApiPublicAuthsignalPushRoute: ApiPublicAuthsignalPushRoute,
+  ApiPublicBanAppealRoute: ApiPublicBanAppealRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
@@ -2522,13 +2585,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

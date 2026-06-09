@@ -13,6 +13,7 @@ import { clearMfaVerified, markMfaVerified } from "@/routes/xac-thuc-2fa";
 import { signalAuthWelcome } from "@/components/site/AuthWelcomeBanner";
 import { isDeviceTrusted } from "@/lib/mfa-trust";
 import { requestMagicLink } from "@/lib/auth/magic-link.functions";
+import { setPendingBanCreds } from "@/routes/tai-khoan-bi-cam";
 
 const TITLE = "Đăng nhập — MarketWatch";
 const DESC = "Đăng nhập MarketWatch để đặt cảnh báo giá và nhận email khi vàng, crypto chạm ngưỡng.";
@@ -57,6 +58,13 @@ function LoginPage() {
     const { data: signInData, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (error) {
       setLoading(false);
+      const code = (error as { code?: string }).code;
+      const isBanned = code === "user_banned" || /banned/i.test(error.message || "");
+      if (isBanned) {
+        setPendingBanCreds(email.trim(), password);
+        navigate({ to: "/tai-khoan-bi-cam" });
+        return;
+      }
       toast.error("Đăng nhập không thành công", { description: error.message });
       return;
     }
