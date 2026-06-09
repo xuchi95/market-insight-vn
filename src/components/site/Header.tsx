@@ -73,6 +73,8 @@ const NAV_GROUPS: NavGroup[] = [
           { label: "Vĩ mô Việt Nam", to: "/vi-mo-viet-nam", hint: "GDP, CPI, lãi suất" },
           { label: "AI dự đoán giá", to: "/du-doan-gia-ai", hint: "Vàng, dầu, BTC, ngoại tệ" },
           { label: "API cho nhà phát triển", to: "/api-cho-nha-phat-trien", hint: "REST · SSE · SDK realtime" },
+          { label: "Nguồn dữ liệu & phương pháp", to: "/nguon-du-lieu", hint: "Lấy từ đâu, cập nhật ra sao" },
+          { label: "Về MarketWatch", to: "/ve-chung-toi", hint: "Đội ngũ & sứ mệnh" },
         ],
       },
     ],
