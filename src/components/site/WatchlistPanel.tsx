@@ -64,15 +64,9 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
       setCrypto(c);
       setFx(f);
       setLoadingPrices(false);
-      setLastUpdated((prev) => {
-        if (prev !== null) {
-          toast.success("Dữ liệu theo dõi đã cập nhật", {
-            description: "Giá vàng, crypto và ngoại tệ vừa được làm mới.",
-            duration: 2400,
-          });
-        }
-        return Date.now();
-      });
+      // Cập nhật ngầm — không bắn toast định kỳ để tránh spam UI.
+      // Trạng thái "vừa làm mới" được phản ánh qua `lastUpdated` ở UI.
+      setLastUpdated(Date.now());
     };
     load();
     const t = setInterval(load, 30_000);
