@@ -228,6 +228,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      // Google Fonts — DM Serif Display + JetBrains Mono. Loaded here
+      // instead of via CSS @import to keep lightningcss happy.
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap",
+      },
     ],
     scripts: [
       // Google AdSense loader — chỉ chèn khi đã cấu hình VITE_ADSENSE_CLIENT.
