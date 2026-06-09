@@ -34,6 +34,8 @@ const PAGE_LABELS: Record<string, string> = {
   privacy: "Chính sách dữ liệu",
   terms: "Điều khoản sử dụng",
   disclaimer: "Tuyên bố miễn trừ trách nhiệm",
+  "ve-chung-toi": "Về chúng tôi",
+  "nguon-du-lieu": "Nguồn dữ liệu",
 };
 
 interface CrumbItem {
