@@ -310,7 +310,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   <Link
                     to={HOME.to}
                     activeOptions={{ exact: true }}
-                    className="inline-flex items-center rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
+                    className="inline-flex items-center whitespace-nowrap rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
                   >
                     {HOME.label}
                   </Link>
@@ -319,7 +319,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
               {NAV_GROUPS.map((group) => (
                 <NavigationMenuItem key={group.label}>
-                  <NavigationMenuTrigger className="inline-flex items-center gap-1 rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
+                  <NavigationMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
                     {group.label}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -541,13 +541,13 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             <div className="hidden md:flex items-center gap-1">
               <Link
                 to="/dang-nhap"
-                className="inline-flex items-center rounded-full px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
               >
                 Đăng nhập
               </Link>
               <Link
                 to="/dang-ky"
-                className="inline-flex items-center rounded-full px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-background bg-gradient-to-r from-[var(--gold)] to-amber-600 shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_40%,transparent),0_6px_18px_-6px_color-mix(in_oklab,var(--gold)_50%,transparent)] hover:shadow-[0_0_0_1px_var(--gold),0_8px_24px_-6px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-shadow"
+                className="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-background bg-gradient-to-r from-[var(--gold)] to-amber-600 shadow-[0_0_0_1px_color-mix(in_oklab,var(--gold)_40%,transparent),0_6px_18px_-6px_color-mix(in_oklab,var(--gold)_50%,transparent)] hover:shadow-[0_0_0_1px_var(--gold),0_8px_24px_-6px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-shadow"
               >
                 Đăng ký
               </Link>
