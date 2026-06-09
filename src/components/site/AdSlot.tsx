@@ -65,17 +65,22 @@ export function AdSlot({
 }: AdSlotProps) {
   const pushed = useRef(false);
   const insRef = useRef<HTMLModElement | null>(null);
+  const frameRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!CLIENT || !slot || pushed.current) return;
-    // AdSense yêu cầu phần tử <ins> phải có width > 0 trước khi push.
-    // Nếu không, console sẽ báo "availableWidth=0" và bỏ qua slot.
     const el = insRef.current;
-    if (!el) return;
+    const frame = frameRef.current;
+    if (!el || !frame) return;
 
+    // AdSense yêu cầu <ins> có width > 0 trước khi push. Đồng thời để
+    // tránh CLS + tiết kiệm request, chỉ push khi slot sắp vào viewport.
     let cancelled = false;
+    let ro: ResizeObserver | null = null;
+    let io: IntersectionObserver | null = null;
+
     const tryPush = () => {
-      if (cancelled || pushed.current) return;
+      if (cancelled || pushed.current) return false;
       const w = el.getBoundingClientRect().width;
       if (w <= 0) return false;
       pushed.current = true;
@@ -84,18 +89,46 @@ export function AdSlot({
       } catch {
         /* noop */
       }
+      ro?.disconnect();
+      io?.disconnect();
       return true;
     };
 
-    if (tryPush()) return;
+    const startWidthWatch = () => {
+      if (tryPush()) return;
+      ro = new ResizeObserver(() => {
+        tryPush();
+      });
+      ro.observe(el);
+    };
 
-    const ro = new ResizeObserver(() => {
-      if (tryPush()) ro.disconnect();
-    });
-    ro.observe(el);
+    // Nếu trình duyệt không hỗ trợ IO → fallback push ngay.
+    if (typeof IntersectionObserver === "undefined") {
+      startWidthWatch();
+      return () => {
+        cancelled = true;
+        ro?.disconnect();
+      };
+    }
+
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            io?.disconnect();
+            startWidthWatch();
+            break;
+          }
+        }
+      },
+      { rootMargin: "200px 0px", threshold: 0.01 },
+    );
+    io.observe(frame);
+
     return () => {
       cancelled = true;
-      ro.disconnect();
+      ro?.disconnect();
+      io?.disconnect();
     };
   }, [slot]);
 
@@ -130,6 +163,7 @@ export function AdSlot({
         </div>
       )}
       <div
+        ref={frameRef}
         className="ad-slot-frame relative w-full min-w-0 overflow-hidden rounded-lg border border-dashed border-border/70 bg-muted/20"
         style={{ minHeight: reserved }}
       >
