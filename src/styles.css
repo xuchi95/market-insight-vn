@@ -436,6 +436,25 @@ ins.adsbygoogle {
 ins.adsbygoogle iframe {
   max-width: 100% !important;
 }
+
+/* Reserved-height responsive cho khung AdSlot — giảm CLS khi iframe
+ * AdSense thay đổi chiều cao theo breakpoint. Biến --ad-min-h* được
+ * set bởi component <AdSlot /> dựa trên placement. */
+.ad-slot-frame {
+  min-height: var(--ad-min-h, 250px);
+}
+.ad-slot-ins {
+  min-height: var(--ad-min-h, 250px) !important;
+}
+@media (min-width: 768px) {
+  .ad-slot-frame { min-height: var(--ad-min-h-md, var(--ad-min-h, 250px)); }
+  .ad-slot-ins   { min-height: var(--ad-min-h-md, var(--ad-min-h, 250px)) !important; }
+}
+@media (min-width: 1024px) {
+  .ad-slot-frame { min-height: var(--ad-min-h-lg, var(--ad-min-h-md, var(--ad-min-h, 250px))); }
+  .ad-slot-ins   { min-height: var(--ad-min-h-lg, var(--ad-min-h-md, var(--ad-min-h, 250px))) !important; }
+}
+
 /* Tránh tràn ngang toàn site do nội dung quảng cáo / bảng rộng */
 html,
 body {
