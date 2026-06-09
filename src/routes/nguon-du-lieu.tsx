@@ -188,7 +188,7 @@ function SourcesPage() {
                 Dữ liệu được kiểm duyệt bởi <strong>đội ngũ kỹ thuật của MarketWatch Việt Nam</strong>. Người chịu trách nhiệm pháp lý: <strong>Ông Nguyễn Xuân Chính</strong> — đại diện Công ty TNHH MTV Xuân Diệu Media. Phát hiện sai lệch? Báo cáo tại <Link to="/lien-he" className="text-primary hover:underline">/lien-he</Link>, chúng tôi cam kết xử lý trong 24 giờ.
               </p>
               <p className="text-muted-foreground">
-                Xem thêm: <Link to="/ve-chung-toi" className="text-primary hover:underline">Về MarketWatch</Link> · <Link to="/mien-tru-trach-nhiem" className="text-primary hover:underline">Miễn trừ trách nhiệm</Link> · <Link to="/dieu-khoan-su-dung" className="text-primary hover:underline">Điều khoản sử dụng</Link>.
+                Xem thêm: <Link to="/ve-chung-toi" className="text-primary hover:underline">đội ngũ &amp; đơn vị vận hành MarketWatch</Link> · <Link to="/mien-tru-trach-nhiem" className="text-primary hover:underline">Miễn trừ trách nhiệm</Link> · <Link to="/dieu-khoan-su-dung" className="text-primary hover:underline">Điều khoản sử dụng</Link>.
               </p>
             </section>
           </div>
