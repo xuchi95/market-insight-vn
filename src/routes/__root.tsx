@@ -20,6 +20,7 @@ import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 import { CookieConsent } from "@/components/site/CookieConsent";
 import { getActiveCodeInjections, type PublicInjection } from "@/lib/admin/code-injections.functions";
+import { useAnalyticsTracker } from "@/hooks/useAnalyticsTracker";
 
 function NotFoundComponent() {
   const path = typeof window !== "undefined" ? window.location.pathname : "/";
@@ -393,6 +394,7 @@ function RootComponent() {
         <AuthProvider>
           <NumberFormatProvider>
             <MotionPrefProvider>
+              <AnalyticsTrackerBridge />
               {bodyStart.map((i: PublicInjection, idx: number) => (
                 <div key={`bs-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
               ))}
@@ -410,4 +412,9 @@ function RootComponent() {
       </ThemeProvider>
     </QueryClientProvider>
   );
+}
+
+function AnalyticsTrackerBridge() {
+  useAnalyticsTracker();
+  return null;
 }
