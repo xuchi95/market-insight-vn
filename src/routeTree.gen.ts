@@ -58,6 +58,7 @@ import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TuDienSlugRouteImport } from './routes/tu-dien.$slug'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
+import { Route as CongCuDcaLichSuRouteImport } from './routes/cong-cu.dca-lich-su'
 import { Route as CoPhieuSymbolRouteImport } from './routes/co-phieu.$symbol'
 import { Route as CaiDatMatKhauRouteImport } from './routes/cai-dat.mat-khau'
 import { Route as CaiDatHienThiRouteImport } from './routes/cai-dat.hien-thi'
@@ -377,6 +378,11 @@ const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
 const CongCuDcaRoiRoute = CongCuDcaRoiRouteImport.update({
   id: '/cong-cu/dca-roi',
   path: '/cong-cu/dca-roi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CongCuDcaLichSuRoute = CongCuDcaLichSuRouteImport.update({
+  id: '/cong-cu/dca-lich-su',
+  path: '/cong-cu/dca-lich-su',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoPhieuSymbolRoute = CoPhieuSymbolRouteImport.update({
@@ -836,6 +842,7 @@ export interface FileRoutesByFullPath {
   '/cai-dat/hien-thi': typeof CaiDatHienThiRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
+  '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
@@ -962,6 +969,7 @@ export interface FileRoutesByTo {
   '/cai-dat/hien-thi': typeof CaiDatHienThiRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
+  '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
@@ -1090,6 +1098,7 @@ export interface FileRoutesById {
   '/cai-dat/hien-thi': typeof CaiDatHienThiRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
+  '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
@@ -1218,6 +1227,7 @@ export interface FileRouteTypes {
     | '/cai-dat/hien-thi'
     | '/cai-dat/mat-khau'
     | '/co-phieu/$symbol'
+    | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
@@ -1344,6 +1354,7 @@ export interface FileRouteTypes {
     | '/cai-dat/hien-thi'
     | '/cai-dat/mat-khau'
     | '/co-phieu/$symbol'
+    | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
@@ -1471,6 +1482,7 @@ export interface FileRouteTypes {
     | '/cai-dat/hien-thi'
     | '/cai-dat/mat-khau'
     | '/co-phieu/$symbol'
+    | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
@@ -1599,6 +1611,7 @@ export interface RootRouteChildren {
   CaiDatHienThiRoute: typeof CaiDatHienThiRoute
   CaiDatMatKhauRoute: typeof CaiDatMatKhauRoute
   CoPhieuSymbolRoute: typeof CoPhieuSymbolRoute
+  CongCuDcaLichSuRoute: typeof CongCuDcaLichSuRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   CaiDatIndexRoute: typeof CaiDatIndexRoute
@@ -1994,6 +2007,13 @@ declare module '@tanstack/react-router' {
       path: '/cong-cu/dca-roi'
       fullPath: '/cong-cu/dca-roi'
       preLoaderRoute: typeof CongCuDcaRoiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cong-cu/dca-lich-su': {
+      id: '/cong-cu/dca-lich-su'
+      path: '/cong-cu/dca-lich-su'
+      fullPath: '/cong-cu/dca-lich-su'
+      preLoaderRoute: typeof CongCuDcaLichSuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/co-phieu/$symbol': {
@@ -2645,6 +2665,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaiDatHienThiRoute: CaiDatHienThiRoute,
   CaiDatMatKhauRoute: CaiDatMatKhauRoute,
   CoPhieuSymbolRoute: CoPhieuSymbolRoute,
+  CongCuDcaLichSuRoute: CongCuDcaLichSuRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   CaiDatIndexRoute: CaiDatIndexRoute,
