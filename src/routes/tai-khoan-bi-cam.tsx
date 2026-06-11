@@ -14,6 +14,8 @@ const TITLE = "Tài khoản bị tạm khoá — MarketWatch";
 const DESC = "Tài khoản MarketWatch của bạn đang bị tạm khoá. Gửi đơn kháng nghị để đội ngũ xem xét.";
 
 const STORAGE_KEY = "mw:ban-appeal-creds";
+const AUTOLOGIN_TTL_MS = 5 * 60_000; // 5 phút "bộ nhớ an toàn" cho auto-login
+const MAX_AUTO_RETRIES = 3;
 
 export function setPendingBanCreds(email: string, password: string) {
   try {
@@ -37,6 +39,38 @@ function readPendingCreds(): { email: string; password: string } | null {
 
 function clearPendingCreds() {
   try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
+function readCredsIssuedAt(): number | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const obj = JSON.parse(raw) as { at?: number };
+    return typeof obj?.at === "number" ? obj.at : null;
+  } catch {
+    return null;
+  }
+}
+
+function describeAuthError(err: unknown): { title: string; detail: string; canRetry: boolean } {
+  const msg = (err && typeof err === "object" && "message" in err ? String((err as { message?: unknown }).message ?? "") : String(err ?? "")).toLowerCase();
+  if (!msg) return { title: "Lỗi không xác định", detail: "Không nhận được phản hồi từ máy chủ xác thực. Vui lòng thử lại.", canRetry: true };
+  if (msg.includes("invalid login") || msg.includes("invalid credentials") || msg.includes("invalid_grant")) {
+    return { title: "Sai mật khẩu hoặc tài khoản đã đổi mật khẩu", detail: "Mật khẩu đã lưu không còn hợp lệ. Vui lòng đăng nhập lại thủ công.", canRetry: false };
+  }
+  if (msg.includes("email not confirmed")) {
+    return { title: "Email chưa xác nhận", detail: "Tài khoản chưa xác nhận email. Hãy kiểm tra hộp thư rồi đăng nhập lại.", canRetry: false };
+  }
+  if (msg.includes("user is banned") || msg.includes("user_banned") || msg.includes("banned")) {
+    return { title: "Tài khoản vẫn đang bị khoá", detail: "Hệ thống xác thực vẫn ghi nhận tài khoản bị khoá — có thể đang đồng bộ. Thử lại sau giây lát.", canRetry: true };
+  }
+  if (msg.includes("rate") || msg.includes("too many")) {
+    return { title: "Bị giới hạn tần suất", detail: "Quá nhiều yêu cầu trong thời gian ngắn. Vui lòng đợi rồi thử lại.", canRetry: true };
+  }
+  if (msg.includes("network") || msg.includes("fetch") || msg.includes("failed to fetch")) {
+    return { title: "Mất kết nối mạng", detail: "Không kết nối được tới máy chủ. Kiểm tra mạng rồi thử lại.", canRetry: true };
+  }
+  return { title: "Đăng nhập tự động thất bại", detail: msg, canRetry: true };
 }
 
 interface Appeal {
@@ -74,9 +108,13 @@ function BannedPage() {
   // Auto-unban detection
   const [congrats, setCongrats] = useState<null | "signing-in" | "ready" | "failed">(null);
   const [redirectIn, setRedirectIn] = useState(5);
+  const [authError, setAuthError] = useState<{ title: string; detail: string; canRetry: boolean } | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [credsExpireIn, setCredsExpireIn] = useState<number | null>(null);
 
-  async function autoSignIn(c: { email: string; password: string }) {
+  async function autoSignIn(c: { email: string; password: string }, attempt = 1) {
     setCongrats("signing-in");
+    setAuthError(null);
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: c.email,
@@ -87,9 +125,29 @@ function BannedPage() {
       setCongrats("ready");
     } catch (err) {
       console.error("[ban-appeal] auto sign-in failed", err);
-      clearPendingCreds();
+      const info = describeAuthError(err);
+      setAuthError(info);
+      setRetryCount(attempt);
+      // Backoff retry cho lỗi tạm thời, tối đa MAX_AUTO_RETRIES
+      if (info.canRetry && attempt < MAX_AUTO_RETRIES) {
+        const delay = Math.min(8000, 1500 * Math.pow(2, attempt - 1));
+        setTimeout(() => { void autoSignIn(c, attempt + 1); }, delay);
+        return;
+      }
+      // Không xoá creds ngay — vẫn còn trong TTL 5 phút, cho phép user bấm "Thử lại"
       setCongrats("failed");
     }
+  }
+
+  async function manualRetry() {
+    const stored = readPendingCreds();
+    if (!stored) {
+      setCongrats("failed");
+      setAuthError({ title: "Phiên đã hết hạn", detail: "Mật khẩu tạm đã hết hạn sau 5 phút. Vui lòng đăng nhập lại thủ công.", canRetry: false });
+      return;
+    }
+    setRetryCount(0);
+    await autoSignIn(stored, 1);
   }
 
   useEffect(() => {
@@ -101,6 +159,28 @@ function BannedPage() {
     setCreds(stored);
     void checkStatus(stored);
   }, []);
+
+  // Đồng hồ đếm ngược TTL 5 phút cho mật khẩu trong sessionStorage.
+  // Khi hết hạn -> xoá creds và buộc người dùng nhập lại nếu auto-login chưa thành công.
+  useEffect(() => {
+    if (!creds) { setCredsExpireIn(null); return; }
+    const tick = () => {
+      const at = readCredsIssuedAt();
+      if (!at) { setCredsExpireIn(0); return; }
+      const remain = Math.max(0, AUTOLOGIN_TTL_MS - (Date.now() - at));
+      setCredsExpireIn(Math.ceil(remain / 1000));
+      if (remain <= 0) {
+        clearPendingCreds();
+        setCreds(null);
+        if (congrats === "failed") {
+          setAuthError({ title: "Phiên đã hết hạn", detail: "Mật khẩu tạm đã hết hạn sau 5 phút. Vui lòng đăng nhập lại thủ công.", canRetry: false });
+        }
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [creds, congrats]);
 
   // While waiting for admin review, poll status every 12s so we can:
   //  - auto-sign-in + show congrats when admin approves (account unbanned)
@@ -425,16 +505,32 @@ function BannedPage() {
             </div>
             <DialogTitle className="text-center font-display text-2xl">
               {congrats === "signing-in"
-                ? "Đang đăng nhập lại…"
+                ? retryCount > 0
+                  ? `Đang thử lại lần ${retryCount + 1}/${MAX_AUTO_RETRIES}…`
+                  : "Đang đăng nhập lại…"
                 : congrats === "failed"
-                  ? "Tài khoản đã mở khoá"
+                  ? (authError?.title ?? "Đăng nhập tự động thất bại")
                   : "🎉 Chúc mừng — tài khoản đã được mở lại!"}
             </DialogTitle>
             <DialogDescription className="text-center">
               {congrats === "signing-in"
                 ? "Đội ngũ MarketWatch vừa duyệt kháng nghị của bạn. Đang khôi phục phiên đăng nhập…"
                 : congrats === "failed"
-                  ? "Kháng nghị của bạn đã được duyệt nhưng tự động đăng nhập không thành công. Vui lòng đăng nhập lại thủ công."
+                  ? (
+                      <>
+                        <span className="block">Kháng nghị của bạn đã được duyệt nhưng tự động đăng nhập không thành công.</span>
+                        {authError?.detail && (
+                          <span className="mt-2 block rounded-md bg-destructive/10 px-3 py-2 text-left text-xs text-destructive">
+                            {authError.detail}
+                          </span>
+                        )}
+                        {credsExpireIn != null && credsExpireIn > 0 && authError?.canRetry && (
+                          <span className="mt-2 block text-[11px] text-muted-foreground">
+                            Mật khẩu tạm còn hiệu lực {Math.floor(credsExpireIn / 60)}:{String(credsExpireIn % 60).padStart(2, "0")} — bạn có thể bấm “Thử lại”.
+                          </span>
+                        )}
+                      </>
+                    )
                   : `Kháng nghị của bạn đã được chấp thuận. Bạn sẽ được chuyển về trang chủ sau ${redirectIn}s — chào mừng trở lại ✨`}
             </DialogDescription>
           </DialogHeader>
@@ -445,9 +541,16 @@ function BannedPage() {
               </Button>
             )}
             {congrats === "failed" && (
-              <Button onClick={() => navigate({ to: "/dang-nhap" })} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
-                Đến trang đăng nhập
-              </Button>
+              <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
+                {authError?.canRetry && credsExpireIn != null && credsExpireIn > 0 && (
+                  <Button onClick={() => void manualRetry()} variant="outline">
+                    Thử lại
+                  </Button>
+                )}
+                <Button onClick={() => { clearPendingCreds(); navigate({ to: "/dang-nhap" }); }} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
+                  Đến trang đăng nhập
+                </Button>
+              </div>
             )}
           </DialogFooter>
         </DialogContent>
