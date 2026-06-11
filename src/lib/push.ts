@@ -94,7 +94,7 @@ export async function subscribePush(): Promise<PushState> {
     const vapid = await fetchVapidPublicKey();
     sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapid),
+      applicationServerKey: urlBase64ToUint8Array(vapid) as BufferSource,
     });
   }
 
