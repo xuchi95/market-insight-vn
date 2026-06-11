@@ -5,7 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldAlert, Loader2, CheckCircle2, XCircle, Clock, Eye, EyeOff } from "lucide-react";
+import { ShieldAlert, Loader2, CheckCircle2, XCircle, Clock, Eye, EyeOff, PartyPopper } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/logo.png";
 
 const TITLE = "Tài khoản bị tạm khoá — MarketWatch";
@@ -69,6 +71,26 @@ function BannedPage() {
   const [credPassword, setCredPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [checking, setChecking] = useState(false);
+  // Auto-unban detection
+  const [congrats, setCongrats] = useState<null | "signing-in" | "ready" | "failed">(null);
+  const [redirectIn, setRedirectIn] = useState(5);
+
+  async function autoSignIn(c: { email: string; password: string }) {
+    setCongrats("signing-in");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: c.email,
+        password: c.password,
+      });
+      if (error) throw error;
+      clearPendingCreds();
+      setCongrats("ready");
+    } catch (err) {
+      console.error("[ban-appeal] auto sign-in failed", err);
+      clearPendingCreds();
+      setCongrats("failed");
+    }
+  }
 
   useEffect(() => {
     const stored = readPendingCreds();
@@ -79,6 +101,67 @@ function BannedPage() {
     setCreds(stored);
     void checkStatus(stored);
   }, []);
+
+  // While waiting for admin review, poll status every 12s so we can:
+  //  - auto-sign-in + show congrats when admin approves (account unbanned)
+  //  - move to "decided" when admin rejects
+  useEffect(() => {
+    if (stage !== "submitted" || !creds || congrats) return;
+    let cancelled = false;
+    const tick = async () => {
+      if (cancelled) return;
+      try {
+        const res = await fetch("/api/public/ban-appeal", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "check", ...creds }),
+        });
+        if (cancelled) return;
+        if (res.status === 409) {
+          const j = await res.json().catch(() => ({}));
+          if (j?.error === "not_banned") {
+            void autoSignIn(creds);
+            return;
+          }
+        }
+        if (res.ok) {
+          const j = await res.json();
+          if (j.appeal) {
+            setAppeal(j.appeal as Appeal);
+            if (j.appeal.status === "approved") {
+              void autoSignIn(creds);
+              return;
+            }
+            if (j.appeal.status === "rejected") {
+              setStage("decided");
+              return;
+            }
+          }
+        }
+      } catch {
+        /* network blip — ignore, try next tick */
+      }
+    };
+    const id = setInterval(tick, 12_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [stage, creds, congrats]);
+
+  // Countdown + redirect after congrats dialog appears.
+  useEffect(() => {
+    if (congrats !== "ready") return;
+    setRedirectIn(5);
+    const id = setInterval(() => {
+      setRedirectIn((n) => {
+        if (n <= 1) {
+          clearInterval(id);
+          navigate({ to: "/" });
+          return 0;
+        }
+        return n - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [congrats, navigate]);
 
   async function checkStatus(c: { email: string; password: string }) {
     setChecking(true);
@@ -164,7 +247,7 @@ function BannedPage() {
       }
       setAppeal(json.appeal as Appeal);
       setStage("submitted");
-      clearPendingCreds();
+      // KHÔNG xoá creds — cần giữ để auto-login khi admin duyệt.
       toast.success("Đã gửi kháng nghị. Chúng tôi sẽ phản hồi qua email.");
     } catch {
       toast.error("Lỗi mạng, vui lòng thử lại.");
