@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { findTerm, GLOSSARY, CATEGORY_LABEL } from "@/lib/data/glossary";
+import { findTerm, GLOSSARY, CATEGORY_LABEL, type GlossaryTerm } from "@/lib/data/glossary";
 
 const SITE = "https://marketwatch.vn";
 
@@ -65,7 +65,7 @@ export const Route = createFileRoute("/tu-dien/$slug")({
       ],
     };
   },
-  loader: ({ params }) => {
+  loader: ({ params }): { term: GlossaryTerm } => {
     const term = findTerm(params.slug);
     if (!term) throw notFound();
     return { term };

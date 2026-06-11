@@ -55,6 +55,7 @@ import { Route as ApiChoNhaPhatTrienRouteImport } from './routes/api-cho-nha-pha
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
+import { Route as TuDienSlugRouteImport } from './routes/tu-dien.$slug'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CoPhieuSymbolRouteImport } from './routes/co-phieu.$symbol'
@@ -362,6 +363,11 @@ const CaiDatIndexRoute = CaiDatIndexRouteImport.update({
   id: '/cai-dat/',
   path: '/cai-dat/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TuDienSlugRoute = TuDienSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => TuDienRoute,
 } as any)
 const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
   id: '/tai-san/$symbol',
@@ -813,7 +819,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
-  '/tu-dien': typeof TuDienRoute
+  '/tu-dien': typeof TuDienRouteWithChildren
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/ve-chung-toi': typeof VeChungToiRoute
@@ -832,6 +838,7 @@ export interface FileRoutesByFullPath {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
@@ -938,7 +945,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
-  '/tu-dien': typeof TuDienRoute
+  '/tu-dien': typeof TuDienRouteWithChildren
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/ve-chung-toi': typeof VeChungToiRoute
@@ -957,6 +964,7 @@ export interface FileRoutesByTo {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat': typeof CaiDatIndexRoute
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
@@ -1065,7 +1073,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
-  '/tu-dien': typeof TuDienRoute
+  '/tu-dien': typeof TuDienRouteWithChildren
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/ve-chung-toi': typeof VeChungToiRoute
@@ -1084,6 +1092,7 @@ export interface FileRoutesById {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
+  '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
   '/_admin/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/_admin/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
@@ -1211,6 +1220,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/tu-dien/$slug'
     | '/cai-dat/'
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
@@ -1336,6 +1346,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/tu-dien/$slug'
     | '/cai-dat'
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
@@ -1462,6 +1473,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-roi'
     | '/tai-san/$symbol'
+    | '/tu-dien/$slug'
     | '/cai-dat/'
     | '/_admin/mw-admin/analytics'
     | '/_admin/mw-admin/api-key-requests'
@@ -1570,7 +1582,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TienDienTuRoute: typeof TienDienTuRoute
   TinhLaiSuatTietKiemRoute: typeof TinhLaiSuatTietKiemRoute
-  TuDienRoute: typeof TuDienRoute
+  TuDienRoute: typeof TuDienRouteWithChildren
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   VeChungToiRoute: typeof VeChungToiRoute
@@ -1962,6 +1974,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/cai-dat/'
       preLoaderRoute: typeof CaiDatIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/tu-dien/$slug': {
+      id: '/tu-dien/$slug'
+      path: '/$slug'
+      fullPath: '/tu-dien/$slug'
+      preLoaderRoute: typeof TuDienSlugRouteImport
+      parentRoute: typeof TuDienRoute
     }
     '/tai-san/$symbol': {
       id: '/tai-san/$symbol'
@@ -2560,6 +2579,17 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface TuDienRouteChildren {
+  TuDienSlugRoute: typeof TuDienSlugRoute
+}
+
+const TuDienRouteChildren: TuDienRouteChildren = {
+  TuDienSlugRoute: TuDienSlugRoute,
+}
+
+const TuDienRouteWithChildren =
+  TuDienRoute._addFileChildren(TuDienRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
@@ -2598,7 +2628,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TienDienTuRoute: TienDienTuRoute,
   TinhLaiSuatTietKiemRoute: TinhLaiSuatTietKiemRoute,
-  TuDienRoute: TuDienRoute,
+  TuDienRoute: TuDienRouteWithChildren,
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   VeChungToiRoute: VeChungToiRoute,
