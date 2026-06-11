@@ -16,6 +16,7 @@ import { Route as ViMoVietNamRouteImport } from './routes/vi-mo-viet-nam'
 import { Route as VeChungToiRouteImport } from './routes/ve-chung-toi'
 import { Route as TyGiaNgoaiTeRouteImport } from './routes/ty-gia-ngoai-te'
 import { Route as TyGiaNganHangRouteImport } from './routes/ty-gia-ngan-hang'
+import { Route as TuDienRouteImport } from './routes/tu-dien'
 import { Route as TinhLaiSuatTietKiemRouteImport } from './routes/tinh-lai-suat-tiet-kiem'
 import { Route as TienDienTuRouteImport } from './routes/tien-dien-tu'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -166,6 +167,11 @@ const TyGiaNgoaiTeRoute = TyGiaNgoaiTeRouteImport.update({
 const TyGiaNganHangRoute = TyGiaNganHangRouteImport.update({
   id: '/ty-gia-ngan-hang',
   path: '/ty-gia-ngan-hang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TuDienRoute = TuDienRouteImport.update({
+  id: '/tu-dien',
+  path: '/tu-dien',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TinhLaiSuatTietKiemRoute = TinhLaiSuatTietKiemRouteImport.update({
@@ -807,6 +813,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
+  '/tu-dien': typeof TuDienRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/ve-chung-toi': typeof VeChungToiRoute
@@ -931,6 +938,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
+  '/tu-dien': typeof TuDienRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/ve-chung-toi': typeof VeChungToiRoute
@@ -1057,6 +1065,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/tien-dien-tu': typeof TienDienTuRoute
   '/tinh-lai-suat-tiet-kiem': typeof TinhLaiSuatTietKiemRoute
+  '/tu-dien': typeof TuDienRoute
   '/ty-gia-ngan-hang': typeof TyGiaNganHangRoute
   '/ty-gia-ngoai-te': typeof TyGiaNgoaiTeRoute
   '/ve-chung-toi': typeof VeChungToiRoute
@@ -1183,6 +1192,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
+    | '/tu-dien'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/ve-chung-toi'
@@ -1307,6 +1317,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
+    | '/tu-dien'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/ve-chung-toi'
@@ -1432,6 +1443,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/tien-dien-tu'
     | '/tinh-lai-suat-tiet-kiem'
+    | '/tu-dien'
     | '/ty-gia-ngan-hang'
     | '/ty-gia-ngoai-te'
     | '/ve-chung-toi'
@@ -1558,6 +1570,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TienDienTuRoute: typeof TienDienTuRoute
   TinhLaiSuatTietKiemRoute: typeof TinhLaiSuatTietKiemRoute
+  TuDienRoute: typeof TuDienRoute
   TyGiaNganHangRoute: typeof TyGiaNganHangRoute
   TyGiaNgoaiTeRoute: typeof TyGiaNgoaiTeRoute
   VeChungToiRoute: typeof VeChungToiRoute
@@ -1675,6 +1688,13 @@ declare module '@tanstack/react-router' {
       path: '/ty-gia-ngan-hang'
       fullPath: '/ty-gia-ngan-hang'
       preLoaderRoute: typeof TyGiaNganHangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tu-dien': {
+      id: '/tu-dien'
+      path: '/tu-dien'
+      fullPath: '/tu-dien'
+      preLoaderRoute: typeof TuDienRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tinh-lai-suat-tiet-kiem': {
@@ -2578,6 +2598,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TienDienTuRoute: TienDienTuRoute,
   TinhLaiSuatTietKiemRoute: TinhLaiSuatTietKiemRoute,
+  TuDienRoute: TuDienRoute,
   TyGiaNganHangRoute: TyGiaNganHangRoute,
   TyGiaNgoaiTeRoute: TyGiaNgoaiTeRoute,
   VeChungToiRoute: VeChungToiRoute,
