@@ -842,7 +842,6 @@ export const GLOSSARY: GlossaryTerm[] = [
     keywords: ["lạm phát", "inflation"],
   },
 ];
-];
 
 export function findTerm(slug: string): GlossaryTerm | undefined {
   return GLOSSARY.find((t) => t.slug === slug);
