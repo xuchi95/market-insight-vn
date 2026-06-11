@@ -64,8 +64,8 @@ export function PushNotificationButton() {
       disabled={busy}
       aria-label={label}
       title={label}
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-card/40 text-muted-foreground transition-colors hover:border-[var(--gold)]/60 hover:text-foreground disabled:opacity-50 ${
-        state === 'subscribed' ? 'text-[var(--gold)] border-[var(--gold)]/50' : ''
+      className={`relative inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-[var(--gold)] hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--gold)] disabled:opacity-50 ${
+        state === 'subscribed' ? 'text-[var(--gold)]' : ''
       }`}
     >
       <Icon className="h-4 w-4" />
