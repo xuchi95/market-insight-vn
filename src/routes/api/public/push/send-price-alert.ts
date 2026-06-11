@@ -193,8 +193,6 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
         // Tăng fail_count cho các endpoint lỗi không-fatal
         if (failingEndpoints.length > 0) {
           for (const ep of failingEndpoints) {
-            await supabaseAdmin.rpc('noop').catch(() => null);
-            // Best-effort increment (không cần RPC riêng)
             await supabaseAdmin
               .from('push_subscriptions')
               .update({ last_error: 'send_failed' })
