@@ -421,6 +421,9 @@ export function banAppealDecisionEmail(opts: {
   email: string;
   reason: string;
   adminNote?: string | null;
+  appealId: string;
+  submittedAt: string | Date;
+  decidedAt: string | Date;
 }) {
   const title = opts.approved
     ? "Kháng nghị được chấp nhận — tài khoản đã mở khoá"
@@ -432,17 +435,51 @@ export function banAppealDecisionEmail(opts: {
     ? `<div style="margin:14px 0;padding:12px 14px;border-left:3px solid ${GOLD};background:#fafafa;color:#444;font-size:13px;line-height:1.6;white-space:pre-wrap;"><strong style="color:#222;">Phản hồi từ đội ngũ:</strong><br/>${escape(opts.adminNote)}</div>`
     : "";
   const reasonBlock = `<div style="margin:14px 0;padding:12px 14px;border:1px solid #ececec;border-radius:6px;background:#fff;color:#555;font-size:13px;line-height:1.6;white-space:pre-wrap;"><strong style="color:#222;">Nội dung kháng nghị của bạn:</strong><br/>${escape(opts.reason)}</div>`;
-  const cta = opts.approved
-    ? button(SITE + "/dang-nhap", "Đăng nhập lại")
-    : `<p style="margin:0 0 12px;line-height:1.6;color:#666;font-size:13px;">Nếu bạn cho rằng có nhầm lẫn nghiêm trọng, vui lòng liên hệ <a href="mailto:contact@marketwatch.vn" style="color:#555;">contact@marketwatch.vn</a>.</p>`;
+  const fmt = (d: string | Date) =>
+    new Date(d).toLocaleString("vi-VN", {
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit",
+      timeZone: "Asia/Ho_Chi_Minh",
+    }) + " (giờ VN)";
+  // Mã tham chiếu ngắn, dễ đọc — 8 ký tự đầu của UUID, viết hoa.
+  const refCode = `APL-${opts.appealId.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+  const metaBlock = `
+    <table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;margin:14px 0;border:1px solid #ececec;border-radius:6px;background:#fafafa;font-size:13px;line-height:1.6;">
+      <tbody>
+        <tr><td style="padding:8px 14px;color:#888;width:40%;">Mã tham chiếu</td><td style="padding:8px 14px;color:#111;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:600;">${refCode}</td></tr>
+        <tr><td style="padding:8px 14px;color:#888;border-top:1px solid #ececec;">Email tài khoản</td><td style="padding:8px 14px;color:#333;border-top:1px solid #ececec;">${escape(opts.email)}</td></tr>
+        <tr><td style="padding:8px 14px;color:#888;border-top:1px solid #ececec;">Thời điểm gửi đơn</td><td style="padding:8px 14px;color:#333;border-top:1px solid #ececec;">${escape(fmt(opts.submittedAt))}</td></tr>
+        <tr><td style="padding:8px 14px;color:#888;border-top:1px solid #ececec;">Thời điểm quyết định</td><td style="padding:8px 14px;color:#333;border-top:1px solid #ececec;">${escape(fmt(opts.decidedAt))}</td></tr>
+        <tr><td style="padding:8px 14px;color:#888;border-top:1px solid #ececec;">Kết quả</td><td style="padding:8px 14px;border-top:1px solid #ececec;font-weight:700;color:${opts.approved ? "#15803d" : "#b91c1c"};">${opts.approved ? "Được chấp nhận" : "Bị từ chối"}</td></tr>
+      </tbody>
+    </table>`;
+  const nextSteps = opts.approved
+    ? `
+      <div style="margin:18px 0 8px;font-size:13px;color:#222;font-weight:700;">Bước tiếp theo</div>
+      <ol style="margin:0 0 14px 18px;padding:0;color:#333;font-size:13px;line-height:1.7;">
+        <li>Bấm nút <strong>Đăng nhập lại</strong> bên dưới và sử dụng đúng email/mật khẩu cũ.</li>
+        <li>Kiểm tra lại cài đặt bảo mật (2FA, thiết bị tin cậy) tại <a href="${SITE}/cai-dat/bao-mat" style="color:#555;">Cài đặt bảo mật</a>.</li>
+        <li>Tuân thủ <a href="${SITE}/dieu-khoan-su-dung" style="color:#555;">Điều khoản sử dụng</a> để tránh bị khoá lại — lần khoá sau có thể vĩnh viễn.</li>
+      </ol>
+      ${button(SITE + "/dang-nhap", "Đăng nhập lại")}
+    `
+    : `
+      <div style="margin:18px 0 8px;font-size:13px;color:#222;font-weight:700;">Bước tiếp theo</div>
+      <ul style="margin:0 0 14px 18px;padding:0;color:#333;font-size:13px;line-height:1.7;">
+        <li>Quyết định này là <strong>chung thẩm</strong>: mỗi tài khoản chỉ được kháng nghị một lần.</li>
+        <li>Nếu bạn cho rằng có nhầm lẫn nghiêm trọng (sai danh tính, lỗi hệ thống, dữ liệu bị giả mạo), hãy phản hồi email này hoặc viết tới <a href="mailto:contact@marketwatch.vn?subject=${encodeURIComponent("Phản hồi quyết định " + refCode)}" style="color:#555;">contact@marketwatch.vn</a> kèm <strong>mã tham chiếu ${refCode}</strong>.</li>
+        <li>Vui lòng không tạo tài khoản mới để né tránh lệnh khoá — điều này vi phạm <a href="${SITE}/dieu-khoan-su-dung" style="color:#555;">Điều khoản sử dụng</a>.</li>
+      </ul>
+    `;
   const html = shell(title, `
-    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Kết quả kháng nghị</div>
+    <div style="font-size:12px;color:${GOLD};letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Kết quả kháng nghị · ${refCode}</div>
     <h1 style="font-size:22px;margin:0 0 12px;color:#111;">${escape(title)}</h1>
     <p style="margin:0 0 12px;line-height:1.6;color:#333;">Xin chào <strong>${escape(opts.email)}</strong>,</p>
     <p style="margin:0 0 12px;line-height:1.6;color:#333;">${intro}</p>
+    ${metaBlock}
     ${noteBlock}
     ${reasonBlock}
-    ${cta}
+    ${nextSteps}
   `);
-  return { subject: `[MarketWatch] ${title}`, html };
+  return { subject: `[MarketWatch] ${title} · ${refCode}`, html };
 }
