@@ -530,7 +530,7 @@ function BannedPage() {
                     Thử lại
                   </Button>
                 )}
-                <Button onClick={() => { clearPendingCreds(); navigate({ to: "/dang-nhap" }); }} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
+                <Button onClick={() => { clearPendingBanCreds(); navigate({ to: "/dang-nhap" }); }} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
                   Đến trang đăng nhập
                 </Button>
               </div>
