@@ -4,6 +4,9 @@
 User-agent: *
 Allow: /
 Allow: /sitemap.xml
+Allow: /sitemap-tu-dien.xml
+Allow: /sitemap-index.xml
+Allow: /tu-dien
 # Chặn các endpoint nội bộ (webhook / cron) — không phải nội dung cho người dùng
 Disallow: /api/
 # Cho phép crawl các trang nội dung quan trọng (kể cả khi quy tắc khác trùng)
@@ -28,4 +31,6 @@ User-agent: Bingbot
 Allow: /
 Disallow: /api/
 
+Sitemap: https://marketwatch.vn/sitemap-index.xml
 Sitemap: https://marketwatch.vn/sitemap.xml
+Sitemap: https://marketwatch.vn/sitemap-tu-dien.xml
