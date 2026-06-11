@@ -113,10 +113,12 @@ export const Route = createFileRoute("/api/public/ban-appeal-creds")({
           }
           try {
             const aad = new TextEncoder().encode(String(parsed.data.expiresAt));
+            const iv = b64decode(parsed.data.iv);
+            const ct = b64decode(parsed.data.ciphertext);
             const pt = await crypto.subtle.decrypt(
-              { name: "AES-GCM", iv: b64decode(parsed.data.iv), additionalData: aad },
+              { name: "AES-GCM", iv: iv as BufferSource, additionalData: aad },
               key,
-              b64decode(parsed.data.ciphertext),
+              ct as BufferSource,
             );
             return Response.json({ password: new TextDecoder().decode(pt) });
           } catch {

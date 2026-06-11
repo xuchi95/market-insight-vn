@@ -92,6 +92,7 @@ import { Route as ApiPublicCryptoNewsRouteImport } from './routes/api/public/cry
 import { Route as ApiPublicCryptoChartRouteImport } from './routes/api/public/crypto-chart'
 import { Route as ApiPublicCryptoRouteImport } from './routes/api/public/crypto'
 import { Route as ApiPublicBankRatesRouteImport } from './routes/api/public/bank-rates'
+import { Route as ApiPublicBanAppealCredsRouteImport } from './routes/api/public/ban-appeal-creds'
 import { Route as ApiPublicBanAppealRouteImport } from './routes/api/public/ban-appeal'
 import { Route as ApiPublicAuthsignalPushRouteImport } from './routes/api/public/authsignal-push'
 import { Route as ApiPublicAuthsignalMagicLinkRouteImport } from './routes/api/public/authsignal-magic-link'
@@ -549,6 +550,11 @@ const ApiPublicBankRatesRoute = ApiPublicBankRatesRouteImport.update({
   path: '/api/public/bank-rates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBanAppealCredsRoute = ApiPublicBanAppealCredsRouteImport.update({
+  id: '/api/public/ban-appeal-creds',
+  path: '/api/public/ban-appeal-creds',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBanAppealRoute = ApiPublicBanAppealRouteImport.update({
   id: '/api/public/ban-appeal',
   path: '/api/public/ban-appeal',
@@ -833,6 +839,7 @@ export interface FileRoutesByFullPath {
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
   '/api/public/ban-appeal': typeof ApiPublicBanAppealRoute
+  '/api/public/ban-appeal-creds': typeof ApiPublicBanAppealCredsRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -954,6 +961,7 @@ export interface FileRoutesByTo {
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
   '/api/public/ban-appeal': typeof ApiPublicBanAppealRoute
+  '/api/public/ban-appeal-creds': typeof ApiPublicBanAppealCredsRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -1077,6 +1085,7 @@ export interface FileRoutesById {
   '/api/public/authsignal-magic-link': typeof ApiPublicAuthsignalMagicLinkRoute
   '/api/public/authsignal-push': typeof ApiPublicAuthsignalPushRoute
   '/api/public/ban-appeal': typeof ApiPublicBanAppealRoute
+  '/api/public/ban-appeal-creds': typeof ApiPublicBanAppealCredsRoute
   '/api/public/bank-rates': typeof ApiPublicBankRatesRoute
   '/api/public/crypto': typeof ApiPublicCryptoRoute
   '/api/public/crypto-chart': typeof ApiPublicCryptoChartRoute
@@ -1200,6 +1209,7 @@ export interface FileRouteTypes {
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
     | '/api/public/ban-appeal'
+    | '/api/public/ban-appeal-creds'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -1321,6 +1331,7 @@ export interface FileRouteTypes {
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
     | '/api/public/ban-appeal'
+    | '/api/public/ban-appeal-creds'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -1443,6 +1454,7 @@ export interface FileRouteTypes {
     | '/api/public/authsignal-magic-link'
     | '/api/public/authsignal-push'
     | '/api/public/ban-appeal'
+    | '/api/public/ban-appeal-creds'
     | '/api/public/bank-rates'
     | '/api/public/crypto'
     | '/api/public/crypto-chart'
@@ -1548,6 +1560,7 @@ export interface RootRouteChildren {
   ApiPublicAuthsignalMagicLinkRoute: typeof ApiPublicAuthsignalMagicLinkRoute
   ApiPublicAuthsignalPushRoute: typeof ApiPublicAuthsignalPushRoute
   ApiPublicBanAppealRoute: typeof ApiPublicBanAppealRoute
+  ApiPublicBanAppealCredsRoute: typeof ApiPublicBanAppealCredsRoute
   ApiPublicBankRatesRoute: typeof ApiPublicBankRatesRoute
   ApiPublicCryptoRoute: typeof ApiPublicCryptoRoute
   ApiPublicCryptoChartRoute: typeof ApiPublicCryptoChartRoute
@@ -2169,6 +2182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBankRatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ban-appeal-creds': {
+      id: '/api/public/ban-appeal-creds'
+      path: '/api/public/ban-appeal-creds'
+      fullPath: '/api/public/ban-appeal-creds'
+      preLoaderRoute: typeof ApiPublicBanAppealCredsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ban-appeal': {
       id: '/api/public/ban-appeal'
       path: '/api/public/ban-appeal'
@@ -2544,6 +2564,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAuthsignalMagicLinkRoute: ApiPublicAuthsignalMagicLinkRoute,
   ApiPublicAuthsignalPushRoute: ApiPublicAuthsignalPushRoute,
   ApiPublicBanAppealRoute: ApiPublicBanAppealRoute,
+  ApiPublicBanAppealCredsRoute: ApiPublicBanAppealCredsRoute,
   ApiPublicBankRatesRoute: ApiPublicBankRatesRoute,
   ApiPublicCryptoRoute: ApiPublicCryptoRoute,
   ApiPublicCryptoChartRoute: ApiPublicCryptoChartRoute,
@@ -2585,13 +2606,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
