@@ -20,6 +20,39 @@ export const Route = createFileRoute("/tu-dien/$slug")({
     const url = `${SITE}/tu-dien/${t.slug}`;
     const title = `${t.term} là gì? — Từ điển tài chính MarketWatch`;
     const desc = t.short;
+    const publisher = {
+      "@type": "Organization",
+      name: "MarketWatch Vietnam",
+      url: SITE,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE}/icon-512.png`,
+      },
+    };
+    const faqEntities =
+      t.examples && t.examples.length > 0
+        ? [
+            {
+              "@type": "Question",
+              name: `Ví dụ về ${t.term}?`,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: t.examples.join(" \n"),
+              },
+            },
+            {
+              "@type": "Question",
+              name: `${t.term} là gì?`,
+              acceptedAnswer: { "@type": "Answer", text: t.short },
+            },
+          ]
+        : [
+            {
+              "@type": "Question",
+              name: `${t.term} là gì?`,
+              acceptedAnswer: { "@type": "Answer", text: t.short },
+            },
+          ];
     return {
       meta: [
         { title },
@@ -28,13 +61,19 @@ export const Route = createFileRoute("/tu-dien/$slug")({
           name: "keywords",
           content: [t.term, ...(t.keywords ?? [])].join(", "),
         },
+        { name: "author", content: "MarketWatch Vietnam" },
+        { name: "article:section", content: "Từ điển tài chính" },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:url", content: url },
         { property: "og:type", content: "article" },
         { property: "og:locale", content: "vi_VN" },
+        { property: "og:site_name", content: "MarketWatch Vietnam" },
+        { property: "article:section", content: "Từ điển tài chính" },
+        { property: "article:tag", content: t.term },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: desc },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [
@@ -43,11 +82,45 @@ export const Route = createFileRoute("/tu-dien/$slug")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "DefinedTerm",
+            "@id": url + "#term",
             name: t.term,
+            termCode: t.slug,
             description: t.short,
             url,
-            inDefinedTermSet: `${SITE}/tu-dien`,
+            inDefinedTermSet: {
+              "@type": "DefinedTermSet",
+              "@id": `${SITE}/tu-dien`,
+              name: "Từ điển tài chính MarketWatch",
+              url: `${SITE}/tu-dien`,
+            },
             inLanguage: "vi-VN",
+            about: CATEGORY_LABEL[t.category],
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "@id": url + "#article",
+            headline: `${t.term} là gì?`,
+            description: t.short,
+            articleBody: t.body,
+            url,
+            mainEntityOfPage: url,
+            inLanguage: "vi-VN",
+            articleSection: CATEGORY_LABEL[t.category],
+            keywords: [t.term, ...(t.keywords ?? [])].join(", "),
+            author: publisher,
+            publisher,
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqEntities,
           }),
         },
         {
