@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { NumberFormatToggle } from "@/components/site/NumberFormatToggle";
+import { PushNotificationButton } from "@/components/site/PushNotificationButton";
 import { Button } from "@/components/ui/button";
 import { AdSlot } from "@/components/site/AdSlot";
 import {
@@ -508,6 +509,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
             <NumberFormatToggle />
             <ThemeToggle />
+            <PushNotificationButton />
           </div>
 
           {/* Divider trước cụm auth */}
