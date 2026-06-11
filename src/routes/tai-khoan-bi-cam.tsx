@@ -410,6 +410,48 @@ function BannedPage() {
           </div>
         </main>
       </div>
+
+      <Dialog open={!!congrats} onOpenChange={(o) => { if (!o && congrats === "ready") navigate({ to: "/" }); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-2 grid h-14 w-14 place-items-center rounded-full bg-emerald-500/15 text-emerald-500">
+              {congrats === "signing-in" ? (
+                <Loader2 className="h-7 w-7 animate-spin" />
+              ) : congrats === "failed" ? (
+                <XCircle className="h-7 w-7 text-destructive" />
+              ) : (
+                <PartyPopper className="h-7 w-7" />
+              )}
+            </div>
+            <DialogTitle className="text-center font-display text-2xl">
+              {congrats === "signing-in"
+                ? "Đang đăng nhập lại…"
+                : congrats === "failed"
+                  ? "Tài khoản đã mở khoá"
+                  : "🎉 Chúc mừng — tài khoản đã được mở lại!"}
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              {congrats === "signing-in"
+                ? "Đội ngũ MarketWatch vừa duyệt kháng nghị của bạn. Đang khôi phục phiên đăng nhập…"
+                : congrats === "failed"
+                  ? "Kháng nghị của bạn đã được duyệt nhưng tự động đăng nhập không thành công. Vui lòng đăng nhập lại thủ công."
+                  : `Kháng nghị của bạn đã được chấp thuận. Bạn sẽ được chuyển về trang chủ sau ${redirectIn}s — chào mừng trở lại ✨`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center">
+            {congrats === "ready" && (
+              <Button onClick={() => navigate({ to: "/" })} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
+                Về trang chủ ngay
+              </Button>
+            )}
+            {congrats === "failed" && (
+              <Button onClick={() => navigate({ to: "/dang-nhap" })} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
+                Đến trang đăng nhập
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
