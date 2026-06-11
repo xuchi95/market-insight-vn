@@ -128,7 +128,15 @@ function CookiePolicyPage() {
 
             <h3 className="text-lg font-semibold text-foreground mt-6 mb-1">3.4. Cookie tiếp thị (Marketing)</h3>
             <p>
-              Hiện tại, Website <strong>không chạy quảng cáo hành vi (behavioral advertising)</strong> và không bán dữ liệu cá nhân cho bên thứ ba phục vụ mục đích tiếp thị. Nếu trong tương lai có triển khai, Chúng tôi sẽ cập nhật Chính sách và xin sự đồng ý mới của Bạn theo Điều 11 Nghị định 13/2023/NĐ-CP.
+              Nhóm này phục vụ việc gửi <strong>thông báo đẩy (Web Push)</strong> nhắc giá BTC, ETH, USD, SJC vào 9h sáng và 18h chiều (giờ Việt Nam) tới các thiết bị Bạn đã đăng ký nhận. Khi Bạn bật, trình duyệt sẽ tạo một <em>PushSubscription</em> gồm <code>endpoint</code>, <code>p256dh</code>, <code>auth</code> và Chúng tôi lưu trên máy chủ chỉ để phát thông báo — không dùng cho quảng cáo hành vi, không chia sẻ với bên thứ ba, không hồ sơ hoá người dùng.
+            </p>
+            <ul className="list-disc pl-6 space-y-2 marker:text-primary/60">
+              <li>Bạn có thể bật/tắt bất cứ lúc nào tại biểu tượng chuông trên thanh điều hướng hoặc trong cài đặt thông báo của trình duyệt/hệ điều hành.</li>
+              <li>Khi tắt, đăng ký thiết bị sẽ bị xoá khỏi máy chủ và Bạn sẽ không nhận thêm thông báo nào từ Website.</li>
+              <li>Website <strong>không chạy quảng cáo hành vi (behavioral advertising)</strong>, không đặt pixel theo dõi xuyên trang và không bán dữ liệu cá nhân cho bên thứ ba phục vụ mục đích tiếp thị.</li>
+            </ul>
+            <p>
+              Nếu trong tương lai có triển khai thêm hình thức tiếp thị mới (ví dụ quảng cáo cá nhân hoá, remarketing), Chúng tôi sẽ cập nhật Chính sách và xin sự đồng ý mới của Bạn theo Điều 11 Nghị định 13/2023/NĐ-CP trước khi kích hoạt.
             </p>
 
             <h2 className="text-2xl font-semibold tracking-tight text-foreground mt-8 mb-2 scroll-mt-24">4. Cookie của bên thứ ba</h2>
