@@ -5,7 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldAlert, Loader2, CheckCircle2, XCircle, Clock, Eye, EyeOff } from "lucide-react";
+import { ShieldAlert, Loader2, CheckCircle2, XCircle, Clock, Eye, EyeOff, PartyPopper } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/logo.png";
 
 const TITLE = "Tài khoản bị tạm khoá — MarketWatch";
@@ -69,6 +71,26 @@ function BannedPage() {
   const [credPassword, setCredPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [checking, setChecking] = useState(false);
+  // Auto-unban detection
+  const [congrats, setCongrats] = useState<null | "signing-in" | "ready" | "failed">(null);
+  const [redirectIn, setRedirectIn] = useState(5);
+
+  async function autoSignIn(c: { email: string; password: string }) {
+    setCongrats("signing-in");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: c.email,
+        password: c.password,
+      });
+      if (error) throw error;
+      clearPendingCreds();
+      setCongrats("ready");
+    } catch (err) {
+      console.error("[ban-appeal] auto sign-in failed", err);
+      clearPendingCreds();
+      setCongrats("failed");
+    }
+  }
 
   useEffect(() => {
     const stored = readPendingCreds();
@@ -79,6 +101,67 @@ function BannedPage() {
     setCreds(stored);
     void checkStatus(stored);
   }, []);
+
+  // While waiting for admin review, poll status every 12s so we can:
+  //  - auto-sign-in + show congrats when admin approves (account unbanned)
+  //  - move to "decided" when admin rejects
+  useEffect(() => {
+    if (stage !== "submitted" || !creds || congrats) return;
+    let cancelled = false;
+    const tick = async () => {
+      if (cancelled) return;
+      try {
+        const res = await fetch("/api/public/ban-appeal", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "check", ...creds }),
+        });
+        if (cancelled) return;
+        if (res.status === 409) {
+          const j = await res.json().catch(() => ({}));
+          if (j?.error === "not_banned") {
+            void autoSignIn(creds);
+            return;
+          }
+        }
+        if (res.ok) {
+          const j = await res.json();
+          if (j.appeal) {
+            setAppeal(j.appeal as Appeal);
+            if (j.appeal.status === "approved") {
+              void autoSignIn(creds);
+              return;
+            }
+            if (j.appeal.status === "rejected") {
+              setStage("decided");
+              return;
+            }
+          }
+        }
+      } catch {
+        /* network blip — ignore, try next tick */
+      }
+    };
+    const id = setInterval(tick, 12_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [stage, creds, congrats]);
+
+  // Countdown + redirect after congrats dialog appears.
+  useEffect(() => {
+    if (congrats !== "ready") return;
+    setRedirectIn(5);
+    const id = setInterval(() => {
+      setRedirectIn((n) => {
+        if (n <= 1) {
+          clearInterval(id);
+          navigate({ to: "/" });
+          return 0;
+        }
+        return n - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [congrats, navigate]);
 
   async function checkStatus(c: { email: string; password: string }) {
     setChecking(true);
@@ -164,7 +247,7 @@ function BannedPage() {
       }
       setAppeal(json.appeal as Appeal);
       setStage("submitted");
-      clearPendingCreds();
+      // KHÔNG xoá creds — cần giữ để auto-login khi admin duyệt.
       toast.success("Đã gửi kháng nghị. Chúng tôi sẽ phản hồi qua email.");
     } catch {
       toast.error("Lỗi mạng, vui lòng thử lại.");
@@ -327,6 +410,48 @@ function BannedPage() {
           </div>
         </main>
       </div>
+
+      <Dialog open={!!congrats} onOpenChange={(o) => { if (!o && congrats === "ready") navigate({ to: "/" }); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-2 grid h-14 w-14 place-items-center rounded-full bg-emerald-500/15 text-emerald-500">
+              {congrats === "signing-in" ? (
+                <Loader2 className="h-7 w-7 animate-spin" />
+              ) : congrats === "failed" ? (
+                <XCircle className="h-7 w-7 text-destructive" />
+              ) : (
+                <PartyPopper className="h-7 w-7" />
+              )}
+            </div>
+            <DialogTitle className="text-center font-display text-2xl">
+              {congrats === "signing-in"
+                ? "Đang đăng nhập lại…"
+                : congrats === "failed"
+                  ? "Tài khoản đã mở khoá"
+                  : "🎉 Chúc mừng — tài khoản đã được mở lại!"}
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              {congrats === "signing-in"
+                ? "Đội ngũ MarketWatch vừa duyệt kháng nghị của bạn. Đang khôi phục phiên đăng nhập…"
+                : congrats === "failed"
+                  ? "Kháng nghị của bạn đã được duyệt nhưng tự động đăng nhập không thành công. Vui lòng đăng nhập lại thủ công."
+                  : `Kháng nghị của bạn đã được chấp thuận. Bạn sẽ được chuyển về trang chủ sau ${redirectIn}s — chào mừng trở lại ✨`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center">
+            {congrats === "ready" && (
+              <Button onClick={() => navigate({ to: "/" })} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
+                Về trang chủ ngay
+              </Button>
+            )}
+            {congrats === "failed" && (
+              <Button onClick={() => navigate({ to: "/dang-nhap" })} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
+                Đến trang đăng nhập
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
