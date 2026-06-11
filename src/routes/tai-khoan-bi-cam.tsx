@@ -9,48 +9,17 @@ import { ShieldAlert, Loader2, CheckCircle2, XCircle, Clock, Eye, EyeOff, PartyP
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/logo.png";
+import {
+  setPendingBanCreds,
+  readPendingBanCreds,
+  peekPendingBanCreds,
+  clearPendingBanCreds,
+} from "@/lib/ban-appeal-creds";
 
 const TITLE = "Tài khoản bị tạm khoá — MarketWatch";
 const DESC = "Tài khoản MarketWatch của bạn đang bị tạm khoá. Gửi đơn kháng nghị để đội ngũ xem xét.";
 
-const STORAGE_KEY = "mw:ban-appeal-creds";
-const AUTOLOGIN_TTL_MS = 5 * 60_000; // 5 phút "bộ nhớ an toàn" cho auto-login
 const MAX_AUTO_RETRIES = 3;
-
-export function setPendingBanCreds(email: string, password: string) {
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password, at: Date.now() }));
-  } catch {}
-}
-
-function readPendingCreds(): { email: string; password: string } | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const obj = JSON.parse(raw) as { email?: string; password?: string; at?: number };
-    if (!obj?.email || !obj?.password) return null;
-    // 15 phút TTL
-    if (!obj.at || Date.now() - obj.at > 15 * 60_000) return null;
-    return { email: obj.email, password: obj.password };
-  } catch {
-    return null;
-  }
-}
-
-function clearPendingCreds() {
-  try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
-}
-
-function readCredsIssuedAt(): number | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const obj = JSON.parse(raw) as { at?: number };
-    return typeof obj?.at === "number" ? obj.at : null;
-  } catch {
-    return null;
-  }
-}
 
 function describeAuthError(err: unknown): { title: string; detail: string; canRetry: boolean } {
   const msg = (err && typeof err === "object" && "message" in err ? String((err as { message?: unknown }).message ?? "") : String(err ?? "")).toLowerCase();
