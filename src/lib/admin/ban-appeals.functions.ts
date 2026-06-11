@@ -87,6 +87,9 @@ export const decideBanAppeal = createServerFn({ method: "POST" })
         email: appeal.email,
         reason: appeal.reason,
         adminNote: data.adminNote ?? null,
+        appealId: appeal.id,
+        submittedAt: appeal.created_at,
+        decidedAt: nowIso,
       });
       await sendEmail({ to: appeal.email, subject, html, tags: ["ban-appeal-decision"] });
     } catch (e) {
