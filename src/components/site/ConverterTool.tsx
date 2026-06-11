@@ -193,11 +193,18 @@ export function ConverterTool() {
           >
             <Input
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                // Giới hạn 18 ký tự để tránh số khổng lồ tràn layout
+                const v = e.target.value.slice(0, 18);
+                setAmount(v);
+              }}
               type="text"
               inputMode="decimal"
               placeholder="0"
-              className="h-16 border-0 bg-transparent px-0 text-3xl sm:text-4xl tabular font-semibold tracking-tight text-foreground caret-gold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/40"
+              className={cn(
+                "h-16 w-full min-w-0 border-0 bg-transparent px-0 tabular font-semibold tracking-tight text-foreground caret-gold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/40",
+                amount.length > 14 ? "text-lg sm:text-2xl" : amount.length > 10 ? "text-xl sm:text-3xl" : "text-3xl sm:text-4xl",
+              )}
             />
           </WiseRow>
 
@@ -249,7 +256,7 @@ export function ConverterTool() {
                 <div className="min-h-16 flex flex-col justify-center select-text">
                   <div
                     className={cn(
-                      "tabular font-semibold tracking-tight text-foreground leading-tight whitespace-nowrap",
+                      "tabular font-semibold tracking-tight text-foreground leading-tight break-all",
                       sizeClass,
                     )}
                   >
