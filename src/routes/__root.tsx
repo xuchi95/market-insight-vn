@@ -19,6 +19,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 import { CookieConsent } from "@/components/site/CookieConsent";
+import { InstallPwaPrompt } from "@/components/site/InstallPwaPrompt";
 import { SideAdRails } from "@/components/site/SideAdRails";
 import { getActiveCodeInjections, type PublicInjection } from "@/lib/admin/code-injections.functions";
 import { useAnalyticsTracker } from "@/hooks/useAnalyticsTracker";
@@ -412,6 +413,7 @@ function RootComponent() {
               <NewsletterPopup />
               <AuthWelcomeBanner />
               <CookieConsent />
+              <InstallPwaPrompt />
               {bodyEnd.map((i: PublicInjection, idx: number) => (
                 <div key={`be-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
               ))}
