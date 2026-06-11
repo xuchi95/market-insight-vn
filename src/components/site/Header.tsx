@@ -60,6 +60,7 @@ const NAV_GROUPS: NavGroup[] = [
         heading: "Đầu tư",
         items: [
           { label: "DCA & ROI", to: "/cong-cu/dca-roi", hint: "Tính lợi nhuận" },
+          { label: "DCA lịch sử (giá thật)", to: "/cong-cu/dca-lich-su", hint: "Mô phỏng với BTC/ETH" },
           { label: "Danh mục", to: "/portfolio", hint: "Theo dõi tài sản" },
           { label: "Tính lãi tiết kiệm", to: "/tinh-lai-suat-tiet-kiem", hint: "Tính lãi gửi ngân hàng" },
           { label: "Lãi suất tiết kiệm", to: "/lai-suat-tiet-kiem", hint: "So sánh ngân hàng" },
@@ -73,6 +74,8 @@ const NAV_GROUPS: NavGroup[] = [
           { label: "Vĩ mô Việt Nam", to: "/vi-mo-viet-nam", hint: "GDP, CPI, lãi suất" },
           { label: "AI dự đoán giá", to: "/du-doan-gia-ai", hint: "Vàng, dầu, BTC, ngoại tệ" },
           { label: "API cho nhà phát triển", to: "/api-cho-nha-phat-trien", hint: "REST · SSE · SDK realtime" },
+          { label: "Widget nhúng", to: "/cong-cu/widget-nhung", hint: "Iframe cho blog/web" },
+          { label: "Từ điển tài chính", to: "/tu-dien", hint: "Thuật ngữ đầu tư VN" },
           { label: "Nguồn dữ liệu & phương pháp tính", to: "/nguon-du-lieu", hint: "Lấy từ đâu, cập nhật ra sao" },
           { label: "Về MarketWatch Việt Nam", to: "/ve-chung-toi", hint: "Đội ngũ & sứ mệnh" },
         ],

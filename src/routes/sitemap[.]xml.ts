@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { GLOSSARY } from "@/lib/data/glossary";
 
 const BASE_URL = "https://marketwatch.vn";
 
@@ -21,6 +22,9 @@ const STATIC_ENTRIES: SitemapEntry[] = [
   { path: "/tinh-lai-suat-tiet-kiem", changefreq: "weekly", priority: "0.9" },
   { path: "/vi-mo-viet-nam", changefreq: "daily", priority: "0.85" },
   { path: "/cong-cu/dca-roi", changefreq: "monthly", priority: "0.7" },
+  { path: "/cong-cu/dca-lich-su", changefreq: "monthly", priority: "0.75" },
+  { path: "/cong-cu/widget-nhung", changefreq: "monthly", priority: "0.6" },
+  { path: "/tu-dien", changefreq: "weekly", priority: "0.7" },
   { path: "/du-doan-gia-ai", changefreq: "daily", priority: "0.9" },
   { path: "/tai-san/oil-brent", changefreq: "hourly", priority: "0.8" },
   { path: "/tai-san/oil-wti", changefreq: "hourly", priority: "0.8" },
@@ -189,6 +193,14 @@ function renderUrl(e: SitemapEntry, now: string): string {
   return lines.join("\n");
 }
 
+function glossaryEntries(): SitemapEntry[] {
+  return GLOSSARY.map((t) => ({
+    path: `/tu-dien/${t.slug}`,
+    changefreq: "monthly" as const,
+    priority: "0.55",
+  }));
+}
+
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
@@ -201,6 +213,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           ...assetEntries,
           ...goldEntries(),
           ...bankEntries(),
+          ...glossaryEntries(),
         ];
         const urls = entries.map((e) => renderUrl(e, now)).join("\n");
 
