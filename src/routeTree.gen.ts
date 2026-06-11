@@ -23,6 +23,8 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TaiKhoanBiCamRouteImport } from './routes/tai-khoan-bi-cam'
 import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapTuDienDotxmlRouteImport } from './routes/sitemap-tu-dien[.]xml'
+import { Route as SitemapIndexDotxmlRouteImport } from './routes/sitemap-index[.]xml'
 import { Route as QuyDoiTienTeRouteImport } from './routes/quy-doi-tien-te'
 import { Route as QuenMatKhauRouteImport } from './routes/quen-mat-khau'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -206,6 +208,16 @@ const StocksRoute = StocksRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapTuDienDotxmlRoute = SitemapTuDienDotxmlRouteImport.update({
+  id: '/sitemap-tu-dien.xml',
+  path: '/sitemap-tu-dien.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapIndexDotxmlRoute = SitemapIndexDotxmlRouteImport.update({
+  id: '/sitemap-index.xml',
+  path: '/sitemap-index.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuyDoiTienTeRoute = QuyDoiTienTeRouteImport.update({
@@ -831,6 +843,8 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/quen-mat-khau': typeof QuenMatKhauRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
+  '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
+  '/sitemap-tu-dien.xml': typeof SitemapTuDienDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
   '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
@@ -960,6 +974,8 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/quen-mat-khau': typeof QuenMatKhauRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
+  '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
+  '/sitemap-tu-dien.xml': typeof SitemapTuDienDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
   '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
@@ -1091,6 +1107,8 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/quen-mat-khau': typeof QuenMatKhauRoute
   '/quy-doi-tien-te': typeof QuyDoiTienTeRoute
+  '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
+  '/sitemap-tu-dien.xml': typeof SitemapTuDienDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stocks': typeof StocksRoute
   '/tai-khoan-bi-cam': typeof TaiKhoanBiCamRoute
@@ -1222,6 +1240,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/quen-mat-khau'
     | '/quy-doi-tien-te'
+    | '/sitemap-index.xml'
+    | '/sitemap-tu-dien.xml'
     | '/sitemap.xml'
     | '/stocks'
     | '/tai-khoan-bi-cam'
@@ -1351,6 +1371,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/quen-mat-khau'
     | '/quy-doi-tien-te'
+    | '/sitemap-index.xml'
+    | '/sitemap-tu-dien.xml'
     | '/sitemap.xml'
     | '/stocks'
     | '/tai-khoan-bi-cam'
@@ -1481,6 +1503,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/quen-mat-khau'
     | '/quy-doi-tien-te'
+    | '/sitemap-index.xml'
+    | '/sitemap-tu-dien.xml'
     | '/sitemap.xml'
     | '/stocks'
     | '/tai-khoan-bi-cam'
@@ -1612,6 +1636,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   QuenMatKhauRoute: typeof QuenMatKhauRoute
   QuyDoiTienTeRoute: typeof QuyDoiTienTeRoute
+  SitemapIndexDotxmlRoute: typeof SitemapIndexDotxmlRoute
+  SitemapTuDienDotxmlRoute: typeof SitemapTuDienDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StocksRoute: typeof StocksRoute
   TaiKhoanBiCamRoute: typeof TaiKhoanBiCamRoute
@@ -1788,6 +1814,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-tu-dien.xml': {
+      id: '/sitemap-tu-dien.xml'
+      path: '/sitemap-tu-dien.xml'
+      fullPath: '/sitemap-tu-dien.xml'
+      preLoaderRoute: typeof SitemapTuDienDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-index.xml': {
+      id: '/sitemap-index.xml'
+      path: '/sitemap-index.xml'
+      fullPath: '/sitemap-index.xml'
+      preLoaderRoute: typeof SitemapIndexDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quy-doi-tien-te': {
@@ -2682,6 +2722,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   QuenMatKhauRoute: QuenMatKhauRoute,
   QuyDoiTienTeRoute: QuyDoiTienTeRoute,
+  SitemapIndexDotxmlRoute: SitemapIndexDotxmlRoute,
+  SitemapTuDienDotxmlRoute: SitemapTuDienDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StocksRoute: StocksRoute,
   TaiKhoanBiCamRoute: TaiKhoanBiCamRoute,
