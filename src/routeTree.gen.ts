@@ -67,6 +67,7 @@ import { Route as AssetSymbolRouteImport } from './routes/asset.$symbol'
 import { Route as AdminEmailPreviewRouteImport } from './routes/admin.email-preview'
 import { Route as AdminMwAdminIndexRouteImport } from './routes/_admin/mw-admin.index'
 import { Route as ApiPublicXauRouteImport } from './routes/api/public/xau'
+import { Route as ApiPublicWidgetSnapshotLargeRouteImport } from './routes/api/public/widget-snapshot-large'
 import { Route as ApiPublicWidgetSnapshotRouteImport } from './routes/api/public/widget-snapshot'
 import { Route as ApiPublicWatchlistAlertsCronRouteImport } from './routes/api/public/watchlist-alerts-cron'
 import { Route as ApiPublicVnStockChartRouteImport } from './routes/api/public/vn-stock-chart'
@@ -421,6 +422,12 @@ const ApiPublicXauRoute = ApiPublicXauRouteImport.update({
   path: '/api/public/xau',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWidgetSnapshotLargeRoute =
+  ApiPublicWidgetSnapshotLargeRouteImport.update({
+    id: '/api/public/widget-snapshot-large',
+    path: '/api/public/widget-snapshot-large',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWidgetSnapshotRoute = ApiPublicWidgetSnapshotRouteImport.update({
   id: '/api/public/widget-snapshot',
   path: '/api/public/widget-snapshot',
@@ -872,6 +879,7 @@ export interface FileRoutesByFullPath {
   '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/widget-snapshot': typeof ApiPublicWidgetSnapshotRoute
+  '/api/public/widget-snapshot-large': typeof ApiPublicWidgetSnapshotLargeRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin/': typeof AdminMwAdminIndexRoute
   '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
@@ -995,6 +1003,7 @@ export interface FileRoutesByTo {
   '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/widget-snapshot': typeof ApiPublicWidgetSnapshotRoute
+  '/api/public/widget-snapshot-large': typeof ApiPublicWidgetSnapshotLargeRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/mw-admin': typeof AdminMwAdminIndexRoute
   '/mw-admin/fuel-prices/history': typeof AdminMwAdminFuelPricesHistoryRoute
@@ -1120,6 +1129,7 @@ export interface FileRoutesById {
   '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
   '/api/public/watchlist-alerts-cron': typeof ApiPublicWatchlistAlertsCronRoute
   '/api/public/widget-snapshot': typeof ApiPublicWidgetSnapshotRoute
+  '/api/public/widget-snapshot-large': typeof ApiPublicWidgetSnapshotLargeRoute
   '/api/public/xau': typeof ApiPublicXauRoute
   '/_admin/mw-admin/': typeof AdminMwAdminIndexRoute
   '/_admin/mw-admin/fuel-prices_/history': typeof AdminMwAdminFuelPricesHistoryRoute
@@ -1245,6 +1255,7 @@ export interface FileRouteTypes {
     | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/widget-snapshot'
+    | '/api/public/widget-snapshot-large'
     | '/api/public/xau'
     | '/mw-admin/'
     | '/mw-admin/fuel-prices/history'
@@ -1368,6 +1379,7 @@ export interface FileRouteTypes {
     | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/widget-snapshot'
+    | '/api/public/widget-snapshot-large'
     | '/api/public/xau'
     | '/mw-admin'
     | '/mw-admin/fuel-prices/history'
@@ -1492,6 +1504,7 @@ export interface FileRouteTypes {
     | '/api/public/vn-stock-chart'
     | '/api/public/watchlist-alerts-cron'
     | '/api/public/widget-snapshot'
+    | '/api/public/widget-snapshot-large'
     | '/api/public/xau'
     | '/_admin/mw-admin/'
     | '/_admin/mw-admin/fuel-prices_/history'
@@ -1599,6 +1612,7 @@ export interface RootRouteChildren {
   ApiPublicVnStockChartRoute: typeof ApiPublicVnStockChartRoute
   ApiPublicWatchlistAlertsCronRoute: typeof ApiPublicWatchlistAlertsCronRoute
   ApiPublicWidgetSnapshotRoute: typeof ApiPublicWidgetSnapshotRoute
+  ApiPublicWidgetSnapshotLargeRoute: typeof ApiPublicWidgetSnapshotLargeRoute
   ApiPublicXauRoute: typeof ApiPublicXauRoute
   ApiPublicAnalyticsIngestRoute: typeof ApiPublicAnalyticsIngestRoute
   ApiPublicHooksGscResubmitSitemapRoute: typeof ApiPublicHooksGscResubmitSitemapRoute
@@ -2018,6 +2032,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/xau'
       fullPath: '/api/public/xau'
       preLoaderRoute: typeof ApiPublicXauRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/widget-snapshot-large': {
+      id: '/api/public/widget-snapshot-large'
+      path: '/api/public/widget-snapshot-large'
+      fullPath: '/api/public/widget-snapshot-large'
+      preLoaderRoute: typeof ApiPublicWidgetSnapshotLargeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/widget-snapshot': {
@@ -2611,6 +2632,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicVnStockChartRoute: ApiPublicVnStockChartRoute,
   ApiPublicWatchlistAlertsCronRoute: ApiPublicWatchlistAlertsCronRoute,
   ApiPublicWidgetSnapshotRoute: ApiPublicWidgetSnapshotRoute,
+  ApiPublicWidgetSnapshotLargeRoute: ApiPublicWidgetSnapshotLargeRoute,
   ApiPublicXauRoute: ApiPublicXauRoute,
   ApiPublicAnalyticsIngestRoute: ApiPublicAnalyticsIngestRoute,
   ApiPublicHooksGscResubmitSitemapRoute: ApiPublicHooksGscResubmitSitemapRoute,
