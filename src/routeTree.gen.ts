@@ -58,6 +58,7 @@ import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TuDienSlugRouteImport } from './routes/tu-dien.$slug'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
 import { Route as EmbedGiaRouteImport } from './routes/embed.gia'
+import { Route as CongCuWidgetNhungRouteImport } from './routes/cong-cu.widget-nhung'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CongCuDcaLichSuRouteImport } from './routes/cong-cu.dca-lich-su'
 import { Route as CoPhieuSymbolRouteImport } from './routes/co-phieu.$symbol'
@@ -379,6 +380,11 @@ const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
 const EmbedGiaRoute = EmbedGiaRouteImport.update({
   id: '/embed/gia',
   path: '/embed/gia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CongCuWidgetNhungRoute = CongCuWidgetNhungRouteImport.update({
+  id: '/cong-cu/widget-nhung',
+  path: '/cong-cu/widget-nhung',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CongCuDcaRoiRoute = CongCuDcaRoiRouteImport.update({
@@ -850,6 +856,7 @@ export interface FileRoutesByFullPath {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
+  '/cong-cu/widget-nhung': typeof CongCuWidgetNhungRoute
   '/embed/gia': typeof EmbedGiaRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
@@ -978,6 +985,7 @@ export interface FileRoutesByTo {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
+  '/cong-cu/widget-nhung': typeof CongCuWidgetNhungRoute
   '/embed/gia': typeof EmbedGiaRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
@@ -1108,6 +1116,7 @@ export interface FileRoutesById {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
+  '/cong-cu/widget-nhung': typeof CongCuWidgetNhungRoute
   '/embed/gia': typeof EmbedGiaRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
@@ -1238,6 +1247,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
+    | '/cong-cu/widget-nhung'
     | '/embed/gia'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
@@ -1366,6 +1376,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
+    | '/cong-cu/widget-nhung'
     | '/embed/gia'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
@@ -1495,6 +1506,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
+    | '/cong-cu/widget-nhung'
     | '/embed/gia'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
@@ -1625,6 +1637,7 @@ export interface RootRouteChildren {
   CoPhieuSymbolRoute: typeof CoPhieuSymbolRoute
   CongCuDcaLichSuRoute: typeof CongCuDcaLichSuRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
+  CongCuWidgetNhungRoute: typeof CongCuWidgetNhungRoute
   EmbedGiaRoute: typeof EmbedGiaRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   CaiDatIndexRoute: typeof CaiDatIndexRoute
@@ -2020,6 +2033,13 @@ declare module '@tanstack/react-router' {
       path: '/embed/gia'
       fullPath: '/embed/gia'
       preLoaderRoute: typeof EmbedGiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cong-cu/widget-nhung': {
+      id: '/cong-cu/widget-nhung'
+      path: '/cong-cu/widget-nhung'
+      fullPath: '/cong-cu/widget-nhung'
+      preLoaderRoute: typeof CongCuWidgetNhungRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cong-cu/dca-roi': {
@@ -2687,6 +2707,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoPhieuSymbolRoute: CoPhieuSymbolRoute,
   CongCuDcaLichSuRoute: CongCuDcaLichSuRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
+  CongCuWidgetNhungRoute: CongCuWidgetNhungRoute,
   EmbedGiaRoute: EmbedGiaRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   CaiDatIndexRoute: CaiDatIndexRoute,
