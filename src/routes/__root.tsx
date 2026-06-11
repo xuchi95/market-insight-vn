@@ -230,6 +230,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      // PWA / Home-screen install
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
       // Google Fonts — DM Serif Display + JetBrains Mono. Loaded here
       // instead of via CSS @import to keep lightningcss happy.
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
