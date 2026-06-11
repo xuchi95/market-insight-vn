@@ -9,48 +9,17 @@ import { ShieldAlert, Loader2, CheckCircle2, XCircle, Clock, Eye, EyeOff, PartyP
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/logo.png";
+import {
+  setPendingBanCreds,
+  readPendingBanCreds,
+  peekPendingBanCreds,
+  clearPendingBanCreds,
+} from "@/lib/ban-appeal-creds";
 
 const TITLE = "Tài khoản bị tạm khoá — MarketWatch";
 const DESC = "Tài khoản MarketWatch của bạn đang bị tạm khoá. Gửi đơn kháng nghị để đội ngũ xem xét.";
 
-const STORAGE_KEY = "mw:ban-appeal-creds";
-const AUTOLOGIN_TTL_MS = 5 * 60_000; // 5 phút "bộ nhớ an toàn" cho auto-login
 const MAX_AUTO_RETRIES = 3;
-
-export function setPendingBanCreds(email: string, password: string) {
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password, at: Date.now() }));
-  } catch {}
-}
-
-function readPendingCreds(): { email: string; password: string } | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const obj = JSON.parse(raw) as { email?: string; password?: string; at?: number };
-    if (!obj?.email || !obj?.password) return null;
-    // 15 phút TTL
-    if (!obj.at || Date.now() - obj.at > 15 * 60_000) return null;
-    return { email: obj.email, password: obj.password };
-  } catch {
-    return null;
-  }
-}
-
-function clearPendingCreds() {
-  try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
-}
-
-function readCredsIssuedAt(): number | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const obj = JSON.parse(raw) as { at?: number };
-    return typeof obj?.at === "number" ? obj.at : null;
-  } catch {
-    return null;
-  }
-}
 
 function describeAuthError(err: unknown): { title: string; detail: string; canRetry: boolean } {
   const msg = (err && typeof err === "object" && "message" in err ? String((err as { message?: unknown }).message ?? "") : String(err ?? "")).toLowerCase();
@@ -121,7 +90,7 @@ function BannedPage() {
         password: c.password,
       });
       if (error) throw error;
-      clearPendingCreds();
+      clearPendingBanCreds();
       setCongrats("ready");
     } catch (err) {
       console.error("[ban-appeal] auto sign-in failed", err);
@@ -140,37 +109,47 @@ function BannedPage() {
   }
 
   async function manualRetry() {
-    const stored = readPendingCreds();
-    if (!stored) {
+    const stored = await readPendingBanCreds();
+    if (!stored.ok) {
       setCongrats("failed");
-      setAuthError({ title: "Phiên đã hết hạn", detail: "Mật khẩu tạm đã hết hạn sau 5 phút. Vui lòng đăng nhập lại thủ công.", canRetry: false });
+      setAuthError({
+        title: stored.reason === "network" ? "Lỗi mạng" : "Phiên đã hết hạn",
+        detail: stored.reason === "network"
+          ? "Không kết nối được tới máy chủ để giải mã mật khẩu tạm. Vui lòng thử lại."
+          : "Mật khẩu tạm đã hết hạn sau 5 phút. Vui lòng đăng nhập lại thủ công.",
+        canRetry: stored.reason === "network",
+      });
       return;
     }
     setRetryCount(0);
-    await autoSignIn(stored, 1);
+    await autoSignIn({ email: stored.email, password: stored.password }, 1);
   }
 
   useEffect(() => {
-    const stored = readPendingCreds();
-    if (!stored) {
-      setStage("needs-creds");
-      return;
-    }
-    setCreds(stored);
-    void checkStatus(stored);
+    void (async () => {
+      const stored = await readPendingBanCreds();
+      if (!stored.ok) {
+        setStage("needs-creds");
+        return;
+      }
+      const c = { email: stored.email, password: stored.password };
+      setCreds(c);
+      void checkStatus(c);
+    })();
   }, []);
 
-  // Đồng hồ đếm ngược TTL 5 phút cho mật khẩu trong sessionStorage.
-  // Khi hết hạn -> xoá creds và buộc người dùng nhập lại nếu auto-login chưa thành công.
+  // Đồng hồ đếm ngược TTL 5 phút dựa trên `expiresAt` server cấp (không cần
+  // gọi mạng — blob trong sessionStorage là opaque ciphertext, expiresAt là
+  // plaintext metadata). Khi hết hạn -> xoá creds.
   useEffect(() => {
     if (!creds) { setCredsExpireIn(null); return; }
     const tick = () => {
-      const at = readCredsIssuedAt();
-      if (!at) { setCredsExpireIn(0); return; }
-      const remain = Math.max(0, AUTOLOGIN_TTL_MS - (Date.now() - at));
+      const meta = peekPendingBanCreds();
+      if (!meta) { setCredsExpireIn(0); return; }
+      const remain = Math.max(0, meta.expiresAt - Date.now());
       setCredsExpireIn(Math.ceil(remain / 1000));
       if (remain <= 0) {
-        clearPendingCreds();
+        clearPendingBanCreds();
         setCreds(null);
         if (congrats === "failed") {
           setAuthError({ title: "Phiên đã hết hạn", detail: "Mật khẩu tạm đã hết hạn sau 5 phút. Vui lòng đăng nhập lại thủ công.", canRetry: false });
@@ -254,14 +233,14 @@ function BannedPage() {
       const json = await res.json();
       if (res.status === 401) {
         toast.error("Email hoặc mật khẩu không đúng");
-        clearPendingCreds();
+        clearPendingBanCreds();
         setCreds(null);
         setStage("needs-creds");
         return;
       }
       if (res.status === 409 && json.error === "not_banned") {
         toast.success("Tài khoản không còn bị khoá. Mời bạn đăng nhập lại.");
-        clearPendingCreds();
+        clearPendingBanCreds();
         navigate({ to: "/dang-nhap" });
         return;
       }
@@ -288,7 +267,11 @@ function BannedPage() {
     e.preventDefault();
     if (!credEmail || !credPassword) return;
     const c = { email: credEmail.trim(), password: credPassword };
-    setPendingBanCreds(c.email, c.password);
+    const ok = await setPendingBanCreds(c.email, c.password);
+    if (!ok) {
+      toast.error("Không khởi tạo được phiên bảo mật. Vui lòng thử lại.");
+      return;
+    }
     setCreds(c);
     await checkStatus(c);
   }
@@ -547,7 +530,7 @@ function BannedPage() {
                     Thử lại
                   </Button>
                 )}
-                <Button onClick={() => { clearPendingCreds(); navigate({ to: "/dang-nhap" }); }} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
+                <Button onClick={() => { clearPendingBanCreds(); navigate({ to: "/dang-nhap" }); }} className="bg-gold-gradient text-[var(--gold-foreground)] hover:opacity-95">
                   Đến trang đăng nhập
                 </Button>
               </div>

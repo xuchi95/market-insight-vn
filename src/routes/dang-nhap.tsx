@@ -13,7 +13,7 @@ import { clearMfaVerified, markMfaVerified } from "@/routes/xac-thuc-2fa";
 import { signalAuthWelcome } from "@/components/site/AuthWelcomeBanner";
 import { isDeviceTrusted } from "@/lib/mfa-trust";
 import { requestMagicLink } from "@/lib/auth/magic-link.functions";
-import { setPendingBanCreds } from "@/routes/tai-khoan-bi-cam";
+import { setPendingBanCreds } from "@/lib/ban-appeal-creds";
 
 const TITLE = "Đăng nhập — MarketWatch";
 const DESC = "Đăng nhập MarketWatch để đặt cảnh báo giá và nhận email khi vàng, crypto chạm ngưỡng.";
@@ -61,7 +61,7 @@ function LoginPage() {
       const code = (error as { code?: string }).code;
       const isBanned = code === "user_banned" || /banned/i.test(error.message || "");
       if (isBanned) {
-        setPendingBanCreds(email.trim(), password);
+        await setPendingBanCreds(email.trim(), password);
         navigate({ to: "/tai-khoan-bi-cam" });
         return;
       }
