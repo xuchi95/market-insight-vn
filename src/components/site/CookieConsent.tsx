@@ -346,7 +346,7 @@ export function CookieConsent() {
                     <CookieRow
                       icon={<Cookie className="h-3.5 w-3.5" />}
                       title="Tiếp thị"
-                      desc="Hiện chưa kích hoạt. Sẽ xin lại đồng ý nếu triển khai."
+                      desc="Cá nhân hoá thông báo đẩy & email theo dõi giá BTC, ETH, USD, SJC mỗi 9h và 18h."
                       checked={prefs.marketing}
                       onChange={(v) => setPrefs((p) => ({ ...p, marketing: v }))}
                     />
