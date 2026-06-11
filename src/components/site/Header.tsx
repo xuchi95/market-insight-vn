@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { NumberFormatToggle } from "@/components/site/NumberFormatToggle";
+import { PushNotificationButton } from "@/components/site/PushNotificationButton";
 import { Button } from "@/components/ui/button";
 import { AdSlot } from "@/components/site/AdSlot";
 import {
@@ -508,6 +509,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
             <NumberFormatToggle />
             <ThemeToggle />
+            <PushNotificationButton />
           </div>
 
           {/* Divider trước cụm auth */}
@@ -705,6 +707,15 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   <div className="text-sm text-foreground">Sáng / Tối</div>
                 </div>
                 <ThemeToggle />
+              </div>
+              <div className="mb-3 flex items-center justify-between rounded-xl border border-border bg-card/60 px-3 py-2">
+                <div className="min-w-0">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
+                    Thông báo giá
+                  </div>
+                  <div className="text-sm text-foreground">9h sáng &amp; 18h chiều</div>
+                </div>
+                <PushNotificationButton />
               </div>
               {user ? (
                 <div className="space-y-2">

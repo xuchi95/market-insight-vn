@@ -133,6 +133,10 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicV1StreamRouteImport } from './routes/api/public/v1/stream'
 import { Route as ApiPublicV1SnapshotRouteImport } from './routes/api/public/v1/snapshot'
+import { Route as ApiPublicPushVapidPublicKeyRouteImport } from './routes/api/public/push/vapid-public-key'
+import { Route as ApiPublicPushUnsubscribeRouteImport } from './routes/api/public/push/unsubscribe'
+import { Route as ApiPublicPushSubscribeRouteImport } from './routes/api/public/push/subscribe'
+import { Route as ApiPublicPushSendPriceAlertRouteImport } from './routes/api/public/push/send-price-alert'
 import { Route as ApiPublicHooksSeoAuditRouteImport } from './routes/api/public/hooks/seo-audit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 import { Route as ApiPublicHooksRefreshFuelPricesRouteImport } from './routes/api/public/hooks/refresh-fuel-prices'
@@ -776,6 +780,29 @@ const ApiPublicV1SnapshotRoute = ApiPublicV1SnapshotRouteImport.update({
   path: '/api/public/v1/snapshot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPushVapidPublicKeyRoute =
+  ApiPublicPushVapidPublicKeyRouteImport.update({
+    id: '/api/public/push/vapid-public-key',
+    path: '/api/public/push/vapid-public-key',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicPushUnsubscribeRoute =
+  ApiPublicPushUnsubscribeRouteImport.update({
+    id: '/api/public/push/unsubscribe',
+    path: '/api/public/push/unsubscribe',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicPushSubscribeRoute = ApiPublicPushSubscribeRouteImport.update({
+  id: '/api/public/push/subscribe',
+  path: '/api/public/push/subscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPushSendPriceAlertRoute =
+  ApiPublicPushSendPriceAlertRouteImport.update({
+    id: '/api/public/push/send-price-alert',
+    path: '/api/public/push/send-price-alert',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksSeoAuditRoute = ApiPublicHooksSeoAuditRouteImport.update({
   id: '/api/public/hooks/seo-audit',
   path: '/api/public/hooks/seo-audit',
@@ -937,6 +964,10 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
+  '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
+  '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
+  '/api/public/push/vapid-public-key': typeof ApiPublicPushVapidPublicKeyRoute
   '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
   '/api/public/v1/stream': typeof ApiPublicV1StreamRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1068,6 +1099,10 @@ export interface FileRoutesByTo {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
+  '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
+  '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
+  '/api/public/push/vapid-public-key': typeof ApiPublicPushVapidPublicKeyRoute
   '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
   '/api/public/v1/stream': typeof ApiPublicV1StreamRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1201,6 +1236,10 @@ export interface FileRoutesById {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
+  '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
+  '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
+  '/api/public/push/vapid-public-key': typeof ApiPublicPushVapidPublicKeyRoute
   '/api/public/v1/snapshot': typeof ApiPublicV1SnapshotRoute
   '/api/public/v1/stream': typeof ApiPublicV1StreamRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1334,6 +1373,10 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/send-price-alert'
+    | '/api/public/push/subscribe'
+    | '/api/public/push/unsubscribe'
+    | '/api/public/push/vapid-public-key'
     | '/api/public/v1/snapshot'
     | '/api/public/v1/stream'
     | '/lovable/email/auth/preview'
@@ -1465,6 +1508,10 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/send-price-alert'
+    | '/api/public/push/subscribe'
+    | '/api/public/push/unsubscribe'
+    | '/api/public/push/vapid-public-key'
     | '/api/public/v1/snapshot'
     | '/api/public/v1/stream'
     | '/lovable/email/auth/preview'
@@ -1597,6 +1644,10 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/send-price-alert'
+    | '/api/public/push/subscribe'
+    | '/api/public/push/unsubscribe'
+    | '/api/public/push/vapid-public-key'
     | '/api/public/v1/snapshot'
     | '/api/public/v1/stream'
     | '/lovable/email/auth/preview'
@@ -1709,6 +1760,10 @@ export interface RootRouteChildren {
   ApiPublicHooksRefreshFuelPricesRoute: typeof ApiPublicHooksRefreshFuelPricesRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
   ApiPublicHooksSeoAuditRoute: typeof ApiPublicHooksSeoAuditRoute
+  ApiPublicPushSendPriceAlertRoute: typeof ApiPublicPushSendPriceAlertRoute
+  ApiPublicPushSubscribeRoute: typeof ApiPublicPushSubscribeRoute
+  ApiPublicPushUnsubscribeRoute: typeof ApiPublicPushUnsubscribeRoute
+  ApiPublicPushVapidPublicKeyRoute: typeof ApiPublicPushVapidPublicKeyRoute
   ApiPublicV1SnapshotRoute: typeof ApiPublicV1SnapshotRoute
   ApiPublicV1StreamRoute: typeof ApiPublicV1StreamRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -2586,6 +2641,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1SnapshotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push/vapid-public-key': {
+      id: '/api/public/push/vapid-public-key'
+      path: '/api/public/push/vapid-public-key'
+      fullPath: '/api/public/push/vapid-public-key'
+      preLoaderRoute: typeof ApiPublicPushVapidPublicKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/push/unsubscribe': {
+      id: '/api/public/push/unsubscribe'
+      path: '/api/public/push/unsubscribe'
+      fullPath: '/api/public/push/unsubscribe'
+      preLoaderRoute: typeof ApiPublicPushUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/push/subscribe': {
+      id: '/api/public/push/subscribe'
+      path: '/api/public/push/subscribe'
+      fullPath: '/api/public/push/subscribe'
+      preLoaderRoute: typeof ApiPublicPushSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/push/send-price-alert': {
+      id: '/api/public/push/send-price-alert'
+      path: '/api/public/push/send-price-alert'
+      fullPath: '/api/public/push/send-price-alert'
+      preLoaderRoute: typeof ApiPublicPushSendPriceAlertRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/seo-audit': {
       id: '/api/public/hooks/seo-audit'
       path: '/api/public/hooks/seo-audit'
@@ -2796,6 +2879,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
   ApiPublicHooksSeoAuditRoute: ApiPublicHooksSeoAuditRoute,
+  ApiPublicPushSendPriceAlertRoute: ApiPublicPushSendPriceAlertRoute,
+  ApiPublicPushSubscribeRoute: ApiPublicPushSubscribeRoute,
+  ApiPublicPushUnsubscribeRoute: ApiPublicPushUnsubscribeRoute,
+  ApiPublicPushVapidPublicKeyRoute: ApiPublicPushVapidPublicKeyRoute,
   ApiPublicV1SnapshotRoute: ApiPublicV1SnapshotRoute,
   ApiPublicV1StreamRoute: ApiPublicV1StreamRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

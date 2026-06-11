@@ -811,6 +811,48 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          fail_count: number
+          id: string
+          last_error: string | null
+          last_success_at: string | null
+          p256dh: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          fail_count?: number
+          id?: string
+          last_error?: string | null
+          last_success_at?: string | null
+          p256dh: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          fail_count?: number
+          id?: string
+          last_error?: string | null
+          last_success_at?: string | null
+          p256dh?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       savings_rates_snapshot: {
         Row: {
           fetched_at: string
