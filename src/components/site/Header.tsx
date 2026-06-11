@@ -708,6 +708,15 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 </div>
                 <ThemeToggle />
               </div>
+              <div className="mb-3 flex items-center justify-between rounded-xl border border-border bg-card/60 px-3 py-2">
+                <div className="min-w-0">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
+                    Thông báo giá
+                  </div>
+                  <div className="text-sm text-foreground">9h sáng &amp; 18h chiều</div>
+                </div>
+                <PushNotificationButton />
+              </div>
               {user ? (
                 <div className="space-y-2">
                   <div className="rounded-xl border border-border bg-card/80 p-2.5 flex items-center gap-2.5">
