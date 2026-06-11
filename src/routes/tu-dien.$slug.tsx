@@ -74,10 +74,10 @@ export const Route = createFileRoute("/tu-dien/$slug")({
 });
 
 function TermPage() {
-  const { term } = Route.useLoaderData();
+  const { term } = Route.useLoaderData() as { term: GlossaryTerm };
   const related = (term.related ?? [])
-    .map((s) => GLOSSARY.find((g) => g.slug === s))
-    .filter((x): x is NonNullable<typeof x> => Boolean(x));
+    .map((s: string) => GLOSSARY.find((g) => g.slug === s))
+    .filter((x): x is GlossaryTerm => Boolean(x));
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -99,7 +99,7 @@ function TermPage() {
               <>
                 <h2 className="font-display text-xl mt-8 mb-2">Ví dụ</h2>
                 <ul className="space-y-2">
-                  {term.examples.map((ex, i) => (
+                  {term.examples.map((ex: string, i: number) => (
                     <li key={i} className="text-foreground/85">• {ex}</li>
                   ))}
                 </ul>
@@ -110,9 +110,9 @@ function TermPage() {
               <>
                 <h2 className="font-display text-xl mt-8 mb-2">Dữ liệu liên quan</h2>
                 <ul className="space-y-2">
-                  {term.links.map((l, i) => (
+                  {term.links.map((l: { label: string; to: string }, i: number) => (
                     <li key={i}>
-                      <Link to={l.to} className="text-[var(--gold)] underline hover:opacity-80">
+                      <Link to={l.to as never} className="text-[var(--gold)] underline hover:opacity-80">
                         → {l.label}
                       </Link>
                     </li>
@@ -125,7 +125,7 @@ function TermPage() {
               <>
                 <h2 className="font-display text-xl mt-8 mb-2">Thuật ngữ liên quan</h2>
                 <div className="flex flex-wrap gap-2">
-                  {related.map((r) => (
+                  {related.map((r: GlossaryTerm) => (
                     <Link
                       key={r.slug}
                       to="/tu-dien/$slug"
