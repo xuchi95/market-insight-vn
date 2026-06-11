@@ -19,6 +19,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { NewsletterPopup } from "@/components/site/NewsletterPopup";
 import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 import { CookieConsent } from "@/components/site/CookieConsent";
+import { InstallPwaPrompt } from "@/components/site/InstallPwaPrompt";
 import { SideAdRails } from "@/components/site/SideAdRails";
 import { getActiveCodeInjections, type PublicInjection } from "@/lib/admin/code-injections.functions";
 import { useAnalyticsTracker } from "@/hooks/useAnalyticsTracker";
@@ -217,6 +218,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "robots", content: "index,follow,max-image-preview:large,max-snippet:-1" },
       { name: "theme-color", content: "#0a0a0a" },
       { name: "author", content: "MarketWatch" },
+      { name: "application-name", content: "MarketWatch" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "MarketWatch" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "format-detection", content: "telephone=no" },
       { name: "google-site-verification", content: "QM1xHGgwKqlqIn06cikiqkw6uwQ_bvTwhspQhG_5ezI" },
       { property: "og:title", content: "MarketWatch — Công cụ theo dõi dữ liệu tài chính Việt Nam" },
       { name: "twitter:title", content: "MarketWatch — Công cụ theo dõi dữ liệu tài chính Việt Nam" },
@@ -230,6 +237,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      // PWA / Home-screen install
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
       // Google Fonts — DM Serif Display + JetBrains Mono. Loaded here
       // instead of via CSS @import to keep lightningcss happy.
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -401,6 +413,7 @@ function RootComponent() {
               <NewsletterPopup />
               <AuthWelcomeBanner />
               <CookieConsent />
+              <InstallPwaPrompt />
               {bodyEnd.map((i: PublicInjection, idx: number) => (
                 <div key={`be-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
               ))}

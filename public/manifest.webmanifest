@@ -1,0 +1,26 @@
+{
+  "name": "MarketWatch — Giá vàng, Crypto, Tỷ giá",
+  "short_name": "MarketWatch",
+  "description": "Theo dõi giá vàng SJC, Bitcoin, USD/VND và thị trường tài chính Việt Nam realtime.",
+  "start_url": "/?utm_source=pwa",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "lang": "vi-VN",
+  "dir": "ltr",
+  "categories": ["finance", "news", "business"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Giá vàng", "short_name": "Vàng", "url": "/gia-vang", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Tiền điện tử", "short_name": "Crypto", "url": "/tien-dien-tu", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Tỷ giá ngoại tệ", "short_name": "Tỷ giá", "url": "/ty-gia-ngoai-te", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Quy đổi tiền tệ", "short_name": "Quy đổi", "url": "/quy-doi-tien-te", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
