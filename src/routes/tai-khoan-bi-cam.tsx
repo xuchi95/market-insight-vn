@@ -90,7 +90,7 @@ function BannedPage() {
         password: c.password,
       });
       if (error) throw error;
-      clearPendingCreds();
+      clearPendingBanCreds();
       setCongrats("ready");
     } catch (err) {
       console.error("[ban-appeal] auto sign-in failed", err);
@@ -109,37 +109,47 @@ function BannedPage() {
   }
 
   async function manualRetry() {
-    const stored = readPendingCreds();
-    if (!stored) {
+    const stored = await readPendingBanCreds();
+    if (!stored.ok) {
       setCongrats("failed");
-      setAuthError({ title: "Phiên đã hết hạn", detail: "Mật khẩu tạm đã hết hạn sau 5 phút. Vui lòng đăng nhập lại thủ công.", canRetry: false });
+      setAuthError({
+        title: stored.reason === "network" ? "Lỗi mạng" : "Phiên đã hết hạn",
+        detail: stored.reason === "network"
+          ? "Không kết nối được tới máy chủ để giải mã mật khẩu tạm. Vui lòng thử lại."
+          : "Mật khẩu tạm đã hết hạn sau 5 phút. Vui lòng đăng nhập lại thủ công.",
+        canRetry: stored.reason === "network",
+      });
       return;
     }
     setRetryCount(0);
-    await autoSignIn(stored, 1);
+    await autoSignIn({ email: stored.email, password: stored.password }, 1);
   }
 
   useEffect(() => {
-    const stored = readPendingCreds();
-    if (!stored) {
-      setStage("needs-creds");
-      return;
-    }
-    setCreds(stored);
-    void checkStatus(stored);
+    void (async () => {
+      const stored = await readPendingBanCreds();
+      if (!stored.ok) {
+        setStage("needs-creds");
+        return;
+      }
+      const c = { email: stored.email, password: stored.password };
+      setCreds(c);
+      void checkStatus(c);
+    })();
   }, []);
 
-  // Đồng hồ đếm ngược TTL 5 phút cho mật khẩu trong sessionStorage.
-  // Khi hết hạn -> xoá creds và buộc người dùng nhập lại nếu auto-login chưa thành công.
+  // Đồng hồ đếm ngược TTL 5 phút dựa trên `expiresAt` server cấp (không cần
+  // gọi mạng — blob trong sessionStorage là opaque ciphertext, expiresAt là
+  // plaintext metadata). Khi hết hạn -> xoá creds.
   useEffect(() => {
     if (!creds) { setCredsExpireIn(null); return; }
     const tick = () => {
-      const at = readCredsIssuedAt();
-      if (!at) { setCredsExpireIn(0); return; }
-      const remain = Math.max(0, AUTOLOGIN_TTL_MS - (Date.now() - at));
+      const meta = peekPendingBanCreds();
+      if (!meta) { setCredsExpireIn(0); return; }
+      const remain = Math.max(0, meta.expiresAt - Date.now());
       setCredsExpireIn(Math.ceil(remain / 1000));
       if (remain <= 0) {
-        clearPendingCreds();
+        clearPendingBanCreds();
         setCreds(null);
         if (congrats === "failed") {
           setAuthError({ title: "Phiên đã hết hạn", detail: "Mật khẩu tạm đã hết hạn sau 5 phút. Vui lòng đăng nhập lại thủ công.", canRetry: false });
@@ -223,14 +233,14 @@ function BannedPage() {
       const json = await res.json();
       if (res.status === 401) {
         toast.error("Email hoặc mật khẩu không đúng");
-        clearPendingCreds();
+        clearPendingBanCreds();
         setCreds(null);
         setStage("needs-creds");
         return;
       }
       if (res.status === 409 && json.error === "not_banned") {
         toast.success("Tài khoản không còn bị khoá. Mời bạn đăng nhập lại.");
-        clearPendingCreds();
+        clearPendingBanCreds();
         navigate({ to: "/dang-nhap" });
         return;
       }
@@ -257,7 +267,11 @@ function BannedPage() {
     e.preventDefault();
     if (!credEmail || !credPassword) return;
     const c = { email: credEmail.trim(), password: credPassword };
-    setPendingBanCreds(c.email, c.password);
+    const ok = await setPendingBanCreds(c.email, c.password);
+    if (!ok) {
+      toast.error("Không khởi tạo được phiên bảo mật. Vui lòng thử lại.");
+      return;
+    }
     setCreds(c);
     await checkStatus(c);
   }
