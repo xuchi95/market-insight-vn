@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { GLOSSARY } from "@/lib/data/glossary";
 
 const BASE_URL = "https://marketwatch.vn";
 
@@ -192,6 +193,14 @@ function renderUrl(e: SitemapEntry, now: string): string {
   return lines.join("\n");
 }
 
+function glossaryEntries(): SitemapEntry[] {
+  return GLOSSARY.map((t) => ({
+    path: `/tu-dien/${t.slug}`,
+    changefreq: "monthly" as const,
+    priority: "0.55",
+  }));
+}
+
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
@@ -204,6 +213,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           ...assetEntries,
           ...goldEntries(),
           ...bankEntries(),
+          ...glossaryEntries(),
         ];
         const urls = entries.map((e) => renderUrl(e, now)).join("\n");
 
