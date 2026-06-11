@@ -57,6 +57,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TuDienSlugRouteImport } from './routes/tu-dien.$slug'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
+import { Route as EmbedGiaRouteImport } from './routes/embed.gia'
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CongCuDcaLichSuRouteImport } from './routes/cong-cu.dca-lich-su'
 import { Route as CoPhieuSymbolRouteImport } from './routes/co-phieu.$symbol'
@@ -373,6 +374,11 @@ const TuDienSlugRoute = TuDienSlugRouteImport.update({
 const TaiSanSymbolRoute = TaiSanSymbolRouteImport.update({
   id: '/tai-san/$symbol',
   path: '/tai-san/$symbol',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmbedGiaRoute = EmbedGiaRouteImport.update({
+  id: '/embed/gia',
+  path: '/embed/gia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CongCuDcaRoiRoute = CongCuDcaRoiRouteImport.update({
@@ -844,6 +850,7 @@ export interface FileRoutesByFullPath {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
+  '/embed/gia': typeof EmbedGiaRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
@@ -971,6 +978,7 @@ export interface FileRoutesByTo {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
+  '/embed/gia': typeof EmbedGiaRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat': typeof CaiDatIndexRoute
@@ -1100,6 +1108,7 @@ export interface FileRoutesById {
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
+  '/embed/gia': typeof EmbedGiaRoute
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
@@ -1229,6 +1238,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
+    | '/embed/gia'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat/'
@@ -1356,6 +1366,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
+    | '/embed/gia'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat'
@@ -1484,6 +1495,7 @@ export interface FileRouteTypes {
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
+    | '/embed/gia'
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat/'
@@ -1613,6 +1625,7 @@ export interface RootRouteChildren {
   CoPhieuSymbolRoute: typeof CoPhieuSymbolRoute
   CongCuDcaLichSuRoute: typeof CongCuDcaLichSuRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
+  EmbedGiaRoute: typeof EmbedGiaRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   CaiDatIndexRoute: typeof CaiDatIndexRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
@@ -2000,6 +2013,13 @@ declare module '@tanstack/react-router' {
       path: '/tai-san/$symbol'
       fullPath: '/tai-san/$symbol'
       preLoaderRoute: typeof TaiSanSymbolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/embed/gia': {
+      id: '/embed/gia'
+      path: '/embed/gia'
+      fullPath: '/embed/gia'
+      preLoaderRoute: typeof EmbedGiaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cong-cu/dca-roi': {
@@ -2667,6 +2687,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoPhieuSymbolRoute: CoPhieuSymbolRoute,
   CongCuDcaLichSuRoute: CongCuDcaLichSuRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
+  EmbedGiaRoute: EmbedGiaRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   CaiDatIndexRoute: CaiDatIndexRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
