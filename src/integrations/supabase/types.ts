@@ -865,6 +865,11 @@ export type Database = {
           id: string
           last_error: string | null
           last_success_at: string | null
+          notify_crypto: boolean
+          notify_evening: boolean
+          notify_forex: boolean
+          notify_gold: boolean
+          notify_morning: boolean
           p256dh: string
           updated_at: string
           user_agent: string | null
@@ -878,6 +883,11 @@ export type Database = {
           id?: string
           last_error?: string | null
           last_success_at?: string | null
+          notify_crypto?: boolean
+          notify_evening?: boolean
+          notify_forex?: boolean
+          notify_gold?: boolean
+          notify_morning?: boolean
           p256dh: string
           updated_at?: string
           user_agent?: string | null
@@ -891,6 +901,11 @@ export type Database = {
           id?: string
           last_error?: string | null
           last_success_at?: string | null
+          notify_crypto?: boolean
+          notify_evening?: boolean
+          notify_forex?: boolean
+          notify_gold?: boolean
+          notify_morning?: boolean
           p256dh?: string
           updated_at?: string
           user_agent?: string | null
