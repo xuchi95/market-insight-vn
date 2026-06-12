@@ -135,3 +135,51 @@ export async function unsubscribePush(): Promise<PushState> {
   }
   return Notification.permission === 'denied' ? 'denied' : 'default';
 }
+
+export type PushPreferences = {
+  notify_gold: boolean;
+  notify_crypto: boolean;
+  notify_forex: boolean;
+  notify_morning: boolean;
+  notify_evening: boolean;
+};
+
+export const DEFAULT_PUSH_PREFS: PushPreferences = {
+  notify_gold: true,
+  notify_crypto: true,
+  notify_forex: true,
+  notify_morning: true,
+  notify_evening: true,
+};
+
+export async function getCurrentPushEndpoint(): Promise<string | null> {
+  if (!isPushSupported()) return null;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration(PUSH_SW_URL);
+    const sub = await reg?.pushManager.getSubscription();
+    return sub?.endpoint ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchPushPreferences(endpoint: string): Promise<PushPreferences> {
+  const r = await fetch(`/api/public/push/preferences?endpoint=${encodeURIComponent(endpoint)}`, {
+    cache: 'no-store',
+  });
+  if (!r.ok) return DEFAULT_PUSH_PREFS;
+  const data = (await r.json()) as Partial<PushPreferences>;
+  return { ...DEFAULT_PUSH_PREFS, ...data };
+}
+
+export async function savePushPreferences(
+  endpoint: string,
+  prefs: Partial<PushPreferences>,
+): Promise<void> {
+  const r = await fetch('/api/public/push/preferences', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ endpoint, prefs }),
+  });
+  if (!r.ok) throw new Error('Không lưu được cài đặt thông báo');
+}
