@@ -383,18 +383,18 @@ function AssetDetail() {
     };
   }, [baseCoin, liveTick]);
 
-  const { data: golds } = useQuery({
+  const { data: golds, isLoading: goldLoading } = useQuery({
     queryKey: ["gold"],
     queryFn: fetchGoldPrices,
     enabled: !isBank && !isOil,
   });
   const gold = golds?.find((g) => g.id.toLowerCase() === goldId);
 
-  const { data: bank } = useQuery({ queryKey: ["bank-rates"], queryFn: fetchBankRates, enabled: isBank });
+  const { data: bank, isLoading: bankLoading } = useQuery({ queryKey: ["bank-rates"], queryFn: fetchBankRates, enabled: isBank });
   const bankRow = bank?.items.find((r) => r.code.toUpperCase() === bankCode);
 
   // Oil (Brent/WTI) — current price + history
-  const { data: oilData } = useQuery({
+  const { data: oilData, isLoading: oilLoading } = useQuery({
     queryKey: ["oil"],
     queryFn: async () => {
       const r = await fetch("/api/public/oil");
