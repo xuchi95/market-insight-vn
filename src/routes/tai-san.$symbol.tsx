@@ -113,6 +113,34 @@ export const Route = createFileRoute("/tai-san/$symbol")({
       });
     }
   },
+  loader: async ({ context, params }) => {
+    // Pre-fetch the relevant dataset on the server so the SSR HTML renders
+    // real content (price, name, KPIs) instead of the "Không tìm thấy mã"
+    // fallback. Without this, Googlebot indexes the empty state and uses
+    // "Không tìm thấy..." as the SERP title.
+    const slug = params.symbol.toLowerCase();
+    const qc = context.queryClient;
+    try {
+      if (slug.startsWith("bank-")) {
+        await qc.ensureQueryData({ queryKey: ["bank-rates"], queryFn: fetchBankRates });
+      } else if (slug.startsWith("gold-")) {
+        await qc.ensureQueryData({ queryKey: ["gold"], queryFn: fetchGoldPrices });
+      } else if (slug === "oil-brent" || slug === "oil-wti") {
+        await qc.ensureQueryData({
+          queryKey: ["oil"],
+          queryFn: async () => {
+            const r = await fetch("/api/public/oil");
+            if (!r.ok) throw new Error("oil " + r.status);
+            return r.json();
+          },
+        });
+      } else {
+        await qc.ensureQueryData({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices() });
+      }
+    } catch {
+      // Loader errors should not block render — client will retry the query.
+    }
+  },
   head: ({ params }) => {
     const SYM = params.symbol.toUpperCase();
     const SITE = "https://marketwatch.vn";
