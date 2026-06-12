@@ -11,6 +11,8 @@ import { SectionCard } from "./SectionCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
+import { useCompactView } from "@/hooks/useCompactView";
+import { CompactViewToggle } from "./CompactViewToggle";
 
 export function GoldPriceTable({ search }: { search?: string }) {
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -21,6 +23,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
   });
   useQueryErrorToast(isError, error, "giá vàng");
   const { compact } = useNumberFormat();
+  const { colCls } = useCompactView();
   const [brand, setBrand] = useState("all");
 
   const brands = useMemo(() => {
@@ -53,6 +56,9 @@ export function GoldPriceTable({ search }: { search?: string }) {
         </Select>
       }
     >
+      <div className="flex items-center justify-end px-3 pt-2 md:hidden">
+        <CompactViewToggle />
+      </div>
       {isError && (data?.length ?? 0) > 0 && (
         <div className="flex items-start gap-2 px-4 py-2.5 text-xs bg-[var(--down)]/10 text-[var(--down)] border-b border-border">
           <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
@@ -67,11 +73,11 @@ export function GoldPriceTable({ search }: { search?: string }) {
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="text-left px-1.5 sm:px-4 py-3 font-semibold">Thương hiệu</th>
-              <th className="text-left px-2 sm:px-4 py-3 font-semibold hidden sm:table-cell">Loại vàng</th>
-              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold hidden min-[440px]:table-cell">Mua</th>
+              <th className={`text-left px-2 sm:px-4 py-3 font-semibold ${colCls("sm")}`}>Loại vàng</th>
+              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Mua</th>
               <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Bán</th>
-              <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Giá trung bình</th>
-              <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Chênh lệch</th>
+              <th className={`text-right px-4 py-3 font-semibold ${colCls("md")}`}>Giá trung bình</th>
+              <th className={`text-right px-4 py-3 font-semibold ${colCls("md")}`}>Chênh lệch</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -96,15 +102,15 @@ export function GoldPriceTable({ search }: { search?: string }) {
                     </Link>
                     <span className="block text-xs text-muted-foreground truncate sm:hidden">{g.type}</span>
                   </td>
-                  <td className="px-2 sm:px-4 py-3 text-muted-foreground hidden sm:table-cell">
+                  <td className={`px-2 sm:px-4 py-3 text-muted-foreground ${colCls("sm")}`}>
                     <Link to="/tai-san/$symbol" params={{ symbol: `gold-${g.id}` }} className="hover:text-foreground">
                       {g.type}
                     </Link>
                   </td>
-                  <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums hidden min-[440px]:table-cell"><AnimatedNumber value={g.buy} format={fmt} /></td>
+                  <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums"><AnimatedNumber value={g.buy} format={fmt} /></td>
                   <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={g.sell} format={fmt} /></td>
-                  <td className="px-4 py-3 text-right hidden md:table-cell"><AnimatedNumber value={mid} format={fmt} noFlash minChars={isUsd ? 8 : 7} /></td>
-                  <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={g.sell - g.buy} format={fmt} noFlash minChars={isUsd ? 6 : 5} /></td>
+                  <td className={`px-4 py-3 text-right ${colCls("md")}`}><AnimatedNumber value={mid} format={fmt} noFlash minChars={isUsd ? 8 : 7} /></td>
+                  <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}><AnimatedNumber value={g.sell - g.buy} format={fmt} noFlash minChars={isUsd ? 6 : 5} /></td>
                 </tr>
               );
             })}

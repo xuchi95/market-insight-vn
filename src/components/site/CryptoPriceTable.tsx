@@ -19,6 +19,8 @@ import { SectionCard } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
+import { useCompactView } from "@/hooks/useCompactView";
+import { CompactViewToggle } from "./CompactViewToggle";
 
 type SortKey = "marketCap" | "priceUsd" | "priceVnd" | "change24h" | "volume24h";
 type Category = "all" | "top-mcap" | "top-volume";
@@ -46,6 +48,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   });
   useQueryErrorToast(isError, error, "giá crypto");
   const { compact } = useNumberFormat();
+  const { colCls } = useCompactView();
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
@@ -159,6 +162,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
             })}
           </div>
 
+          <CompactViewToggle className="ml-auto" />
         </div>
 
         <div className="rounded-lg border border-border overflow-visible">
@@ -194,22 +198,22 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   <SortBtn k="priceUsd" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden md:table-cell`}
+                  className={`${stickyThClass} text-right px-4 py-3 font-semibold ${colCls("md")}`}
                 >
                   <SortBtn k="priceVnd" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden lg:table-cell`}
+                  className={`${stickyThClass} text-right px-4 py-3 font-semibold ${colCls("lg")}`}
                 >
                   <SortBtn k="marketCap" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden lg:table-cell`}
+                  className={`${stickyThClass} text-right px-4 py-3 font-semibold ${colCls("lg")}`}
                 >
                   <SortBtn k="volume24h" />
                 </th>
                 <th
-                  className={`${stickyThClass} text-right px-4 py-3 font-semibold hidden md:table-cell`}
+                  className={`${stickyThClass} text-right px-4 py-3 font-semibold ${colCls("md")}`}
                 >
                   7d
                 </th>
@@ -253,7 +257,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       format={(v) => fmtUSD(v, c.priceUsd < 1 ? 4 : 2)}
                     />
                   </td>
-                  <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell">
+                  <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}>
                     <AnimatedNumber
                       value={c.priceVnd}
                       minChars={14}
@@ -261,7 +265,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       format={(v) => fmtSmartVND(v, compact)}
                     />
                   </td>
-                  <td className="px-4 py-3 text-right text-muted-foreground hidden lg:table-cell">
+                  <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("lg")}`}>
                     <AnimatedNumber
                       value={c.marketCap}
                       minChars={9}
@@ -269,7 +273,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       format={(v) => (compact ? fmtCompactUSD(v) : fmtUSD(v, 0))}
                     />
                   </td>
-                  <td className="px-4 py-3 text-right text-muted-foreground hidden lg:table-cell">
+                  <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("lg")}`}>
                     <AnimatedNumber
                       value={c.volume24h}
                       minChars={9}
@@ -277,7 +281,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                       format={(v) => (compact ? fmtCompactUSD(v) : fmtUSD(v, 0))}
                     />
                   </td>
-                  <td className="px-4 py-3 text-right hidden md:table-cell">
+                  <td className={`px-4 py-3 text-right ${colCls("md")}`}>
                     <div className="inline-block">
                       <Sparkline data={c.sparkline} />
                     </div>

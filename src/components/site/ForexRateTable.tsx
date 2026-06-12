@@ -9,6 +9,8 @@ import { SectionCard, LiveDot } from "./SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryErrorToast } from "@/hooks/useQueryErrorToast";
+import { useCompactView } from "@/hooks/useCompactView";
+import { CompactViewToggle } from "./CompactViewToggle";
 
 export function ForexRateTable({ search }: { search?: string }) {
   const { data, isLoading, refetch, isFetching, dataUpdatedAt, isError, error } = useQuery({
@@ -17,6 +19,7 @@ export function ForexRateTable({ search }: { search?: string }) {
     refetchInterval: 10 * 60 * 1000,
   });
   useQueryErrorToast(isError, error, "tỷ giá ngoại tệ");
+  const { colCls } = useCompactView();
   const rows = useMemo(() => {
     let r = data ?? [];
     if (search) {
@@ -34,6 +37,9 @@ export function ForexRateTable({ search }: { search?: string }) {
       meta={<><LiveDot /> Cập nhật {dataUpdatedAt ? fmtTime(dataUpdatedAt) : "—"}</>}
       action={<Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching}><RefreshCw className={"h-4 w-4 " + (isFetching ? "animate-spin" : "")} /></Button>}
     >
+      <div className="flex items-center justify-end px-3 pt-2 md:hidden">
+        <CompactViewToggle />
+      </div>
       {isError && (data?.length ?? 0) > 0 && (
         <div className="flex items-start gap-2 px-4 py-2.5 text-xs bg-[var(--down)]/10 text-[var(--down)] border-b border-border">
           <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
@@ -48,10 +54,10 @@ export function ForexRateTable({ search }: { search?: string }) {
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="text-left px-1.5 sm:px-4 py-3 font-semibold">Mã</th>
-              <th className="text-left px-2 sm:px-4 py-3 font-semibold hidden sm:table-cell">Tiền tệ</th>
+              <th className={`text-left px-2 sm:px-4 py-3 font-semibold ${colCls("sm")}`}>Tiền tệ</th>
               <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Mua</th>
               <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Bán</th>
-              <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Trung bình</th>
+              <th className={`text-right px-4 py-3 font-semibold ${colCls("md")}`}>Trung bình</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -66,14 +72,14 @@ export function ForexRateTable({ search }: { search?: string }) {
                   </Link>
                   <span className="block text-xs font-normal text-muted-foreground truncate sm:hidden">{r.name}</span>
                 </td>
-                <td className="px-2 sm:px-4 py-3 text-muted-foreground hidden sm:table-cell">
+                <td className={`px-2 sm:px-4 py-3 text-muted-foreground ${colCls("sm")}`}>
                   <Link to="/tai-san/$symbol" params={{ symbol: r.code.toLowerCase() }} className="hover:text-foreground">
                     {r.name}
                   </Link>
                 </td>
                 <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums"><AnimatedNumber value={r.buy} format={(v) => fmtNum(v, 2)} /></td>
                 <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={r.sell} format={(v) => fmtNum(v, 2)} /></td>
-                <td className="px-4 py-3 text-right text-muted-foreground hidden md:table-cell"><AnimatedNumber value={r.mid} format={(v) => fmtNum(v, 2)} noFlash minChars={9} /></td>
+                <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}><AnimatedNumber value={r.mid} format={(v) => fmtNum(v, 2)} noFlash minChars={9} /></td>
               </tr>
             ))}
             {!isLoading && rows.length === 0 && (
