@@ -48,7 +48,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   });
   useQueryErrorToast(isError, error, "giá crypto");
   const { compact } = useNumberFormat();
-  const { colCls } = useCompactView();
+  const { colCls, isColVisible } = useCompactView();
   const [category, setCategory] = useState<Category>("all");
   const [sort, setSort] = useState<SortKey>("marketCap");
   const [dir, setDir] = useState<"asc" | "desc">("desc");
@@ -258,33 +258,47 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                     />
                   </td>
                   <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}>
-                    <AnimatedNumber
-                      value={c.priceVnd}
-                      minChars={14}
-                      noFlash
-                      format={(v) => fmtSmartVND(v, compact)}
-                    />
+                    {isColVisible("md") ? (
+                      <AnimatedNumber
+                        value={c.priceVnd}
+                        minChars={14}
+                        noFlash
+                        format={(v) => fmtSmartVND(v, compact)}
+                      />
+                    ) : (
+                      <span className="tabular">{fmtSmartVND(c.priceVnd, compact)}</span>
+                    )}
                   </td>
                   <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("lg")}`}>
-                    <AnimatedNumber
-                      value={c.marketCap}
-                      minChars={9}
-                      noFlash
-                      format={(v) => (compact ? fmtCompactUSD(v) : fmtUSD(v, 0))}
-                    />
+                    {isColVisible("lg") ? (
+                      <AnimatedNumber
+                        value={c.marketCap}
+                        minChars={9}
+                        noFlash
+                        format={(v) => (compact ? fmtCompactUSD(v) : fmtUSD(v, 0))}
+                      />
+                    ) : (
+                      <span className="tabular">{compact ? fmtCompactUSD(c.marketCap) : fmtUSD(c.marketCap, 0)}</span>
+                    )}
                   </td>
                   <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("lg")}`}>
-                    <AnimatedNumber
-                      value={c.volume24h}
-                      minChars={9}
-                      noFlash
-                      format={(v) => (compact ? fmtCompactUSD(v) : fmtUSD(v, 0))}
-                    />
+                    {isColVisible("lg") ? (
+                      <AnimatedNumber
+                        value={c.volume24h}
+                        minChars={9}
+                        noFlash
+                        format={(v) => (compact ? fmtCompactUSD(v) : fmtUSD(v, 0))}
+                      />
+                    ) : (
+                      <span className="tabular">{compact ? fmtCompactUSD(c.volume24h) : fmtUSD(c.volume24h, 0)}</span>
+                    )}
                   </td>
                   <td className={`px-4 py-3 text-right ${colCls("md")}`}>
-                    <div className="inline-block">
-                      <Sparkline data={c.sparkline} />
-                    </div>
+                    {isColVisible("md") && (
+                      <div className="inline-block">
+                        <Sparkline data={c.sparkline} />
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
