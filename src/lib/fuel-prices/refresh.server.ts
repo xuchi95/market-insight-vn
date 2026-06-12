@@ -213,6 +213,26 @@ export async function refreshFuelPricesFromPetrolimex(opts: {
   rows: ExtractedSnapshot["rows"];
 }> {
   const { pageUrl, imageUrl, markdown } = await findLatestPetrolimexRelease();
+
+  // === Sớm thoát khi không có kỳ mới (TRƯỚC khi gọi AI để tiết kiệm credits) ===
+  // Petrolimex giữ nguyên URL thông cáo cho mỗi kỳ điều chỉnh; nếu source_url
+  // trùng với snapshot hiện tại thì chắc chắn chưa có kỳ mới — không cần OCR.
+  const { data: existingPre } = await supabaseAdmin
+    .from("vn_fuel_prices_snapshot")
+    .select("effective_from, source_url, rows")
+    .eq("id", "latest")
+    .maybeSingle();
+  if (existingPre?.source_url && existingPre.source_url === pageUrl) {
+    return {
+      updated: false,
+      effective_from: existingPre.effective_from ?? "",
+      previous_effective_from: existingPre.effective_from ?? null,
+      rowCount: Array.isArray(existingPre.rows) ? (existingPre.rows as unknown[]).length : 0,
+      source_url: pageUrl,
+      rows: (existingPre.rows as ExtractedSnapshot["rows"]) ?? [],
+    };
+  }
+
   const extracted = await aiExtract(imageUrl, markdown);
 
   // === Safeguard: đảm bảo chọn ĐÚNG kỳ theo NGÀY THỰC, không phụ thuộc string sort ===
@@ -237,12 +257,7 @@ export async function refreshFuelPricesFromPetrolimex(opts: {
     );
   }
 
-  const { data: existing } = await supabaseAdmin
-    .from("vn_fuel_prices_snapshot")
-    .select("effective_from")
-    .eq("id", "latest")
-    .maybeSingle();
-  const previous = existing?.effective_from ?? null;
+  const previous = existingPre?.effective_from ?? null;
 
   if (previous && previous.trim() === extracted.effective_from.trim()) {
     return {
