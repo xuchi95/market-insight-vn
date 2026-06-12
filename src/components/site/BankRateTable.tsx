@@ -71,14 +71,14 @@ export function BankRateTable() {
         />
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-[13px] sm:text-sm">
+        <table className="w-full text-sm">
           <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="text-left px-1.5 sm:px-4 py-3 font-semibold">Mã</th>
-              <th className="text-left px-4 py-3 font-semibold hidden sm:table-cell">Tiền tệ</th>
-              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Mua TM</th>
-              <th className="text-right px-4 py-3 font-semibold hidden sm:table-cell">Mua CK</th>
-              <th className="text-right px-1.5 sm:px-4 py-3 font-semibold">Bán</th>
+              <th className="text-left px-4 py-3 font-semibold">Mã</th>
+              <th className="text-left px-4 py-3 font-semibold">Tiền tệ</th>
+              <th className="text-right px-4 py-3 font-semibold">Mua tiền mặt</th>
+              <th className="text-right px-4 py-3 font-semibold">Mua CK</th>
+              <th className="text-right px-4 py-3 font-semibold">Bán</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -87,20 +87,19 @@ export function BankRateTable() {
             ))}
             {rows.map((r) => (
               <tr key={r.code} className="hover:bg-muted/30 transition-colors">
-                <td className="px-1.5 sm:px-4 py-3 font-bold min-w-0 max-w-[88px] sm:max-w-none">
-                  <Link to="/tai-san/$symbol" params={{ symbol: `bank-${r.code.toLowerCase()}` }} className="text-gold hover:underline block truncate">
+                <td className="px-4 py-3 font-bold text-gold">
+                  <Link to="/tai-san/$symbol" params={{ symbol: `bank-${r.code.toLowerCase()}` }} className="hover:underline">
                     {r.code}
                   </Link>
-                  <span className="block text-xs font-normal text-muted-foreground truncate sm:hidden">{r.name}</span>
                 </td>
-                <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">
+                <td className="px-4 py-3 text-muted-foreground">
                   <Link to="/tai-san/$symbol" params={{ symbol: `bank-${r.code.toLowerCase()}` }} className="hover:text-foreground">
                     {r.name}
                   </Link>
                 </td>
-                <td className="px-1.5 sm:px-4 py-3 text-right tabular whitespace-nowrap">{r.cash ? fmtNum(r.cash, 2) : "—"}</td>
-                <td className="px-4 py-3 text-right tabular hidden sm:table-cell">{r.transfer ? fmtNum(r.transfer, 2) : "—"}</td>
-                <td className="px-1.5 sm:px-4 py-3 text-right tabular font-semibold whitespace-nowrap">{r.sell ? fmtNum(r.sell, 2) : "—"}</td>
+                <td className="px-4 py-3 text-right tabular">{r.cash ? fmtNum(r.cash, 2) : "—"}</td>
+                <td className="px-4 py-3 text-right tabular">{r.transfer ? fmtNum(r.transfer, 2) : "—"}</td>
+                <td className="px-4 py-3 text-right tabular font-semibold">{r.sell ? fmtNum(r.sell, 2) : "—"}</td>
               </tr>
             ))}
             {!isLoading && rows.length === 0 && !showErrorOnly && (
