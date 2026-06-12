@@ -138,6 +138,7 @@ import { Route as ApiPublicPushVapidPublicKeyRouteImport } from './routes/api/pu
 import { Route as ApiPublicPushUnsubscribeRouteImport } from './routes/api/public/push/unsubscribe'
 import { Route as ApiPublicPushSubscribeRouteImport } from './routes/api/public/push/subscribe'
 import { Route as ApiPublicPushSendPriceAlertRouteImport } from './routes/api/public/push/send-price-alert'
+import { Route as ApiPublicPushPreferencesRouteImport } from './routes/api/public/push/preferences'
 import { Route as ApiPublicHooksSeoAuditRouteImport } from './routes/api/public/hooks/seo-audit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 import { Route as ApiPublicHooksRefreshFuelPricesRouteImport } from './routes/api/public/hooks/refresh-fuel-prices'
@@ -809,6 +810,12 @@ const ApiPublicPushSendPriceAlertRoute =
     path: '/api/public/push/send-price-alert',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPushPreferencesRoute =
+  ApiPublicPushPreferencesRouteImport.update({
+    id: '/api/public/push/preferences',
+    path: '/api/public/push/preferences',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksSeoAuditRoute = ApiPublicHooksSeoAuditRouteImport.update({
   id: '/api/public/hooks/seo-audit',
   path: '/api/public/hooks/seo-audit',
@@ -971,6 +978,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/preferences': typeof ApiPublicPushPreferencesRoute
   '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
   '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
   '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
@@ -1107,6 +1115,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/preferences': typeof ApiPublicPushPreferencesRoute
   '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
   '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
   '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
@@ -1245,6 +1254,7 @@ export interface FileRoutesById {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/preferences': typeof ApiPublicPushPreferencesRoute
   '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
   '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
   '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
@@ -1383,6 +1393,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/preferences'
     | '/api/public/push/send-price-alert'
     | '/api/public/push/subscribe'
     | '/api/public/push/unsubscribe'
@@ -1519,6 +1530,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/preferences'
     | '/api/public/push/send-price-alert'
     | '/api/public/push/subscribe'
     | '/api/public/push/unsubscribe'
@@ -1656,6 +1668,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/preferences'
     | '/api/public/push/send-price-alert'
     | '/api/public/push/subscribe'
     | '/api/public/push/unsubscribe'
@@ -1772,6 +1785,7 @@ export interface RootRouteChildren {
   ApiPublicHooksRefreshFuelPricesRoute: typeof ApiPublicHooksRefreshFuelPricesRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
   ApiPublicHooksSeoAuditRoute: typeof ApiPublicHooksSeoAuditRoute
+  ApiPublicPushPreferencesRoute: typeof ApiPublicPushPreferencesRoute
   ApiPublicPushSendPriceAlertRoute: typeof ApiPublicPushSendPriceAlertRoute
   ApiPublicPushSubscribeRoute: typeof ApiPublicPushSubscribeRoute
   ApiPublicPushUnsubscribeRoute: typeof ApiPublicPushUnsubscribeRoute
@@ -2688,6 +2702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPushSendPriceAlertRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push/preferences': {
+      id: '/api/public/push/preferences'
+      path: '/api/public/push/preferences'
+      fullPath: '/api/public/push/preferences'
+      preLoaderRoute: typeof ApiPublicPushPreferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/seo-audit': {
       id: '/api/public/hooks/seo-audit'
       path: '/api/public/hooks/seo-audit'
@@ -2900,6 +2921,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
   ApiPublicHooksSeoAuditRoute: ApiPublicHooksSeoAuditRoute,
+  ApiPublicPushPreferencesRoute: ApiPublicPushPreferencesRoute,
   ApiPublicPushSendPriceAlertRoute: ApiPublicPushSendPriceAlertRoute,
   ApiPublicPushSubscribeRoute: ApiPublicPushSubscribeRoute,
   ApiPublicPushUnsubscribeRoute: ApiPublicPushUnsubscribeRoute,

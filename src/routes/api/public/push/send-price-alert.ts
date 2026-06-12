@@ -14,6 +14,14 @@ import { getRequestHost, getRequestHeader } from '@tanstack/react-start/server';
 
 const FROZEN_CODES = ['BTC', 'ETH', 'USD', 'SJC'] as const;
 
+type Category = 'gold' | 'crypto' | 'forex';
+const CODE_CATEGORY: Record<string, Category> = {
+  SJC: 'gold',
+  BTC: 'crypto',
+  ETH: 'crypto',
+  USD: 'forex',
+};
+
 interface SnapshotItem {
   code: string;
   name: string;
@@ -98,23 +106,27 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
           });
         }
 
-        // Compose 1-line body (system push UI is small)
-        const body = items
-          .map((i) => `${i.code} ${fmtPrice(i.price, i.code)}${fmtChange(i.changePct)}`)
-          .join(' · ');
-
         const now = new Date();
         const hourVN = (now.getUTCHours() + 7) % 24;
-        const periodLabel = hourVN < 12 ? 'sáng' : 'chiều';
+        const isMorning = hourVN < 12;
+        const periodLabel = isMorning ? 'sáng' : 'chiều';
         const title = `Giá thị trường ${periodLabel} ${hourVN}:00`;
-        const payload = JSON.stringify({
-          title,
-          body,
-          icon: '/icon-192.png',
-          badge: '/icon-192.png',
-          url: 'https://marketwatch.vn/',
-          tag: `mw-price-${periodLabel}`,
-        });
+
+        function buildPayloadFor(allowed: Set<Category>): string | null {
+          const filtered = items.filter((i) => allowed.has(CODE_CATEGORY[i.code]));
+          if (filtered.length === 0) return null;
+          const body = filtered
+            .map((i) => `${i.code} ${fmtPrice(i.price, i.code)}${fmtChange(i.changePct)}`)
+            .join(' · ');
+          return JSON.stringify({
+            title,
+            body,
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+            url: 'https://marketwatch.vn/',
+            tag: `mw-price-${periodLabel}`,
+          });
+        }
 
         // Load admin client + web-push inside handler (server-only).
         const [{ supabaseAdmin }, webpushMod] = await Promise.all([
@@ -137,7 +149,7 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
 
         const { data: subs, error } = await supabaseAdmin
           .from('push_subscriptions')
-          .select('endpoint, p256dh, auth, fail_count')
+          .select('endpoint, p256dh, auth, fail_count, notify_gold, notify_crypto, notify_forex, notify_morning, notify_evening')
           .limit(5000);
         if (error) {
           return new Response(JSON.stringify({ ok: false, error: error.message }), {
@@ -149,24 +161,41 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
         let sent = 0;
         let removed = 0;
         let failed = 0;
+        let skipped = 0;
         const deadEndpoints: string[] = [];
         const failingEndpoints: string[] = [];
 
         // Gửi tuần tự thành các batch 50 để tránh nuốt CPU worker.
         const list = subs ?? [];
-        for (let i = 0; i < list.length; i += 50) {
-          const batch = list.slice(i, i + 50);
+        // Tiền xử lý: tính payload riêng cho từng sub theo prefs.
+        type Job = { sub: (typeof list)[number]; payload: string };
+        const jobs: Job[] = [];
+        for (const s of list) {
+          const wantsPeriod = isMorning ? s.notify_morning !== false : s.notify_evening !== false;
+          if (!wantsPeriod) { skipped++; continue; }
+          const allowed = new Set<Category>();
+          if (s.notify_gold !== false) allowed.add('gold');
+          if (s.notify_crypto !== false) allowed.add('crypto');
+          if (s.notify_forex !== false) allowed.add('forex');
+          if (allowed.size === 0) { skipped++; continue; }
+          const payload = buildPayloadFor(allowed);
+          if (!payload) { skipped++; continue; }
+          jobs.push({ sub: s, payload });
+        }
+
+        for (let i = 0; i < jobs.length; i += 50) {
+          const batch = jobs.slice(i, i + 50);
           const results = await Promise.allSettled(
-            batch.map((s) =>
+            batch.map((j) =>
               (webpush as any).sendNotification(
-                { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
-                payload,
+                { endpoint: j.sub.endpoint, keys: { p256dh: j.sub.p256dh, auth: j.sub.auth } },
+                j.payload,
                 { TTL: 6 * 60 * 60 },
               ),
             ),
           );
           results.forEach((res, idx) => {
-            const sub = batch[idx];
+            const sub = batch[idx].sub;
             if (res.status === 'fulfilled') {
               sent++;
             } else {
@@ -204,7 +233,7 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
         // nên chỉ stamp khi cần thiết: bỏ qua để giảm I/O.
 
         return new Response(
-          JSON.stringify({ ok: true, total: list.length, sent, removed, failed, items }),
+          JSON.stringify({ ok: true, total: list.length, sent, skipped, removed, failed, items }),
           { status: 200, headers: { 'content-type': 'application/json; charset=utf-8' } },
         );
       },
