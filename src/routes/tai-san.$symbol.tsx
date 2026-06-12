@@ -97,6 +97,31 @@ const SLUG_TO_SYMBOL: Record<string, string> = {
   kaspa: "kas",
 };
 
+// Các mã ngoại tệ hợp lệ cho trang `bank-{code}` (tỷ giá Vietcombank).
+const BANK_CURRENCIES = new Set([
+  "usd","eur","gbp","jpy","cny","krw","sgd","thb","aud","cad","chf","hkd",
+  "nzd","myr","dkk","nok","sek","rub","kwd","sar","inr","lak",
+]);
+
+// Sitemap cũ từng quảng bá nhầm `/tai-san/bank-{mã ngân hàng}` (acb, mbb...).
+// 301 các URL đó về trang cổ phiếu tương ứng để Google hợp nhất index.
+const BANK_SLUG_TO_STOCK: Record<string, string> = {
+  vcb: "vcb",
+  bidv: "bid",
+  bid: "bid",
+  ctg: "ctg",
+  mbb: "mbb",
+  tcb: "tcb",
+  vpb: "vpb",
+  acb: "acb",
+  hdb: "hdb",
+  stb: "stb",
+  shb: "shb",
+  vietcombank: "vcb",
+  techcombank: "tcb",
+  sacombank: "stb",
+};
+
 export const Route = createFileRoute("/tai-san/$symbol")({
   // SEO canonical: `/tai-san/{coingecko-id}` (vd: /tai-san/bitcoin) phải 301
   // sang dạng ticker (`/tai-san/btc`) để Google không thấy 2 URL có cùng nội
@@ -104,6 +129,19 @@ export const Route = createFileRoute("/tai-san/$symbol")({
   // cuối cùng tới đúng URL ticker trong sitemap.
   beforeLoad: ({ params }) => {
     const lower = params.symbol.toLowerCase();
+    // `bank-{x}`: chỉ hợp lệ khi x là mã ngoại tệ. Nếu x là mã ngân hàng
+    // (URL sai do sitemap cũ) → 301 về trang cổ phiếu; còn lại → 301 về
+    // bảng tỷ giá ngân hàng thay vì trả trang "không tìm thấy" (soft-404).
+    if (lower.startsWith("bank-")) {
+      const code = lower.slice("bank-".length);
+      if (!BANK_CURRENCIES.has(code)) {
+        const stock = BANK_SLUG_TO_STOCK[code];
+        if (stock) {
+          throw redirect({ to: "/co-phieu/$symbol", params: { symbol: stock }, statusCode: 301 });
+        }
+        throw redirect({ to: "/ty-gia-ngan-hang", statusCode: 301 });
+      }
+    }
     const ticker = SLUG_TO_SYMBOL[lower];
     if (ticker && ticker !== lower) {
       throw redirect({
