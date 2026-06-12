@@ -116,8 +116,8 @@ function AdminShell({ email }: { email: string }) {
     window.localStorage.setItem("mw-admin-collapsed", collapsed ? "1" : "0");
   }, [collapsed]);
 
-  const sidebarWidth = collapsed ? "md:w-14" : "md:w-[200px]";
-  const mainPad = collapsed ? "md:pl-14" : "md:pl-[200px]";
+  const sidebarWidth = collapsed ? "md:w-14" : "md:w-[240px]";
+  const mainPad = collapsed ? "md:pl-14" : "md:pl-[240px]";
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
