@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { getPriceChangeConfig } from "@/lib/price-change-config.server";
 
 // Currencies we expose (must match client BASE list)
 const CURRENCIES: { code: string; name: string; spread: number }[] = [
@@ -20,38 +22,69 @@ const CURRENCIES: { code: string; name: string; spread: number }[] = [
 const CACHE_MS = 10 * 60 * 1000; // 10 minutes
 let cache: { at: number; payload: Awaited<ReturnType<typeof buildPayload>> } | null = null;
 
-// Cache hôm-qua close riêng (24h), vì Yahoo cập nhật theo ngày.
-const PREV_TTL_MS = 60 * 60 * 1000;
-let prevCloseCache: { at: number; map: Map<string, number> } | null = null;
+// 24h delta nguồn DB (giống pattern gold) — không còn phụ thuộc Yahoo.
+const WINDOW_MS = 24 * 60 * 60 * 1000;
+const SYMBOL_PREFIX = "FX:";
+let lastSnapshotAt = 0;
 
-async function yahooPrevClose(code: string): Promise<number | null> {
-  // VND/VND không có gì để so
-  if (code === "VND") return null;
-  const sym = `${code}VND=X`;
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=5d&interval=1d`;
+/** Lấy giá ~24h trước cho danh sách mã từ price_history. */
+async function fetch24hAgoMids(codes: string[]): Promise<Record<string, number>> {
+  if (codes.length === 0) return {};
+  const out: Record<string, number> = {};
   try {
-    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0", accept: "application/json" } });
-    if (!r.ok) return null;
-    const j: any = await r.json();
-    const closes: (number | null)[] = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close ?? [];
-    // Lấy giá đóng cửa gần nhất TRƯỚC giá mới nhất (≈ hôm qua)
-    const valid = closes.filter((v): v is number => typeof v === "number" && Number.isFinite(v));
-    if (valid.length < 2) return null;
-    return valid[valid.length - 2];
+    const cfg = await getPriceChangeConfig();
+    if (!cfg.enabled) return out;
+    const now = Date.now();
+    const lo = new Date(now - WINDOW_MS - cfg.windowToleranceMs).toISOString();
+    const hi = new Date(now - WINDOW_MS + cfg.windowToleranceMs).toISOString();
+    const symbols = codes.map((c) => `${SYMBOL_PREFIX}${c}`);
+    const { data } = await supabaseAdmin
+      .from("price_history")
+      .select("symbol, price, captured_at")
+      .in("symbol", symbols)
+      .gte("captured_at", lo)
+      .lte("captured_at", hi)
+      .order("captured_at", { ascending: false })
+      .limit(2000);
+    if (!data) return out;
+    const target = now - WINDOW_MS;
+    const best: Record<string, { dist: number; price: number }> = {};
+    const counts: Record<string, number> = {};
+    for (const r of data) {
+      const sym = String(r.symbol);
+      const code = sym.startsWith(SYMBOL_PREFIX) ? sym.slice(SYMBOL_PREFIX.length) : sym;
+      const p = Number(r.price);
+      if (!Number.isFinite(p) || p <= 0) continue;
+      const t = new Date(r.captured_at as string).getTime();
+      if (cfg.minSampleAgeMs > 0 && now - t < cfg.minSampleAgeMs) continue;
+      const dist = Math.abs(t - target);
+      const cur = best[code];
+      if (!cur || dist < cur.dist) best[code] = { dist, price: p };
+      counts[code] = (counts[code] ?? 0) + 1;
+    }
+    for (const c of codes) {
+      if (best[c] && (counts[c] ?? 0) >= cfg.minSamples) out[c] = best[c].price;
+    }
+    return out;
   } catch {
-    return null;
+    return out;
   }
 }
 
-async function getPrevCloses(codes: string[]): Promise<Map<string, number>> {
-  if (prevCloseCache && Date.now() - prevCloseCache.at < PREV_TTL_MS) {
-    return prevCloseCache.map;
-  }
-  const results = await Promise.all(codes.map(async (c) => [c, await yahooPrevClose(c)] as const));
-  const map = new Map<string, number>();
-  for (const [c, v] of results) if (v && v > 0) map.set(c, v);
-  prevCloseCache = { at: Date.now(), map };
-  return map;
+/** Ghi snapshot cho tất cả mã (throttle theo config). Fire-and-forget. */
+async function recordSnapshots(rows: { code: string; mid: number }[]) {
+  const cfg = await getPriceChangeConfig();
+  const now = Date.now();
+  if (now - lastSnapshotAt < cfg.snapshotMinIntervalMs) return;
+  lastSnapshotAt = now;
+  const insert = rows
+    .filter((r) => Number.isFinite(r.mid) && r.mid > 0)
+    .map((r) => ({ symbol: `${SYMBOL_PREFIX}${r.code}`, price: r.mid }));
+  if (insert.length === 0) return;
+  void supabaseAdmin
+    .from("price_history")
+    .insert(insert)
+    .then(() => undefined, () => undefined);
 }
 
 async function buildPayload() {
@@ -65,13 +98,22 @@ async function buildPayload() {
   if (!usdVnd) throw new Error("forex upstream missing VND");
 
   const now = Date.now();
-  const prevMap = await getPrevCloses(CURRENCIES.map((c) => c.code));
+  // 1) Tính mid hiện tại cho từng mã.
+  const mids = CURRENCIES.map((c) => {
+    const mid = c.code === "USD" ? usdVnd : usdVnd / (rates[c.code] || NaN);
+    return { code: c.code, mid };
+  }).filter((r) => Number.isFinite(r.mid) && r.mid > 0);
+
+  // 2) Lấy snapshot ~24h trước từ DB và ghi snapshot mới (fire-and-forget).
+  const prevMap = await fetch24hAgoMids(mids.map((m) => m.code));
+  void recordSnapshots(mids);
+
   const data = CURRENCIES.map((c) => {
     // mid = VND per 1 unit of `code`
     const mid = c.code === "USD" ? usdVnd : usdVnd / (rates[c.code] || NaN);
     const buy = mid * (1 - c.spread / 2);
     const sell = mid * (1 + c.spread / 2);
-    const prev = prevMap.get(c.code);
+    const prev = prevMap[c.code];
     const changePct = prev && prev > 0 ? ((mid - prev) / prev) * 100 : 0;
     return {
       code: c.code,
