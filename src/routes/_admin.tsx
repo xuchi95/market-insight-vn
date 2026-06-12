@@ -7,6 +7,13 @@ import { useState } from "react";
 
 export const Route = createFileRoute("/_admin")({
   component: AdminGate,
+  head: () => ({
+    meta: [
+      { title: "Admin · MarketWatch" },
+      { name: "robots", content: "noindex, nofollow, noarchive, nosnippet" },
+      { name: "googlebot", content: "noindex, nofollow" },
+    ],
+  }),
 });
 
 function AdminGate() {
