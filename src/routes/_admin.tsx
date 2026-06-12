@@ -116,8 +116,8 @@ function AdminShell({ email }: { email: string }) {
     window.localStorage.setItem("mw-admin-collapsed", collapsed ? "1" : "0");
   }, [collapsed]);
 
-  const sidebarWidth = collapsed ? "md:w-14" : "md:w-[200px]";
-  const mainPad = collapsed ? "md:pl-14" : "md:pl-[200px]";
+  const sidebarWidth = collapsed ? "md:w-14" : "md:w-[240px]";
+  const mainPad = collapsed ? "md:pl-14" : "md:pl-[240px]";
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -128,48 +128,48 @@ function AdminShell({ email }: { email: string }) {
     <div className="min-h-screen bg-background text-foreground">
       {/* Top admin bar (WP-style) */}
       <header
-        className="fixed inset-x-0 top-0 z-40 flex h-11 items-center justify-between border-b border-border/60 bg-card text-card-foreground px-3 text-sm"
+        className="fixed inset-x-0 top-0 z-40 flex h-12 items-center justify-between border-b border-border/60 bg-card text-card-foreground px-3 text-sm font-medium leading-none"
       >
         <div className="flex items-center gap-1">
           <button
             onClick={() => setMobileOpen(true)}
-            className="rounded-md p-2 text-foreground/80 hover:bg-accent hover:text-foreground md:hidden"
+            className="rounded-md p-2 text-foreground hover:bg-accent md:hidden"
             aria-label="Mở menu"
           >
-            <Menu className="h-4 w-4" />
+            <Menu className="h-[18px] w-[18px]" />
           </button>
           <button
             onClick={() => setCollapsed((v) => !v)}
-            className="hidden rounded-md p-2 text-foreground/80 hover:bg-accent hover:text-foreground md:inline-flex"
+            className="hidden rounded-md p-2 text-foreground hover:bg-accent md:inline-flex"
             aria-label={collapsed ? "Mở rộng menu" : "Thu gọn menu"}
           >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {collapsed ? <ChevronRight className="h-[18px] w-[18px]" /> : <ChevronLeft className="h-[18px] w-[18px]" />}
           </button>
           <Link
             to="/"
-            className="ml-1 inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-foreground/85 hover:bg-accent hover:text-[var(--gold)]"
+            className="ml-1 inline-flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-[var(--gold)]"
           >
-            <ExternalLink className="h-3.5 w-3.5" />
+            <ExternalLink className="h-4 w-4" />
             <span className="hidden sm:inline">Xem site</span>
           </Link>
         </div>
         <div className="flex items-center gap-1">
           <Link
             to="/mw-admin/contact"
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-foreground/80 hover:bg-accent hover:text-foreground"
+            className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent"
             aria-label="Liên hệ"
           >
-            <Bell className="h-3.5 w-3.5" />
+            <Bell className="h-4 w-4" />
           </Link>
-          <div className="hidden items-center gap-2 rounded-md px-2 py-1.5 text-xs text-foreground/85 sm:flex">
-            <UserIcon className="h-3.5 w-3.5 text-[var(--gold)]" />
+          <div className="hidden items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-foreground sm:flex">
+            <UserIcon className="h-4 w-4 text-[var(--gold)]" />
             <span className="max-w-[180px] truncate">{email}</span>
           </div>
           <button
             onClick={handleSignOut}
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-foreground/85 hover:bg-accent hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-accent"
           >
-            <LogOut className="h-3.5 w-3.5" />
+            <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">Đăng xuất</span>
           </button>
         </div>
@@ -185,40 +185,40 @@ function AdminShell({ email }: { email: string }) {
 
       {/* Sidebar — WordPress-style persistent left rail */}
       <aside
-        className={`fixed inset-y-0 left-0 top-11 z-50 w-[220px] overflow-y-auto border-r border-border/60 bg-card text-card-foreground transition-[width,transform] md:translate-x-0 ${sidebarWidth} ${
+        className={`fixed inset-y-0 left-0 top-12 z-50 w-[240px] overflow-y-auto border-r border-border/60 bg-card text-card-foreground text-sm leading-5 transition-[width,transform] md:translate-x-0 ${sidebarWidth} ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0`}
       >
         <div className="flex items-center justify-between px-4 py-3 md:hidden">
           <div>
-            <div className="text-[9px] uppercase tracking-[0.22em] text-[var(--gold)]">
+            <div className="text-[11px] font-semibold uppercase leading-none tracking-[0.18em] text-[var(--gold)]">
               MarketWatch
             </div>
-            <div className="font-display text-sm leading-tight">Admin</div>
+            <div className="font-display text-base font-semibold leading-tight mt-1">Admin</div>
           </div>
           <button
             onClick={() => setMobileOpen(false)}
-            className="rounded-md p-1 text-foreground/80 hover:text-foreground"
+            className="rounded-md p-2 text-foreground hover:bg-accent"
             aria-label="Đóng menu"
           >
-            <X className="h-4 w-4" />
+            <X className="h-[18px] w-[18px]" />
           </button>
         </div>
 
         {!collapsed && (
-          <div className="hidden border-b border-border/40 px-4 py-3 md:block">
-            <div className="text-[9px] uppercase tracking-[0.22em] text-[var(--gold)]">
+          <div className="hidden border-b border-border/40 px-4 py-4 md:block">
+            <div className="text-[11px] font-semibold uppercase leading-none tracking-[0.18em] text-[var(--gold)]">
               MarketWatch
             </div>
-            <div className="font-display text-sm leading-tight">Bảng điều khiển</div>
+            <div className="font-display text-base font-semibold leading-tight mt-1">Bảng điều khiển</div>
           </div>
         )}
 
-        <nav className="py-2">
+        <nav className="py-3">
           {NAV_GROUPS.map((group, gi) => (
-            <div key={group.label} className={gi > 0 ? "mt-2 border-t border-border/30 pt-2" : ""}>
+            <div key={group.label} className={gi > 0 ? "mt-3 border-t border-border/30 pt-3" : ""}>
               {!collapsed && (
-                <div className="px-4 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                <div className="px-4 pb-1.5 pt-2 text-[11px] font-semibold uppercase leading-none tracking-[0.14em] text-muted-foreground">
                   {group.label}
                 </div>
               )}
@@ -231,14 +231,14 @@ function AdminShell({ email }: { email: string }) {
                     activeOptions={{ exact: item.to === "/mw-admin" }}
                     activeProps={{
                       className:
-                        "bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] text-[var(--gold)] border-l-[var(--gold)]",
+                        "bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] text-[var(--gold)] border-l-[var(--gold)] font-semibold",
                     }}
                     title={collapsed ? item.label : undefined}
-                    className={`group flex items-center gap-3 border-l-2 border-transparent px-4 py-2 text-[13px] text-foreground/85 transition-colors hover:bg-accent hover:text-foreground ${
+                    className={`group flex items-center gap-3 border-l-2 border-transparent px-4 py-2.5 text-sm font-medium leading-5 text-foreground transition-colors hover:bg-accent hover:text-foreground ${
                       collapsed ? "md:justify-center md:px-0" : ""
                     }`}
                   >
-                    <item.icon className="h-4 w-4 shrink-0" />
+                    <item.icon className="h-[18px] w-[18px] shrink-0" />
                     <span className={collapsed ? "md:hidden" : ""}>{item.label}</span>
                   </Link>
                 ))}
@@ -248,7 +248,7 @@ function AdminShell({ email }: { email: string }) {
         </nav>
       </aside>
 
-      <main className={`min-w-0 pt-11 transition-[padding] ${mainPad}`}>
+      <main className={`min-w-0 pt-12 transition-[padding] ${mainPad}`}>
         <div className="p-4 md:p-8">
           <Outlet />
         </div>
