@@ -2,8 +2,12 @@ import { createFileRoute, Link, Outlet, Navigate } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search, Fuel, Code2, TrendingUp, KeyRound, ShieldCheck, Inbox, Newspaper, BarChart3, Activity, Gavel, Menu, X } from "lucide-react";
-import { useState } from "react";
+import {
+  LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search,
+  Fuel, Code2, TrendingUp, KeyRound, ShieldCheck, Inbox, Newspaper, BarChart3, Activity, Gavel,
+  Menu, X, ChevronLeft, ChevronRight, LogOut, ExternalLink, Bell, User as UserIcon,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_admin")({
   component: AdminGate,
@@ -43,98 +47,211 @@ function AdminGate() {
   }
   if (!user) return <Navigate to="/dang-nhap" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
-  return <AdminShell />;
+  return <AdminShell email={user.email ?? ""} />;
 }
 
-const NAV = [
-  { to: "/mw-admin", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/mw-admin/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/mw-admin/cron-activity", label: "Hoạt động cron", icon: Activity },
-  { to: "/mw-admin/users", label: "Người dùng", icon: Users },
-  { to: "/mw-admin/ban-appeals", label: "Kháng nghị cấm", icon: Gavel },
-  { to: "/mw-admin/popups", label: "Popup", icon: Layers },
-  { to: "/mw-admin/broadcasts", label: "Email broadcast", icon: Megaphone },
-  { to: "/mw-admin/email-preview", label: "Preview email", icon: MailOpen },
-  { to: "/mw-admin/newsletter", label: "Bản tin", icon: Mail },
-  { to: "/mw-admin/contact", label: "Liên hệ", icon: MessageSquare },
-  { to: "/mw-admin/seo", label: "SEO Audit", icon: Search },
-  { to: "/mw-admin/fuel-prices", label: "Giá xăng VN", icon: Fuel },
-  { to: "/mw-admin/fuel-prices/history", label: "Lịch sử giá xăng", icon: Fuel },
-  { to: "/mw-admin/code-injection", label: "Chèn mã HTML", icon: Code2 },
-  { to: "/mw-admin/price-settings", label: "Cấu hình % giá", icon: TrendingUp },
-  { to: "/mw-admin/api-keys", label: "API Keys", icon: KeyRound },
-  { to: "/mw-admin/api-key-requests", label: "Yêu cầu API key", icon: Inbox },
-  { to: "/mw-admin/verify-otp-stats", label: "Verify OTP stats", icon: ShieldCheck },
-  { to: "/mw-admin/news-settings", label: "Nguồn tin crypto", icon: Newspaper },
-  { to: "/mw-admin/settings", label: "Cấu hình", icon: Settings },
-] as const;
+type NavItem = { to: string; label: string; icon: React.ComponentType<{ className?: string }> };
+type NavGroup = { label: string; items: NavItem[] };
 
-function AdminShell() {
-  const [open, setOpen] = useState(false);
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Tổng quan",
+    items: [
+      { to: "/mw-admin", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/mw-admin/analytics", label: "Analytics", icon: BarChart3 },
+      { to: "/mw-admin/cron-activity", label: "Hoạt động cron", icon: Activity },
+    ],
+  },
+  {
+    label: "Người dùng",
+    items: [
+      { to: "/mw-admin/users", label: "Người dùng", icon: Users },
+      { to: "/mw-admin/ban-appeals", label: "Kháng nghị cấm", icon: Gavel },
+    ],
+  },
+  {
+    label: "Nội dung",
+    items: [
+      { to: "/mw-admin/popups", label: "Popup", icon: Layers },
+      { to: "/mw-admin/newsletter", label: "Bản tin", icon: Mail },
+      { to: "/mw-admin/broadcasts", label: "Email broadcast", icon: Megaphone },
+      { to: "/mw-admin/email-preview", label: "Preview email", icon: MailOpen },
+      { to: "/mw-admin/contact", label: "Liên hệ", icon: MessageSquare },
+    ],
+  },
+  {
+    label: "Công cụ",
+    items: [
+      { to: "/mw-admin/seo", label: "SEO Audit", icon: Search },
+      { to: "/mw-admin/fuel-prices", label: "Giá xăng VN", icon: Fuel },
+      { to: "/mw-admin/fuel-prices/history", label: "Lịch sử giá xăng", icon: Fuel },
+      { to: "/mw-admin/code-injection", label: "Chèn mã HTML", icon: Code2 },
+      { to: "/mw-admin/price-settings", label: "Cấu hình % giá", icon: TrendingUp },
+      { to: "/mw-admin/news-settings", label: "Nguồn tin crypto", icon: Newspaper },
+    ],
+  },
+  {
+    label: "Bảo mật & API",
+    items: [
+      { to: "/mw-admin/api-keys", label: "API Keys", icon: KeyRound },
+      { to: "/mw-admin/api-key-requests", label: "Yêu cầu API key", icon: Inbox },
+      { to: "/mw-admin/verify-otp-stats", label: "Verify OTP stats", icon: ShieldCheck },
+    ],
+  },
+  {
+    label: "Hệ thống",
+    items: [{ to: "/mw-admin/settings", label: "Cấu hình", icon: Settings }],
+  },
+];
+
+function AdminShell({ email }: { email: string }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("mw-admin-collapsed") === "1";
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("mw-admin-collapsed", collapsed ? "1" : "0");
+  }, [collapsed]);
+
+  const sidebarWidth = collapsed ? "md:w-14" : "md:w-[200px]";
+  const mainPad = collapsed ? "md:pl-14" : "md:pl-[200px]";
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur md:hidden">
-        <div>
-          <div className="text-[9px] uppercase tracking-[0.22em] text-[var(--gold)]">MarketWatch</div>
-          <div className="font-display text-sm leading-tight">Admin</div>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Top admin bar (WP-style) */}
+      <header
+        className="fixed inset-x-0 top-0 z-40 flex h-11 items-center justify-between border-b border-border/60 bg-[oklch(0.11_0.006_80)] px-3 text-sm"
+      >
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground md:hidden"
+            aria-label="Mở menu"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            className="hidden rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground md:inline-flex"
+            aria-label={collapsed ? "Mở rộng menu" : "Thu gọn menu"}
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+          <Link
+            to="/"
+            className="ml-1 inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-muted-foreground hover:bg-accent hover:text-[var(--gold)]"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Xem site</span>
+          </Link>
         </div>
-        <button
-          onClick={() => setOpen(true)}
-          className="rounded-md border border-border p-2 text-muted-foreground hover:text-foreground"
-          aria-label="Mở menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      </div>
+        <div className="flex items-center gap-1">
+          <Link
+            to="/mw-admin/contact"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label="Liên hệ"
+          >
+            <Bell className="h-3.5 w-3.5" />
+          </Link>
+          <div className="hidden items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground sm:flex">
+            <UserIcon className="h-3.5 w-3.5 text-[var(--gold)]" />
+            <span className="max-w-[180px] truncate">{email}</span>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Đăng xuất</span>
+          </button>
+        </div>
+      </header>
 
       {/* Mobile drawer overlay */}
-      {open && (
+      {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm md:hidden"
-          onClick={() => setOpen(false)}
+          onClick={() => setMobileOpen(false)}
         />
       )}
 
+      {/* Sidebar — WordPress-style persistent left rail */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 overflow-y-auto border-r border-border bg-card p-4 transition-transform md:static md:z-auto md:w-60 md:shrink-0 md:translate-x-0 md:bg-card/40 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 top-11 z-50 w-[220px] overflow-y-auto border-r border-border/60 bg-[oklch(0.12_0.006_80)] transition-[width,transform] md:translate-x-0 ${sidebarWidth} ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
       >
-        <div className="mb-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.22em] text-[var(--gold)]">MarketWatch</div>
-              <div className="font-display text-lg">Admin</div>
+        <div className="flex items-center justify-between px-4 py-3 md:hidden">
+          <div>
+            <div className="text-[9px] uppercase tracking-[0.22em] text-[var(--gold)]">
+              MarketWatch
             </div>
-            <button
-              onClick={() => setOpen(false)}
-              className="rounded-md p-1 text-muted-foreground hover:text-foreground md:hidden"
-              aria-label="Đóng menu"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <div className="font-display text-sm leading-tight">Admin</div>
           </div>
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="rounded-md p-1 text-muted-foreground hover:text-foreground"
+            aria-label="Đóng menu"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
-        <nav className="space-y-1">
-          {NAV.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              onClick={() => setOpen(false)}
-              activeOptions={{ exact: item.to === "/mw-admin" }}
-              activeProps={{ className: "bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] text-[var(--gold)]" }}
-              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
+
+        {!collapsed && (
+          <div className="hidden border-b border-border/40 px-4 py-3 md:block">
+            <div className="text-[9px] uppercase tracking-[0.22em] text-[var(--gold)]">
+              MarketWatch
+            </div>
+            <div className="font-display text-sm leading-tight">Bảng điều khiển</div>
+          </div>
+        )}
+
+        <nav className="py-2">
+          {NAV_GROUPS.map((group, gi) => (
+            <div key={group.label} className={gi > 0 ? "mt-2 border-t border-border/30 pt-2" : ""}>
+              {!collapsed && (
+                <div className="px-4 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
+                  {group.label}
+                </div>
+              )}
+              <div>
+                {group.items.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setMobileOpen(false)}
+                    activeOptions={{ exact: item.to === "/mw-admin" }}
+                    activeProps={{
+                      className:
+                        "bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] text-[var(--gold)] border-l-[var(--gold)]",
+                    }}
+                    title={collapsed ? item.label : undefined}
+                    className={`group flex items-center gap-3 border-l-2 border-transparent px-4 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground ${
+                      collapsed ? "md:justify-center md:px-0" : ""
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    <span className={collapsed ? "md:hidden" : ""}>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
-        <Link to="/" className="mt-6 block text-xs text-muted-foreground hover:text-foreground">← Về site</Link>
       </aside>
-      <main className="min-w-0 flex-1 p-4 pt-16 md:p-8 md:pt-8">
-        <Outlet />
+
+      <main className={`min-w-0 pt-11 transition-[padding] ${mainPad}`}>
+        <div className="p-4 md:p-8">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
