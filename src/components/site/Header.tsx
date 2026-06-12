@@ -569,6 +569,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           >
             <Search className="h-5 w-5" />
           </button>
+          <div className="md:hidden inline-flex">
+            <PushNotificationButton />
+          </div>
           <button
             data-testid="header-mobile-menu-trigger"
             className="md:hidden text-muted-foreground hover:text-foreground"
