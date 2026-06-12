@@ -19,7 +19,7 @@ export function ForexRateTable({ search }: { search?: string }) {
     refetchInterval: 10 * 60 * 1000,
   });
   useQueryErrorToast(isError, error, "tỷ giá ngoại tệ");
-  const { colCls } = useCompactView();
+  const { colCls, isColVisible } = useCompactView();
   const rows = useMemo(() => {
     let r = data ?? [];
     if (search) {
@@ -79,7 +79,13 @@ export function ForexRateTable({ search }: { search?: string }) {
                 </td>
                 <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums"><AnimatedNumber value={r.buy} format={(v) => fmtNum(v, 2)} /></td>
                 <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={r.sell} format={(v) => fmtNum(v, 2)} /></td>
-                <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}><AnimatedNumber value={r.mid} format={(v) => fmtNum(v, 2)} noFlash minChars={9} /></td>
+                <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}>
+                  {isColVisible("md") ? (
+                    <AnimatedNumber value={r.mid} format={(v) => fmtNum(v, 2)} noFlash minChars={9} />
+                  ) : (
+                    <span className="tabular">{fmtNum(r.mid, 2)}</span>
+                  )}
+                </td>
               </tr>
             ))}
             {!isLoading && rows.length === 0 && (
