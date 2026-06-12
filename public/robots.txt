@@ -9,6 +9,9 @@ Allow: /sitemap-index.xml
 Allow: /tu-dien
 # Chặn các endpoint nội bộ (webhook / cron) — không phải nội dung cho người dùng
 Disallow: /api/
+# Chặn khu vực quản trị nội bộ — không phải nội dung công khai
+Disallow: /mw-admin
+Disallow: /mw-admin/
 # Cho phép crawl các trang nội dung quan trọng (kể cả khi quy tắc khác trùng)
 Allow: /tien-dien-tu
 Allow: /gia-vang
@@ -23,6 +26,8 @@ Allow: /asset/
 User-agent: Googlebot
 Allow: /
 Disallow: /api/
+Disallow: /mw-admin
+Disallow: /mw-admin/
 
 User-agent: Googlebot-Image
 Allow: /
@@ -30,6 +35,8 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 Disallow: /api/
+Disallow: /mw-admin
+Disallow: /mw-admin/
 
 Sitemap: https://marketwatch.vn/sitemap-index.xml
 Sitemap: https://marketwatch.vn/sitemap.xml
