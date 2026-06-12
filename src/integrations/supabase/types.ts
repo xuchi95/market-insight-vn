@@ -158,6 +158,51 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_call_log: {
+        Row: {
+          completion_tokens: number
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          estimated_cost_usd: number
+          id: number
+          metadata: Json | null
+          model: string
+          prompt_tokens: number
+          source: string
+          status: string
+          total_tokens: number
+        }
+        Insert: {
+          completion_tokens?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          estimated_cost_usd?: number
+          id?: number
+          metadata?: Json | null
+          model: string
+          prompt_tokens?: number
+          source: string
+          status?: string
+          total_tokens?: number
+        }
+        Update: {
+          completion_tokens?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          estimated_cost_usd?: number
+          id?: number
+          metadata?: Json | null
+          model?: string
+          prompt_tokens?: number
+          source?: string
+          status?: string
+          total_tokens?: number
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           ad_slot: string | null
