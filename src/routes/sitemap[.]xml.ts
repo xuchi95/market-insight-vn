@@ -56,10 +56,12 @@ const POPULAR_GOLD = [
   "sjc","pnj-9999","doji","mihong","phunhuan","xau","xau-vn",
 ];
 
-// Ngân hàng — các mã ngân hàng có trang chi tiết tỉ giá riêng.
+// Tỷ giá ngân hàng — slug dạng `bank-{mã ngoại tệ}` (tỷ giá Vietcombank).
+// LƯU Ý: KHÔNG dùng mã ngân hàng (acb, mbb...) ở đây — trang /tai-san/bank-X
+// tra cứu X trong bảng tỷ giá ngoại tệ, mã ngân hàng sẽ ra trang "không tìm thấy".
 const POPULAR_BANK = [
-  "vcb","bidv","ctg","mbb","tcb","vpb","acb","hdb","stb","shb",
-  "agribank","techcombank","sacombank",
+  "usd","eur","gbp","jpy","cny","krw","sgd","thb",
+  "aud","cad","chf","hkd","myr","nzd",
 ];
 
 // Cổ phiếu VN phổ biến (HOSE/HNX) — index trực tiếp trang chi tiết.
