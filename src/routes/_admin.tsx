@@ -128,26 +128,26 @@ function AdminShell({ email }: { email: string }) {
     <div className="min-h-screen bg-background text-foreground">
       {/* Top admin bar (WP-style) */}
       <header
-        className="fixed inset-x-0 top-0 z-40 flex h-11 items-center justify-between border-b border-border/60 bg-[oklch(0.11_0.006_80)] px-3 text-sm"
+        className="fixed inset-x-0 top-0 z-40 flex h-11 items-center justify-between border-b border-border/60 bg-card text-card-foreground px-3 text-sm"
       >
         <div className="flex items-center gap-1">
           <button
             onClick={() => setMobileOpen(true)}
-            className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground md:hidden"
+            className="rounded-md p-2 text-foreground/80 hover:bg-accent hover:text-foreground md:hidden"
             aria-label="Mở menu"
           >
             <Menu className="h-4 w-4" />
           </button>
           <button
             onClick={() => setCollapsed((v) => !v)}
-            className="hidden rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground md:inline-flex"
+            className="hidden rounded-md p-2 text-foreground/80 hover:bg-accent hover:text-foreground md:inline-flex"
             aria-label={collapsed ? "Mở rộng menu" : "Thu gọn menu"}
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
           <Link
             to="/"
-            className="ml-1 inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-muted-foreground hover:bg-accent hover:text-[var(--gold)]"
+            className="ml-1 inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-foreground/85 hover:bg-accent hover:text-[var(--gold)]"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Xem site</span>
@@ -156,18 +156,18 @@ function AdminShell({ email }: { email: string }) {
         <div className="flex items-center gap-1">
           <Link
             to="/mw-admin/contact"
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-foreground/80 hover:bg-accent hover:text-foreground"
             aria-label="Liên hệ"
           >
             <Bell className="h-3.5 w-3.5" />
           </Link>
-          <div className="hidden items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground sm:flex">
+          <div className="hidden items-center gap-2 rounded-md px-2 py-1.5 text-xs text-foreground/85 sm:flex">
             <UserIcon className="h-3.5 w-3.5 text-[var(--gold)]" />
             <span className="max-w-[180px] truncate">{email}</span>
           </div>
           <button
             onClick={handleSignOut}
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-foreground/85 hover:bg-accent hover:text-foreground"
           >
             <LogOut className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Đăng xuất</span>
@@ -185,7 +185,7 @@ function AdminShell({ email }: { email: string }) {
 
       {/* Sidebar — WordPress-style persistent left rail */}
       <aside
-        className={`fixed inset-y-0 left-0 top-11 z-50 w-[220px] overflow-y-auto border-r border-border/60 bg-[oklch(0.12_0.006_80)] transition-[width,transform] md:translate-x-0 ${sidebarWidth} ${
+        className={`fixed inset-y-0 left-0 top-11 z-50 w-[220px] overflow-y-auto border-r border-border/60 bg-card text-card-foreground transition-[width,transform] md:translate-x-0 ${sidebarWidth} ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0`}
       >
@@ -198,7 +198,7 @@ function AdminShell({ email }: { email: string }) {
           </div>
           <button
             onClick={() => setMobileOpen(false)}
-            className="rounded-md p-1 text-muted-foreground hover:text-foreground"
+            className="rounded-md p-1 text-foreground/80 hover:text-foreground"
             aria-label="Đóng menu"
           >
             <X className="h-4 w-4" />
@@ -218,7 +218,7 @@ function AdminShell({ email }: { email: string }) {
           {NAV_GROUPS.map((group, gi) => (
             <div key={group.label} className={gi > 0 ? "mt-2 border-t border-border/30 pt-2" : ""}>
               {!collapsed && (
-                <div className="px-4 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
+                <div className="px-4 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                   {group.label}
                 </div>
               )}
@@ -234,7 +234,7 @@ function AdminShell({ email }: { email: string }) {
                         "bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] text-[var(--gold)] border-l-[var(--gold)]",
                     }}
                     title={collapsed ? item.label : undefined}
-                    className={`group flex items-center gap-3 border-l-2 border-transparent px-4 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground ${
+                    className={`group flex items-center gap-3 border-l-2 border-transparent px-4 py-2 text-[13px] text-foreground/85 transition-colors hover:bg-accent hover:text-foreground ${
                       collapsed ? "md:justify-center md:px-0" : ""
                     }`}
                   >
