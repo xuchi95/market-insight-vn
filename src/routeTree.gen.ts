@@ -64,6 +64,7 @@ import { Route as CongCuWidgetNhungRouteImport } from './routes/cong-cu.widget-n
 import { Route as CongCuDcaRoiRouteImport } from './routes/cong-cu.dca-roi'
 import { Route as CongCuDcaLichSuRouteImport } from './routes/cong-cu.dca-lich-su'
 import { Route as CoPhieuSymbolRouteImport } from './routes/co-phieu.$symbol'
+import { Route as CaiDatThongBaoRouteImport } from './routes/cai-dat.thong-bao'
 import { Route as CaiDatMatKhauRouteImport } from './routes/cai-dat.mat-khau'
 import { Route as CaiDatHienThiRouteImport } from './routes/cai-dat.hien-thi'
 import { Route as CaiDatEmailRouteImport } from './routes/cai-dat.email'
@@ -138,6 +139,7 @@ import { Route as ApiPublicPushVapidPublicKeyRouteImport } from './routes/api/pu
 import { Route as ApiPublicPushUnsubscribeRouteImport } from './routes/api/public/push/unsubscribe'
 import { Route as ApiPublicPushSubscribeRouteImport } from './routes/api/public/push/subscribe'
 import { Route as ApiPublicPushSendPriceAlertRouteImport } from './routes/api/public/push/send-price-alert'
+import { Route as ApiPublicPushPreferencesRouteImport } from './routes/api/public/push/preferences'
 import { Route as ApiPublicHooksSeoAuditRouteImport } from './routes/api/public/hooks/seo-audit'
 import { Route as ApiPublicHooksRefreshSavingsRatesRouteImport } from './routes/api/public/hooks/refresh-savings-rates'
 import { Route as ApiPublicHooksRefreshFuelPricesRouteImport } from './routes/api/public/hooks/refresh-fuel-prices'
@@ -417,6 +419,11 @@ const CongCuDcaLichSuRoute = CongCuDcaLichSuRouteImport.update({
 const CoPhieuSymbolRoute = CoPhieuSymbolRouteImport.update({
   id: '/co-phieu/$symbol',
   path: '/co-phieu/$symbol',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaiDatThongBaoRoute = CaiDatThongBaoRouteImport.update({
+  id: '/cai-dat/thong-bao',
+  path: '/cai-dat/thong-bao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CaiDatMatKhauRoute = CaiDatMatKhauRouteImport.update({
@@ -809,6 +816,12 @@ const ApiPublicPushSendPriceAlertRoute =
     path: '/api/public/push/send-price-alert',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPushPreferencesRoute =
+  ApiPublicPushPreferencesRouteImport.update({
+    id: '/api/public/push/preferences',
+    path: '/api/public/push/preferences',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksSeoAuditRoute = ApiPublicHooksSeoAuditRouteImport.update({
   id: '/api/public/hooks/seo-audit',
   path: '/api/public/hooks/seo-audit',
@@ -900,6 +913,7 @@ export interface FileRoutesByFullPath {
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/hien-thi': typeof CaiDatHienThiRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
+  '/cai-dat/thong-bao': typeof CaiDatThongBaoRoute
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -971,6 +985,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/preferences': typeof ApiPublicPushPreferencesRoute
   '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
   '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
   '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
@@ -1036,6 +1051,7 @@ export interface FileRoutesByTo {
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/hien-thi': typeof CaiDatHienThiRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
+  '/cai-dat/thong-bao': typeof CaiDatThongBaoRoute
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -1107,6 +1123,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/preferences': typeof ApiPublicPushPreferencesRoute
   '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
   '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
   '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
@@ -1174,6 +1191,7 @@ export interface FileRoutesById {
   '/cai-dat/email': typeof CaiDatEmailRoute
   '/cai-dat/hien-thi': typeof CaiDatHienThiRoute
   '/cai-dat/mat-khau': typeof CaiDatMatKhauRoute
+  '/cai-dat/thong-bao': typeof CaiDatThongBaoRoute
   '/co-phieu/$symbol': typeof CoPhieuSymbolRoute
   '/cong-cu/dca-lich-su': typeof CongCuDcaLichSuRoute
   '/cong-cu/dca-roi': typeof CongCuDcaRoiRoute
@@ -1245,6 +1263,7 @@ export interface FileRoutesById {
   '/api/public/hooks/refresh-fuel-prices': typeof ApiPublicHooksRefreshFuelPricesRoute
   '/api/public/hooks/refresh-savings-rates': typeof ApiPublicHooksRefreshSavingsRatesRoute
   '/api/public/hooks/seo-audit': typeof ApiPublicHooksSeoAuditRoute
+  '/api/public/push/preferences': typeof ApiPublicPushPreferencesRoute
   '/api/public/push/send-price-alert': typeof ApiPublicPushSendPriceAlertRoute
   '/api/public/push/subscribe': typeof ApiPublicPushSubscribeRoute
   '/api/public/push/unsubscribe': typeof ApiPublicPushUnsubscribeRoute
@@ -1312,6 +1331,7 @@ export interface FileRouteTypes {
     | '/cai-dat/email'
     | '/cai-dat/hien-thi'
     | '/cai-dat/mat-khau'
+    | '/cai-dat/thong-bao'
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
@@ -1383,6 +1403,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/preferences'
     | '/api/public/push/send-price-alert'
     | '/api/public/push/subscribe'
     | '/api/public/push/unsubscribe'
@@ -1448,6 +1469,7 @@ export interface FileRouteTypes {
     | '/cai-dat/email'
     | '/cai-dat/hien-thi'
     | '/cai-dat/mat-khau'
+    | '/cai-dat/thong-bao'
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
@@ -1519,6 +1541,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/preferences'
     | '/api/public/push/send-price-alert'
     | '/api/public/push/subscribe'
     | '/api/public/push/unsubscribe'
@@ -1585,6 +1608,7 @@ export interface FileRouteTypes {
     | '/cai-dat/email'
     | '/cai-dat/hien-thi'
     | '/cai-dat/mat-khau'
+    | '/cai-dat/thong-bao'
     | '/co-phieu/$symbol'
     | '/cong-cu/dca-lich-su'
     | '/cong-cu/dca-roi'
@@ -1656,6 +1680,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/refresh-fuel-prices'
     | '/api/public/hooks/refresh-savings-rates'
     | '/api/public/hooks/seo-audit'
+    | '/api/public/push/preferences'
     | '/api/public/push/send-price-alert'
     | '/api/public/push/subscribe'
     | '/api/public/push/unsubscribe'
@@ -1723,6 +1748,7 @@ export interface RootRouteChildren {
   CaiDatEmailRoute: typeof CaiDatEmailRoute
   CaiDatHienThiRoute: typeof CaiDatHienThiRoute
   CaiDatMatKhauRoute: typeof CaiDatMatKhauRoute
+  CaiDatThongBaoRoute: typeof CaiDatThongBaoRoute
   CoPhieuSymbolRoute: typeof CoPhieuSymbolRoute
   CongCuDcaLichSuRoute: typeof CongCuDcaLichSuRoute
   CongCuDcaRoiRoute: typeof CongCuDcaRoiRoute
@@ -1772,6 +1798,7 @@ export interface RootRouteChildren {
   ApiPublicHooksRefreshFuelPricesRoute: typeof ApiPublicHooksRefreshFuelPricesRoute
   ApiPublicHooksRefreshSavingsRatesRoute: typeof ApiPublicHooksRefreshSavingsRatesRoute
   ApiPublicHooksSeoAuditRoute: typeof ApiPublicHooksSeoAuditRoute
+  ApiPublicPushPreferencesRoute: typeof ApiPublicPushPreferencesRoute
   ApiPublicPushSendPriceAlertRoute: typeof ApiPublicPushSendPriceAlertRoute
   ApiPublicPushSubscribeRoute: typeof ApiPublicPushSubscribeRoute
   ApiPublicPushUnsubscribeRoute: typeof ApiPublicPushUnsubscribeRoute
@@ -2168,6 +2195,13 @@ declare module '@tanstack/react-router' {
       path: '/co-phieu/$symbol'
       fullPath: '/co-phieu/$symbol'
       preLoaderRoute: typeof CoPhieuSymbolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cai-dat/thong-bao': {
+      id: '/cai-dat/thong-bao'
+      path: '/cai-dat/thong-bao'
+      fullPath: '/cai-dat/thong-bao'
+      preLoaderRoute: typeof CaiDatThongBaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cai-dat/mat-khau': {
@@ -2688,6 +2722,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPushSendPriceAlertRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/push/preferences': {
+      id: '/api/public/push/preferences'
+      path: '/api/public/push/preferences'
+      fullPath: '/api/public/push/preferences'
+      preLoaderRoute: typeof ApiPublicPushPreferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/seo-audit': {
       id: '/api/public/hooks/seo-audit'
       path: '/api/public/hooks/seo-audit'
@@ -2850,6 +2891,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaiDatEmailRoute: CaiDatEmailRoute,
   CaiDatHienThiRoute: CaiDatHienThiRoute,
   CaiDatMatKhauRoute: CaiDatMatKhauRoute,
+  CaiDatThongBaoRoute: CaiDatThongBaoRoute,
   CoPhieuSymbolRoute: CoPhieuSymbolRoute,
   CongCuDcaLichSuRoute: CongCuDcaLichSuRoute,
   CongCuDcaRoiRoute: CongCuDcaRoiRoute,
@@ -2900,6 +2942,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksRefreshSavingsRatesRoute:
     ApiPublicHooksRefreshSavingsRatesRoute,
   ApiPublicHooksSeoAuditRoute: ApiPublicHooksSeoAuditRoute,
+  ApiPublicPushPreferencesRoute: ApiPublicPushPreferencesRoute,
   ApiPublicPushSendPriceAlertRoute: ApiPublicPushSendPriceAlertRoute,
   ApiPublicPushSubscribeRoute: ApiPublicPushSubscribeRoute,
   ApiPublicPushUnsubscribeRoute: ApiPublicPushUnsubscribeRoute,

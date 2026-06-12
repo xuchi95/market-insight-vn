@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { KeyRound, ShieldCheck, Mail, ChevronRight, AtSign, Sparkles } from "lucide-react";
+import { KeyRound, ShieldCheck, Mail, ChevronRight, AtSign, Sparkles, Bell } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { useAuth } from "@/hooks/useAuth";
@@ -57,6 +57,12 @@ function SettingsHubPage() {
       icon: Mail,
       title: "Bản tin email",
       desc: "Quản lý chủ đề & tần suất nhận bản tin thị trường.",
+    },
+    {
+      to: "/cai-dat/thong-bao" as const,
+      icon: Bell,
+      title: "Thông báo push",
+      desc: "Chọn loại tài sản (vàng, crypto, ngoại tệ) và khung giờ nhận push.",
     },
     {
       to: "/cai-dat/hien-thi" as const,
