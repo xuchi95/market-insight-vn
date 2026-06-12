@@ -107,7 +107,8 @@ export async function findLatestPetrolimexRelease(): Promise<{
   return { pageUrl, imageUrl, markdown };
 }
 
-/** Gemini 2.5 Pro vision OCR + trích xuất bảng giá. */
+/** Gemini 2.5 Flash vision OCR + trích xuất bảng giá.
+ *  Flash đủ chính xác cho bảng giá in rõ ràng và rẻ hơn Pro ~10–15x. */
 export async function aiExtract(
   imageUrl: string,
   contextMarkdown: string,
@@ -136,7 +137,7 @@ ${contextMarkdown.slice(0, 4000)}`;
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-2.5-pro",
+      model: "google/gemini-2.5-flash",
       messages: [
         { role: "system", content: system },
         {
