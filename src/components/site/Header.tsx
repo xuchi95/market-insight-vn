@@ -681,11 +681,17 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             </Link>
             {/* Mobile watchlist removed to keep menu compact — full watchlist available on home page */}
             {NAV_GROUPS.map((group) => (
-              <div key={group.label} className="space-y-1.5">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 px-1">
-                  {group.label}
-                </div>
-                <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background/40 p-1">
+              <details
+                key={group.label}
+                className="group rounded-xl border border-border bg-background/40 overflow-hidden"
+              >
+                <summary className="flex cursor-pointer items-center justify-between px-3 py-2.5 text-sm font-semibold text-foreground marker:hidden list-none [&::-webkit-details-marker]:hidden">
+                  <span>{group.label}</span>
+                  <span className="text-muted-foreground transition-transform group-open:rotate-180" aria-hidden>
+                    ▾
+                  </span>
+                </summary>
+                <div className="grid grid-cols-2 gap-1 border-t border-border/60 p-1">
                   {group.columns.flatMap((col) => col.items).map((n) => (
                     <Link
                       key={n.to}
@@ -698,7 +704,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     </Link>
                   ))}
                 </div>
-              </div>
+              </details>
             ))}
             <div className="pt-3 mt-1 border-t border-border">
               {/* Giao diện sáng/tối — đặt trong menu để không chiếm chỗ header */}
