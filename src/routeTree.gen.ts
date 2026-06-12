@@ -128,6 +128,7 @@ import { Route as AdminMwAdminBanAppealsRouteImport } from './routes/_admin/mw-a
 import { Route as AdminMwAdminApiKeysRouteImport } from './routes/_admin/mw-admin.api-keys'
 import { Route as AdminMwAdminApiKeyRequestsRouteImport } from './routes/_admin/mw-admin.api-key-requests'
 import { Route as AdminMwAdminAnalyticsRouteImport } from './routes/_admin/mw-admin.analytics'
+import { Route as AdminMwAdminAiUsageRouteImport } from './routes/_admin/mw-admin.ai-usage'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -754,6 +755,11 @@ const AdminMwAdminAnalyticsRoute = AdminMwAdminAnalyticsRouteImport.update({
   path: '/mw-admin/analytics',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminAiUsageRoute = AdminMwAdminAiUsageRouteImport.update({
+  id: '/mw-admin/ai-usage',
+  path: '/mw-admin/ai-usage',
+  getParentRoute: () => AdminRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -902,6 +908,7 @@ export interface FileRoutesByFullPath {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
@@ -1037,6 +1044,7 @@ export interface FileRoutesByTo {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat': typeof CaiDatIndexRoute
+  '/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
@@ -1174,6 +1182,7 @@ export interface FileRoutesById {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/_admin/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/_admin/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/_admin/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/_admin/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
@@ -1311,6 +1320,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat/'
+    | '/mw-admin/ai-usage'
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
     | '/mw-admin/api-keys'
@@ -1446,6 +1456,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat'
+    | '/mw-admin/ai-usage'
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
     | '/mw-admin/api-keys'
@@ -1582,6 +1593,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat/'
+    | '/_admin/mw-admin/ai-usage'
     | '/_admin/mw-admin/analytics'
     | '/_admin/mw-admin/api-key-requests'
     | '/_admin/mw-admin/api-keys'
@@ -2606,6 +2618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminAnalyticsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/ai-usage': {
+      id: '/_admin/mw-admin/ai-usage'
+      path: '/mw-admin/ai-usage'
+      fullPath: '/mw-admin/ai-usage'
+      preLoaderRoute: typeof AdminMwAdminAiUsageRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -2715,6 +2734,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminMwAdminAiUsageRoute: typeof AdminMwAdminAiUsageRoute
   AdminMwAdminAnalyticsRoute: typeof AdminMwAdminAnalyticsRoute
   AdminMwAdminApiKeyRequestsRoute: typeof AdminMwAdminApiKeyRequestsRoute
   AdminMwAdminApiKeysRoute: typeof AdminMwAdminApiKeysRoute
@@ -2738,6 +2758,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminMwAdminAiUsageRoute: AdminMwAdminAiUsageRoute,
   AdminMwAdminAnalyticsRoute: AdminMwAdminAnalyticsRoute,
   AdminMwAdminApiKeyRequestsRoute: AdminMwAdminApiKeyRequestsRoute,
   AdminMwAdminApiKeysRoute: AdminMwAdminApiKeysRoute,
