@@ -56,6 +56,7 @@ import { Route as BankRatesRouteImport } from './routes/bank-rates'
 import { Route as ApiChoNhaPhatTrienRouteImport } from './routes/api-cho-nha-phat-trien'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TaiSanIndexRouteImport } from './routes/tai-san.index'
 import { Route as CaiDatIndexRouteImport } from './routes/cai-dat.index'
 import { Route as TuDienSlugRouteImport } from './routes/tu-dien.$slug'
 import { Route as TaiSanSymbolRouteImport } from './routes/tai-san.$symbol'
@@ -379,6 +380,11 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TaiSanIndexRoute = TaiSanIndexRouteImport.update({
+  id: '/tai-san/',
+  path: '/tai-san/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CaiDatIndexRoute = CaiDatIndexRouteImport.update({
@@ -922,6 +928,7 @@ export interface FileRoutesByFullPath {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/tai-san/': typeof TaiSanIndexRoute
   '/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
@@ -1060,6 +1067,7 @@ export interface FileRoutesByTo {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat': typeof CaiDatIndexRoute
+  '/tai-san': typeof TaiSanIndexRoute
   '/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
@@ -1200,6 +1208,7 @@ export interface FileRoutesById {
   '/tai-san/$symbol': typeof TaiSanSymbolRoute
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
+  '/tai-san/': typeof TaiSanIndexRoute
   '/_admin/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/_admin/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/_admin/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
@@ -1340,6 +1349,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat/'
+    | '/tai-san/'
     | '/mw-admin/ai-usage'
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
@@ -1478,6 +1488,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat'
+    | '/tai-san'
     | '/mw-admin/ai-usage'
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
@@ -1617,6 +1628,7 @@ export interface FileRouteTypes {
     | '/tai-san/$symbol'
     | '/tu-dien/$slug'
     | '/cai-dat/'
+    | '/tai-san/'
     | '/_admin/mw-admin/ai-usage'
     | '/_admin/mw-admin/analytics'
     | '/_admin/mw-admin/api-key-requests'
@@ -1756,6 +1768,7 @@ export interface RootRouteChildren {
   EmbedGiaRoute: typeof EmbedGiaRoute
   TaiSanSymbolRoute: typeof TaiSanSymbolRoute
   CaiDatIndexRoute: typeof CaiDatIndexRoute
+  TaiSanIndexRoute: typeof TaiSanIndexRoute
   ApiContactSubmitRoute: typeof ApiContactSubmitRoute
   ApiNewsletterSubscribeRoute: typeof ApiNewsletterSubscribeRoute
   ApiNewsletterUnsubscribeRoute: typeof ApiNewsletterUnsubscribeRoute
@@ -2139,6 +2152,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tai-san/': {
+      id: '/tai-san/'
+      path: '/tai-san'
+      fullPath: '/tai-san/'
+      preLoaderRoute: typeof TaiSanIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cai-dat/': {
@@ -2899,6 +2919,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmbedGiaRoute: EmbedGiaRoute,
   TaiSanSymbolRoute: TaiSanSymbolRoute,
   CaiDatIndexRoute: CaiDatIndexRoute,
+  TaiSanIndexRoute: TaiSanIndexRoute,
   ApiContactSubmitRoute: ApiContactSubmitRoute,
   ApiNewsletterSubscribeRoute: ApiNewsletterSubscribeRoute,
   ApiNewsletterUnsubscribeRoute: ApiNewsletterUnsubscribeRoute,

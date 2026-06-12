@@ -113,6 +113,34 @@ export const Route = createFileRoute("/tai-san/$symbol")({
       });
     }
   },
+  loader: async ({ context, params }) => {
+    // Pre-fetch the relevant dataset on the server so the SSR HTML renders
+    // real content (price, name, KPIs) instead of the "Không tìm thấy mã"
+    // fallback. Without this, Googlebot indexes the empty state and uses
+    // "Không tìm thấy..." as the SERP title.
+    const slug = params.symbol.toLowerCase();
+    const qc = context.queryClient;
+    try {
+      if (slug.startsWith("bank-")) {
+        await qc.ensureQueryData({ queryKey: ["bank-rates"], queryFn: fetchBankRates });
+      } else if (slug.startsWith("gold-")) {
+        await qc.ensureQueryData({ queryKey: ["gold"], queryFn: fetchGoldPrices });
+      } else if (slug === "oil-brent" || slug === "oil-wti") {
+        await qc.ensureQueryData({
+          queryKey: ["oil"],
+          queryFn: async () => {
+            const r = await fetch("/api/public/oil");
+            if (!r.ok) throw new Error("oil " + r.status);
+            return r.json();
+          },
+        });
+      } else {
+        await qc.ensureQueryData({ queryKey: ["crypto"], queryFn: () => fetchCryptoPrices() });
+      }
+    } catch {
+      // Loader errors should not block render — client will retry the query.
+    }
+  },
   head: ({ params }) => {
     const SYM = params.symbol.toUpperCase();
     const SITE = "https://marketwatch.vn";
@@ -355,18 +383,18 @@ function AssetDetail() {
     };
   }, [baseCoin, liveTick]);
 
-  const { data: golds } = useQuery({
+  const { data: golds, isLoading: goldLoading } = useQuery({
     queryKey: ["gold"],
     queryFn: fetchGoldPrices,
     enabled: !isBank && !isOil,
   });
   const gold = golds?.find((g) => g.id.toLowerCase() === goldId);
 
-  const { data: bank } = useQuery({ queryKey: ["bank-rates"], queryFn: fetchBankRates, enabled: isBank });
+  const { data: bank, isLoading: bankLoading } = useQuery({ queryKey: ["bank-rates"], queryFn: fetchBankRates, enabled: isBank });
   const bankRow = bank?.items.find((r) => r.code.toUpperCase() === bankCode);
 
   // Oil (Brent/WTI) — current price + history
-  const { data: oilData } = useQuery({
+  const { data: oilData, isLoading: oilLoading } = useQuery({
     queryKey: ["oil"],
     queryFn: async () => {
       const r = await fetch("/api/public/oil");
@@ -505,8 +533,10 @@ function AssetDetail() {
       <main className="flex-1 mx-auto w-full max-w-[1320px] px-4 md:px-6 py-6 pb-16">
         <div className="rise d1"><Breadcrumbs extra={assetCrumb} /></div>
 
-        {isLoading && !isGold && !isBank && <Skeleton className="h-40 w-full mt-5" />}
-        {!isLoading && !coin && !stock && !fx && !gold && !bankRow && !oil && (
+        {(isLoading || bankLoading || goldLoading || oilLoading) && !coin && !stock && !fx && !gold && !bankRow && !oil && (
+          <Skeleton className="h-40 w-full mt-5" />
+        )}
+        {!isLoading && !bankLoading && !goldLoading && !oilLoading && !coin && !stock && !fx && !gold && !bankRow && !oil && (
           <div className="text-center py-20">
             <h1 className="text-2xl font-bold">Tài sản {symbol.toUpperCase()} — Giá &amp; biểu đồ realtime</h1>
             <h2 className="text-lg font-semibold text-muted-foreground mt-3">Không tìm thấy mã "{symbol.toUpperCase()}"</h2>
