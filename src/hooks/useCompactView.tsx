@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 const KEY = "mw:compact-table-view";
+const BP_PX: Record<"sm" | "md" | "lg", number> = { sm: 640, md: 768, lg: 1024 };
 
 function read(): boolean {
   if (typeof window === "undefined") return true;
@@ -10,6 +11,9 @@ function read(): boolean {
 
 export function useCompactView() {
   const [compact, setCompactState] = useState<boolean>(true);
+  const [vw, setVw] = useState<number>(() =>
+    typeof window === "undefined" ? 1280 : window.innerWidth,
+  );
 
   useEffect(() => {
     setCompactState(read());
@@ -17,11 +21,15 @@ export function useCompactView() {
       if (e.key === KEY) setCompactState(read());
     };
     const onCustom = () => setCompactState(read());
+    const onResize = () => setVw(window.innerWidth);
+    setVw(window.innerWidth);
     window.addEventListener("storage", onStorage);
     window.addEventListener("mw:compact-view-change", onCustom);
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("mw:compact-view-change", onCustom);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
@@ -51,5 +59,20 @@ export function useCompactView() {
     [compact],
   );
 
-  return { compact, setCompact, toggle, colCls };
+  /**
+   * Whether a column at the given breakpoint is currently visible on screen.
+   * In non-compact mode, all columns are visible. In compact mode, a column
+   * is only visible when the viewport is at least the breakpoint width.
+   * Use this to skip per-frame number tweens / flashes on cells the user
+   * cannot see — reduces noise and saves work on mobile.
+   */
+  const isColVisible = useCallback(
+    (bp: "sm" | "md" | "lg") => {
+      if (!compact) return true;
+      return vw >= BP_PX[bp];
+    },
+    [compact, vw],
+  );
+
+  return { compact, setCompact, toggle, colCls, isColVisible };
 }
