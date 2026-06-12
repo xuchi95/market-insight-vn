@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { logAiCall } from "@/lib/admin/ai-cost.server";
 
 const RowSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -133,11 +134,13 @@ Quy tắc bắt buộc:
 Ngữ cảnh từ trang thông cáo (để xác định effective_from):
 ${contextMarkdown.slice(0, 4000)}`;
 
+  const startedAt = Date.now();
+  const model = "google/gemini-2.5-flash";
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model,
       messages: [
         { role: "system", content: system },
         {
@@ -180,13 +183,40 @@ ${contextMarkdown.slice(0, 4000)}`;
       },
     }),
   });
-  if (res.status === 429) throw new Error("Lovable AI rate-limited (429). Thử lại sau.");
-  if (res.status === 402) throw new Error("Đã hết credits Lovable AI.");
+  const durationMs = Date.now() - startedAt;
   if (!res.ok) {
     const t = await res.text();
-    throw new Error(`Lovable AI ${res.status}: ${t.slice(0, 200)}`);
+    const msg =
+      res.status === 429
+        ? "Lovable AI rate-limited (429). Thử lại sau."
+        : res.status === 402
+        ? "Đã hết credits Lovable AI."
+        : `Lovable AI ${res.status}: ${t.slice(0, 200)}`;
+    logAiCall({
+      source: "fuel-prices-ocr",
+      model,
+      durationMs,
+      status: "error",
+      errorMessage: msg,
+      metadata: { httpStatus: res.status },
+    });
+    throw new Error(msg);
   }
-  const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  const data = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  };
+  const usage = data.usage ?? {};
+  logAiCall({
+    source: "fuel-prices-ocr",
+    model,
+    promptTokens: usage.prompt_tokens,
+    completionTokens: usage.completion_tokens,
+    totalTokens: usage.total_tokens,
+    durationMs,
+    status: "ok",
+    metadata: { imageUrl },
+  });
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error("AI không trả về nội dung.");
   const parsed = JSON.parse(content);
