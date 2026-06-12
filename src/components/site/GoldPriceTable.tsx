@@ -23,7 +23,7 @@ export function GoldPriceTable({ search }: { search?: string }) {
   });
   useQueryErrorToast(isError, error, "giá vàng");
   const { compact } = useNumberFormat();
-  const { colCls } = useCompactView();
+  const { colCls, isColVisible } = useCompactView();
   const [brand, setBrand] = useState("all");
 
   const brands = useMemo(() => {
@@ -109,8 +109,20 @@ export function GoldPriceTable({ search }: { search?: string }) {
                   </td>
                   <td className="px-1.5 sm:px-4 py-3 text-right whitespace-nowrap tabular-nums"><AnimatedNumber value={g.buy} format={fmt} /></td>
                   <td className="px-1.5 sm:px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums"><AnimatedNumber value={g.sell} format={fmt} /></td>
-                  <td className={`px-4 py-3 text-right ${colCls("md")}`}><AnimatedNumber value={mid} format={fmt} noFlash minChars={isUsd ? 8 : 7} /></td>
-                  <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}><AnimatedNumber value={g.sell - g.buy} format={fmt} noFlash minChars={isUsd ? 6 : 5} /></td>
+                  <td className={`px-4 py-3 text-right ${colCls("md")}`}>
+                    {isColVisible("md") ? (
+                      <AnimatedNumber value={mid} format={fmt} noFlash minChars={isUsd ? 8 : 7} />
+                    ) : (
+                      <span className="tabular">{fmt(mid)}</span>
+                    )}
+                  </td>
+                  <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}>
+                    {isColVisible("md") ? (
+                      <AnimatedNumber value={g.sell - g.buy} format={fmt} noFlash minChars={isUsd ? 6 : 5} />
+                    ) : (
+                      <span className="tabular">{fmt(g.sell - g.buy)}</span>
+                    )}
+                  </td>
                 </tr>
               );
             })}
