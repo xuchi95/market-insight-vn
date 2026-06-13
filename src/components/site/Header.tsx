@@ -299,7 +299,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   return (
     <>
     <header data-testid="site-header" className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 lg:gap-4 px-4 md:px-5 lg:px-6 py-2.5 md:py-3">
+      <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 sm:px-4 lg:px-5 py-2.5 md:py-3">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src={logoUrl} alt="MarketWatch logo" className="h-7 w-7 md:h-8 md:w-8 object-contain" />
           <span className="font-display text-lg md:text-xl leading-none">
@@ -308,7 +308,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </Link>
 
         {/* Desktop NavigationMenu */}
-        <div data-testid="header-nav" className="hidden md:flex items-center ml-2 lg:ml-4">
+        <div data-testid="header-nav" className="hidden lg:flex items-center ml-2 xl:ml-4">
           <NavigationMenu>
             <NavigationMenuList className="gap-0 lg:gap-0.5">
               <NavigationMenuItem>
@@ -316,7 +316,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   <Link
                     to={HOME.to}
                     activeOptions={{ exact: true }}
-                    className="inline-flex items-center whitespace-nowrap rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
+                    className="inline-flex items-center whitespace-nowrap rounded-md px-2 xl:px-3 py-1.5 text-[12px] xl:text-[13px] font-semibold uppercase tracking-[0.1em] xl:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
                   >
                     {HOME.label}
                   </Link>
@@ -325,7 +325,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
               {NAV_GROUPS.map((group) => (
                 <NavigationMenuItem key={group.label}>
-                  <NavigationMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
+                  <NavigationMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2 xl:px-3 py-1.5 text-[12px] xl:text-[13px] font-semibold uppercase tracking-[0.1em] xl:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
                     {group.label}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -367,7 +367,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </NavigationMenu>
         </div>
 
-        <div data-testid="header-actions" className="ml-auto flex items-center gap-2">
+        <div data-testid="header-actions" className="ml-auto flex shrink-0 items-center gap-1 xl:gap-2">
           {/* Unified toolbar: Search · Watchlist | Format · Theme */}
           <div data-testid="header-toolbar" className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm px-1 py-1 shadow-[inset_0_1px_0_color-mix(in_oklab,white_4%,transparent),0_1px_2px_-1px_rgba(0,0,0,0.4)]">
           <div className="flex items-center">
