@@ -299,7 +299,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   return (
     <>
     <header data-testid="site-header" className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 lg:gap-4 px-4 md:px-5 lg:px-6 py-2.5 md:py-3">
+      <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 sm:px-4 lg:px-5 py-2.5 md:py-3">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src={logoUrl} alt="MarketWatch logo" className="h-7 w-7 md:h-8 md:w-8 object-contain" />
           <span className="font-display text-lg md:text-xl leading-none">
@@ -308,7 +308,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </Link>
 
         {/* Desktop NavigationMenu */}
-        <div data-testid="header-nav" className="hidden md:flex items-center ml-2 lg:ml-4">
+        <div data-testid="header-nav" className="hidden xl:flex items-center ml-4">
           <NavigationMenu>
             <NavigationMenuList className="gap-0 lg:gap-0.5">
               <NavigationMenuItem>
@@ -316,7 +316,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   <Link
                     to={HOME.to}
                     activeOptions={{ exact: true }}
-                    className="inline-flex items-center whitespace-nowrap rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
+                    className="inline-flex items-center whitespace-nowrap rounded-md px-2 xl:px-3 py-1.5 text-[12px] xl:text-[13px] font-semibold uppercase tracking-[0.1em] xl:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors data-[status=active]:text-[var(--gold)]"
                   >
                     {HOME.label}
                   </Link>
@@ -325,7 +325,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
               {NAV_GROUPS.map((group) => (
                 <NavigationMenuItem key={group.label}>
-                  <NavigationMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 lg:px-3 py-1.5 text-[12px] lg:text-[13px] font-semibold uppercase tracking-[0.12em] lg:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
+                  <NavigationMenuTrigger className="inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2 xl:px-3 py-1.5 text-[12px] xl:text-[13px] font-semibold uppercase tracking-[0.1em] xl:tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors bg-transparent hover:bg-accent focus:bg-accent data-[state=open]:bg-accent data-[state=open]:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0">
                     {group.label}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -367,7 +367,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </NavigationMenu>
         </div>
 
-        <div data-testid="header-actions" className="ml-auto flex items-center gap-2">
+        <div data-testid="header-actions" className="ml-auto flex shrink-0 items-center gap-1 xl:gap-2">
           {/* Unified toolbar: Search · Watchlist | Format · Theme */}
           <div data-testid="header-toolbar" className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm px-1 py-1 shadow-[inset_0_1px_0_color-mix(in_oklab,white_4%,transparent),0_1px_2px_-1px_rgba(0,0,0,0.4)]">
           <div className="flex items-center">
@@ -403,7 +403,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     else if (e.key === "Escape") { setSuggestOpen(false); setSearchOpen(false); }
                   }}
                   placeholder="BTC, SJC, USD, ETH…"
-                  className="pl-9 pr-3 w-44 lg:w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
+                  className="pl-9 pr-3 w-40 xl:w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
                 />
                 {suggestOpen && suggestions.length > 0 && (
                   <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 rounded-xl border border-border bg-popover/95 backdrop-blur-xl shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
@@ -513,19 +513,19 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </div>
 
           {/* Divider trước cụm auth */}
-          <span className="hidden md:inline-block h-6 w-px bg-border/70 mx-1" aria-hidden />
+          <span className="hidden xl:inline-block h-6 w-px bg-border/70 mx-1" aria-hidden />
 
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="hidden md:inline-flex items-center gap-2 h-8 pl-1 pr-1 lg:pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
+                  className="hidden xl:inline-flex items-center gap-2 h-8 pl-1 pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
                   aria-label={user.email ?? "Tài khoản"}
                 >
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-xs font-bold uppercase">
                     {(user.email ?? "?").slice(0, 1)}
                   </span>
-                  <span className="hidden lg:inline text-sm max-w-[140px] truncate text-foreground/90">{user.email}</span>
+                  <span className="hidden xl:inline text-sm max-w-[140px] truncate text-foreground/90">{user.email}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -546,7 +546,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden xl:flex items-center gap-1">
               <Link
                 to="/dang-nhap"
                 className="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
@@ -575,7 +575,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </div>
           <button
             data-testid="header-mobile-menu-trigger"
-            className="md:hidden text-muted-foreground hover:text-foreground"
+            className="xl:hidden inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
             onClick={() => setOpen((v) => !v)}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -670,7 +670,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
 
       {/* Mobile nav */}
       {open && (
-        <nav className="md:hidden border-t border-[var(--gold)]/20 bg-gradient-to-b from-card via-card to-background/95 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_15%,transparent),0_12px_30px_-12px_rgba(0,0,0,0.6)]">
+        <nav className="xl:hidden border-t border-[var(--gold)]/20 bg-gradient-to-b from-card via-card to-background/95 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_15%,transparent),0_12px_30px_-12px_rgba(0,0,0,0.6)]">
           <div className="mx-auto max-w-6xl px-4 py-3 space-y-3">
             <Link
               to="/"
