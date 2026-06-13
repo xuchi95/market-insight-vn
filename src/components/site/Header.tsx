@@ -648,10 +648,10 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </nav>
       )}
     </header>
-    <div className="pointer-events-none fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2 md:block">
+    <div className="pointer-events-none fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 lg:block">
       <div
         data-testid="header-toolbar"
-        className="pointer-events-auto flex items-center gap-0.5 rounded-full border border-border/70 bg-card/85 px-1.5 py-1.5 shadow-[0_14px_38px_-18px_rgba(0,0,0,0.75),inset_0_1px_0_color-mix(in_oklab,white_5%,transparent)] backdrop-blur-xl"
+        className="pointer-events-auto flex flex-col items-center gap-0.5 rounded-full border border-border/70 bg-card/85 px-1.5 py-1.5 shadow-[0_14px_38px_-18px_rgba(0,0,0,0.75),inset_0_1px_0_color-mix(in_oklab,white_5%,transparent)] backdrop-blur-xl"
       >
         <div className="flex items-center">
           {searchOpen ? (
@@ -689,7 +689,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 className="h-9 w-56 rounded-full border border-[var(--gold)]/30 bg-background/90 pl-9 pr-3 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:border-[var(--gold)]/60 focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 lg:w-64"
               />
               {suggestOpen && suggestions.length > 0 && (
-                <div className="absolute bottom-[calc(100%+8px)] left-0 right-0 z-50 overflow-hidden rounded-xl border border-border bg-popover/95 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-1 duration-150">
+                <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-72 overflow-hidden rounded-xl border border-border bg-popover/95 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl animate-in fade-in slide-in-from-top-1 duration-150">
                   <div className="border-b border-border/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                     Gợi ý
                   </div>
@@ -742,7 +742,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" side="top" className="w-64">
+            <DropdownMenuContent align="center" side="left" className="w-64">
               <DropdownMenuLabel className="flex items-center justify-between gap-2">
                 <span>Theo dõi</span>
                 <span
@@ -787,7 +787,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
+        <span className="my-1 h-px w-5 bg-border/60" aria-hidden />
         <NumberFormatToggle />
         <ThemeToggle />
         <PushNotificationButton />
