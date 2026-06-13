@@ -51,13 +51,18 @@ function WidgetEmbedPage() {
   const [height, setHeight] = useState<number>(170);
   const [compact, setCompact] = useState<boolean>(false);
 
-  const src = useMemo(() => {
+  const query = useMemo(() => {
     const sp = new URLSearchParams();
     if (selected.length) sp.set("assets", selected.join(","));
     sp.set("theme", theme);
     if (compact) sp.set("compact", "1");
-    return `${SITE}/embed/gia?${sp.toString()}`;
+    return sp.toString();
   }, [selected, theme, compact]);
+
+  // Snippet để user copy: luôn dùng URL production.
+  const src = useMemo(() => `${SITE}/embed/gia?${query}`, [query]);
+  // Preview trong app: dùng same-origin để không bị chặn / lệch deployment.
+  const previewSrc = useMemo(() => `/embed/gia?${query}`, [query]);
 
   const snippet = useMemo(() => {
     return `<iframe
@@ -169,7 +174,7 @@ function WidgetEmbedPage() {
                 </div>
                 <div className="rounded-lg border border-border overflow-hidden bg-muted/20">
                   <iframe
-                    src={src}
+                    src={previewSrc}
                     width="100%"
                     height={height}
                     frameBorder={0}
