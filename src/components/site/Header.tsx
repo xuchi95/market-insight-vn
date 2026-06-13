@@ -368,153 +368,6 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </div>
 
         <div data-testid="header-actions" className="flex min-w-0 shrink-0 items-center justify-self-end gap-1 xl:gap-2">
-          {/* Unified toolbar: Search · Watchlist | Format · Theme */}
-          <div data-testid="header-toolbar" className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm px-1 py-1 shadow-[inset_0_1px_0_color-mix(in_oklab,white_4%,transparent),0_1px_2px_-1px_rgba(0,0,0,0.4)]">
-          <div className="flex items-center">
-            {searchOpen ? (
-              <form
-                data-testid="header-search-form"
-                className="relative animate-in fade-in slide-in-from-right-2 duration-200"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (suggestions[activeIdx]) {
-                    goToSuggestion(suggestions[activeIdx]);
-                    return;
-                  }
-                  const term = q.trim().toLowerCase();
-                  if (!term) return;
-                  onSearch?.(term);
-                  const dest = fallbackRoute(term);
-                  if (dest) navigate({ to: dest as never });
-                  setSearchOpen(false);
-                  setSuggestOpen(false);
-                }}
-              >
-                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gold)]/80" />
-                <Input
-                  ref={searchInputRef}
-                  value={q}
-                  onChange={(e) => { setQ(e.target.value); setSuggestOpen(true); onSearch?.(e.target.value); }}
-                  onFocus={() => setSuggestOpen(true)}
-                  onBlur={() => { setTimeout(() => { setSuggestOpen(false); if (!q) setSearchOpen(false); }, 150); }}
-                  onKeyDown={(e) => {
-                    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1)); }
-                    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx((i) => Math.max(i - 1, 0)); }
-                    else if (e.key === "Escape") { setSuggestOpen(false); setSearchOpen(false); }
-                  }}
-                  placeholder="BTC, SJC, USD, ETH…"
-                  className="pl-9 pr-3 w-40 xl:w-48 2xl:w-52 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
-                />
-                {suggestOpen && suggestions.length > 0 && (
-                  <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 rounded-xl border border-border bg-popover/95 backdrop-blur-xl shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
-                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 border-b border-border/60">
-                      Gợi ý
-                    </div>
-                    <ul className="py-1 max-h-72 overflow-auto">
-                      {suggestions.map((s, idx) => (
-                        <li key={s.symbol}>
-                          <button
-                            type="button"
-                            onMouseDown={(e) => { e.preventDefault(); goToSuggestion(s); }}
-                            onMouseEnter={() => setActiveIdx(idx)}
-                            className={`w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
-                          >
-                            <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
-                              {highlightMatch(s.symbol, q)}
-                            </span>
-                            <span className="flex-1 min-w-0">
-                              <span className="block text-sm text-foreground truncate">{highlightMatch(s.label, q)}</span>
-                              <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </form>
-            ) : (
-              <button
-                type="button"
-                data-testid="header-search-trigger"
-                onClick={() => setSearchOpen(true)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-          {/* Desktop watchlist */}
-          <div className="flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="relative inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                >
-                  <Star className="h-4 w-4" />
-                  {list.length > 0 && (
-                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[var(--gold)] text-[10px] font-bold text-background flex items-center justify-center">
-                      {list.length}
-                    </span>
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel className="flex items-center justify-between gap-2">
-                  <span>Theo dõi</span>
-                  <span
-                    className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${
-                      synced
-                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-500"
-                        : "border-border bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {synced ? "Đã đồng bộ" : "Cục bộ"}
-                  </span>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {!synced && (
-                  <button
-                    type="button"
-                    onClick={() => navigate({ to: "/dang-nhap" as never })}
-                    className="block w-full text-left px-3 py-2 text-xs text-[var(--gold)] hover:bg-accent"
-                  >
-                    Đăng nhập để đồng bộ giữa thiết bị →
-                  </button>
-                )}
-                {list.length === 0 ? (
-                  <div className="px-3 py-4 text-sm text-muted-foreground text-center">Chưa có tài sản nào</div>
-                ) : (
-                  list.map((item) => (
-                    <DropdownMenuItem key={item.symbol} onClick={() => navigate({ to: item.to as never })} className="flex items-center gap-2 pr-2">
-                      <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
-                        {item.symbol}
-                      </span>
-                      <span className="flex-1 truncate text-sm">{item.label}</span>
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); remove(item.symbol); }}
-                        className="ml-1 text-muted-foreground hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </DropdownMenuItem>
-                  ))
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-            {/* Inline divider between functional groups */}
-            <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
-            <NumberFormatToggle />
-            <ThemeToggle />
-            <PushNotificationButton />
-          </div>
-
-          {/* Divider trước cụm auth */}
-          <span className="hidden xl:inline-block h-6 w-px bg-border/70 mx-1" aria-hidden />
-
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -580,6 +433,157 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
+        </div>
+      </div>
+
+      {/* Toolbar row — Search · Watchlist | Format · Theme · Push.
+          Moved to its own row (below logo+nav) to avoid colliding with
+          the centered nav labels at md–xl widths. */}
+      <div className="hidden md:block border-t border-border/40 bg-background/60">
+        <div className="mx-auto flex w-full justify-end px-5 py-1.5 xl:max-w-[60rem] 2xl:max-w-[64rem]">
+          <div
+            data-testid="header-toolbar"
+            className="flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm px-1 py-1 shadow-[inset_0_1px_0_color-mix(in_oklab,white_4%,transparent),0_1px_2px_-1px_rgba(0,0,0,0.4)]"
+          >
+            <div className="flex items-center">
+              {searchOpen ? (
+                <form
+                  data-testid="header-search-form"
+                  className="relative animate-in fade-in slide-in-from-right-2 duration-200"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (suggestions[activeIdx]) {
+                      goToSuggestion(suggestions[activeIdx]);
+                      return;
+                    }
+                    const term = q.trim().toLowerCase();
+                    if (!term) return;
+                    onSearch?.(term);
+                    const dest = fallbackRoute(term);
+                    if (dest) navigate({ to: dest as never });
+                    setSearchOpen(false);
+                    setSuggestOpen(false);
+                  }}
+                >
+                  <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gold)]/80" />
+                  <Input
+                    ref={searchInputRef}
+                    value={q}
+                    onChange={(e) => { setQ(e.target.value); setSuggestOpen(true); onSearch?.(e.target.value); }}
+                    onFocus={() => setSuggestOpen(true)}
+                    onBlur={() => { setTimeout(() => { setSuggestOpen(false); if (!q) setSearchOpen(false); }, 150); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1)); }
+                      else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx((i) => Math.max(i - 1, 0)); }
+                      else if (e.key === "Escape") { setSuggestOpen(false); setSearchOpen(false); }
+                    }}
+                    placeholder="BTC, SJC, USD, ETH…"
+                    className="pl-9 pr-3 w-48 lg:w-56 xl:w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
+                  />
+                  {suggestOpen && suggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 rounded-xl border border-border bg-popover/95 backdrop-blur-xl shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                      <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 border-b border-border/60">
+                        Gợi ý
+                      </div>
+                      <ul className="py-1 max-h-72 overflow-auto">
+                        {suggestions.map((s, idx) => (
+                          <li key={s.symbol}>
+                            <button
+                              type="button"
+                              onMouseDown={(e) => { e.preventDefault(); goToSuggestion(s); }}
+                              onMouseEnter={() => setActiveIdx(idx)}
+                              className={`w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
+                            >
+                              <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
+                                {highlightMatch(s.symbol, q)}
+                              </span>
+                              <span className="flex-1 min-w-0">
+                                <span className="block text-sm text-foreground truncate">{highlightMatch(s.label, q)}</span>
+                                <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="header-search-trigger"
+                  onClick={() => setSearchOpen(true)}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <div className="flex items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="relative inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                  >
+                    <Star className="h-4 w-4" />
+                    {list.length > 0 && (
+                      <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[var(--gold)] text-[10px] font-bold text-background flex items-center justify-center">
+                        {list.length}
+                      </span>
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuLabel className="flex items-center justify-between gap-2">
+                    <span>Theo dõi</span>
+                    <span
+                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${
+                        synced
+                          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-500"
+                          : "border-border bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {synced ? "Đã đồng bộ" : "Cục bộ"}
+                    </span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {!synced && (
+                    <button
+                      type="button"
+                      onClick={() => navigate({ to: "/dang-nhap" as never })}
+                      className="block w-full text-left px-3 py-2 text-xs text-[var(--gold)] hover:bg-accent"
+                    >
+                      Đăng nhập để đồng bộ giữa thiết bị →
+                    </button>
+                  )}
+                  {list.length === 0 ? (
+                    <div className="px-3 py-4 text-sm text-muted-foreground text-center">Chưa có tài sản nào</div>
+                  ) : (
+                    list.map((item) => (
+                      <DropdownMenuItem key={item.symbol} onClick={() => navigate({ to: item.to as never })} className="flex items-center gap-2 pr-2">
+                        <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
+                          {item.symbol}
+                        </span>
+                        <span className="flex-1 truncate text-sm">{item.label}</span>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); remove(item.symbol); }}
+                          className="ml-1 text-muted-foreground hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
+            <NumberFormatToggle />
+            <ThemeToggle />
+            <PushNotificationButton />
+          </div>
         </div>
       </div>
 
