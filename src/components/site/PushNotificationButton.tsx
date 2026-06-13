@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Bell, BellOff, BellRing, Sunrise, Sunset, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { getPushState, isPushSupported, subscribePush, unsubscribePush, type PushState } from '@/lib/push';
+import { useCookieConsent } from '@/hooks/useCookieConsent';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,8 @@ export function PushNotificationButton() {
   const [state, setState] = useState<PushState>('default');
   const [busy, setBusy] = useState(false);
   const [introOpen, setIntroOpen] = useState(false);
+  const { prefs, decided } = useCookieConsent();
+  const marketingAllowed = decided && prefs.marketing;
 
   useEffect(() => {
     if (!isPushSupported()) {
@@ -30,6 +33,25 @@ export function PushNotificationButton() {
     }
     getPushState().then(setState).catch(() => setState('default'));
   }, []);
+
+  // Nếu người dùng đã quyết định cookie và TỪ CHỐI nhóm "Tiếp thị" mà thiết bị
+  // vẫn đang đăng ký push → tự huỷ để tuân thủ Chính sách Cookie.
+  useEffect(() => {
+    if (!decided || prefs.marketing) return;
+    if (state !== 'subscribed') return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const next = await unsubscribePush();
+        if (!cancelled) setState(next);
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [decided, prefs.marketing, state]);
 
   if (state === 'unsupported') return null;
 
@@ -65,6 +87,18 @@ export function PushNotificationButton() {
       } finally {
         setBusy(false);
       }
+      return;
+    }
+    // Bật thông báo đòi hỏi đồng ý nhóm cookie "Tiếp thị".
+    if (!marketingAllowed) {
+      toast.message('Cần bật cookie "Tiếp thị" để nhận thông báo giá', {
+        description: 'Mở Tuỳ chỉnh Cookie và bật nhóm Tiếp thị để tiếp tục.',
+        action: {
+          label: 'Mở cài đặt',
+          onClick: () =>
+            window.dispatchEvent(new CustomEvent('mw:open-cookie-settings')),
+        },
+      });
       return;
     }
     // Mở popup giới thiệu trước khi xin quyền trình duyệt
