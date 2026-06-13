@@ -519,12 +519,13 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="hidden md:inline-flex items-center gap-2 h-8 pl-1 pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
+                  className="hidden md:inline-flex items-center gap-2 h-8 pl-1 pr-1 lg:pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
+                  aria-label={user.email ?? "Tài khoản"}
                 >
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-xs font-bold uppercase">
                     {(user.email ?? "?").slice(0, 1)}
                   </span>
-                  <span className="text-sm max-w-[140px] truncate text-foreground/90">{user.email}</span>
+                  <span className="hidden lg:inline text-sm max-w-[140px] truncate text-foreground/90">{user.email}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
