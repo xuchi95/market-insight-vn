@@ -403,7 +403,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     else if (e.key === "Escape") { setSuggestOpen(false); setSearchOpen(false); }
                   }}
                   placeholder="BTC, SJC, USD, ETH…"
-                  className="pl-9 pr-3 w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
+                  className="pl-9 pr-3 w-44 lg:w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
                 />
                 {suggestOpen && suggestions.length > 0 && (
                   <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 rounded-xl border border-border bg-popover/95 backdrop-blur-xl shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
