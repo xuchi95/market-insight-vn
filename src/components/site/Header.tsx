@@ -403,7 +403,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     else if (e.key === "Escape") { setSuggestOpen(false); setSearchOpen(false); }
                   }}
                   placeholder="BTC, SJC, USD, ETH…"
-                  className="pl-9 pr-3 w-44 lg:w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
+                  className="pl-9 pr-3 w-40 xl:w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
                 />
                 {suggestOpen && suggestions.length > 0 && (
                   <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 rounded-xl border border-border bg-popover/95 backdrop-blur-xl shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
@@ -513,19 +513,19 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </div>
 
           {/* Divider trước cụm auth */}
-          <span className="hidden md:inline-block h-6 w-px bg-border/70 mx-1" aria-hidden />
+          <span className="hidden lg:inline-block h-6 w-px bg-border/70 mx-1" aria-hidden />
 
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="hidden md:inline-flex items-center gap-2 h-8 pl-1 pr-1 lg:pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
+                  className="hidden lg:inline-flex items-center gap-2 h-8 pl-1 pr-1 xl:pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
                   aria-label={user.email ?? "Tài khoản"}
                 >
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-xs font-bold uppercase">
                     {(user.email ?? "?").slice(0, 1)}
                   </span>
-                  <span className="hidden lg:inline text-sm max-w-[140px] truncate text-foreground/90">{user.email}</span>
+                  <span className="hidden xl:inline text-sm max-w-[140px] truncate text-foreground/90">{user.email}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -546,7 +546,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden lg:flex items-center gap-1">
               <Link
                 to="/dang-nhap"
                 className="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
