@@ -648,6 +648,151 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </nav>
       )}
     </header>
+    <div className="pointer-events-none fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2 md:block">
+      <div
+        data-testid="header-toolbar"
+        className="pointer-events-auto flex items-center gap-0.5 rounded-full border border-border/70 bg-card/85 px-1.5 py-1.5 shadow-[0_14px_38px_-18px_rgba(0,0,0,0.75),inset_0_1px_0_color-mix(in_oklab,white_5%,transparent)] backdrop-blur-xl"
+      >
+        <div className="flex items-center">
+          {searchOpen ? (
+            <form
+              data-testid="header-search-form"
+              className="relative animate-in fade-in slide-in-from-left-2 duration-200"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (suggestions[activeIdx]) {
+                  goToSuggestion(suggestions[activeIdx]);
+                  return;
+                }
+                const term = q.trim().toLowerCase();
+                if (!term) return;
+                onSearch?.(term);
+                const dest = fallbackRoute(term);
+                if (dest) navigate({ to: dest as never });
+                setSearchOpen(false);
+                setSuggestOpen(false);
+              }}
+            >
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--gold)]/80" />
+              <Input
+                ref={searchInputRef}
+                value={q}
+                onChange={(e) => { setQ(e.target.value); setSuggestOpen(true); onSearch?.(e.target.value); }}
+                onFocus={() => setSuggestOpen(true)}
+                onBlur={() => { setTimeout(() => { setSuggestOpen(false); if (!q) setSearchOpen(false); }, 150); }}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1)); }
+                  else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIdx((i) => Math.max(i - 1, 0)); }
+                  else if (e.key === "Escape") { setSuggestOpen(false); setSearchOpen(false); }
+                }}
+                placeholder="BTC, SJC, USD, ETH…"
+                className="h-9 w-56 rounded-full border border-[var(--gold)]/30 bg-background/90 pl-9 pr-3 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:border-[var(--gold)]/60 focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 lg:w-64"
+              />
+              {suggestOpen && suggestions.length > 0 && (
+                <div className="absolute bottom-[calc(100%+8px)] left-0 right-0 z-50 overflow-hidden rounded-xl border border-border bg-popover/95 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-1 duration-150">
+                  <div className="border-b border-border/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+                    Gợi ý
+                  </div>
+                  <ul className="max-h-72 overflow-auto py-1">
+                    {suggestions.map((s, idx) => (
+                      <li key={s.symbol}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => { e.preventDefault(); goToSuggestion(s); }}
+                          onMouseEnter={() => setActiveIdx(idx)}
+                          className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left transition-colors ${idx === activeIdx ? "bg-accent" : "hover:bg-accent/60"}`}
+                        >
+                          <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
+                            {highlightMatch(s.symbol, q)}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm text-foreground">{highlightMatch(s.label, q)}</span>
+                            <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.category}</span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </form>
+          ) : (
+            <button
+              type="button"
+              data-testid="header-search-trigger"
+              onClick={() => setSearchOpen(true)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <div className="flex items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="relative inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <Star className="h-4 w-4" />
+                {list.length > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[10px] font-bold text-background">
+                    {list.length}
+                  </span>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" side="top" className="w-64">
+              <DropdownMenuLabel className="flex items-center justify-between gap-2">
+                <span>Theo dõi</span>
+                <span
+                  className={`rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${
+                    synced
+                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-500"
+                      : "border-border bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {synced ? "Đã đồng bộ" : "Cục bộ"}
+                </span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {!synced && (
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/dang-nhap" as never })}
+                  className="block w-full px-3 py-2 text-left text-xs text-[var(--gold)] hover:bg-accent"
+                >
+                  Đăng nhập để đồng bộ giữa thiết bị →
+                </button>
+              )}
+              {list.length === 0 ? (
+                <div className="px-3 py-4 text-center text-sm text-muted-foreground">Chưa có tài sản nào</div>
+              ) : (
+                list.map((item) => (
+                  <DropdownMenuItem key={item.symbol} onClick={() => navigate({ to: item.to as never })} className="flex items-center gap-2 pr-2">
+                    <span className="inline-flex min-w-[44px] justify-center rounded-md border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-[var(--gold)]">
+                      {item.symbol}
+                    </span>
+                    <span className="flex-1 truncate text-sm">{item.label}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); remove(item.symbol); }}
+                      className="ml-1 text-muted-foreground hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </DropdownMenuItem>
+                ))
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <span className="mx-1 h-5 w-px bg-border/60" aria-hidden />
+        <NumberFormatToggle />
+        <ThemeToggle />
+        <PushNotificationButton />
+      </div>
+    </div>
     {/* Khung quảng cáo dưới header (leaderboard). Tự ẩn nếu chưa cấu hình VITE_ADSENSE_CLIENT. */}
     <AdSlot placement="header" slot={import.meta.env.VITE_ADSENSE_SLOT_HEADER as string | undefined} className="my-3 md:my-4" />
     </>
