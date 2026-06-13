@@ -299,7 +299,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   return (
     <>
     <header data-testid="site-header" className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 sm:px-4 lg:px-5 py-2.5 md:py-3">
+      <div className="mx-auto grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-2.5 md:py-3 xl:max-w-[60rem] 2xl:max-w-[64rem]">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src={logoUrl} alt="MarketWatch logo" className="h-7 w-7 md:h-8 md:w-8 object-contain" />
           <span className="font-display text-lg md:text-xl leading-none">
@@ -308,7 +308,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </Link>
 
         {/* Desktop NavigationMenu */}
-        <div data-testid="header-nav" className="hidden xl:flex items-center ml-4">
+        <div data-testid="header-nav" className="hidden min-w-0 items-center justify-center xl:flex">
           <NavigationMenu>
             <NavigationMenuList className="gap-0 lg:gap-0.5">
               <NavigationMenuItem>
@@ -367,7 +367,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           </NavigationMenu>
         </div>
 
-        <div data-testid="header-actions" className="ml-auto flex shrink-0 items-center gap-1 xl:gap-2">
+        <div data-testid="header-actions" className="flex min-w-0 shrink-0 items-center justify-self-end gap-1 xl:gap-2">
           {/* Unified toolbar: Search · Watchlist | Format · Theme */}
           <div data-testid="header-toolbar" className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-card/50 backdrop-blur-sm px-1 py-1 shadow-[inset_0_1px_0_color-mix(in_oklab,white_4%,transparent),0_1px_2px_-1px_rgba(0,0,0,0.4)]">
           <div className="flex items-center">
@@ -403,7 +403,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                     else if (e.key === "Escape") { setSuggestOpen(false); setSearchOpen(false); }
                   }}
                   placeholder="BTC, SJC, USD, ETH…"
-                  className="pl-9 pr-3 w-40 xl:w-64 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
+                  className="pl-9 pr-3 w-40 xl:w-48 2xl:w-52 h-9 rounded-full border border-[var(--gold)]/30 bg-background/90 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 focus-visible:border-[var(--gold)]/60"
                 />
                 {suggestOpen && suggestions.length > 0 && (
                   <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 rounded-xl border border-border bg-popover/95 backdrop-blur-xl shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
