@@ -144,6 +144,16 @@ export function AdblockGuard() {
   const [dismissed, setDismissed] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  // Track viewport so we can switch font scale between desktop/mobile.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(max-width: 640px)");
+    const apply = () => setIsMobile(mql.matches);
+    apply();
+    mql.addEventListener("change", apply);
+    return () => mql.removeEventListener("change", apply);
+  }, []);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const running = useRef(false);
 
