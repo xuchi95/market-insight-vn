@@ -172,6 +172,7 @@ export const Route = createFileRoute("/api/public/widget-snapshot")({
             // Widget OS thường tự cache; cho phép CDN cache 60s để bảo vệ origin
             "cache-control": "public, max-age=60, s-maxage=60",
             "access-control-allow-origin": "*",
+            "x-debug-origin": origin,
           },
         });
       },
