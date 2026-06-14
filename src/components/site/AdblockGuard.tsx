@@ -619,7 +619,7 @@ export function AdblockGuard() {
               borderRadius: 10,
               fontWeight: 500,
               cursor: "pointer",
-              fontSize: 13,
+              fontSize: px(13),
               letterSpacing: "0.02em",
             }}
           >
