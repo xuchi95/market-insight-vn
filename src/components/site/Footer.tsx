@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import logoUrl from "@/assets/logo.png";
+import logoAsset from "@/assets/logo.webp.asset.json";
+const logoUrl = logoAsset.url;
 import { AdSlot } from "@/components/site/AdSlot";
 
 export function Footer() {

@@ -3,7 +3,8 @@ import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles,
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Input } from "@/components/ui/input";
-import logoUrl from "@/assets/logo.png";
+import logoAsset from "@/assets/logo.webp.asset.json";
+const logoUrl = logoAsset.url;
 import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
