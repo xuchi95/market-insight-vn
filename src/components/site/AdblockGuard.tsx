@@ -3,11 +3,33 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getAdblockSettings, type AdblockSettings } from "@/lib/admin/adblock.functions";
 
-/** Các URL/script mà adblocker phổ biến (EasyList) chặn — fetch sẽ fail/abort. */
-const BAIT_URLS = [
-  "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?_adb=" + Date.now(),
-  "/ads.js?_adb=" + Date.now(),
-];
+/** URL/script mà adblocker phổ biến (EasyList/ABP) chặn. Tạo mới mỗi lần check
+ * để tránh cache và để bắt được trạng thái khi user bật lại adblock không reload trang. */
+function baitUrls() {
+  const nonce = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return [
+    `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1602622310716271&_mw_adb=${nonce}`,
+    `https://securepubads.g.doubleclick.net/tag/js/gpt.js?_mw_adb=${nonce}`,
+  ];
+}
+
+function detectBlockedScript(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    const done = (blocked: boolean) => {
+      window.clearTimeout(timeout);
+      script.remove();
+      resolve(blocked);
+    };
+    const timeout = window.setTimeout(() => done(true), 2200);
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.src = url;
+    script.onload = () => done(false);
+    script.onerror = () => done(true);
+    document.head.appendChild(script);
+  });
+}
 
 const DISMISS_KEY = "mw-adblock-dismiss";
 
@@ -33,8 +55,7 @@ async function detectAdblock(s: AdblockSettings): Promise<boolean> {
     checks.push(
       new Promise<boolean>((resolve) => {
         const bait = document.createElement("div");
-        bait.className =
-          "ads ad adsbox doubleclick ad-placement carbon-ads ad-banner adsbygoogle";
+        bait.className = "ads ad adsbox doubleclick ad-placement carbon-ads ad-banner adsbygoogle";
         bait.setAttribute("aria-hidden", "true");
         bait.style.cssText =
           "position:absolute!important;left:-9999px;top:-9999px;width:1px;height:1px;pointer-events:none;";
@@ -55,12 +76,14 @@ async function detectAdblock(s: AdblockSettings): Promise<boolean> {
     );
   }
 
+  const urls = baitUrls();
+
   if (s.detection_fetch) {
     checks.push(
       (async () => {
-        for (const url of BAIT_URLS) {
+        for (const url of urls) {
           try {
-            await fetch(url, { method: "HEAD", mode: "no-cors", cache: "no-store" });
+            await fetch(url, { method: "GET", mode: "no-cors", cache: "no-store" });
           } catch {
             return true; // fetch bị block ⇒ adblock active
           }
@@ -72,11 +95,12 @@ async function detectAdblock(s: AdblockSettings): Promise<boolean> {
 
   if (s.detection_script) {
     checks.push(
-      Promise.resolve(
-        typeof window.adsbygoogle === "undefined" ||
-          (Array.isArray(window.adsbygoogle) === false &&
-            typeof window.adsbygoogle !== "object"),
-      ),
+      (async () => {
+        for (const url of urls) {
+          if (await detectBlockedScript(url)) return true;
+        }
+        return false;
+      })(),
     );
   }
 
@@ -116,6 +140,7 @@ export function AdblockGuard() {
   const [detected, setDetected] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const running = useRef(false);
 
   // Path whitelist
   const path = typeof window !== "undefined" ? window.location.pathname : "/";
@@ -128,24 +153,52 @@ export function AdblockGuard() {
 
   useEffect(() => {
     if (!settings || whitelisted) return;
-    if (isDismissValid(settings.dismiss_cooldown_hours)) {
+    if (
+      settings.mode !== "hard" &&
+      settings.allow_dismiss &&
+      isDismissValid(settings.dismiss_cooldown_hours)
+    ) {
       setDismissed(true);
       return;
     }
+    setDismissed(false);
     let cancelled = false;
     const run = async () => {
+      if (running.current) return;
+      running.current = true;
       const isBlocked = await detectAdblock(settings);
-      if (!cancelled) setDetected(isBlocked);
+      running.current = false;
+      if (!cancelled) {
+        if (isBlocked) {
+          try {
+            localStorage.removeItem(DISMISS_KEY);
+          } catch {
+            // Ignore storage access errors in private/restricted browsing modes.
+          }
+          setDismissed(false);
+        }
+        setDetected(isBlocked);
+      }
     };
     // Chạy lần đầu sau 800ms để AdSense script kịp khởi tạo nếu KHÔNG bị block.
     const initial = setTimeout(run, 800);
     // Luôn recheck định kỳ để khi user bật lại adblock thì popup hiện trở lại.
     const intervalMs = Math.max(3, settings.recheck_interval_sec || 5) * 1000;
     timer.current = setInterval(run, intervalMs);
+    const wakeEvents = [
+      "focus",
+      "visibilitychange",
+      "pageshow",
+      "online",
+      "pointerdown",
+      "keydown",
+    ] as const;
+    wakeEvents.forEach((eventName) => window.addEventListener(eventName, run, { passive: true }));
     return () => {
       cancelled = true;
       clearTimeout(initial);
       if (timer.current) clearInterval(timer.current);
+      wakeEvents.forEach((eventName) => window.removeEventListener(eventName, run));
     };
   }, [settings, whitelisted]);
 
@@ -159,7 +212,9 @@ export function AdblockGuard() {
     if (!isOverlay) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [visible, settings?.layout]);
 
   if (!visible || !settings) return null;
@@ -170,7 +225,11 @@ export function AdblockGuard() {
     if (!still) setDetected(false);
   };
   const handleDismiss = () => {
-    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
+    try {
+      localStorage.setItem(DISMISS_KEY, String(Date.now()));
+    } catch {
+      // Ignore storage access errors in private/restricted browsing modes.
+    }
     setDismissed(true);
   };
 
@@ -203,10 +262,16 @@ export function AdblockGuard() {
         <div
           aria-hidden
           style={{
-            width: 44, height: 44, borderRadius: 10,
+            width: 44,
+            height: 44,
+            borderRadius: 10,
             background: `linear-gradient(135deg, ${c.accent}, ${c.accent}88)`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 22, fontWeight: 700, color: c.bg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 22,
+            fontWeight: 700,
+            color: c.bg,
           }}
         >
           M
@@ -216,13 +281,18 @@ export function AdblockGuard() {
         <h2
           id="mw-adblock-title"
           style={{
-            margin: 0, fontSize: isBanner ? 15 : 19, lineHeight: 1.3,
-            fontWeight: 700, color: c.accent,
+            margin: 0,
+            fontSize: isBanner ? 15 : 19,
+            lineHeight: 1.3,
+            fontWeight: 700,
+            color: c.accent,
           }}
         >
           {settings.title}
         </h2>
-        <p style={{ margin: "8px 0 0", fontSize: isBanner ? 13 : 14, lineHeight: 1.5, opacity: 0.9 }}>
+        <p
+          style={{ margin: "8px 0 0", fontSize: isBanner ? 13 : 14, lineHeight: 1.5, opacity: 0.9 }}
+        >
           {settings.message}
         </p>
         {settings.secondary_message && !isBanner && (
@@ -233,17 +303,26 @@ export function AdblockGuard() {
       </div>
       <div
         style={{
-          display: "flex", gap: 8, flexWrap: "wrap",
-          marginTop: isBanner ? 0 : 16, width: isBanner ? "auto" : "100%",
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+          marginTop: isBanner ? 0 : 16,
+          width: isBanner ? "auto" : "100%",
         }}
       >
         {settings.show_retry && (
           <button
             onClick={handleRetry}
             style={{
-              background: c.accent, color: c.bg, border: "none",
-              padding: "10px 16px", borderRadius: 8, fontWeight: 600,
-              cursor: "pointer", fontSize: 13, flex: isBanner ? "none" : 1,
+              background: c.accent,
+              color: c.bg,
+              border: "none",
+              padding: "10px 16px",
+              borderRadius: 8,
+              fontWeight: 600,
+              cursor: "pointer",
+              fontSize: 13,
+              flex: isBanner ? "none" : 1,
             }}
           >
             {settings.button_text}
@@ -253,9 +332,14 @@ export function AdblockGuard() {
           <button
             onClick={handleDismiss}
             style={{
-              background: "transparent", color: c.text, border: `1px solid ${c.text}33`,
-              padding: "10px 16px", borderRadius: 8, fontWeight: 500,
-              cursor: "pointer", fontSize: 13,
+              background: "transparent",
+              color: c.text,
+              border: `1px solid ${c.text}33`,
+              padding: "10px 16px",
+              borderRadius: 8,
+              fontWeight: 500,
+              cursor: "pointer",
+              fontSize: 13,
             }}
           >
             {settings.dismiss_text || "Bỏ qua"}
@@ -287,11 +371,19 @@ export function AdblockGuard() {
     <div
       role="presentation"
       style={{
-        position: "fixed", inset: 0, zIndex: 2147483000,
-        background: `${c.overlay}${Math.round(settings.overlay_opacity * 255).toString(16).padStart(2, "0")}`,
-        backdropFilter: settings.backdrop_blur > 0 ? `blur(${settings.backdrop_blur}px)` : undefined,
-        WebkitBackdropFilter: settings.backdrop_blur > 0 ? `blur(${settings.backdrop_blur}px)` : undefined,
-        display: "flex", alignItems: "center", justifyContent: "center",
+        position: "fixed",
+        inset: 0,
+        zIndex: 2147483000,
+        background: `${c.overlay}${Math.round(settings.overlay_opacity * 255)
+          .toString(16)
+          .padStart(2, "0")}`,
+        backdropFilter:
+          settings.backdrop_blur > 0 ? `blur(${settings.backdrop_blur}px)` : undefined,
+        WebkitBackdropFilter:
+          settings.backdrop_blur > 0 ? `blur(${settings.backdrop_blur}px)` : undefined,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         padding: settings.layout === "fullscreen" ? 0 : 20,
         overflow: "auto",
         pointerEvents: "auto",
@@ -308,7 +400,9 @@ export function AdblockGuard() {
       onContextMenu={blockBg}
       onWheel={blockBg}
       onTouchMove={blockBg}
-      onPointerDown={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+      onPointerDown={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+      }}
     >
       {card}
     </div>
