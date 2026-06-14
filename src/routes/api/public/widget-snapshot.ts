@@ -26,7 +26,7 @@ interface WidgetSnapshot {
   items: WidgetItem[];
 }
 
-async function safeFetchJson(url: string, timeoutMs = 2000): Promise<any> {
+async function safeFetchJson(url: string, timeoutMs = 6000): Promise<any> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
