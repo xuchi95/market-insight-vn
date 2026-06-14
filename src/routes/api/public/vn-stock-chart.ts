@@ -35,8 +35,11 @@ async function fetchVndirect(sym: string, days: number, resolution: string): Pro
   // VNDirect trả về `s=ok` nhưng arrays rỗng. Mở rộng cửa sổ tối thiểu 7 ngày
   // cho intraday để lấy được phiên giao dịch gần nhất, rồi lọc về 1 phiên
   // cuối cùng nếu user yêu cầu 1D.
+  // VNDirect trả `s=ok` nhưng arrays rỗng nếu window rơi vào ngày
+  // nghỉ/lễ. Luôn mở rộng tối thiểu 7 ngày để bắt được phiên gần nhất,
+  // rồi lọc về 1 phiên nếu user yêu cầu `days=1` intraday.
   const isIntraday = resolution !== "D";
-  const effDays = isIntraday ? Math.max(days, 7) : days;
+  const effDays = Math.max(days, 7);
   const from = now - effDays * 86400;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
