@@ -112,8 +112,15 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
         const periodLabel = isMorning ? 'sáng' : 'chiều';
         const title = `Giá thị trường ${periodLabel} ${hourVN}:00`;
 
-        function buildPayloadFor(allowed: Set<Category>): string | null {
-          const filtered = items.filter((i) => allowed.has(CODE_CATEGORY[i.code]));
+        function buildPayloadFor(allowed: Set<Category>, minPct = 0): string | null {
+          const filtered = items.filter((i) => {
+            if (!allowed.has(CODE_CATEGORY[i.code])) return false;
+            if (minPct > 0) {
+              const c = typeof i.changePct === 'number' ? Math.abs(i.changePct) : 0;
+              if (c < minPct) return false;
+            }
+            return true;
+          });
           if (filtered.length === 0) return null;
           const body = filtered
             .map((i) => `${i.code} ${fmtPrice(i.price, i.code)}${fmtChange(i.changePct)}`)
