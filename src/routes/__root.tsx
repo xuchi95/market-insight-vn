@@ -22,6 +22,7 @@ import { AuthWelcomeBanner } from "@/components/site/AuthWelcomeBanner";
 import { CookieConsent } from "@/components/site/CookieConsent";
 import { InstallPwaPrompt } from "@/components/site/InstallPwaPrompt";
 import { SideAdRails } from "@/components/site/SideAdRails";
+import { AdblockGuard } from "@/components/site/AdblockGuard";
 import { getActiveCodeInjections, type PublicInjection } from "@/lib/admin/code-injections.functions";
 import { useAnalyticsTracker } from "@/hooks/useAnalyticsTracker";
 
@@ -417,6 +418,7 @@ function RootComponent() {
               <AuthWelcomeBanner />
               <CookieConsent />
               <InstallPwaPrompt />
+              <AdblockGuard />
               {bodyEnd.map((i: PublicInjection, idx: number) => (
                 <div key={`be-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
               ))}

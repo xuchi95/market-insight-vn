@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search,
   Fuel, Code2, TrendingUp, KeyRound, ShieldCheck, Inbox, Newspaper, BarChart3, Activity, Gavel,
   Menu, X, ChevronLeft, ChevronRight, LogOut, ExternalLink, Bell, User as UserIcon, Sparkles,
-  DollarSign,
+  DollarSign, Shield,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -63,6 +63,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/mw-admin/cron-activity", label: "Hoạt động cron", icon: Activity },
       { to: "/mw-admin/ai-usage", label: "Chi phí AI", icon: Sparkles },
       { to: "/mw-admin/adsense", label: "AdSense", icon: DollarSign },
+      { to: "/mw-admin/adblock", label: "Chống AdBlock", icon: Shield },
     ],
   },
   {
