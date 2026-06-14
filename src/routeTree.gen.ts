@@ -132,6 +132,7 @@ import { Route as AdminMwAdminApiKeyRequestsRouteImport } from './routes/_admin/
 import { Route as AdminMwAdminAnalyticsRouteImport } from './routes/_admin/mw-admin.analytics'
 import { Route as AdminMwAdminAiUsageRouteImport } from './routes/_admin/mw-admin.ai-usage'
 import { Route as AdminMwAdminAdsenseRouteImport } from './routes/_admin/mw-admin.adsense'
+import { Route as AdminMwAdminAdblockRouteImport } from './routes/_admin/mw-admin.adblock'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -779,6 +780,11 @@ const AdminMwAdminAdsenseRoute = AdminMwAdminAdsenseRouteImport.update({
   path: '/mw-admin/adsense',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminAdblockRoute = AdminMwAdminAdblockRouteImport.update({
+  id: '/mw-admin/adblock',
+  path: '/mw-admin/adblock',
+  getParentRoute: () => AdminRoute,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -935,6 +941,7 @@ export interface FileRoutesByFullPath {
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
   '/tai-san/': typeof TaiSanIndexRoute
+  '/mw-admin/adblock': typeof AdminMwAdminAdblockRoute
   '/mw-admin/adsense': typeof AdminMwAdminAdsenseRoute
   '/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
@@ -1075,6 +1082,7 @@ export interface FileRoutesByTo {
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat': typeof CaiDatIndexRoute
   '/tai-san': typeof TaiSanIndexRoute
+  '/mw-admin/adblock': typeof AdminMwAdminAdblockRoute
   '/mw-admin/adsense': typeof AdminMwAdminAdsenseRoute
   '/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
@@ -1217,6 +1225,7 @@ export interface FileRoutesById {
   '/tu-dien/$slug': typeof TuDienSlugRoute
   '/cai-dat/': typeof CaiDatIndexRoute
   '/tai-san/': typeof TaiSanIndexRoute
+  '/_admin/mw-admin/adblock': typeof AdminMwAdminAdblockRoute
   '/_admin/mw-admin/adsense': typeof AdminMwAdminAdsenseRoute
   '/_admin/mw-admin/ai-usage': typeof AdminMwAdminAiUsageRoute
   '/_admin/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
@@ -1359,6 +1368,7 @@ export interface FileRouteTypes {
     | '/tu-dien/$slug'
     | '/cai-dat/'
     | '/tai-san/'
+    | '/mw-admin/adblock'
     | '/mw-admin/adsense'
     | '/mw-admin/ai-usage'
     | '/mw-admin/analytics'
@@ -1499,6 +1509,7 @@ export interface FileRouteTypes {
     | '/tu-dien/$slug'
     | '/cai-dat'
     | '/tai-san'
+    | '/mw-admin/adblock'
     | '/mw-admin/adsense'
     | '/mw-admin/ai-usage'
     | '/mw-admin/analytics'
@@ -1640,6 +1651,7 @@ export interface FileRouteTypes {
     | '/tu-dien/$slug'
     | '/cai-dat/'
     | '/tai-san/'
+    | '/_admin/mw-admin/adblock'
     | '/_admin/mw-admin/adsense'
     | '/_admin/mw-admin/ai-usage'
     | '/_admin/mw-admin/analytics'
@@ -2698,6 +2710,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminAdsenseRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/adblock': {
+      id: '/_admin/mw-admin/adblock'
+      path: '/mw-admin/adblock'
+      fullPath: '/mw-admin/adblock'
+      preLoaderRoute: typeof AdminMwAdminAdblockRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -2814,6 +2833,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminMwAdminAdblockRoute: typeof AdminMwAdminAdblockRoute
   AdminMwAdminAdsenseRoute: typeof AdminMwAdminAdsenseRoute
   AdminMwAdminAiUsageRoute: typeof AdminMwAdminAiUsageRoute
   AdminMwAdminAnalyticsRoute: typeof AdminMwAdminAnalyticsRoute
@@ -2839,6 +2859,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminMwAdminAdblockRoute: AdminMwAdminAdblockRoute,
   AdminMwAdminAdsenseRoute: AdminMwAdminAdsenseRoute,
   AdminMwAdminAiUsageRoute: AdminMwAdminAiUsageRoute,
   AdminMwAdminAnalyticsRoute: AdminMwAdminAnalyticsRoute,
