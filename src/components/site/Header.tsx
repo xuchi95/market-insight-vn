@@ -649,6 +649,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </nav>
       )}
     </header>
+    {typeof document !== "undefined" && createPortal(
     <div className="pointer-events-none fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 lg:block">
       <div
         data-testid="header-toolbar"
