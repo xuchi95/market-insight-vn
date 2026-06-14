@@ -244,6 +244,48 @@ function AdminAdblockPage() {
               <Label>Hiển thị logo</Label>
               <Switch checked={form.show_logo} onCheckedChange={(v) => update("show_logo", v)} />
             </div>
+
+            <div className="border-t border-border pt-4 space-y-4">
+              <div className="space-y-1.5">
+                <Label>Mật độ nội dung</Label>
+                <Select
+                  value={form.density}
+                  onValueChange={(v) => update("density", v as AdblockSettings["density"])}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="compact">Gọn — padding nhỏ, khoảng cách ngắn</SelectItem>
+                    <SelectItem value="comfortable">Thoải mái — mặc định</SelectItem>
+                    <SelectItem value="spacious">Rộng rãi — padding lớn, thoáng</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label>
+                    Cỡ chữ trên desktop ({Math.round(form.font_scale_desktop * 100)}%)
+                  </Label>
+                  <Slider
+                    min={0.75} max={1.5} step={0.05}
+                    value={[form.font_scale_desktop]}
+                    onValueChange={([v]) => update("font_scale_desktop", v)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>
+                    Cỡ chữ trên mobile ({Math.round(form.font_scale_mobile * 100)}%)
+                  </Label>
+                  <Slider
+                    min={0.75} max={1.5} step={0.05}
+                    value={[form.font_scale_mobile]}
+                    onValueChange={([v]) => update("font_scale_mobile", v)}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Cỡ chữ là hệ số nhân áp dụng cho toàn bộ chữ trong popup. Mobile thường nhỏ hơn để tránh tràn.
+              </p>
+            </div>
           </div>
         </TabsContent>
 

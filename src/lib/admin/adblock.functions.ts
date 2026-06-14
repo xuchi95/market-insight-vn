@@ -32,6 +32,9 @@ const SettingsSchema = z.object({
   dismiss_cooldown_hours: z.number().int().min(0).max(720),
   whitelist_paths: z.array(z.string().max(200)).max(50),
   whitelist_roles: z.array(z.string().max(40)).max(20),
+  density: z.enum(["compact", "comfortable", "spacious"]),
+  font_scale_desktop: z.number().min(0.75).max(1.5),
+  font_scale_mobile: z.number().min(0.75).max(1.5),
 });
 
 export type AdblockSettings = z.infer<typeof SettingsSchema>;
