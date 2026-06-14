@@ -177,7 +177,7 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
             <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd compact={compact} />
           </div>
 
-          <div className="mt-auto pt-5 md:pt-6 flex items-center justify-between text-sm text-[var(--gold)] opacity-90 group-hover:opacity-100">
+          <div className="mt-5 md:mt-6 flex items-center justify-between text-sm text-[var(--gold)] opacity-90 group-hover:opacity-100">
             <span>Xem bảng giá vàng đầy đủ</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </div>
@@ -270,7 +270,7 @@ function InlineKV({ label, value, loading, compact = true }: { label: string; va
 
 function CryptoTile({ name, price, change, vol, spark, loading, has }: { name: string; price: number; change: number; vol: number; spark?: number[]; loading: boolean; has: boolean }) {
   return (
-    <div className="flex flex-col h-full min-h-[170px]">
+    <div className="flex flex-col h-full">
       <div className="flex items-start justify-between mb-3">
         <div className="eyebrow">{name}</div>
         <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)] opacity-70" />
@@ -287,7 +287,7 @@ function CryptoTile({ name, price, change, vol, spark, loading, has }: { name: s
       ) : (
         <div className="font-display text-3xl md:text-4xl leading-none text-muted-foreground">—</div>
       )}
-      <div className="mt-auto pt-6 flex items-end justify-between gap-3">
+      <div className="mt-4 flex items-end justify-between gap-3">
         <div className="eyebrow opacity-60 normal-case tracking-[0.14em]">
           KL 24h ·{" "}
           <span className="tabular text-foreground/80 normal-case tracking-normal">
