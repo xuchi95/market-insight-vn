@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { ShieldAlert, Loader2, CheckCircle2, XCircle, Clock, Eye, EyeOff, PartyPopper } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import logoUrl from "@/assets/logo.png";
+import logoAsset from "@/assets/logo.webp.asset.json";
+const logoUrl = logoAsset.url;
 import {
   setPendingBanCreds,
   readPendingBanCreds,
