@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getAdblockSettings, type AdblockSettings } from "@/lib/admin/adblock.functions";
+import logoAsset from "@/assets/logo.webp.asset.json";
+const logoUrl = logoAsset.url;
 
 /** URL/script mà adblocker phổ biến (EasyList/ABP) chặn. Tạo mới mỗi lần check
  * để tránh cache và để bắt được trạng thái khi user bật lại adblock không reload trang. */
@@ -386,30 +388,19 @@ export function AdblockGuard() {
         width: "100%",
         display: "flex",
         flexDirection: isBanner ? "row" : "column",
-        alignItems: isBanner ? "center" : "flex-start",
+        alignItems: "center",
+        textAlign: isBanner ? "left" : "center",
         gap: isBanner ? 16 : 12,
       }}
     >
       {settings.show_logo && !isBanner && (
-        <div
-          aria-hidden
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 10,
-            background: `linear-gradient(135deg, ${c.accent}, ${c.accent}88)`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 22,
-            fontWeight: 700,
-            color: c.bg,
-          }}
-        >
-          M
-        </div>
+        <img
+          src={logoUrl}
+          alt="MarketWatch logo"
+          style={{ width: 48, height: 48, objectFit: "contain", display: "block" }}
+        />
       )}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
         <h2
           id="mw-adblock-title"
           style={{
@@ -418,17 +409,24 @@ export function AdblockGuard() {
             lineHeight: 1.3,
             fontWeight: 700,
             color: c.accent,
+            textAlign: isBanner ? "left" : "center",
           }}
         >
           {settings.title}
         </h2>
         <p
-          style={{ margin: "8px 0 0", fontSize: isBanner ? 13 : 14, lineHeight: 1.5, opacity: 0.9 }}
+          style={{
+            margin: "8px 0 0",
+            fontSize: isBanner ? 13 : 14,
+            lineHeight: 1.5,
+            opacity: 0.9,
+            textAlign: isBanner ? "left" : "center",
+          }}
         >
           {settings.message}
         </p>
         {settings.secondary_message && !isBanner && (
-          <p style={{ margin: "10px 0 0", fontSize: 12, opacity: 0.7 }}>
+          <p style={{ margin: "10px 0 0", fontSize: 12, opacity: 0.7, textAlign: "center" }}>
             {settings.secondary_message}
           </p>
         )}
@@ -438,6 +436,7 @@ export function AdblockGuard() {
           display: "flex",
           gap: 8,
           flexWrap: "wrap",
+          justifyContent: "center",
           marginTop: isBanner ? 0 : 16,
           width: isBanner ? "auto" : "100%",
         }}
