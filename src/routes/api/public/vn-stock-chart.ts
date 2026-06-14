@@ -31,7 +31,13 @@ const CORS = {
 
 async function fetchVndirect(sym: string, days: number, resolution: string): Promise<Point[] | null> {
   const now = Math.floor(Date.now() / 1000);
-  const from = now - days * 86400;
+  // Khi intraday (1/5/15/60) và window hẹp (vd 1D) rơi vào ngày nghỉ/lễ,
+  // VNDirect trả về `s=ok` nhưng arrays rỗng. Mở rộng cửa sổ tối thiểu 7 ngày
+  // cho intraday để lấy được phiên giao dịch gần nhất, rồi lọc về 1 phiên
+  // cuối cùng nếu user yêu cầu 1D.
+  const isIntraday = resolution !== "D";
+  const effDays = isIntraday ? Math.max(days, 7) : days;
+  const from = now - effDays * 86400;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
   try {
@@ -62,7 +68,18 @@ async function fetchVndirect(sym: string, days: number, resolution: string): Pro
         vol: Number(j.v?.[i]) || undefined,
       });
     }
-    return pts.length ? pts : null;
+    if (!pts.length) return null;
+    // Với 1D intraday: chỉ giữ bars của phiên giao dịch gần nhất (theo ngày VN).
+    if (isIntraday && days === 1) {
+      const dayKey = (ms: number) => {
+        const d = new Date(ms + 7 * 3600_000);
+        return `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
+      };
+      const lastKey = dayKey(pts[pts.length - 1].t);
+      const filtered = pts.filter((p) => dayKey(p.t) === lastKey);
+      return filtered.length ? filtered : pts;
+    }
+    return pts;
   } catch {
     return null;
   } finally {
