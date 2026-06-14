@@ -406,7 +406,9 @@ function refreshInBackground() {
   if (inflight) return inflight;
   inflight = fetchAllSources()
     .then((items) => {
-      cache = { at: Date.now(), data: items };
+      // Preserve previously computed changePct cache so refresh không bắt
+      // request kế tiếp phải query DB lại.
+      cache = { at: Date.now(), data: items, out: cache?.out, outAt: cache?.outAt };
       writePriceCache("gold", items);
       return items;
     })
