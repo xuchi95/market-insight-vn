@@ -82,7 +82,6 @@ import { Route as ApiPublicWatchlistAlertsCronRouteImport } from './routes/api/p
 import { Route as ApiPublicVnStockChartRouteImport } from './routes/api/public/vn-stock-chart'
 import { Route as ApiPublicVnStockRouteImport } from './routes/api/public/vn-stock'
 import { Route as ApiPublicUsStocksRouteImport } from './routes/api/public/us-stocks'
-import { Route as ApiPublicTestPostmarkRouteImport } from './routes/api/public/test-postmark'
 import { Route as ApiPublicStocksRouteImport } from './routes/api/public/stocks'
 import { Route as ApiPublicSbvRouteImport } from './routes/api/public/sbv'
 import { Route as ApiPublicSavingsRatesRouteImport } from './routes/api/public/savings-rates'
@@ -514,11 +513,6 @@ const ApiPublicVnStockRoute = ApiPublicVnStockRouteImport.update({
 const ApiPublicUsStocksRoute = ApiPublicUsStocksRouteImport.update({
   id: '/api/public/us-stocks',
   path: '/api/public/us-stocks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicTestPostmarkRoute = ApiPublicTestPostmarkRouteImport.update({
-  id: '/api/public/test-postmark',
-  path: '/api/public/test-postmark',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicStocksRoute = ApiPublicStocksRouteImport.update({
@@ -991,7 +985,6 @@ export interface FileRoutesByFullPath {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/sbv': typeof ApiPublicSbvRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
-  '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/vn-stock': typeof ApiPublicVnStockRoute
   '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
@@ -1132,7 +1125,6 @@ export interface FileRoutesByTo {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/sbv': typeof ApiPublicSbvRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
-  '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/vn-stock': typeof ApiPublicVnStockRoute
   '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
@@ -1275,7 +1267,6 @@ export interface FileRoutesById {
   '/api/public/savings-rates': typeof ApiPublicSavingsRatesRoute
   '/api/public/sbv': typeof ApiPublicSbvRoute
   '/api/public/stocks': typeof ApiPublicStocksRoute
-  '/api/public/test-postmark': typeof ApiPublicTestPostmarkRoute
   '/api/public/us-stocks': typeof ApiPublicUsStocksRoute
   '/api/public/vn-stock': typeof ApiPublicVnStockRoute
   '/api/public/vn-stock-chart': typeof ApiPublicVnStockChartRoute
@@ -1418,7 +1409,6 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/sbv'
     | '/api/public/stocks'
-    | '/api/public/test-postmark'
     | '/api/public/us-stocks'
     | '/api/public/vn-stock'
     | '/api/public/vn-stock-chart'
@@ -1559,7 +1549,6 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/sbv'
     | '/api/public/stocks'
-    | '/api/public/test-postmark'
     | '/api/public/us-stocks'
     | '/api/public/vn-stock'
     | '/api/public/vn-stock-chart'
@@ -1701,7 +1690,6 @@ export interface FileRouteTypes {
     | '/api/public/savings-rates'
     | '/api/public/sbv'
     | '/api/public/stocks'
-    | '/api/public/test-postmark'
     | '/api/public/us-stocks'
     | '/api/public/vn-stock'
     | '/api/public/vn-stock-chart'
@@ -1822,7 +1810,6 @@ export interface RootRouteChildren {
   ApiPublicSavingsRatesRoute: typeof ApiPublicSavingsRatesRoute
   ApiPublicSbvRoute: typeof ApiPublicSbvRoute
   ApiPublicStocksRoute: typeof ApiPublicStocksRoute
-  ApiPublicTestPostmarkRoute: typeof ApiPublicTestPostmarkRoute
   ApiPublicUsStocksRoute: typeof ApiPublicUsStocksRoute
   ApiPublicVnStockRoute: typeof ApiPublicVnStockRoute
   ApiPublicVnStockChartRoute: typeof ApiPublicVnStockChartRoute
@@ -2358,13 +2345,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/us-stocks'
       fullPath: '/api/public/us-stocks'
       preLoaderRoute: typeof ApiPublicUsStocksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/test-postmark': {
-      id: '/api/public/test-postmark'
-      path: '/api/public/test-postmark'
-      fullPath: '/api/public/test-postmark'
-      preLoaderRoute: typeof ApiPublicTestPostmarkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/stocks': {
@@ -2991,7 +2971,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicSavingsRatesRoute: ApiPublicSavingsRatesRoute,
   ApiPublicSbvRoute: ApiPublicSbvRoute,
   ApiPublicStocksRoute: ApiPublicStocksRoute,
-  ApiPublicTestPostmarkRoute: ApiPublicTestPostmarkRoute,
   ApiPublicUsStocksRoute: ApiPublicUsStocksRoute,
   ApiPublicVnStockRoute: ApiPublicVnStockRoute,
   ApiPublicVnStockChartRoute: ApiPublicVnStockChartRoute,

@@ -9,6 +9,23 @@ const EmailSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
 });
 
+/**
+ * Verify the calling user owns the given email by comparing against
+ * the email on their profile (case-insensitive). Throws on mismatch.
+ */
+async function assertCallerOwnsEmail(userId: string, email: string): Promise<void> {
+  const { data: profile, error } = await supabaseAdmin
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  const profileEmail = (profile?.email ?? "").trim().toLowerCase();
+  if (!profileEmail || profileEmail !== email.trim().toLowerCase()) {
+    throw new Error("Bạn chỉ có thể thay đổi đăng ký của email tài khoản của mình.");
+  }
+}
+
 const VALID_TOPICS = [
   "gold", "gold-sjc", "btc", "eth", "sol", "bnb", "usd", "eur",
 ] as const;
@@ -47,6 +64,12 @@ export const updateNewsletterTopics = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
+    return;
+  })
+  // dummy never reached — removed
+  ;
+
+export const __unused_placeholder = null;
     const { error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .update({ topics: data.topics })
