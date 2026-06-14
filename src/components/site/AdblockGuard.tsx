@@ -389,6 +389,15 @@ export function AdblockGuard() {
     { bottom: 10, right: 10, borderBottom: `1px solid ${c.accent}`, borderRight: `1px solid ${c.accent}` },
   ];
 
+  // Density multiplier (paddings/gaps) and font scale (per device).
+  const dens =
+    settings.density === "compact" ? 0.78
+    : settings.density === "spacious" ? 1.22
+    : 1;
+  const fs = isMobile ? settings.font_scale_mobile : settings.font_scale_desktop;
+  const px = (n: number) => `${Math.round(n * fs)}px`;
+  const pad = (n: number) => Math.round(n * dens);
+
   const card = (
     <div
       role="dialog"
@@ -403,14 +412,16 @@ export function AdblockGuard() {
         boxShadow: isModal
           ? `0 40px 120px -30px ${c.overlay}, 0 0 0 1px ${c.accent}22, inset 0 1px 0 ${c.accent}55`
           : "none",
-        padding: isBanner ? "14px 20px" : "44px 32px 32px",
+        padding: isBanner
+          ? `${pad(14)}px ${pad(20)}px`
+          : `${pad(44)}px ${pad(32)}px ${pad(32)}px`,
         maxWidth: settings.layout === "fullscreen" ? "100%" : isBanner ? "100%" : 480,
         width: "100%",
         display: "flex",
         flexDirection: isBanner ? "row" : "column",
         alignItems: "center",
         textAlign: isBanner ? "left" : "center",
-        gap: isBanner ? 16 : 14,
+        gap: isBanner ? pad(16) : pad(14),
         overflow: "hidden",
       }}
     >
