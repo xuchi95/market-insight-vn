@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getAdblockSettings, type AdblockSettings } from "@/lib/admin/adblock.functions";
@@ -217,6 +218,119 @@ export function AdblockGuard() {
     };
   }, [visible, settings?.layout]);
 
+  // ============================================================
+  // ANTI-TAMPER (hard mode): chống bypass bằng DevTools / userscript.
+  // - Inject <style> ẩn toàn bộ nội dung trang trừ guard.
+  // - MutationObserver canh giữ <html>.class, <style>, và guard node:
+  //   nếu bị xoá / sửa → restore tức thì.
+  // - RAF loop tái áp dụng inline style của overlay mỗi frame.
+  // - Chặn Ctrl/Cmd+các phím tắt thường dùng để inspect / chọn / copy.
+  // ============================================================
+  const guardRef = useRef<HTMLDivElement | null>(null);
+  const isHardLock = !!(visible && settings && settings.mode === "hard");
+  useEffect(() => {
+    if (!isHardLock) return;
+    const HTML_CLASS = "mw-ab-locked";
+    const STYLE_ID = "mw-ab-lock-style";
+    const html = document.documentElement;
+
+    const ensureStyle = () => {
+      let el = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
+      const css = `
+        html.${HTML_CLASS} body > *:not([data-mw-ab-guard]) {
+          visibility: hidden !important;
+          pointer-events: none !important;
+          user-select: none !important;
+        }
+        html.${HTML_CLASS} { overflow: hidden !important; }
+        [data-mw-ab-guard] { visibility: visible !important; pointer-events: auto !important; }
+      `;
+      if (!el) {
+        el = document.createElement("style");
+        el.id = STYLE_ID;
+        el.setAttribute("data-mw-ab-guard-style", "1");
+        document.head.appendChild(el);
+      }
+      if (el.textContent !== css) el.textContent = css;
+    };
+
+    const ensureClass = () => {
+      if (!html.classList.contains(HTML_CLASS)) html.classList.add(HTML_CLASS);
+    };
+
+    const ensureGuard = () => {
+      const node = guardRef.current;
+      if (!node) return;
+      if (!document.body.contains(node)) {
+        try {
+          document.body.appendChild(node);
+        } catch {
+          /* ignore */
+        }
+      }
+      // Reinforce critical inline styles so DevTools edits get reverted.
+      node.style.setProperty("position", "fixed", "important");
+      node.style.setProperty("inset", "0", "important");
+      node.style.setProperty("z-index", "2147483647", "important");
+      node.style.setProperty("display", "flex", "important");
+      node.style.setProperty("pointer-events", "auto", "important");
+      node.style.setProperty("visibility", "visible", "important");
+      node.style.setProperty("opacity", "1", "important");
+      node.setAttribute("data-mw-ab-guard", "1");
+    };
+
+    const reinforce = () => {
+      ensureClass();
+      ensureStyle();
+      ensureGuard();
+    };
+    reinforce();
+
+    const obs = new MutationObserver(reinforce);
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    obs.observe(document.head, { childList: true, subtree: true });
+    obs.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+    let raf = 0;
+    const tick = () => {
+      reinforce();
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    // Block common shortcuts that help bypass (F12 / Ctrl+Shift+I/J/C / Ctrl+U / Ctrl+S).
+    const blockKey = (e: KeyboardEvent) => {
+      const k = e.key.toLowerCase();
+      const ctrl = e.ctrlKey || e.metaKey;
+      if (
+        k === "f12" ||
+        (ctrl && e.shiftKey && (k === "i" || k === "j" || k === "c")) ||
+        (ctrl && (k === "u" || k === "s" || k === "p"))
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    const blockCtx = (e: MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    window.addEventListener("keydown", blockKey, true);
+    window.addEventListener("contextmenu", blockCtx, true);
+
+    return () => {
+      obs.disconnect();
+      cancelAnimationFrame(raf);
+      window.removeEventListener("keydown", blockKey, true);
+      window.removeEventListener("contextmenu", blockCtx, true);
+      html.classList.remove(HTML_CLASS);
+      document.getElementById(STYLE_ID)?.remove();
+    };
+  }, [isHardLock]);
+
   if (!visible || !settings) return null;
 
   const c = themeColors(settings);
@@ -356,7 +470,12 @@ export function AdblockGuard() {
       : settings.layout === "banner_top"
         ? { position: "fixed", top: 0, left: 0, right: 0, zIndex: 2147483000 }
         : { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 2147483000 };
-    return <div style={pos}>{card}</div>;
+    return createPortal(
+      <div ref={guardRef} data-mw-ab-guard="1" style={pos}>
+        {card}
+      </div>,
+      document.body,
+    );
   }
 
   // Modal / fullscreen với overlay (hard hoặc dismiss mode).
@@ -367,8 +486,10 @@ export function AdblockGuard() {
     e.preventDefault();
     e.stopPropagation();
   };
-  return (
+  return createPortal(
     <div
+      ref={guardRef}
+      data-mw-ab-guard="1"
       role="presentation"
       style={{
         position: "fixed",
@@ -405,6 +526,7 @@ export function AdblockGuard() {
       }}
     >
       {card}
-    </div>
+    </div>,
+    document.body,
   );
 }
