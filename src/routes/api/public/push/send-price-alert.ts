@@ -149,7 +149,7 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
 
         const { data: subs, error } = await supabaseAdmin
           .from('push_subscriptions')
-          .select('endpoint, p256dh, auth, fail_count, notify_gold, notify_crypto, notify_forex, notify_morning, notify_evening')
+          .select('endpoint, p256dh, auth, fail_count, notify_gold, notify_crypto, notify_forex, notify_morning, notify_evening, min_change_pct')
           .limit(5000);
         if (error) {
           return new Response(JSON.stringify({ ok: false, error: error.message }), {
@@ -178,7 +178,8 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
           if (s.notify_crypto !== false) allowed.add('crypto');
           if (s.notify_forex !== false) allowed.add('forex');
           if (allowed.size === 0) { skipped++; continue; }
-          const payload = buildPayloadFor(allowed);
+          const minPct = Number(s.min_change_pct ?? 0);
+          const payload = buildPayloadFor(allowed, minPct);
           if (!payload) { skipped++; continue; }
           jobs.push({ sub: s, payload });
         }
