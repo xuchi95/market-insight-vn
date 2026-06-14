@@ -34,9 +34,13 @@ async function safeFetchJson(url: string, timeoutMs = 6000): Promise<any> {
       headers: { accept: "application/json" },
       signal: ctrl.signal,
     });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      console.warn("[widget-snapshot] upstream not ok", url, r.status);
+      return null;
+    }
     return await r.json();
-  } catch {
+  } catch (e) {
+    console.warn("[widget-snapshot] upstream error", url, (e as Error)?.message);
     return null;
   } finally {
     clearTimeout(timer);
@@ -56,6 +60,7 @@ export const Route = createFileRoute("/api/public/widget-snapshot")({
           /* no request context */
         }
         if (!origin) origin = "https://marketwatch.vn";
+        console.log("[widget-snapshot] origin", origin);
 
         const [gold, crypto, fx] = await Promise.all([
           safeFetchJson(`${origin}/api/public/gold`),
