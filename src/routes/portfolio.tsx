@@ -435,6 +435,36 @@ function labelFor(h: { asset_type: "crypto" | "gold"; symbol: string }) {
   return g ? g.name : h.symbol;
 }
 
+function exportTransactionsCSV(transactions: Tx[]) {
+  const rows = [...transactions]
+    .sort((a, b) => a.executed_at.localeCompare(b.executed_at))
+    .map((t) => ({
+      executed_at: t.executed_at,
+      side: t.side === "buy" ? "Mua" : "Bán",
+      asset_type: t.asset_type,
+      symbol: t.symbol,
+      asset_label: labelFor(t),
+      quantity: t.quantity,
+      price_vnd: t.price_vnd ?? "",
+      price_usd: t.price_usd ?? "",
+      fee_vnd: t.fee_vnd ?? 0,
+      note: t.note ?? "",
+    }));
+  const csv = toCSV(rows, [
+    { key: "executed_at", label: "Thời gian" },
+    { key: "side", label: "Loại" },
+    { key: "asset_type", label: "Nhóm" },
+    { key: "symbol", label: "Mã" },
+    { key: "asset_label", label: "Tài sản" },
+    { key: "quantity", label: "Số lượng" },
+    { key: "price_vnd", label: "Giá (VND)" },
+    { key: "price_usd", label: "Giá (USD)" },
+    { key: "fee_vnd", label: "Phí (VND)" },
+    { key: "note", label: "Ghi chú" },
+  ]);
+  downloadCSV(`marketwatch-portfolio-${csvDateStamp()}.csv`, csv);
+}
+
 function computeHistory(transactions: Tx[], filterKey?: string) {
   const byDate = new Map<string, Tx[]>();
   for (const t of transactions) {
