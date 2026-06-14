@@ -649,6 +649,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </nav>
       )}
     </header>
+    {typeof document !== "undefined" && createPortal(
     <div className="pointer-events-none fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 lg:block">
       <div
         data-testid="header-toolbar"
@@ -793,7 +794,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         <ThemeToggle />
         <PushNotificationButton />
       </div>
-    </div>
+    </div>,
+    document.body,
+    )}
     {/* Khung quảng cáo dưới header (leaderboard). Tự ẩn nếu chưa cấu hình VITE_ADSENSE_CLIENT. */}
     <AdSlot placement="header" slot={import.meta.env.VITE_ADSENSE_SLOT_HEADER as string | undefined} className="my-3 md:my-4" />
     </>
