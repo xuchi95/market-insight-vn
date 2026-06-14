@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import { Star, X, Plus, ArrowUpRight, ChevronDown } from "lucide-react";
+import { Star, X, Plus, ArrowUpRight, ChevronDown, Download } from "lucide-react";
+import { toCSV, downloadCSV, csvDateStamp } from "@/lib/csv";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
@@ -369,6 +370,36 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
           )}
 
           <div className="flex justify-end border-t border-border px-5 md:px-6 py-3.5 bg-[color-mix(in_oklab,var(--gold)_2.5%,transparent)]">
+            <button
+              type="button"
+              onClick={() => {
+                const rows = list.map((item) => {
+                  const q = resolveQuote(item);
+                  return {
+                    symbol: item.symbol,
+                    label: item.label,
+                    category: item.category,
+                    price: q?.priceLabel ?? "",
+                    unit: q?.unit ?? "",
+                    change_24h_pct: q?.changePct ?? "",
+                  };
+                });
+                const csv = toCSV(rows, [
+                  { key: "symbol", label: "Mã" },
+                  { key: "label", label: "Tài sản" },
+                  { key: "category", label: "Nhóm" },
+                  { key: "price", label: "Giá" },
+                  { key: "unit", label: "Đơn vị" },
+                  { key: "change_24h_pct", label: "Biến động 24h (%)" },
+                ]);
+                downloadCSV(`marketwatch-watchlist-${csvDateStamp()}.csv`, csv);
+              }}
+              disabled={list.length === 0}
+              className="mr-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Tải CSV
+            </button>
             <a
               href="/cai-dat/canh-bao"
               className="group/link inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--gold)] hover:text-[var(--gold-light)] transition-all"

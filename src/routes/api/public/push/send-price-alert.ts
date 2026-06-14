@@ -112,8 +112,15 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
         const periodLabel = isMorning ? 'sáng' : 'chiều';
         const title = `Giá thị trường ${periodLabel} ${hourVN}:00`;
 
-        function buildPayloadFor(allowed: Set<Category>): string | null {
-          const filtered = items.filter((i) => allowed.has(CODE_CATEGORY[i.code]));
+        function buildPayloadFor(allowed: Set<Category>, minPct = 0): string | null {
+          const filtered = items.filter((i) => {
+            if (!allowed.has(CODE_CATEGORY[i.code])) return false;
+            if (minPct > 0) {
+              const c = typeof i.changePct === 'number' ? Math.abs(i.changePct) : 0;
+              if (c < minPct) return false;
+            }
+            return true;
+          });
           if (filtered.length === 0) return null;
           const body = filtered
             .map((i) => `${i.code} ${fmtPrice(i.price, i.code)}${fmtChange(i.changePct)}`)
@@ -149,7 +156,7 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
 
         const { data: subs, error } = await supabaseAdmin
           .from('push_subscriptions')
-          .select('endpoint, p256dh, auth, fail_count, notify_gold, notify_crypto, notify_forex, notify_morning, notify_evening')
+          .select('endpoint, p256dh, auth, fail_count, notify_gold, notify_crypto, notify_forex, notify_morning, notify_evening, min_change_pct')
           .limit(5000);
         if (error) {
           return new Response(JSON.stringify({ ok: false, error: error.message }), {
@@ -178,7 +185,8 @@ export const Route = createFileRoute('/api/public/push/send-price-alert')({
           if (s.notify_crypto !== false) allowed.add('crypto');
           if (s.notify_forex !== false) allowed.add('forex');
           if (allowed.size === 0) { skipped++; continue; }
-          const payload = buildPayloadFor(allowed);
+          const minPct = Number(s.min_change_pct ?? 0);
+          const payload = buildPayloadFor(allowed, minPct);
           if (!payload) { skipped++; continue; }
           jobs.push({ sub: s, payload });
         }

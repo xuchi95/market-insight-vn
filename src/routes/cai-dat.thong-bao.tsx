@@ -117,6 +117,22 @@ function NotificationSettingsPage() {
     }
   }
 
+  async function toggleNumber(key: keyof PushPreferences, value: number) {
+    if (!endpoint) return;
+    const prev = prefs;
+    const next = { ...prefs, [key]: value } as PushPreferences;
+    setPrefs(next);
+    setSavingKey(key);
+    try {
+      await savePushPreferences(endpoint, { [key]: value });
+    } catch (e) {
+      setPrefs(prev);
+      toast.error(e instanceof Error ? e.message : "Không lưu được");
+    } finally {
+      setSavingKey(null);
+    }
+  }
+
   const disabled = !endpoint || state !== "subscribed";
 
   return (
@@ -199,6 +215,12 @@ function NotificationSettingsPage() {
               savingKey={savingKey}
               disabled={disabled}
             />
+            <ThresholdSection
+              value={Number(prefs.min_change_pct ?? 0)}
+              disabled={disabled || savingKey !== null}
+              onChange={(v) => toggleNumber("min_change_pct", v)}
+              saving={savingKey === "min_change_pct"}
+            />
             <p className="text-xs text-muted-foreground">
               Cài đặt áp dụng cho trình duyệt &amp; thiết bị hiện tại. Đăng ký lại trên máy khác sẽ tạo subscription riêng.
             </p>
@@ -258,6 +280,59 @@ function PrefSection({
           );
         })}
       </ul>
+    </section>
+  );
+}
+
+const THRESHOLD_OPTIONS = [
+  { v: 0, label: "Luôn nhận" },
+  { v: 1, label: "≥ 1%" },
+  { v: 2, label: "≥ 2%" },
+  { v: 5, label: "≥ 5%" },
+];
+
+function ThresholdSection({
+  value,
+  onChange,
+  disabled,
+  saving,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  disabled: boolean;
+  saving: boolean;
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-card">
+      <header className="border-b border-border px-5 py-3">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Ngưỡng biến động
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground/80">
+          Chỉ nhận push khi biên độ thay đổi 24h của tài sản đạt mức tối thiểu. Không áp dụng riêng cho từng mã — lọc trước khi gửi digest.
+        </p>
+      </header>
+      <div className="flex flex-wrap items-center gap-2 px-5 py-4">
+        {THRESHOLD_OPTIONS.map((opt) => {
+          const active = Math.abs(value - opt.v) < 0.001;
+          return (
+            <button
+              key={opt.v}
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange(opt.v)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
+                active
+                  ? "border-[var(--gold)] bg-[var(--gold)]/10 text-[var(--gold)]"
+                  : "border-border bg-background/40 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+        {saving ? <Loader2 className="ml-1 h-4 w-4 animate-spin text-muted-foreground" /> : null}
+      </div>
     </section>
   );
 }

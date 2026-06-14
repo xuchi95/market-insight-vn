@@ -142,6 +142,8 @@ export type PushPreferences = {
   notify_forex: boolean;
   notify_morning: boolean;
   notify_evening: boolean;
+  /** Min |change%| required for a scheduled digest item to be sent. 0 = always. */
+  min_change_pct: number;
 };
 
 export const DEFAULT_PUSH_PREFS: PushPreferences = {
@@ -150,6 +152,7 @@ export const DEFAULT_PUSH_PREFS: PushPreferences = {
   notify_forex: true,
   notify_morning: true,
   notify_evening: true,
+  min_change_pct: 0,
 };
 
 export async function getCurrentPushEndpoint(): Promise<string | null> {

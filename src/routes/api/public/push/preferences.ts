@@ -16,6 +16,7 @@ const PrefsSchema = z.object({
   notify_forex: z.boolean().optional(),
   notify_morning: z.boolean().optional(),
   notify_evening: z.boolean().optional(),
+  min_change_pct: z.number().min(0).max(50).optional(),
 });
 
 const PostSchema = z.object({
@@ -24,7 +25,7 @@ const PostSchema = z.object({
 });
 
 const PREF_COLS =
-  'notify_gold, notify_crypto, notify_forex, notify_morning, notify_evening';
+  'notify_gold, notify_crypto, notify_forex, notify_morning, notify_evening, min_change_pct';
 
 export const Route = createFileRoute('/api/public/push/preferences')({
   server: {

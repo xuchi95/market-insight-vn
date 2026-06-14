@@ -17,7 +17,8 @@ import { listTransactions, addTransaction, deleteTransaction } from "@/lib/portf
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtVNDCompact, fmtNum, fmtPct } from "@/lib/format";
-import { Plus, Trash2, ArrowDownRight, ArrowUpRight, Info, NotebookPen, Calculator, ShieldCheck } from "lucide-react";
+import { Plus, Trash2, ArrowDownRight, ArrowUpRight, Info, NotebookPen, Calculator, ShieldCheck, Download } from "lucide-react";
+import { toCSV, downloadCSV, csvDateStamp } from "@/lib/csv";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -372,7 +373,19 @@ function PortfolioContent() {
       <div className="rounded-lg border border-border overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-card">
           <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Lịch sử giao dịch</div>
-          <TransactionDialog />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={transactions.length === 0}
+              onClick={() => exportTransactionsCSV(transactions)}
+              className="gap-1.5"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Tải CSV
+            </Button>
+            <TransactionDialog />
+          </div>
         </div>
         {transactions.length === 0 ? (
           <div className="p-6 text-sm text-muted-foreground text-center">Chưa có giao dịch.</div>
@@ -420,6 +433,36 @@ function labelFor(h: { asset_type: "crypto" | "gold"; symbol: string }) {
   }
   const g = GOLD_OPTIONS.find((x) => x.id === h.symbol);
   return g ? g.name : h.symbol;
+}
+
+function exportTransactionsCSV(transactions: Tx[]) {
+  const rows = [...transactions]
+    .sort((a, b) => a.executed_at.localeCompare(b.executed_at))
+    .map((t) => ({
+      executed_at: t.executed_at,
+      side: t.side === "buy" ? "Mua" : "Bán",
+      asset_type: t.asset_type,
+      symbol: t.symbol,
+      asset_label: labelFor(t),
+      quantity: t.quantity,
+      price_vnd: t.price_vnd ?? "",
+      price_usd: t.price_usd ?? "",
+      fee_vnd: t.fee_vnd ?? 0,
+      note: t.note ?? "",
+    }));
+  const csv = toCSV(rows, [
+    { key: "executed_at", label: "Thời gian" },
+    { key: "side", label: "Loại" },
+    { key: "asset_type", label: "Nhóm" },
+    { key: "symbol", label: "Mã" },
+    { key: "asset_label", label: "Tài sản" },
+    { key: "quantity", label: "Số lượng" },
+    { key: "price_vnd", label: "Giá (VND)" },
+    { key: "price_usd", label: "Giá (USD)" },
+    { key: "fee_vnd", label: "Phí (VND)" },
+    { key: "note", label: "Ghi chú" },
+  ]);
+  downloadCSV(`marketwatch-portfolio-${csvDateStamp()}.csv`, csv);
 }
 
 function computeHistory(transactions: Tx[], filterKey?: string) {
