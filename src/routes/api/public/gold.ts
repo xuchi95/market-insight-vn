@@ -9,9 +9,12 @@ import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getPriceChangeConfig } from "@/lib/price-change-config.server";
 
-// In-memory state for change computation between fetches
-let cache: { at: number; data: MappedItem[] } | null = null;
+// In-memory state for change computation between fetches.
+// `out` = items đã gắn `changePct` (kết quả cuối). Cache cả `out` để khỏi
+// query DB lại trên mỗi request — đây là bottleneck chính (1.5–3s).
+let cache: { at: number; data: MappedItem[]; out?: (MappedItem & { changePct: number })[]; outAt?: number } | null = null;
 let inflight: Promise<MappedItem[]> | null = null;
+const CHANGE_PCT_TTL_MS = 60_000; // tính lại % 24h mỗi 60s
 // Baseline mids from yesterday's PNJ history, keyed by gold_type name ("SJC", "PNJ").
 // Values are normalized to the SAME unit as today's live mid (PNJ live = ngàn/chỉ).
 let baseline: { date: string; mids: Record<string, number> } | null = null;
@@ -457,19 +460,30 @@ export const Route = createFileRoute("/api/public/gold")({
             ensureBaseline().catch(() => {});
           }
 
-          // Nguồn % 24h: ưu tiên mẫu DB (price_history) — chính xác per-id và
-          // luôn có sẵn sau 24h. Fallback: baseline PNJ history (đóng cửa hôm qua).
-          // PNJ history hiện thường trả rỗng nên DB là nguồn chính.
-          const dbMids = await fetch24hAgoMids(items.map((i) => i.id));
-          void recordSnapshots(items);
-          const fallback = baseline?.mids ?? {};
-          const out = items.map((g) => {
-            const todayMid = g.mid;
-            const prev = dbMids[g.id] ?? fallback[baselineKeyFor(g)] ?? 0;
-            const changePct =
-              prev > 0 ? ((todayMid - prev) / prev) * 100 : 0;
-            return { ...g, changePct };
-          });
+          // Nguồn % 24h: ưu tiên mẫu DB (price_history). Query này tốn
+          // 0.5–2s nên CHỈ chạy lại mỗi `CHANGE_PCT_TTL_MS`; các request
+          // trong cửa sổ đó dùng `cache.out` đã tính sẵn.
+          let out = cache?.out;
+          const outAge = cache?.outAt ? Date.now() - cache.outAt : Infinity;
+          if (!out || outAge > CHANGE_PCT_TTL_MS || out.length !== items.length) {
+            const dbMids = await fetch24hAgoMids(items.map((i) => i.id));
+            void recordSnapshots(items);
+            const fallback = baseline?.mids ?? {};
+            out = items.map((g) => {
+              const todayMid = g.mid;
+              const prev = dbMids[g.id] ?? fallback[baselineKeyFor(g)] ?? 0;
+              const changePct = prev > 0 ? ((todayMid - prev) / prev) * 100 : 0;
+              return { ...g, changePct };
+            });
+            if (cache) {
+              cache.out = out;
+              cache.outAt = Date.now();
+            }
+          } else {
+            // Cập nhật mid/buy/sell mới nhất nhưng giữ changePct đã tính.
+            const prevById = new Map(out.map((o) => [o.id, o.changePct]));
+            out = items.map((g) => ({ ...g, changePct: prevById.get(g.id) ?? 0 }));
+          }
 
           return Response.json(
             { items: out, fetchedAt: Date.now() },
