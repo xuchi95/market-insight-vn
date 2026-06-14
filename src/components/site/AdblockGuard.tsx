@@ -140,6 +140,8 @@ export function AdblockGuard() {
   const settings = data?.settings ?? null;
   const [detected, setDetected] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const running = useRef(false);
 
@@ -203,7 +205,7 @@ export function AdblockGuard() {
     };
   }, [settings, whitelisted]);
 
-  const visible = !!(settings && detected && !dismissed && !whitelisted);
+  const visible = !!(mounted && settings && detected && !dismissed && !whitelisted);
 
   // Khoá scroll body khi popup overlay đang hiện.
   useEffect(() => {
@@ -268,38 +270,54 @@ export function AdblockGuard() {
           /* ignore */
         }
       }
+      if (node.getAttribute("data-mw-ab-guard") !== "1") {
+        node.setAttribute("data-mw-ab-guard", "1");
+      }
       // Reinforce critical inline styles so DevTools edits get reverted.
-      node.style.setProperty("position", "fixed", "important");
-      node.style.setProperty("inset", "0", "important");
-      node.style.setProperty("z-index", "2147483647", "important");
-      node.style.setProperty("display", "flex", "important");
-      node.style.setProperty("pointer-events", "auto", "important");
-      node.style.setProperty("visibility", "visible", "important");
-      node.style.setProperty("opacity", "1", "important");
-      node.setAttribute("data-mw-ab-guard", "1");
+      // Only set when missing/changed to avoid feedback loops with MutationObserver.
+      const want: Record<string, string> = {
+        position: "fixed",
+        inset: "0",
+        "z-index": "2147483647",
+        display: "flex",
+        "pointer-events": "auto",
+        visibility: "visible",
+        opacity: "1",
+      };
+      for (const [k, v] of Object.entries(want)) {
+        if (node.style.getPropertyValue(k) !== v || node.style.getPropertyPriority(k) !== "important") {
+          node.style.setProperty(k, v, "important");
+        }
+      }
     };
 
+    // Throttle reinforcement so it never runs more than once per animation frame.
+    // Without this, the MutationObserver fires on every style write and recurses,
+    // and the per-frame RAF loop burns CPU on every page.
+    let pending = false;
+    let obs: MutationObserver | null = null;
     const reinforce = () => {
-      ensureClass();
-      ensureStyle();
-      ensureGuard();
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        pending = false;
+        // Pause observer while we mutate to avoid feedback loops.
+        obs?.disconnect();
+        ensureClass();
+        ensureStyle();
+        ensureGuard();
+        if (obs) {
+          obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+          obs.observe(document.head, { childList: true });
+          obs.observe(document.body, { childList: true });
+        }
+      });
     };
+    obs = new MutationObserver(reinforce);
     reinforce();
-
-    const obs = new MutationObserver(reinforce);
-    obs.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    obs.observe(document.head, { childList: true, subtree: true });
-    obs.observe(document.body, { childList: true, subtree: true, attributes: true });
-
-    let raf = 0;
-    const tick = () => {
-      reinforce();
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
+    // Periodic safety net (every 1s) instead of per-frame RAF — covers DevTools edits
+    // without melting the CPU.
+    const safety = setInterval(reinforce, 1000);
 
     // Block common shortcuts that help bypass (F12 / Ctrl+Shift+I/J/C / Ctrl+U / Ctrl+S).
     const blockKey = (e: KeyboardEvent) => {
@@ -322,8 +340,8 @@ export function AdblockGuard() {
     window.addEventListener("contextmenu", blockCtx, true);
 
     return () => {
-      obs.disconnect();
-      cancelAnimationFrame(raf);
+      obs?.disconnect();
+      clearInterval(safety);
       window.removeEventListener("keydown", blockKey, true);
       window.removeEventListener("contextmenu", blockCtx, true);
       html.classList.remove(HTML_CLASS);
