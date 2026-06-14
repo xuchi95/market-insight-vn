@@ -55,8 +55,7 @@ async function detectAdblock(s: AdblockSettings): Promise<boolean> {
     checks.push(
       new Promise<boolean>((resolve) => {
         const bait = document.createElement("div");
-        bait.className =
-          "ads ad adsbox doubleclick ad-placement carbon-ads ad-banner adsbygoogle";
+        bait.className = "ads ad adsbox doubleclick ad-placement carbon-ads ad-banner adsbygoogle";
         bait.setAttribute("aria-hidden", "true");
         bait.style.cssText =
           "position:absolute!important;left:-9999px;top:-9999px;width:1px;height:1px;pointer-events:none;";
@@ -154,7 +153,11 @@ export function AdblockGuard() {
 
   useEffect(() => {
     if (!settings || whitelisted) return;
-    if (settings.mode !== "hard" && settings.allow_dismiss && isDismissValid(settings.dismiss_cooldown_hours)) {
+    if (
+      settings.mode !== "hard" &&
+      settings.allow_dismiss &&
+      isDismissValid(settings.dismiss_cooldown_hours)
+    ) {
       setDismissed(true);
       return;
     }
@@ -167,7 +170,9 @@ export function AdblockGuard() {
       running.current = false;
       if (!cancelled) {
         if (isBlocked) {
-          try { localStorage.removeItem(DISMISS_KEY); } catch {}
+          try {
+            localStorage.removeItem(DISMISS_KEY);
+          } catch {}
           setDismissed(false);
         }
         setDetected(isBlocked);
@@ -178,7 +183,14 @@ export function AdblockGuard() {
     // Luôn recheck định kỳ để khi user bật lại adblock thì popup hiện trở lại.
     const intervalMs = Math.max(3, settings.recheck_interval_sec || 5) * 1000;
     timer.current = setInterval(run, intervalMs);
-    const wakeEvents = ["focus", "visibilitychange", "pageshow", "online", "pointerdown", "keydown"] as const;
+    const wakeEvents = [
+      "focus",
+      "visibilitychange",
+      "pageshow",
+      "online",
+      "pointerdown",
+      "keydown",
+    ] as const;
     wakeEvents.forEach((eventName) => window.addEventListener(eventName, run, { passive: true }));
     return () => {
       cancelled = true;
@@ -198,7 +210,9 @@ export function AdblockGuard() {
     if (!isOverlay) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [visible, settings?.layout]);
 
   if (!visible || !settings) return null;
@@ -209,7 +223,9 @@ export function AdblockGuard() {
     if (!still) setDetected(false);
   };
   const handleDismiss = () => {
-    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
+    try {
+      localStorage.setItem(DISMISS_KEY, String(Date.now()));
+    } catch {}
     setDismissed(true);
   };
 
@@ -242,10 +258,16 @@ export function AdblockGuard() {
         <div
           aria-hidden
           style={{
-            width: 44, height: 44, borderRadius: 10,
+            width: 44,
+            height: 44,
+            borderRadius: 10,
             background: `linear-gradient(135deg, ${c.accent}, ${c.accent}88)`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 22, fontWeight: 700, color: c.bg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 22,
+            fontWeight: 700,
+            color: c.bg,
           }}
         >
           M
@@ -255,13 +277,18 @@ export function AdblockGuard() {
         <h2
           id="mw-adblock-title"
           style={{
-            margin: 0, fontSize: isBanner ? 15 : 19, lineHeight: 1.3,
-            fontWeight: 700, color: c.accent,
+            margin: 0,
+            fontSize: isBanner ? 15 : 19,
+            lineHeight: 1.3,
+            fontWeight: 700,
+            color: c.accent,
           }}
         >
           {settings.title}
         </h2>
-        <p style={{ margin: "8px 0 0", fontSize: isBanner ? 13 : 14, lineHeight: 1.5, opacity: 0.9 }}>
+        <p
+          style={{ margin: "8px 0 0", fontSize: isBanner ? 13 : 14, lineHeight: 1.5, opacity: 0.9 }}
+        >
           {settings.message}
         </p>
         {settings.secondary_message && !isBanner && (
@@ -272,17 +299,26 @@ export function AdblockGuard() {
       </div>
       <div
         style={{
-          display: "flex", gap: 8, flexWrap: "wrap",
-          marginTop: isBanner ? 0 : 16, width: isBanner ? "auto" : "100%",
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+          marginTop: isBanner ? 0 : 16,
+          width: isBanner ? "auto" : "100%",
         }}
       >
         {settings.show_retry && (
           <button
             onClick={handleRetry}
             style={{
-              background: c.accent, color: c.bg, border: "none",
-              padding: "10px 16px", borderRadius: 8, fontWeight: 600,
-              cursor: "pointer", fontSize: 13, flex: isBanner ? "none" : 1,
+              background: c.accent,
+              color: c.bg,
+              border: "none",
+              padding: "10px 16px",
+              borderRadius: 8,
+              fontWeight: 600,
+              cursor: "pointer",
+              fontSize: 13,
+              flex: isBanner ? "none" : 1,
             }}
           >
             {settings.button_text}
@@ -292,9 +328,14 @@ export function AdblockGuard() {
           <button
             onClick={handleDismiss}
             style={{
-              background: "transparent", color: c.text, border: `1px solid ${c.text}33`,
-              padding: "10px 16px", borderRadius: 8, fontWeight: 500,
-              cursor: "pointer", fontSize: 13,
+              background: "transparent",
+              color: c.text,
+              border: `1px solid ${c.text}33`,
+              padding: "10px 16px",
+              borderRadius: 8,
+              fontWeight: 500,
+              cursor: "pointer",
+              fontSize: 13,
             }}
           >
             {settings.dismiss_text || "Bỏ qua"}
@@ -326,11 +367,19 @@ export function AdblockGuard() {
     <div
       role="presentation"
       style={{
-        position: "fixed", inset: 0, zIndex: 2147483000,
-        background: `${c.overlay}${Math.round(settings.overlay_opacity * 255).toString(16).padStart(2, "0")}`,
-        backdropFilter: settings.backdrop_blur > 0 ? `blur(${settings.backdrop_blur}px)` : undefined,
-        WebkitBackdropFilter: settings.backdrop_blur > 0 ? `blur(${settings.backdrop_blur}px)` : undefined,
-        display: "flex", alignItems: "center", justifyContent: "center",
+        position: "fixed",
+        inset: 0,
+        zIndex: 2147483000,
+        background: `${c.overlay}${Math.round(settings.overlay_opacity * 255)
+          .toString(16)
+          .padStart(2, "0")}`,
+        backdropFilter:
+          settings.backdrop_blur > 0 ? `blur(${settings.backdrop_blur}px)` : undefined,
+        WebkitBackdropFilter:
+          settings.backdrop_blur > 0 ? `blur(${settings.backdrop_blur}px)` : undefined,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         padding: settings.layout === "fullscreen" ? 0 : 20,
         overflow: "auto",
         pointerEvents: "auto",
@@ -347,7 +396,9 @@ export function AdblockGuard() {
       onContextMenu={blockBg}
       onWheel={blockBg}
       onTouchMove={blockBg}
-      onPointerDown={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+      onPointerDown={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+      }}
     >
       {card}
     </div>
