@@ -17,7 +17,8 @@ import { listTransactions, addTransaction, deleteTransaction } from "@/lib/portf
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fmtVND, fmtVNDCompact, fmtNum, fmtPct } from "@/lib/format";
-import { Plus, Trash2, ArrowDownRight, ArrowUpRight, Info, NotebookPen, Calculator, ShieldCheck } from "lucide-react";
+import { Plus, Trash2, ArrowDownRight, ArrowUpRight, Info, NotebookPen, Calculator, ShieldCheck, Download } from "lucide-react";
+import { toCSV, downloadCSV, csvDateStamp } from "@/lib/csv";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -372,7 +373,19 @@ function PortfolioContent() {
       <div className="rounded-lg border border-border overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-card">
           <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Lịch sử giao dịch</div>
-          <TransactionDialog />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={transactions.length === 0}
+              onClick={() => exportTransactionsCSV(transactions)}
+              className="gap-1.5"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Tải CSV
+            </Button>
+            <TransactionDialog />
+          </div>
         </div>
         {transactions.length === 0 ? (
           <div className="p-6 text-sm text-muted-foreground text-center">Chưa có giao dịch.</div>
