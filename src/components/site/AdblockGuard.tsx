@@ -139,9 +139,9 @@ export function AdblockGuard() {
     };
     // Chạy lần đầu sau 800ms để AdSense script kịp khởi tạo nếu KHÔNG bị block.
     const initial = setTimeout(run, 800);
-    if (settings.recheck_interval_sec > 0) {
-      timer.current = setInterval(run, settings.recheck_interval_sec * 1000);
-    }
+    // Luôn recheck định kỳ để khi user bật lại adblock thì popup hiện trở lại.
+    const intervalMs = Math.max(3, settings.recheck_interval_sec || 5) * 1000;
+    timer.current = setInterval(run, intervalMs);
     return () => {
       cancelled = true;
       clearTimeout(initial);
@@ -149,7 +149,20 @@ export function AdblockGuard() {
     };
   }, [settings, whitelisted]);
 
-  if (!settings || !detected || dismissed || whitelisted) return null;
+  const visible = !!(settings && detected && !dismissed && !whitelisted);
+
+  // Khoá scroll body khi popup overlay đang hiện.
+  useEffect(() => {
+    if (!visible) return;
+    const layout = settings?.layout;
+    const isOverlay = layout === "modal" || layout === "fullscreen";
+    if (!isOverlay) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [visible, settings?.layout]);
+
+  if (!visible || !settings) return null;
 
   const c = themeColors(settings);
   const handleRetry = async () => {
@@ -252,8 +265,8 @@ export function AdblockGuard() {
     </div>
   );
 
-  // Soft mode: chỉ banner nhỏ, không overlay khoá tương tác.
-  if (settings.mode === "soft" || isBanner || isCorner) {
+  // Banner / corner: không overlay (theo thiết kế của layout này).
+  if (isBanner || isCorner) {
     const pos: React.CSSProperties = isCorner
       ? { position: "fixed", right: 20, bottom: 20, zIndex: 2147483000, maxWidth: 380 }
       : settings.layout === "banner_top"
