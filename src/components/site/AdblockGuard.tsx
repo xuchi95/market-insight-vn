@@ -276,8 +276,16 @@ export function AdblockGuard() {
   }
 
   // Modal / fullscreen với overlay (hard hoặc dismiss mode).
+  // Overlay phủ kín viewport, BẮT mọi pointer/touch/keyboard event để nền
+  // phía sau hoàn toàn không thể tương tác hay scroll.
+  const blockBg = (e: React.SyntheticEvent) => {
+    if (e.target !== e.currentTarget) return; // cho phép tương tác trong card
+    e.preventDefault();
+    e.stopPropagation();
+  };
   return (
     <div
+      role="presentation"
       style={{
         position: "fixed", inset: 0, zIndex: 2147483000,
         background: `${c.overlay}${Math.round(settings.overlay_opacity * 255).toString(16).padStart(2, "0")}`,
@@ -286,10 +294,21 @@ export function AdblockGuard() {
         display: "flex", alignItems: "center", justifyContent: "center",
         padding: settings.layout === "fullscreen" ? 0 : 20,
         overflow: "auto",
+        pointerEvents: "auto",
+        touchAction: "none",
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        cursor: isHard ? "not-allowed" : "default",
       }}
       onClick={(e) => {
-        if (!isHard && settings.allow_dismiss && e.target === e.currentTarget) handleDismiss();
+        if (e.target !== e.currentTarget) return;
+        if (!isHard && settings.allow_dismiss) handleDismiss();
+        else e.preventDefault();
       }}
+      onContextMenu={blockBg}
+      onWheel={blockBg}
+      onTouchMove={blockBg}
+      onPointerDown={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
     >
       {card}
     </div>
