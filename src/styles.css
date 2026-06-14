@@ -311,6 +311,21 @@
 }
 
 /* ============================================================
+   Route transition — chạy 1 lần mỗi khi pathname đổi.
+   Chỉ dùng opacity + transform (GPU compositor), không layout.
+   ============================================================ */
+@keyframes route-fade-in {
+  0%   { opacity: 0; transform: translate3d(0, 6px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.route-transition {
+  animation: route-fade-in 220ms cubic-bezier(0.22, 0.7, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-transition { animation: none; }
+}
+
+/* ============================================================
    Policy pages — refined editorial typography
    ============================================================ */
 section.policy-prose {
