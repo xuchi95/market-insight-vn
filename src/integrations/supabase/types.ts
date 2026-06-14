@@ -23,12 +23,15 @@ export type Database = {
           border_radius: number
           button_text: string
           created_at: string
+          density: string
           detection_bait: boolean
           detection_fetch: boolean
           detection_script: boolean
           dismiss_cooldown_hours: number
           dismiss_text: string
           enabled: boolean
+          font_scale_desktop: number
+          font_scale_mobile: number
           id: boolean
           layout: string
           message: string
@@ -54,12 +57,15 @@ export type Database = {
           border_radius?: number
           button_text?: string
           created_at?: string
+          density?: string
           detection_bait?: boolean
           detection_fetch?: boolean
           detection_script?: boolean
           dismiss_cooldown_hours?: number
           dismiss_text?: string
           enabled?: boolean
+          font_scale_desktop?: number
+          font_scale_mobile?: number
           id?: boolean
           layout?: string
           message?: string
@@ -85,12 +91,15 @@ export type Database = {
           border_radius?: number
           button_text?: string
           created_at?: string
+          density?: string
           detection_bait?: boolean
           detection_fetch?: boolean
           detection_script?: boolean
           dismiss_cooldown_hours?: number
           dismiss_text?: string
           enabled?: boolean
+          font_scale_desktop?: number
+          font_scale_mobile?: number
           id?: boolean
           layout?: string
           message?: string
