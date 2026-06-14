@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { parseTcbBlogMarkdown } from "@/lib/savings/parser";
+import { requireCronAuth } from "@/lib/cron-auth.server";
 
 const TCB_URL = "https://techcombank.com/thong-tin/blog/lai-suat-tiet-kiem";
 
@@ -51,19 +52,9 @@ async function doRefresh() {
 export const Route = createFileRoute("/api/public/hooks/refresh-savings-rates")({
   server: {
     handlers: {
-      POST: async () => {
-        try {
-          const result = await doRefresh();
-          return Response.json({ success: true, ...result });
-        } catch (e) {
-          console.error("[refresh-savings-rates]", e);
-          return Response.json(
-            { success: false, error: e instanceof Error ? e.message : String(e) },
-            { status: 500 },
-          );
-        }
-      },
-      GET: async () => {
+      POST: async ({ request }) => {
+        const unauthorized = requireCronAuth(request);
+        if (unauthorized) return unauthorized;
         try {
           const result = await doRefresh();
           return Response.json({ success: true, ...result });

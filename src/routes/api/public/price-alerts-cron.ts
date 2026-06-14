@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendEmail } from "@/lib/email/resend.server";
 import { priceAlertEmail } from "@/lib/email/templates.server";
+import { requireCronAuth } from "@/lib/cron-auth.server";
 
 const COIN_IDS = [
   "bitcoin", "ethereum", "tether", "binancecoin", "solana",
@@ -59,7 +60,9 @@ interface AlertRow {
 export const Route = createFileRoute("/api/public/price-alerts-cron")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const unauthorized = requireCronAuth(request);
+        if (unauthorized) return unauthorized;
         const { data: alerts, error } = await supabaseAdmin
           .from("user_price_alerts")
           .select("id,user_id,symbol,asset_type,direction,threshold_usd,email_enabled")

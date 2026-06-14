@@ -9,6 +9,23 @@ const EmailSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
 });
 
+/**
+ * Verify the calling user owns the given email by comparing against
+ * the email on their profile (case-insensitive). Throws on mismatch.
+ */
+async function assertCallerOwnsEmail(userId: string, email: string): Promise<void> {
+  const { data: profile, error } = await supabaseAdmin
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  const profileEmail = (profile?.email ?? "").trim().toLowerCase();
+  if (!profileEmail || profileEmail !== email.trim().toLowerCase()) {
+    throw new Error("Bạn chỉ có thể thay đổi đăng ký của email tài khoản của mình.");
+  }
+}
+
 const VALID_TOPICS = [
   "gold", "gold-sjc", "btc", "eth", "sol", "bnb", "usd", "eur",
 ] as const;
@@ -46,7 +63,8 @@ export const updateNewsletterTopics = createServerFn({ method: "POST" })
       topics: z.array(TopicSchema).min(1).max(VALID_TOPICS.length),
     }).parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertCallerOwnsEmail(context.userId, data.email);
     const { error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .update({ topics: data.topics })
@@ -87,7 +105,8 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
 export const unsubscribeNewsletter = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => EmailSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertCallerOwnsEmail(context.userId, data.email);
     const { error } = await supabaseAdmin
       .from("newsletter_subscribers")
       .update({ unsubscribed_at: new Date().toISOString() })
@@ -106,6 +125,8 @@ export const changeNewsletterEmail = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     if (data.oldEmail === data.newEmail) return { ok: true };
+    // Caller must own the OLD email (the account email being changed away from).
+    await assertCallerOwnsEmail(context.userId, data.oldEmail);
     const { error: upErr } = await supabaseAdmin
       .from("newsletter_subscribers")
       .update({ unsubscribed_at: new Date().toISOString() })

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendEmail } from "@/lib/email/resend.server";
+import { requireCronAuth } from "@/lib/cron-auth.server";
 import {
   goldDigestEmail,
   cryptoDigestEmail,
@@ -23,10 +24,8 @@ export const Route = createFileRoute("/api/public/daily-market-digest")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey");
-        if (!apikey || apikey !== process.env.SUPABASE_PUBLISHABLE_KEY) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const unauthorized = requireCronAuth(request);
+        if (unauthorized) return unauthorized;
 
         const { data: subs, error } = await supabaseAdmin
           .from("newsletter_subscribers")
