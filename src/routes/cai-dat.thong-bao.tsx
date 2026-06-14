@@ -199,6 +199,12 @@ function NotificationSettingsPage() {
               savingKey={savingKey}
               disabled={disabled}
             />
+            <ThresholdSection
+              value={Number(prefs.min_change_pct ?? 0)}
+              disabled={disabled || savingKey !== null}
+              onChange={(v) => toggleNumber("min_change_pct", v)}
+              saving={savingKey === "min_change_pct"}
+            />
             <p className="text-xs text-muted-foreground">
               Cài đặt áp dụng cho trình duyệt &amp; thiết bị hiện tại. Đăng ký lại trên máy khác sẽ tạo subscription riêng.
             </p>
