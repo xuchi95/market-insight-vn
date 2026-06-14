@@ -6,6 +6,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -407,7 +408,9 @@ function RootComponent() {
               {bodyStart.map((i: PublicInjection, idx: number) => (
                 <div key={`bs-${idx}`} dangerouslySetInnerHTML={{ __html: i.code }} />
               ))}
-              <Outlet />
+              <RouteTransition>
+                <Outlet />
+              </RouteTransition>
               <SideAdRails />
               <Toaster position="top-right" richColors />
               <NewsletterPopup />
@@ -428,4 +431,19 @@ function RootComponent() {
 function AnalyticsTrackerBridge() {
   useAnalyticsTracker();
   return null;
+}
+
+/**
+ * Lightweight per-route transition. Re-keys on pathname so a single
+ * CSS animation (opacity + translate, GPU-only) plays on every
+ * client-side navigation. No JS work per frame; honours
+ * prefers-reduced-motion via the .route-transition rule in styles.css.
+ */
+function RouteTransition({ children }: { children: React.ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return (
+    <div key={pathname} className="route-transition">
+      {children}
+    </div>
+  );
 }
