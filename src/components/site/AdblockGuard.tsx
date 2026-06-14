@@ -470,7 +470,12 @@ export function AdblockGuard() {
       : settings.layout === "banner_top"
         ? { position: "fixed", top: 0, left: 0, right: 0, zIndex: 2147483000 }
         : { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 2147483000 };
-    return <div style={pos}>{card}</div>;
+    return createPortal(
+      <div ref={guardRef} data-mw-ab-guard="1" style={pos}>
+        {card}
+      </div>,
+      document.body,
+    );
   }
 
   // Modal / fullscreen với overlay (hard hoặc dismiss mode).
@@ -481,8 +486,10 @@ export function AdblockGuard() {
     e.preventDefault();
     e.stopPropagation();
   };
-  return (
+  return createPortal(
     <div
+      ref={guardRef}
+      data-mw-ab-guard="1"
       role="presentation"
       style={{
         position: "fixed",
@@ -519,6 +526,7 @@ export function AdblockGuard() {
       }}
     >
       {card}
-    </div>
+    </div>,
+    document.body,
   );
 }
