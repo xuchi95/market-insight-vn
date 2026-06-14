@@ -865,6 +865,7 @@ export type Database = {
           id: string
           last_error: string | null
           last_success_at: string | null
+          min_change_pct: number
           notify_crypto: boolean
           notify_evening: boolean
           notify_forex: boolean
@@ -883,6 +884,7 @@ export type Database = {
           id?: string
           last_error?: string | null
           last_success_at?: string | null
+          min_change_pct?: number
           notify_crypto?: boolean
           notify_evening?: boolean
           notify_forex?: boolean
@@ -901,6 +903,7 @@ export type Database = {
           id?: string
           last_error?: string | null
           last_success_at?: string | null
+          min_change_pct?: number
           notify_crypto?: boolean
           notify_evening?: boolean
           notify_forex?: boolean
