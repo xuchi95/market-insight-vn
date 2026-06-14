@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { fetchDigestData, sendDigestTo, ALL_DIGEST_TOPICS, type DigestTopic } from "@/lib/email/digest.server";
+import { requireCronAuth } from "@/lib/cron-auth.server";
 
 const VALID_TOPICS: DigestTopic[] = ALL_DIGEST_TOPICS;
 const DEFAULT_TOPICS: DigestTopic[] = ["gold", "btc", "usd"];
@@ -17,11 +18,8 @@ export const Route = createFileRoute("/api/public/newsletter-weekly-digest")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // Light protection: require Supabase apikey header (matches our pg_cron pattern).
-        const apikey = request.headers.get("apikey");
-        if (!apikey || apikey !== process.env.SUPABASE_PUBLISHABLE_KEY) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const unauthorized = requireCronAuth(request);
+        if (unauthorized) return unauthorized;
 
         const { data: subs, error } = await supabaseAdmin
           .from("newsletter_subscribers")

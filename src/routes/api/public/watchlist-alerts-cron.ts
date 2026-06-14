@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendEmail } from "@/lib/email/resend.server";
 import { watchlistAlertEmail } from "@/lib/email/templates.server";
+import { requireCronAuth } from "@/lib/cron-auth.server";
 
 const SITE = "https://marketwatch.vn";
 const COOLDOWN_HOURS = 6;
@@ -89,7 +90,9 @@ interface WatchRow {
 export const Route = createFileRoute("/api/public/watchlist-alerts-cron")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const unauthorized = requireCronAuth(request);
+        if (unauthorized) return unauthorized;
         const { data: rows, error } = await supabaseAdmin
           .from("watchlist_items")
           .select("user_id,symbol,label,category,to_path,email_alerts_enabled,alert_threshold_pct,last_alert_sent_at,last_alert_price_usd")
