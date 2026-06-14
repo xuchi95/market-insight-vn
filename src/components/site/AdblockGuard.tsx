@@ -467,11 +467,11 @@ export function AdblockGuard() {
               display: "inline-flex",
               alignItems: "center",
               gap: 8,
-              padding: "5px 12px",
+              padding: `${pad(5)}px ${pad(12)}px`,
               borderRadius: 999,
               border: `1px solid ${c.accent}55`,
               background: `${c.accent}14`,
-              fontSize: 10,
+              fontSize: px(10),
               fontWeight: 700,
               letterSpacing: "0.22em",
               textTransform: "uppercase",
@@ -494,7 +494,7 @@ export function AdblockGuard() {
         <div
           style={{
             position: "relative",
-            width: 72, height: 72,
+            width: pad(72), height: pad(72),
             display: "grid", placeItems: "center",
             borderRadius: 18,
             background: `radial-gradient(circle at 30% 30%, ${c.accent}33, transparent 70%)`,
@@ -510,7 +510,7 @@ export function AdblockGuard() {
           <img
             src={logoUrl}
             alt="MarketWatch logo"
-            style={{ width: 52, height: 52, objectFit: "contain", display: "block", position: "relative" }}
+            style={{ width: pad(52), height: pad(52), objectFit: "contain", display: "block", position: "relative" }}
           />
         </div>
       )}
@@ -519,7 +519,7 @@ export function AdblockGuard() {
           id="mw-adblock-title"
           style={{
             margin: 0,
-            fontSize: isBanner ? 15 : 22,
+            fontSize: isBanner ? px(15) : px(22),
             lineHeight: 1.25,
             fontWeight: 800,
             letterSpacing: "-0.01em",
@@ -533,7 +533,7 @@ export function AdblockGuard() {
           <div
             aria-hidden
             style={{
-              margin: "12px auto 4px",
+              margin: `${pad(12)}px auto ${pad(4)}px`,
               width: 44, height: 2,
               background: `linear-gradient(90deg, transparent, ${c.accent}, transparent)`,
             }}
@@ -541,8 +541,8 @@ export function AdblockGuard() {
         )}
         <p
           style={{
-            margin: isBanner ? "8px 0 0" : "10px 0 0",
-            fontSize: isBanner ? 13 : 14.5,
+            margin: isBanner ? `${pad(8)}px 0 0` : `${pad(10)}px 0 0`,
+            fontSize: isBanner ? px(13) : px(14.5),
             lineHeight: 1.55,
             opacity: 0.9,
             textAlign: isBanner ? "left" : "center",
@@ -553,8 +553,8 @@ export function AdblockGuard() {
         {settings.secondary_message && !isBanner && (
           <p
             style={{
-              margin: "14px 0 0",
-              fontSize: 12,
+              margin: `${pad(14)}px 0 0`,
+              fontSize: px(12),
               opacity: 0.7,
               textAlign: "center",
               fontStyle: "italic",
@@ -569,10 +569,10 @@ export function AdblockGuard() {
         style={{
           position: "relative",
           display: "flex",
-          gap: 10,
+          gap: pad(10),
           flexWrap: "wrap",
           justifyContent: "center",
-          marginTop: isBanner ? 0 : 22,
+          marginTop: isBanner ? 0 : pad(22),
           width: isBanner ? "auto" : "100%",
         }}
       >
@@ -585,11 +585,11 @@ export function AdblockGuard() {
               background: `linear-gradient(135deg, ${c.accent} 0%, color-mix(in oklab, ${c.accent} 75%, white) 50%, ${c.accent} 100%)`,
               color: c.bg,
               border: `1px solid ${c.accent}`,
-              padding: "12px 22px",
+              padding: `${pad(12)}px ${pad(22)}px`,
               borderRadius: 10,
               fontWeight: 700,
               cursor: "pointer",
-              fontSize: 13,
+              fontSize: px(13),
               letterSpacing: "0.04em",
               textTransform: "uppercase",
               boxShadow: `0 8px 24px -8px ${c.accent}aa, inset 0 1px 0 #ffffff55`,
@@ -615,7 +615,7 @@ export function AdblockGuard() {
               background: "transparent",
               color: c.text,
               border: `1px solid ${c.text}33`,
-              padding: "12px 18px",
+              padding: `${pad(12)}px ${pad(18)}px`,
               borderRadius: 10,
               fontWeight: 500,
               cursor: "pointer",
