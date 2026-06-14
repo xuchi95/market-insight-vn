@@ -14,6 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
+      adblock_settings: {
+        Row: {
+          accent_color: string
+          allow_dismiss: boolean
+          backdrop_blur: number
+          bg_color: string
+          border_radius: number
+          button_text: string
+          created_at: string
+          detection_bait: boolean
+          detection_fetch: boolean
+          detection_script: boolean
+          dismiss_cooldown_hours: number
+          dismiss_text: string
+          enabled: boolean
+          id: boolean
+          layout: string
+          message: string
+          mode: string
+          overlay_color: string
+          overlay_opacity: number
+          recheck_interval_sec: number
+          secondary_message: string
+          show_logo: boolean
+          show_retry: boolean
+          text_color: string
+          theme: string
+          title: string
+          updated_at: string
+          whitelist_paths: string[]
+          whitelist_roles: string[]
+        }
+        Insert: {
+          accent_color?: string
+          allow_dismiss?: boolean
+          backdrop_blur?: number
+          bg_color?: string
+          border_radius?: number
+          button_text?: string
+          created_at?: string
+          detection_bait?: boolean
+          detection_fetch?: boolean
+          detection_script?: boolean
+          dismiss_cooldown_hours?: number
+          dismiss_text?: string
+          enabled?: boolean
+          id?: boolean
+          layout?: string
+          message?: string
+          mode?: string
+          overlay_color?: string
+          overlay_opacity?: number
+          recheck_interval_sec?: number
+          secondary_message?: string
+          show_logo?: boolean
+          show_retry?: boolean
+          text_color?: string
+          theme?: string
+          title?: string
+          updated_at?: string
+          whitelist_paths?: string[]
+          whitelist_roles?: string[]
+        }
+        Update: {
+          accent_color?: string
+          allow_dismiss?: boolean
+          backdrop_blur?: number
+          bg_color?: string
+          border_radius?: number
+          button_text?: string
+          created_at?: string
+          detection_bait?: boolean
+          detection_fetch?: boolean
+          detection_script?: boolean
+          dismiss_cooldown_hours?: number
+          dismiss_text?: string
+          enabled?: boolean
+          id?: boolean
+          layout?: string
+          message?: string
+          mode?: string
+          overlay_color?: string
+          overlay_opacity?: number
+          recheck_interval_sec?: number
+          secondary_message?: string
+          show_logo?: boolean
+          show_retry?: boolean
+          text_color?: string
+          theme?: string
+          title?: string
+          updated_at?: string
+          whitelist_paths?: string[]
+          whitelist_roles?: string[]
+        }
+        Relationships: []
+      }
       admin_audit_log: {
         Row: {
           action: string
