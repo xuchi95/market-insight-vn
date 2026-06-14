@@ -141,6 +141,7 @@ export function AdblockGuard() {
   const [detected, setDetected] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const running = useRef(false);
 
   // Path whitelist
   const path = typeof window !== "undefined" ? window.location.pathname : "/";
@@ -160,18 +161,30 @@ export function AdblockGuard() {
     setDismissed(false);
     let cancelled = false;
     const run = async () => {
+      if (running.current) return;
+      running.current = true;
       const isBlocked = await detectAdblock(settings);
-      if (!cancelled) setDetected(isBlocked);
+      running.current = false;
+      if (!cancelled) {
+        if (isBlocked) {
+          try { localStorage.removeItem(DISMISS_KEY); } catch {}
+          setDismissed(false);
+        }
+        setDetected(isBlocked);
+      }
     };
     // Chạy lần đầu sau 800ms để AdSense script kịp khởi tạo nếu KHÔNG bị block.
     const initial = setTimeout(run, 800);
     // Luôn recheck định kỳ để khi user bật lại adblock thì popup hiện trở lại.
     const intervalMs = Math.max(3, settings.recheck_interval_sec || 5) * 1000;
     timer.current = setInterval(run, intervalMs);
+    const wakeEvents = ["focus", "visibilitychange", "pageshow", "online", "pointerdown", "keydown"] as const;
+    wakeEvents.forEach((eventName) => window.addEventListener(eventName, run, { passive: true }));
     return () => {
       cancelled = true;
       clearTimeout(initial);
       if (timer.current) clearInterval(timer.current);
+      wakeEvents.forEach((eventName) => window.removeEventListener(eventName, run));
     };
   }, [settings, whitelisted]);
 
