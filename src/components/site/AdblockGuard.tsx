@@ -3,11 +3,33 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getAdblockSettings, type AdblockSettings } from "@/lib/admin/adblock.functions";
 
-/** Các URL/script mà adblocker phổ biến (EasyList) chặn — fetch sẽ fail/abort. */
-const BAIT_URLS = [
-  "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?_adb=" + Date.now(),
-  "/ads.js?_adb=" + Date.now(),
-];
+/** URL/script mà adblocker phổ biến (EasyList/ABP) chặn. Tạo mới mỗi lần check
+ * để tránh cache và để bắt được trạng thái khi user bật lại adblock không reload trang. */
+function baitUrls() {
+  const nonce = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return [
+    `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1602622310716271&_mw_adb=${nonce}`,
+    `https://securepubads.g.doubleclick.net/tag/js/gpt.js?_mw_adb=${nonce}`,
+  ];
+}
+
+function detectBlockedScript(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    const done = (blocked: boolean) => {
+      window.clearTimeout(timeout);
+      script.remove();
+      resolve(blocked);
+    };
+    const timeout = window.setTimeout(() => done(true), 2200);
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.src = url;
+    script.onload = () => done(false);
+    script.onerror = () => done(true);
+    document.head.appendChild(script);
+  });
+}
 
 const DISMISS_KEY = "mw-adblock-dismiss";
 
@@ -55,12 +77,14 @@ async function detectAdblock(s: AdblockSettings): Promise<boolean> {
     );
   }
 
+  const urls = baitUrls();
+
   if (s.detection_fetch) {
     checks.push(
       (async () => {
-        for (const url of BAIT_URLS) {
+        for (const url of urls) {
           try {
-            await fetch(url, { method: "HEAD", mode: "no-cors", cache: "no-store" });
+            await fetch(url, { method: "GET", mode: "no-cors", cache: "no-store" });
           } catch {
             return true; // fetch bị block ⇒ adblock active
           }
@@ -72,11 +96,12 @@ async function detectAdblock(s: AdblockSettings): Promise<boolean> {
 
   if (s.detection_script) {
     checks.push(
-      Promise.resolve(
-        typeof window.adsbygoogle === "undefined" ||
-          (Array.isArray(window.adsbygoogle) === false &&
-            typeof window.adsbygoogle !== "object"),
-      ),
+      (async () => {
+        for (const url of urls) {
+          if (await detectBlockedScript(url)) return true;
+        }
+        return false;
+      })(),
     );
   }
 
@@ -128,10 +153,11 @@ export function AdblockGuard() {
 
   useEffect(() => {
     if (!settings || whitelisted) return;
-    if (isDismissValid(settings.dismiss_cooldown_hours)) {
+    if (settings.mode !== "hard" && settings.allow_dismiss && isDismissValid(settings.dismiss_cooldown_hours)) {
       setDismissed(true);
       return;
     }
+    setDismissed(false);
     let cancelled = false;
     const run = async () => {
       const isBlocked = await detectAdblock(settings);
