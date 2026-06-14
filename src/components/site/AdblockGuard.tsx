@@ -372,53 +372,157 @@ export function AdblockGuard() {
   const isCorner = settings.layout === "corner";
   const isHard = settings.mode === "hard";
 
+  const cornerStyles: React.CSSProperties[] = [
+    { top: 10, left: 10, borderTop: `1px solid ${c.accent}`, borderLeft: `1px solid ${c.accent}` },
+    { top: 10, right: 10, borderTop: `1px solid ${c.accent}`, borderRight: `1px solid ${c.accent}` },
+    { bottom: 10, left: 10, borderBottom: `1px solid ${c.accent}`, borderLeft: `1px solid ${c.accent}` },
+    { bottom: 10, right: 10, borderBottom: `1px solid ${c.accent}`, borderRight: `1px solid ${c.accent}` },
+  ];
+
   const card = (
     <div
       role="dialog"
       aria-modal={isModal && isHard ? "true" : "false"}
       aria-labelledby="mw-adblock-title"
       style={{
-        background: c.bg,
+        position: "relative",
+        background: `radial-gradient(120% 80% at 50% -10%, ${c.accent}26 0%, transparent 55%), linear-gradient(180deg, ${c.bg} 0%, ${c.bg} 55%, color-mix(in oklab, ${c.bg} 88%, ${c.accent}) 100%)`,
         color: c.text,
         borderRadius: settings.layout === "fullscreen" || isBanner ? 0 : settings.border_radius,
-        border: `1px solid ${c.accent}55`,
-        boxShadow: isModal ? `0 30px 80px -20px ${c.overlay}` : "none",
-        padding: isBanner ? "14px 20px" : "28px 28px",
+        border: `1px solid ${c.accent}66`,
+        boxShadow: isModal
+          ? `0 40px 120px -30px ${c.overlay}, 0 0 0 1px ${c.accent}22, inset 0 1px 0 ${c.accent}55`
+          : "none",
+        padding: isBanner ? "14px 20px" : "44px 32px 32px",
         maxWidth: settings.layout === "fullscreen" ? "100%" : isBanner ? "100%" : 480,
         width: "100%",
         display: "flex",
         flexDirection: isBanner ? "row" : "column",
         alignItems: "center",
         textAlign: isBanner ? "left" : "center",
-        gap: isBanner ? 16 : 12,
+        gap: isBanner ? 16 : 14,
+        overflow: "hidden",
       }}
     >
-      {settings.show_logo && !isBanner && (
-        <img
-          src={logoUrl}
-          alt="MarketWatch logo"
-          style={{ width: 48, height: 48, objectFit: "contain", display: "block" }}
-        />
+      {!isBanner && (
+        <>
+          <style>{`@keyframes mw-ab-pulse {
+            0% { box-shadow: 0 0 0 0 ${c.accent}aa; }
+            70% { box-shadow: 0 0 0 12px ${c.accent}00; }
+            100% { box-shadow: 0 0 0 0 ${c.accent}00; }
+          }
+          @keyframes mw-ab-sheen {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(220%); }
+          }`}</style>
+          {/* Top gold hairline */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute", top: 0, left: 0, right: 0, height: 3,
+              background: `linear-gradient(90deg, transparent, ${c.accent} 20%, ${c.accent} 80%, transparent)`,
+            }}
+          />
+          {/* Terminal corner brackets */}
+          {cornerStyles.map((s, i) => (
+            <span key={i} aria-hidden style={{ position: "absolute", width: 14, height: 14, ...s }} />
+          ))}
+          {/* Decorative chart line in background */}
+          <svg
+            aria-hidden
+            viewBox="0 0 480 180"
+            preserveAspectRatio="none"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.08, pointerEvents: "none" }}
+          >
+            <path d="M0 140 L60 120 L100 135 L150 90 L200 110 L260 60 L310 80 L360 40 L420 65 L480 25"
+              fill="none" stroke={c.accent} strokeWidth="1.5" />
+            <path d="M0 140 L60 120 L100 135 L150 90 L200 110 L260 60 L310 80 L360 40 L420 65 L480 25 L480 180 L0 180 Z"
+              fill={c.accent} fillOpacity="0.3" />
+          </svg>
+          {/* Eyebrow tag */}
+          <div
+            style={{
+              position: "relative",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "5px 12px",
+              borderRadius: 999,
+              border: `1px solid ${c.accent}55`,
+              background: `${c.accent}14`,
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: c.accent,
+            }}
+          >
+            <span
+              aria-hidden
+              style={{
+                width: 7, height: 7, borderRadius: "50%",
+                background: c.accent,
+                animation: "mw-ab-pulse 1.6s ease-out infinite",
+              }}
+            />
+            Market Alert
+          </div>
+        </>
       )}
-      <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
+      {settings.show_logo && !isBanner && (
+        <div
+          style={{
+            position: "relative",
+            width: 72, height: 72,
+            display: "grid", placeItems: "center",
+            borderRadius: 18,
+            background: `radial-gradient(circle at 30% 30%, ${c.accent}33, transparent 70%)`,
+          }}
+        >
+          <span
+            aria-hidden
+            style={{
+              position: "absolute", inset: -6, borderRadius: 22,
+              border: `1px dashed ${c.accent}66`,
+            }}
+          />
+          <img
+            src={logoUrl}
+            alt="MarketWatch logo"
+            style={{ width: 52, height: 52, objectFit: "contain", display: "block", position: "relative" }}
+          />
+        </div>
+      )}
+      <div style={{ flex: 1, minWidth: 0, width: "100%", position: "relative" }}>
         <h2
           id="mw-adblock-title"
           style={{
             margin: 0,
-            fontSize: isBanner ? 15 : 19,
-            lineHeight: 1.3,
-            fontWeight: 700,
+            fontSize: isBanner ? 15 : 22,
+            lineHeight: 1.25,
+            fontWeight: 800,
+            letterSpacing: "-0.01em",
             color: c.accent,
             textAlign: isBanner ? "left" : "center",
           }}
         >
           {settings.title}
         </h2>
+        {!isBanner && (
+          <div
+            aria-hidden
+            style={{
+              margin: "12px auto 4px",
+              width: 44, height: 2,
+              background: `linear-gradient(90deg, transparent, ${c.accent}, transparent)`,
+            }}
+          />
+        )}
         <p
           style={{
-            margin: "8px 0 0",
-            fontSize: isBanner ? 13 : 14,
-            lineHeight: 1.5,
+            margin: isBanner ? "8px 0 0" : "10px 0 0",
+            fontSize: isBanner ? 13 : 14.5,
+            lineHeight: 1.55,
             opacity: 0.9,
             textAlign: isBanner ? "left" : "center",
           }}
@@ -426,18 +530,28 @@ export function AdblockGuard() {
           {settings.message}
         </p>
         {settings.secondary_message && !isBanner && (
-          <p style={{ margin: "10px 0 0", fontSize: 12, opacity: 0.7, textAlign: "center" }}>
-            {settings.secondary_message}
+          <p
+            style={{
+              margin: "14px 0 0",
+              fontSize: 12,
+              opacity: 0.7,
+              textAlign: "center",
+              fontStyle: "italic",
+              letterSpacing: "0.01em",
+            }}
+          >
+            — {settings.secondary_message} —
           </p>
         )}
       </div>
       <div
         style={{
+          position: "relative",
           display: "flex",
-          gap: 8,
+          gap: 10,
           flexWrap: "wrap",
           justifyContent: "center",
-          marginTop: isBanner ? 0 : 16,
+          marginTop: isBanner ? 0 : 22,
           width: isBanner ? "auto" : "100%",
         }}
       >
@@ -445,18 +559,32 @@ export function AdblockGuard() {
           <button
             onClick={handleRetry}
             style={{
-              background: c.accent,
+              position: "relative",
+              overflow: "hidden",
+              background: `linear-gradient(135deg, ${c.accent} 0%, color-mix(in oklab, ${c.accent} 75%, white) 50%, ${c.accent} 100%)`,
               color: c.bg,
-              border: "none",
-              padding: "10px 16px",
-              borderRadius: 8,
-              fontWeight: 600,
+              border: `1px solid ${c.accent}`,
+              padding: "12px 22px",
+              borderRadius: 10,
+              fontWeight: 700,
               cursor: "pointer",
               fontSize: 13,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              boxShadow: `0 8px 24px -8px ${c.accent}aa, inset 0 1px 0 #ffffff55`,
               flex: isBanner ? "none" : 1,
             }}
           >
-            {settings.button_text}
+            <span style={{ position: "relative", zIndex: 1 }}>▸ {settings.button_text}</span>
+            <span
+              aria-hidden
+              style={{
+                position: "absolute",
+                top: 0, left: 0, width: "40%", height: "100%",
+                background: "linear-gradient(90deg, transparent, #ffffff55, transparent)",
+                animation: "mw-ab-sheen 3.2s ease-in-out infinite",
+              }}
+            />
           </button>
         )}
         {settings.allow_dismiss && settings.mode !== "hard" && (
@@ -466,11 +594,12 @@ export function AdblockGuard() {
               background: "transparent",
               color: c.text,
               border: `1px solid ${c.text}33`,
-              padding: "10px 16px",
-              borderRadius: 8,
+              padding: "12px 18px",
+              borderRadius: 10,
               fontWeight: 500,
               cursor: "pointer",
               fontSize: 13,
+              letterSpacing: "0.02em",
             }}
           >
             {settings.dismiss_text || "Bỏ qua"}
