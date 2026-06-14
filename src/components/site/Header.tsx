@@ -794,7 +794,9 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         <ThemeToggle />
         <PushNotificationButton />
       </div>
-    </div>
+    </div>,
+    document.body,
+    )}
     {/* Khung quảng cáo dưới header (leaderboard). Tự ẩn nếu chưa cấu hình VITE_ADSENSE_CLIENT. */}
     <AdSlot placement="header" slot={import.meta.env.VITE_ADSENSE_SLOT_HEADER as string | undefined} className="my-3 md:my-4" />
     </>
