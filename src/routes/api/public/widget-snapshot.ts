@@ -54,13 +54,17 @@ export const Route = createFileRoute("/api/public/widget-snapshot")({
         let origin = "";
         try {
           const host = getRequestHost();
-          const proto = getRequestHeader("x-forwarded-proto") ?? "https";
+          const xfProto = getRequestHeader("x-forwarded-proto");
+          const proto =
+            xfProto ??
+            (host && /^(localhost|127\.0\.0\.1|0\.0\.0\.0)(:|$)/.test(host)
+              ? "http"
+              : "https");
           if (host) origin = `${proto}://${host}`;
         } catch {
           /* no request context */
         }
         if (!origin) origin = "https://marketwatch.vn";
-        console.log("[widget-snapshot] origin", origin);
 
         const [gold, crypto, fx] = await Promise.all([
           safeFetchJson(`${origin}/api/public/gold`),
