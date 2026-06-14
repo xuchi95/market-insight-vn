@@ -70,15 +70,23 @@ export const Route = createFileRoute("/api/public/widget-snapshot")({
           const sjc =
             gold.items.find(
               (g: any) =>
-                /sjc/i.test(g.name ?? "") &&
-                /hcm|hồ chí minh|ho chi minh/i.test(g.branch ?? g.name ?? ""),
-            ) ?? gold.items.find((g: any) => /sjc/i.test(g.name ?? "")) ?? gold.items[0];
-          if (sjc && typeof sjc.sellPrice === "number") {
+                /sjc/i.test(g.brand ?? "") &&
+                /1l|miếng|mieng/i.test(g.type ?? ""),
+            ) ??
+            gold.items.find((g: any) => /sjc/i.test(g.brand ?? g.name ?? "")) ??
+            gold.items[0];
+          const sellPrice =
+            typeof sjc?.sell === "number"
+              ? sjc.sell
+              : typeof sjc?.sellPrice === "number"
+                ? sjc.sellPrice
+                : null;
+          if (sjc && sellPrice != null) {
             items.push({
               code: "SJC",
               name: "Vàng SJC",
-              price: sjc.sellPrice,
-              unit: "VND/lượng",
+              price: sellPrice,
+              unit: sjc.unit ?? "VND/lượng",
               changePct:
                 typeof sjc.changePct === "number" ? sjc.changePct : null,
             });
@@ -91,14 +99,22 @@ export const Route = createFileRoute("/api/public/widget-snapshot")({
             const c = crypto.coins.find(
               (x: any) => (x.symbol ?? "").toUpperCase() === sym,
             );
-            if (c && typeof c.price === "number") {
+            const price =
+              typeof c?.priceUsd === "number"
+                ? c.priceUsd
+                : typeof c?.price === "number"
+                  ? c.price
+                  : null;
+            if (c && price != null) {
               items.push({
                 code: sym,
                 name: c.name ?? sym,
-                price: c.price,
+                price,
                 unit: "USD",
                 changePct:
-                  typeof c.changePct24h === "number"
+                  typeof c.change24h === "number"
+                    ? c.change24h
+                    : typeof c.changePct24h === "number"
                     ? c.changePct24h
                     : typeof c.changePct === "number"
                       ? c.changePct
@@ -112,13 +128,25 @@ export const Route = createFileRoute("/api/public/widget-snapshot")({
         if (Array.isArray(fx?.rates)) {
           for (const code of ["USD", "EUR"]) {
             const r = fx.rates.find(
-              (x: any) => (x.currencyCode ?? x.code ?? "").toUpperCase() === code,
+              (x: any) => (x.code ?? x.currencyCode ?? "").toUpperCase() === code,
             );
-            if (r && typeof (r.sellPrice ?? r.transfer ?? r.rate) === "number") {
+            const price =
+              typeof r?.sell === "number"
+                ? r.sell
+                : typeof r?.mid === "number"
+                  ? r.mid
+                  : typeof r?.sellPrice === "number"
+                    ? r.sellPrice
+                    : typeof r?.transfer === "number"
+                      ? r.transfer
+                      : typeof r?.rate === "number"
+                        ? r.rate
+                        : null;
+            if (r && price != null) {
               items.push({
                 code: `${code}/VND`,
                 name: code === "USD" ? "Đô la Mỹ" : "Euro",
-                price: r.sellPrice ?? r.transfer ?? r.rate,
+                price,
                 unit: "VND",
                 changePct:
                   typeof r.changePct === "number" ? r.changePct : null,
