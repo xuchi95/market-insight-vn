@@ -172,7 +172,9 @@ export function AdblockGuard() {
         if (isBlocked) {
           try {
             localStorage.removeItem(DISMISS_KEY);
-          } catch {}
+          } catch {
+            // Ignore storage access errors in private/restricted browsing modes.
+          }
           setDismissed(false);
         }
         setDetected(isBlocked);
@@ -225,7 +227,9 @@ export function AdblockGuard() {
   const handleDismiss = () => {
     try {
       localStorage.setItem(DISMISS_KEY, String(Date.now()));
-    } catch {}
+    } catch {
+      // Ignore storage access errors in private/restricted browsing modes.
+    }
     setDismissed(true);
   };
 
