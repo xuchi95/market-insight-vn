@@ -1570,6 +1570,19 @@ export type Database = {
           runs: number
         }[]
       }
+      closest_price_samples: {
+        Args: {
+          p_min_age_ms?: number
+          p_symbols: string[]
+          p_target: string
+          p_tol_ms: number
+        }
+        Returns: {
+          captured_at: string
+          price: number
+          symbol: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
