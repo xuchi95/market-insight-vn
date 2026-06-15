@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, Star, User as UserIcon, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, LogOut, Mail, Menu, PieChart, Search, Settings, Sparkles, Star, User as UserIcon, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Input } from "@/components/ui/input";
@@ -388,13 +388,25 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="hidden xl:inline-flex items-center gap-2 h-8 pl-1 pr-3 rounded-full border border-border bg-card/60 hover:border-[var(--gold)]/60 hover:bg-card transition-colors"
+                  className="group hidden xl:inline-flex items-center gap-3 pl-1 pr-3 py-1 rounded-full bg-card border border-[var(--gold)]/20 shadow-[0_2px_8px_-2px_rgba(26,22,18,0.06)] hover:border-[var(--gold)]/60 hover:shadow-[0_8px_16px_-4px_color-mix(in_oklab,var(--gold)_18%,transparent)] hover:-translate-y-0.5 transition-all duration-300"
                   aria-label={user.email ?? "Tài khoản"}
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[var(--gold)] to-amber-700 text-background text-xs font-bold uppercase">
-                    {(user.email ?? "?").slice(0, 1)}
+                  <span className="relative flex-shrink-0">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1A1612] ring-2 ring-[var(--gold)]/10 ring-offset-1 ring-offset-card overflow-hidden group-hover:ring-[var(--gold)]/35 transition-all">
+                      <span className="text-[var(--gold)] text-[13px] font-bold tracking-tight uppercase">
+                        {(user.email ?? "?").slice(0, 1)}
+                      </span>
+                      <span className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
+                    </span>
+                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-[var(--gold)] border-2 border-card shadow-sm" />
                   </span>
-                  <span className="hidden xl:inline text-sm max-w-[140px] truncate text-foreground/90">{user.email}</span>
+                  <span className="text-[13px] font-semibold leading-tight text-foreground max-w-[140px] truncate group-hover:text-[var(--gold)] transition-colors">
+                    {user.email}
+                  </span>
+                  <ChevronDown
+                    className="h-3.5 w-3.5 text-[var(--gold)]/40 group-hover:text-[var(--gold)] group-hover:translate-y-0.5 transition-all"
+                    strokeWidth={3}
+                  />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
