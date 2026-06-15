@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical, Star, Plus, Trash2, BookmarkCheck } from "lucide-react";
+import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical, Star, Plus, Trash2, BookmarkCheck, Copy } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Input } from "@/components/ui/input";
@@ -204,82 +204,18 @@ function SettingsCard() {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-6">
-        <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[var(--gold)]/15 blur-3xl" />
-        <div className="relative">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[var(--gold)]">
-            <Mail className="h-3.5 w-3.5" /> Trạng thái bản tin
-          </div>
-
-          {active ? (
-            <>
-              <div className="mt-3 flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-sm font-medium text-emerald-400">
-                      <BellRing className="h-3 w-3" /> Đang nhận
-                    </span>
-                  </div>
-                  <div className="mt-2 text-lg font-medium">{active.email}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    Đăng ký từ {new Date(active.created_at).toLocaleDateString("vi-VN")}
-                  </div>
-                </div>
-              </div>
-
-              {editing ? (
-                <div className="mt-5 rounded-lg border border-border bg-background/40 p-4 space-y-3">
-                  <Label htmlFor="new-email" className="text-xs">Địa chỉ email mới</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="new-email"
-                      type="email"
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                      placeholder="email-moi@cua-ban.vn"
-                      className="flex-1"
-                    />
-                    <Button onClick={handleChange} disabled={busy}>
-                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                      <span className="ml-1.5">Xác nhận</span>
-                    </Button>
-                    <Button variant="ghost" onClick={() => { setEditing(false); setNewEmail(""); }} disabled={busy}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Địa chỉ cũ sẽ tự động bị huỷ đăng ký.
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => { setEditing(true); setNewEmail(active.email); }}
-                    disabled={busy}
-                  >
-                    <Pencil className="h-4 w-4" /> <span className="ml-1.5">Đổi địa chỉ</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleUnsubscribe(active.email)}
-                    disabled={busy}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <BellOff className="h-4 w-4" /> <span className="ml-1.5">Huỷ đăng ký</span>
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-            <SubscribeForm
-              defaultEmail={accountEmail}
-              onSubmit={handleSubscribe}
-              busy={busy}
-            />
-          )}
-        </div>
-      </section>
+      <SubscriptionStatusCard
+        active={active}
+        accountEmail={accountEmail}
+        editing={editing}
+        newEmail={newEmail}
+        setNewEmail={setNewEmail}
+        setEditing={setEditing}
+        busy={busy}
+        onChange={handleChange}
+        onUnsubscribe={handleUnsubscribe}
+        onSubscribe={handleSubscribe}
+      />
 
       <section className="rounded-2xl border border-border bg-card/40 p-6 text-sm text-muted-foreground leading-relaxed">
         <h2 className="font-display text-lg text-foreground mb-2">Bản tin gồm những gì?</h2>
