@@ -350,35 +350,41 @@ async function fetch24hAgoMids(ids: string[]): Promise<Record<string, number>> {
     const lo = new Date(now - WINDOW_MS - cfg.windowToleranceMs).toISOString();
     const hi = new Date(now - WINDOW_MS + cfg.windowToleranceMs).toISOString();
     const symbols = ids.map((id) => `${SYMBOL_PREFIX}${id}`);
-    // Lấy tất cả mẫu trong cửa sổ ±2h quanh mốc 24h; chọn mẫu gần mốc nhất cho mỗi symbol.
-    const { data } = await supabaseAdmin
-      .from("price_history")
-      .select("symbol, price, captured_at")
-      .in("symbol", symbols)
-      .gte("captured_at", lo)
-      .lte("captured_at", hi)
-      .order("captured_at", { ascending: false })
-      .limit(2000);
+    // Dùng RPC `closest_price_samples` để DB trả về SẴN một row/symbol
+    // (gần mốc 24h nhất, trong cửa sổ ±tolerance). Giảm payload từ ~hàng
+    // nghìn row xuống ~N row, và bỏ vòng lặp tính khoảng cách trong JS.
+    const target = new Date(now - WINDOW_MS).toISOString();
+    const { data } = await supabaseAdmin.rpc("closest_price_samples", {
+      p_symbols: symbols,
+      p_target: target,
+      p_tol_ms: cfg.windowToleranceMs,
+      p_min_age_ms: cfg.minSampleAgeMs,
+    });
     if (!data) return out;
-    const target = now - WINDOW_MS;
-    const best: Record<string, { dist: number; price: number }> = {};
-    const counts: Record<string, number> = {};
-    for (const r of data) {
+    // `minSamples` vẫn cần được tôn trọng: nếu cấu hình > 1, đếm số mẫu
+    // có sẵn trong cửa sổ trước khi chấp nhận giá trị.
+    let counts: Record<string, number> | null = null;
+    if (cfg.minSamples > 1) {
+      const { data: cntRows } = await supabaseAdmin
+        .from("price_history")
+        .select("symbol")
+        .in("symbol", symbols)
+        .gte("captured_at", lo)
+        .lte("captured_at", hi);
+      counts = {};
+      for (const r of cntRows ?? []) {
+        const sym = String((r as { symbol: string }).symbol);
+        const id = sym.startsWith(SYMBOL_PREFIX) ? sym.slice(SYMBOL_PREFIX.length) : sym;
+        counts[id] = (counts[id] ?? 0) + 1;
+      }
+    }
+    for (const r of data as Array<{ symbol: string; price: number | string }>) {
       const sym = String(r.symbol);
       const id = sym.startsWith(SYMBOL_PREFIX) ? sym.slice(SYMBOL_PREFIX.length) : sym;
       const p = Number(r.price);
       if (!Number.isFinite(p) || p <= 0) continue;
-      const t = new Date(r.captured_at as string).getTime();
-      if (cfg.minSampleAgeMs > 0 && now - t < cfg.minSampleAgeMs) continue;
-      const dist = Math.abs(t - target);
-      const cur = best[id];
-      if (!cur || dist < cur.dist) best[id] = { dist, price: p };
-      counts[id] = (counts[id] ?? 0) + 1;
-    }
-    for (const id of ids) {
-      if (best[id] && (counts[id] ?? 0) >= cfg.minSamples) {
-        out[id] = best[id].price;
-      }
+      if (counts && (counts[id] ?? 0) < cfg.minSamples) continue;
+      out[id] = p;
     }
     return out;
   } catch {
