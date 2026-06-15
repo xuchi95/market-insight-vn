@@ -579,10 +579,23 @@ function AssetDetail() {
       <main className="flex-1 mx-auto w-full max-w-[1320px] px-4 md:px-6 py-6 pb-16">
         <div className="rise d1"><Breadcrumbs extra={assetCrumb} /></div>
 
-        {(isLoading || bankLoading || goldLoading || oilLoading) && !coin && !stock && !fx && !gold && !bankRow && !oil && (
+        {/* Crypto symbol (incl. Pi): skeleton while /api/public/crypto resolves */}
+        {!isGold && !isBank && !isOil && isLoading && !coin && (
+          <CryptoDetailSkeleton symbol={symbol} />
+        )}
+        {/* Crypto symbol: dedicated error state with retry when snapshot fails */}
+        {!isGold && !isBank && !isOil && !isLoading && coinsError && !coin && (
+          <CryptoDetailError
+            symbol={symbol}
+            message={coinsErrorObj instanceof Error ? coinsErrorObj.message : undefined}
+            onRetry={() => refetchCoins()}
+            retrying={coinsFetching}
+          />
+        )}
+        {(bankLoading || goldLoading || oilLoading) && !coin && !stock && !fx && !gold && !bankRow && !oil && (
           <Skeleton className="h-40 w-full mt-5" />
         )}
-        {!isLoading && !bankLoading && !goldLoading && !oilLoading && !coin && !stock && !fx && !gold && !bankRow && !oil && (
+        {!isLoading && !bankLoading && !goldLoading && !oilLoading && !coinsError && !coin && !stock && !fx && !gold && !bankRow && !oil && (
           <div className="text-center py-20">
             <h1 className="text-2xl font-bold">Tài sản {symbol.toUpperCase()} — Giá &amp; biểu đồ realtime</h1>
             <h2 className="text-lg font-semibold text-muted-foreground mt-3">Không tìm thấy mã "{symbol.toUpperCase()}"</h2>
