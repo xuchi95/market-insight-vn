@@ -382,13 +382,6 @@ export function AdblockGuard() {
   const isCorner = settings.layout === "corner";
   const isHard = settings.mode === "hard";
 
-  const cornerStyles: React.CSSProperties[] = [
-    { top: 10, left: 10, borderTop: `1px solid ${c.accent}`, borderLeft: `1px solid ${c.accent}` },
-    { top: 10, right: 10, borderTop: `1px solid ${c.accent}`, borderRight: `1px solid ${c.accent}` },
-    { bottom: 10, left: 10, borderBottom: `1px solid ${c.accent}`, borderLeft: `1px solid ${c.accent}` },
-    { bottom: 10, right: 10, borderBottom: `1px solid ${c.accent}`, borderRight: `1px solid ${c.accent}` },
-  ];
-
   // Density multiplier (paddings/gaps) and font scale (per device).
   const dens =
     settings.density === "compact" ? 0.78
@@ -405,17 +398,17 @@ export function AdblockGuard() {
       aria-labelledby="mw-adblock-title"
       style={{
         position: "relative",
-        background: `radial-gradient(120% 80% at 50% -10%, ${c.accent}26 0%, transparent 55%), linear-gradient(180deg, ${c.bg} 0%, ${c.bg} 55%, color-mix(in oklab, ${c.bg} 88%, ${c.accent}) 100%)`,
+        background: c.bg,
         color: c.text,
         borderRadius: settings.layout === "fullscreen" || isBanner ? 0 : settings.border_radius,
-        border: `1px solid ${c.accent}66`,
+        border: `1px solid ${c.accent}33`,
         boxShadow: isModal
-          ? `0 40px 120px -30px ${c.overlay}, 0 0 0 1px ${c.accent}22, inset 0 1px 0 ${c.accent}55`
+          ? `0 30px 80px -20px ${c.overlay}`
           : "none",
         padding: isBanner
           ? `${pad(14)}px ${pad(20)}px`
-          : `${pad(44)}px ${pad(32)}px ${pad(32)}px`,
-        maxWidth: settings.layout === "fullscreen" ? "100%" : isBanner ? "100%" : 480,
+          : `${pad(36)}px ${pad(28)}px ${pad(28)}px`,
+        maxWidth: settings.layout === "fullscreen" ? "100%" : isBanner ? "100%" : 420,
         width: "100%",
         display: "flex",
         flexDirection: isBanner ? "row" : "column",
