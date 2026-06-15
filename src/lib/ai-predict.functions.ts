@@ -20,9 +20,54 @@ export const PREDICTABLE_ASSETS = [
   { slug: "fuel-diesel", label: "Dầu Diesel 0,05S-II (VN)", category: "Năng lượng", unit: "VND/lít" },
   { slug: "btc", label: "Bitcoin (BTC)", category: "Tiền điện tử", unit: "USD" },
   { slug: "eth", label: "Ethereum (ETH)", category: "Tiền điện tử", unit: "USD" },
-  { slug: "sol", label: "Solana (SOL)", category: "Tiền điện tử", unit: "USD" },
   { slug: "bnb", label: "BNB", category: "Tiền điện tử", unit: "USD" },
+  { slug: "sol", label: "Solana (SOL)", category: "Tiền điện tử", unit: "USD" },
   { slug: "xrp", label: "XRP", category: "Tiền điện tử", unit: "USD" },
+  { slug: "doge", label: "Dogecoin (DOGE)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "ton", label: "Toncoin (TON)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "ada", label: "Cardano (ADA)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "avax", label: "Avalanche (AVAX)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "trx", label: "TRON (TRX)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "link", label: "Chainlink (LINK)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "dot", label: "Polkadot (DOT)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "pol", label: "Polygon (POL)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "shib", label: "Shiba Inu (SHIB)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "ltc", label: "Litecoin (LTC)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "bch", label: "Bitcoin Cash (BCH)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "uni", label: "Uniswap (UNI)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "xlm", label: "Stellar (XLM)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "near", label: "NEAR Protocol (NEAR)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "icp", label: "Internet Computer (ICP)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "apt", label: "Aptos (APT)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "atom", label: "Cosmos (ATOM)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "xmr", label: "Monero (XMR)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "etc", label: "Ethereum Classic (ETC)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "fil", label: "Filecoin (FIL)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "hbar", label: "Hedera (HBAR)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "arb", label: "Arbitrum (ARB)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "vet", label: "VeChain (VET)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "mkr", label: "Maker (MKR)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "render", label: "Render (RENDER)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "inj", label: "Injective (INJ)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "op", label: "Optimism (OP)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "sui", label: "Sui (SUI)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "pepe", label: "Pepe (PEPE)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "kas", label: "Kaspa (KAS)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "ena", label: "Ethena (ENA)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "wld", label: "Worldcoin (WLD)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "sei", label: "Sei (SEI)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "fet", label: "Fetch.ai (FET)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "jup", label: "Jupiter (JUP)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "pyth", label: "Pyth Network (PYTH)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "aave", label: "Aave (AAVE)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "ondo", label: "Ondo (ONDO)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "tia", label: "Celestia (TIA)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "trump", label: "Official Trump (TRUMP)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "bonk", label: "Bonk (BONK)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "floki", label: "Floki (FLOKI)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "wif", label: "dogwifhat (WIF)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "bome", label: "Book of Meme (BOME)", category: "Tiền điện tử", unit: "USD" },
+  { slug: "not", label: "Notcoin (NOT)", category: "Tiền điện tử", unit: "USD" },
   { slug: "usd-vnd", label: "Tỷ giá USD/VND", category: "Ngoại tệ", unit: "VND" },
   { slug: "eur-vnd", label: "Tỷ giá EUR/VND", category: "Ngoại tệ", unit: "VND" },
   { slug: "jpy-vnd", label: "Tỷ giá JPY/VND", category: "Ngoại tệ", unit: "VND" },
@@ -230,14 +275,18 @@ async function buildContext(asset: AssetSlug): Promise<PriceContext> {
     const o = await safeFetchJson(`${SITE}/api/public/oil`);
     if (o?.brent) notes.push(`Brent tham chiếu: ${fmtUSD(o.brent.price)} USD/thùng.`);
   }
-  if (["btc", "eth", "sol", "bnb", "xrp"].includes(asset)) {
+  const cryptoSlugs = PREDICTABLE_ASSETS.filter((a) => a.category === "Tiền điện tử").map((a) => a.slug as string);
+  if (cryptoSlugs.includes(asset)) {
     const c = await safeFetchJson(`${SITE}/api/public/crypto`);
     if (c?.coins?.length) {
-      const map: Record<string, string> = { btc: "BTC", eth: "ETH", sol: "SOL", bnb: "BNB", xrp: "XRP" };
-      const sym = map[asset];
+      const sym = asset.toUpperCase();
       const main = c.coins.find((x: any) => String(x.symbol).toUpperCase() === sym);
       if (main) notes.push(`${main.name}: ${fmtUSD(main.price_usd)} USD (24h ${main.change_24h?.toFixed?.(2) ?? "n/a"}%, vốn hóa ${fmtUSD(main.market_cap ?? 0)} USD).`);
-      const others = c.coins.filter((x: any) => String(x.symbol).toUpperCase() !== sym).slice(0, 4);
+      // Top market-cap peers for cross-market context
+      const others = c.coins
+        .filter((x: any) => String(x.symbol).toUpperCase() !== sym)
+        .sort((a: any, b: any) => (b.market_cap ?? 0) - (a.market_cap ?? 0))
+        .slice(0, 4);
       for (const it of others) {
         notes.push(`- ${it.symbol}: ${fmtUSD(it.price_usd)} USD (24h ${it.change_24h?.toFixed?.(2) ?? "n/a"}%).`);
       }
