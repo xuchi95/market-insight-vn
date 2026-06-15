@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, Brush, CartesianGrid, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { LineChart as LCIcon, TrendingDown, TrendingUp, Minus, ArrowUp, ArrowDown, RefreshCw, ZoomOut } from "lucide-react";
@@ -7,25 +7,84 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { useBinanceTicker } from "@/hooks/useBinanceTicker";
 
-type Asset = "btc" | "eth" | "gold-sjc" | "usd-vnd" | "eur-vnd" | "gbp-vnd" | "jpy-vnd" | "cny-vnd" | "krw-vnd" | "sgd-vnd" | "aud-vnd" | "cad-vnd" | "chf-vnd" | "hkd-vnd" | "thb-vnd";
+type Asset = string;
 type Range = "1" | "7" | "30" | "365";
 type ChangeUnit = "pct" | "abs";
 type AssetGroup = "crypto" | "gold" | "forex";
 
+// All crypto coins supported by the Binance realtime stream + chart API.
+// Asset id = CoinGecko id (matches /api/public/crypto-chart and useBinanceTicker map).
+const CRYPTO_COINS: { id: string; label: string }[] = [
+  { id: "bitcoin", label: "Bitcoin (BTC)" },
+  { id: "ethereum", label: "Ethereum (ETH)" },
+  { id: "binancecoin", label: "BNB" },
+  { id: "solana", label: "Solana (SOL)" },
+  { id: "ripple", label: "XRP" },
+  { id: "dogecoin", label: "Dogecoin (DOGE)" },
+  { id: "the-open-network", label: "Toncoin (TON)" },
+  { id: "cardano", label: "Cardano (ADA)" },
+  { id: "avalanche-2", label: "Avalanche (AVAX)" },
+  { id: "tron", label: "TRON (TRX)" },
+  { id: "chainlink", label: "Chainlink (LINK)" },
+  { id: "polkadot", label: "Polkadot (DOT)" },
+  { id: "polygon-ecosystem-token", label: "Polygon (POL)" },
+  { id: "shiba-inu", label: "Shiba Inu (SHIB)" },
+  { id: "litecoin", label: "Litecoin (LTC)" },
+  { id: "bitcoin-cash", label: "Bitcoin Cash (BCH)" },
+  { id: "uniswap", label: "Uniswap (UNI)" },
+  { id: "stellar", label: "Stellar (XLM)" },
+  { id: "near", label: "NEAR" },
+  { id: "internet-computer", label: "Internet Computer (ICP)" },
+  { id: "aptos", label: "Aptos (APT)" },
+  { id: "cosmos", label: "Cosmos (ATOM)" },
+  { id: "ethereum-classic", label: "Ethereum Classic (ETC)" },
+  { id: "filecoin", label: "Filecoin (FIL)" },
+  { id: "hedera-hashgraph", label: "Hedera (HBAR)" },
+  { id: "arbitrum", label: "Arbitrum (ARB)" },
+  { id: "vechain", label: "VeChain (VET)" },
+  { id: "maker", label: "Maker (MKR)" },
+  { id: "render-token", label: "Render (RENDER)" },
+  { id: "injective-protocol", label: "Injective (INJ)" },
+  { id: "optimism", label: "Optimism (OP)" },
+  { id: "sui", label: "Sui (SUI)" },
+  { id: "pepe", label: "Pepe (PEPE)" },
+  { id: "kaspa", label: "Kaspa (KAS)" },
+  { id: "ethena", label: "Ethena (ENA)" },
+  { id: "worldcoin-wld", label: "Worldcoin (WLD)" },
+  { id: "sei-network", label: "Sei (SEI)" },
+  { id: "fetch-ai", label: "Fetch.ai (FET)" },
+  { id: "jupiter-exchange-solana", label: "Jupiter (JUP)" },
+  { id: "pyth-network", label: "Pyth (PYTH)" },
+  { id: "aave", label: "Aave (AAVE)" },
+  { id: "ondo-finance", label: "Ondo (ONDO)" },
+  { id: "celestia", label: "Celestia (TIA)" },
+  { id: "official-trump", label: "Trump (TRUMP)" },
+  { id: "bonk", label: "Bonk (BONK)" },
+  { id: "floki", label: "Floki (FLOKI)" },
+  { id: "dogwifcoin", label: "dogwifhat (WIF)" },
+  { id: "book-of-meme", label: "BOME" },
+  { id: "notcoin", label: "Notcoin (NOT)" },
+];
+const CRYPTO_IDS = CRYPTO_COINS.map((c) => c.id);
+// Legacy short ids accepted from existing call sites.
+const LEGACY_ALIAS: Record<string, string> = { btc: "bitcoin", eth: "ethereum" };
+function normalizeAsset(a: string): string {
+  return LEGACY_ALIAS[a] ?? a;
+}
+
 const ASSET_GROUPS: Record<AssetGroup, Asset[]> = {
-  crypto: ["btc", "eth"],
+  crypto: CRYPTO_IDS,
   gold: ["gold-sjc"],
   forex: ["usd-vnd", "eur-vnd", "gbp-vnd", "jpy-vnd", "cny-vnd", "krw-vnd", "sgd-vnd", "aud-vnd", "cad-vnd", "chf-vnd", "hkd-vnd", "thb-vnd"],
 };
 
 function groupOf(a: Asset): AssetGroup {
-  if (a === "btc" || a === "eth") return "crypto";
+  if (CRYPTO_IDS.includes(a)) return "crypto";
   if (a === "gold-sjc") return "gold";
   return "forex";
 }
-
-const COINGECKO_ID: Record<string, string> = { btc: "bitcoin", eth: "ethereum" };
 
 interface Point { t: number; v: number; buy?: number; sell?: number }
 interface SourceMeta {
@@ -37,7 +96,7 @@ interface SourceMeta {
 }
 interface SeriesData { points: Point[]; source?: SourceMeta }
 
-const BASE_VALUES: Record<Exclude<Asset, "btc" | "eth">, number> = {
+const BASE_VALUES: Record<string, number> = {
   "gold-sjc": 15_700_000,
   "usd-vnd": 25_400,
   "eur-vnd": 27_500,
@@ -54,15 +113,15 @@ const BASE_VALUES: Record<Exclude<Asset, "btc" | "eth">, number> = {
 };
 
 async function loadSeries(asset: Asset, days: Range): Promise<SeriesData> {
-  if (asset === "btc" || asset === "eth") {
-    const id = COINGECKO_ID[asset];
-    const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${days}`;
+  if (CRYPTO_IDS.includes(asset)) {
     try {
-      const res = await fetch(url);
+      const res = await fetch(`/api/public/crypto-chart?id=${encodeURIComponent(asset)}&days=${days}`);
       if (res.ok) {
-        const j = await res.json();
-        const points = (j.prices as [number, number][]).map(([t, v]) => ({ t, v }));
-        return { points, source: { name: "CoinGecko", url: "https://www.coingecko.com" } };
+        const j = (await res.json()) as { prices?: Array<{ t: number; v: number }> };
+        const points = (j.prices ?? []).filter((p) => Number.isFinite(p.t) && Number.isFinite(p.v));
+        if (points.length) {
+          return { points, source: { name: "CoinGecko", url: "https://www.coingecko.com" } };
+        }
       }
     } catch {}
   }
@@ -107,8 +166,7 @@ async function loadSeries(asset: Asset, days: Range): Promise<SeriesData> {
 }
 
 const ASSETS: { value: Asset; label: string }[] = [
-  { value: "btc", label: "Bitcoin (BTC)" },
-  { value: "eth", label: "Ethereum (ETH)" },
+  ...CRYPTO_COINS.map((c) => ({ value: c.id, label: c.label })),
   { value: "gold-sjc", label: "Vàng SJC" },
   { value: "usd-vnd", label: "USD/VND" },
   { value: "eur-vnd", label: "EUR/VND" },
@@ -142,7 +200,7 @@ function ChartTooltip({
   if (!p) return null;
 
   const isForex = asset.endsWith("-vnd");
-  const isCrypto = asset === "btc" || asset === "eth";
+  const isCrypto = CRYPTO_IDS.includes(asset);
   const isGold = asset === "gold-sjc";
   const unit = isCrypto ? "USD" : isGold ? "đ/chỉ" : "VND";
   const decimals = isCrypto ? 2 : asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0;
@@ -215,17 +273,19 @@ export function PriceChart({
   defaultAsset = "btc",
   assets,
 }: {
-  defaultAsset?: Asset;
-  assets?: Asset[];
+  defaultAsset?: string;
+  assets?: string[];
 } = {}) {
-  const group = groupOf(defaultAsset);
+  const normalizedDefault = normalizeAsset(defaultAsset);
+  const group = groupOf(normalizedDefault);
   const allowed = ASSET_GROUPS[group];
   const available = useMemo(() => {
-    const requested = assets && assets.length ? assets.filter((a) => allowed.includes(a)) : allowed;
+    const normalizedReq = assets?.map(normalizeAsset);
+    const requested = normalizedReq && normalizedReq.length ? normalizedReq.filter((a) => allowed.includes(a)) : allowed;
     const final = requested.length ? requested : allowed;
     return ASSETS.filter((a) => final.includes(a.value));
   }, [assets, allowed]);
-  const initial = available.some((a) => a.value === defaultAsset) ? defaultAsset : available[0].value;
+  const initial = available.some((a) => a.value === normalizedDefault) ? normalizedDefault : available[0].value;
   const [asset, setAsset] = useState<Asset>(initial);
   if (!available.some((a) => a.value === asset)) {
     setAsset(initial);
@@ -233,14 +293,31 @@ export function PriceChart({
   const [range, setRange] = useState<Range>("7");
   const [changeUnit, setChangeUnit] = useState<ChangeUnit>("pct");
 
+  const isCryptoAssetSel = CRYPTO_IDS.includes(asset);
   const { data, isLoading, isFetching, dataUpdatedAt, refetch } = useQuery({
     queryKey: ["chart", asset, range],
     queryFn: () => loadSeries(asset, range),
-    refetchInterval: 5_000,
+    // Crypto gets near-realtime overlay from Binance WS, so we can poll
+    // the historical series less aggressively. Gold/forex still poll @ 5s.
+    refetchInterval: isCryptoAssetSel ? 60_000 : 5_000,
     refetchIntervalInBackground: false,
   });
 
-  const points = data?.points ?? [];
+  // Realtime overlay for crypto: append/replace the trailing point with
+  // the latest Binance tick so the chart visibly moves between refetches.
+  const tick = useBinanceTicker(isCryptoAssetSel ? asset : null);
+  const points = useMemo(() => {
+    const base = data?.points ?? [];
+    if (!isCryptoAssetSel || !tick || !base.length) return base;
+    const last = base[base.length - 1];
+    // Replace the trailing point if the tick is within ~1h of it, else append.
+    if (tick.updatedAt - last.t < 60 * 60 * 1000) {
+      const next = base.slice(0, -1);
+      next.push({ t: tick.updatedAt, v: tick.priceUsd });
+      return next;
+    }
+    return [...base, { t: tick.updatedAt, v: tick.priceUsd }];
+  }, [data, tick, isCryptoAssetSel]);
   const source = data?.source;
 
   // Zoom state (indices into points array). null = full range.
@@ -286,7 +363,7 @@ export function PriceChart({
     return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(v);
   };
   const isGoldAsset = asset === "gold-sjc";
-  const isCryptoAsset = asset === "btc" || asset === "eth";
+  const isCryptoAsset = isCryptoAssetSel;
   const axisUnit = isGoldAsset ? "đ/chỉ" : isCryptoAsset ? "USD" : "VND";
 
   const rangeLabel =
@@ -308,7 +385,7 @@ export function PriceChart({
       title="Biểu đồ giá"
       meta={
         <span className="flex items-center gap-1.5">
-          <LiveDot /> Tự cập nhật mỗi 5 giây
+          <LiveDot /> {isCryptoAssetSel ? "Realtime từ Binance" : "Tự cập nhật mỗi 5 giây"}
           {isFetching && !isLoading && (
             <RefreshCw className="h-3 w-3 animate-spin text-primary ml-1" />
           )}
@@ -316,9 +393,9 @@ export function PriceChart({
       }
       action={
         <>
-          <Select value={asset} onValueChange={(v) => setAsset(v as Asset)} disabled={available.length <= 1}>
-            <SelectTrigger className="h-9 w-[180px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
+          <Select value={asset} onValueChange={(v) => { setAsset(v); setZoom(null); }} disabled={available.length <= 1}>
+            <SelectTrigger className="h-9 w-[200px]"><SelectValue /></SelectTrigger>
+            <SelectContent className="max-h-[60vh]">
               {available.map((a) => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
             </SelectContent>
           </Select>

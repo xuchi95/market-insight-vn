@@ -115,7 +115,7 @@ function CryptoPage() {
           <CryptoPriceTable search={search} />
           <FearGreedGauge />
           <PriceAlerts />
-          <PriceChart defaultAsset="btc" assets={["btc", "eth"]} />
+          <PriceChart defaultAsset="bitcoin" />
 
           <section aria-labelledby="crypto-info" className="prose dark:prose-invert max-w-none space-y-4">
             <h2 id="crypto-info" className="text-2xl font-bold tracking-tight">Theo dõi giá Bitcoin và altcoin realtime</h2>
