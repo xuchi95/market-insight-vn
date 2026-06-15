@@ -396,7 +396,14 @@ function AssetDetail() {
   const bankCode = isBank ? lower.slice("bank-".length).toUpperCase() : null;
 
   // Skip generic asset queries when on a gold/bank-specific detail page.
-  const { data: coins, isLoading } = useQuery({
+  const {
+    data: coins,
+    isLoading,
+    isError: coinsError,
+    error: coinsErrorObj,
+    refetch: refetchCoins,
+    isFetching: coinsFetching,
+  } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
     refetchInterval: 30_000,
@@ -572,10 +579,23 @@ function AssetDetail() {
       <main className="flex-1 mx-auto w-full max-w-[1320px] px-4 md:px-6 py-6 pb-16">
         <div className="rise d1"><Breadcrumbs extra={assetCrumb} /></div>
 
-        {(isLoading || bankLoading || goldLoading || oilLoading) && !coin && !stock && !fx && !gold && !bankRow && !oil && (
+        {/* Crypto symbol (incl. Pi): skeleton while /api/public/crypto resolves */}
+        {!isGold && !isBank && !isOil && isLoading && !coin && (
+          <CryptoDetailSkeleton symbol={symbol} />
+        )}
+        {/* Crypto symbol: dedicated error state with retry when snapshot fails */}
+        {!isGold && !isBank && !isOil && !isLoading && coinsError && !coin && (
+          <CryptoDetailError
+            symbol={symbol}
+            message={coinsErrorObj instanceof Error ? coinsErrorObj.message : undefined}
+            onRetry={() => refetchCoins()}
+            retrying={coinsFetching}
+          />
+        )}
+        {(bankLoading || goldLoading || oilLoading) && !coin && !stock && !fx && !gold && !bankRow && !oil && (
           <Skeleton className="h-40 w-full mt-5" />
         )}
-        {!isLoading && !bankLoading && !goldLoading && !oilLoading && !coin && !stock && !fx && !gold && !bankRow && !oil && (
+        {!isLoading && !bankLoading && !goldLoading && !oilLoading && !coinsError && !coin && !stock && !fx && !gold && !bankRow && !oil && (
           <div className="text-center py-20">
             <h1 className="text-2xl font-bold">Tài sản {symbol.toUpperCase()} — Giá &amp; biểu đồ realtime</h1>
             <h2 className="text-lg font-semibold text-muted-foreground mt-3">Không tìm thấy mã "{symbol.toUpperCase()}"</h2>
@@ -1051,6 +1071,98 @@ function Stat({ label, value }: { label: string; value: string }) {
       <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
       <div className="font-semibold tabular mt-1">{value}</div>
     </div>
+  );
+}
+
+function CryptoDetailSkeleton({ symbol }: { symbol: string }) {
+  return (
+    <div className="mt-5 space-y-5" aria-busy="true" aria-label={`Đang tải dữ liệu ${symbol.toUpperCase()}`}>
+      <section className="flex flex-wrap items-start justify-between gap-6 pb-6 border-b border-border">
+        <div className="flex items-center gap-4 min-w-0">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-7 w-56" />
+            <Skeleton className="h-3 w-40" />
+          </div>
+        </div>
+        <div className="space-y-2 ml-auto">
+          <Skeleton className="h-9 w-44" />
+          <Skeleton className="h-3 w-28" />
+        </div>
+      </section>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-border rounded-2xl overflow-hidden border border-border">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="bg-card px-4 py-4 space-y-2">
+            <Skeleton className="h-2.5 w-16" />
+            <Skeleton className="h-5 w-20" />
+          </div>
+        ))}
+      </div>
+      <div className="grid lg:grid-cols-[1fr_320px] gap-5">
+        <Panel>
+          <SectionLabel title={`Biểu đồ ${symbol.toUpperCase()}`} loading />
+          <div className="p-4">
+            <Skeleton className="h-80 w-full" />
+          </div>
+        </Panel>
+        <Panel>
+          <SectionLabel title="Thống kê thị trường" loading />
+          <div className="p-5 space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+function CryptoDetailError({
+  symbol,
+  message,
+  onRetry,
+  retrying,
+}: {
+  symbol: string;
+  message?: string;
+  onRetry: () => void;
+  retrying?: boolean;
+}) {
+  return (
+    <section
+      role="alert"
+      className="mt-6 rounded-2xl border border-[color-mix(in_oklab,var(--down)_30%,var(--border))] bg-[color-mix(in_oklab,var(--down)_6%,var(--card))] p-8 text-center"
+    >
+      <div className="mx-auto h-12 w-12 rounded-full bg-[color-mix(in_oklab,var(--down)_15%,transparent)] grid place-items-center mb-4">
+        <AlertTriangle className="h-6 w-6 text-[var(--down)]" />
+      </div>
+      <h1 className="text-xl md:text-2xl font-bold">
+        Không tải được dữ liệu {symbol.toUpperCase()}
+      </h1>
+      <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+        Nguồn dữ liệu crypto đang chậm hoặc tạm thời không phản hồi
+        {message ? ` (${message})` : ""}. Vui lòng thử lại sau ít phút.
+      </p>
+      <div className="mt-5 flex items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={onRetry}
+          disabled={retrying}
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-muted/40 disabled:opacity-60"
+        >
+          {retrying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+          {retrying ? "Đang thử lại…" : "Thử lại"}
+        </button>
+        <Link to="/tien-dien-tu" className="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold text-[var(--gold)] hover:underline">
+          Về bảng giá crypto →
+        </Link>
+      </div>
+    </section>
   );
 }
 
