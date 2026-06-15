@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical, Star, Plus, Trash2, BookmarkCheck, Copy } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { LiveDot } from "@/components/site/SectionCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
