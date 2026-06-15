@@ -396,7 +396,14 @@ function AssetDetail() {
   const bankCode = isBank ? lower.slice("bank-".length).toUpperCase() : null;
 
   // Skip generic asset queries when on a gold/bank-specific detail page.
-  const { data: coins, isLoading } = useQuery({
+  const {
+    data: coins,
+    isLoading,
+    isError: coinsError,
+    error: coinsErrorObj,
+    refetch: refetchCoins,
+    isFetching: coinsFetching,
+  } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
     refetchInterval: 30_000,
