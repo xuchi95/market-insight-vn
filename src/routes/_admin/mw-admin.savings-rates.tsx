@@ -3,11 +3,16 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, RefreshCw, Save, Trash2, Landmark, Search } from "lucide-react";
+import {
+  Plus, RefreshCw, Save, Trash2, Landmark, Search,
+  CheckCircle2, RotateCcw, AlertCircle, ShieldCheck,
+} from "lucide-react";
 import {
   getSavingsSnapshot,
   saveSavingsSnapshot,
   refreshSavingsFromTcb,
+  publishSavingsSnapshot,
+  discardSavingsDraft,
   type SavingsRateInput,
 } from "@/lib/admin/savings-rates.functions";
 import { Button } from "@/components/ui/button";
@@ -46,6 +51,8 @@ function AdminSavingsRatesPage() {
   const fetchSnapshot = useServerFn(getSavingsSnapshot);
   const save = useServerFn(saveSavingsSnapshot);
   const refresh = useServerFn(refreshSavingsFromTcb);
+  const publish = useServerFn(publishSavingsSnapshot);
+  const discard = useServerFn(discardSavingsDraft);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "savings-rates"],
@@ -55,23 +62,54 @@ function AdminSavingsRatesPage() {
   const [form, setForm] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [discarding, setDiscarding] = useState(false);
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    if (data && !form) {
+    if (data?.draft && !form) {
+      const d = data.draft;
       setForm({
-        items: (data.items ?? []).map((i) => ({
+        items: (d.items ?? []).map((i) => ({
           bank: i.bank,
           shortName: i.shortName,
           group: i.group,
           rates: { ...i.rates },
         })) as SavingsRateInput[],
-        sourceDate: data.sourceDate ?? "",
-        source: data.source ?? "Biên tập viên",
-        updated_at: data.updated_at ?? null,
+        sourceDate: d.sourceDate ?? "",
+        source: d.source ?? "Biên tập viên",
+        updated_at: d.updated_at ?? null,
       });
     }
   }, [data, form]);
+
+  // Detect unsaved local edits vs persisted draft.
+  const draftDirty = useMemo(() => {
+    if (!form || !data?.draft) return false;
+    const a = JSON.stringify({
+      items: form.items,
+      sourceDate: form.sourceDate || null,
+      source: form.source,
+    });
+    const b = JSON.stringify({
+      items: data.draft.items,
+      sourceDate: data.draft.sourceDate ?? null,
+      source: data.draft.source,
+    });
+    return a !== b;
+  }, [form, data]);
+
+  // Detect difference between persisted draft and what's live.
+  const pendingApproval = useMemo(() => {
+    if (!data?.draft || !data?.published) return false;
+    return JSON.stringify({
+      items: data.draft.items,
+      sourceDate: data.draft.sourceDate,
+    }) !== JSON.stringify({
+      items: data.published.items,
+      sourceDate: data.published.sourceDate,
+    });
+  }, [data]);
 
   const visibleIdx = useMemo(() => {
     if (!form) return [];
@@ -144,9 +182,8 @@ function AdminSavingsRatesPage() {
           source: form.source || "Biên tập viên",
         },
       });
-      toast.success(`Đã lưu ${res.count} ngân hàng`);
+      toast.success(`Đã lưu bản nháp (${res.count} ngân hàng). Bấm "Phê duyệt & công bố" khi sẵn sàng.`);
       qc.invalidateQueries({ queryKey: ["admin", "savings-rates"] });
-      qc.invalidateQueries({ queryKey: ["public", "savings-rates"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Lưu thất bại");
     } finally {
@@ -159,7 +196,7 @@ function AdminSavingsRatesPage() {
     try {
       const res = await refresh({});
       toast.success(
-        `Đã cập nhật ${res.count} ngân hàng từ Techcombank${res.sourceDate ? ` (${res.sourceDate})` : ""}`,
+        `Đã tải ${res.count} ngân hàng vào bản nháp${res.sourceDate ? ` (${res.sourceDate})` : ""}. Hãy rà soát rồi phê duyệt.`,
       );
       setForm({
         items: res.items.map((i) => ({
@@ -173,13 +210,54 @@ function AdminSavingsRatesPage() {
         updated_at: new Date().toISOString(),
       });
       qc.invalidateQueries({ queryKey: ["admin", "savings-rates"] });
-      qc.invalidateQueries({ queryKey: ["public", "savings-rates"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Không tự cập nhật được. Hãy chỉnh tay rồi Lưu.");
     } finally {
       setRefreshing(false);
     }
   };
+
+  const handlePublish = async () => {
+    if (draftDirty) {
+      toast.error("Còn thay đổi chưa lưu. Hãy bấm Lưu trước khi công bố.");
+      return;
+    }
+    const ok = window.confirm(
+      `Phê duyệt và công bố bản nháp này ra trang người dùng?\n\nSố ngân hàng: ${form?.items.length ?? 0}`,
+    );
+    if (!ok) return;
+    setPublishing(true);
+    try {
+      const res = await publish({});
+      toast.success(`Đã công bố ${res.count} ngân hàng ra trang công khai.`);
+      qc.invalidateQueries({ queryKey: ["admin", "savings-rates"] });
+      qc.invalidateQueries({ queryKey: ["public", "savings-rates"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Công bố thất bại");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleDiscard = async () => {
+    const ok = window.confirm(
+      "Huỷ mọi thay đổi trong bản nháp và sao chép lại từ bản đã công bố?",
+    );
+    if (!ok) return;
+    setDiscarding(true);
+    try {
+      const res = await discard({});
+      toast.success(`Đã khôi phục bản nháp từ bản công bố (${res.count} ngân hàng).`);
+      setForm(null); // re-seed from query
+      qc.invalidateQueries({ queryKey: ["admin", "savings-rates"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Khôi phục thất bại");
+    } finally {
+      setDiscarding(false);
+    }
+  };
+
+  const busy = saving || refreshing || publishing || discarding;
 
   return (
     <div className="space-y-6">
@@ -190,34 +268,114 @@ function AdminSavingsRatesPage() {
             Lãi suất tiết kiệm ngân hàng
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Quản lý bảng lãi suất hiển thị tại trang{" "}
-            <code className="text-foreground">/lai-suat-tiet-kiem</code>. Nhấn{" "}
-            <em>Cập nhật tự động</em> để bóc tách từ blog Techcombank, hoặc chỉnh tay rồi{" "}
-            <em>Lưu</em>.
+            Quy trình 2 bước: chỉnh sửa <strong>bản nháp</strong> → bấm{" "}
+            <em>Phê duyệt &amp; công bố</em> để đẩy ra trang{" "}
+            <code className="text-foreground">/lai-suat-tiet-kiem</code>. Cron và{" "}
+            <em>Cập nhật từ Techcombank</em> chỉ ghi vào bản nháp, không hiển thị
+            cho người dùng cho tới khi bạn phê duyệt.
           </p>
-          {form.updated_at && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              Cập nhật cuối: {new Date(form.updated_at).toLocaleString("vi-VN")} · Nguồn:{" "}
-              {form.source}
-            </p>
-          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={handleAutoRefresh}
-            disabled={refreshing || saving}
+            disabled={busy}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
             {refreshing ? "Đang lấy dữ liệu…" : "Cập nhật từ Techcombank"}
           </Button>
-          <Button type="button" onClick={handleSave} disabled={saving || refreshing}>
+          <Button type="button" variant="outline" onClick={handleSave} disabled={busy}>
             <Save className="h-4 w-4 mr-2" />
-            {saving ? "Đang lưu…" : "Lưu thay đổi"}
+            {saving ? "Đang lưu…" : "Lưu bản nháp"}
+          </Button>
+          <Button
+            type="button"
+            onClick={handlePublish}
+            disabled={busy || (!pendingApproval && !draftDirty)}
+            className="bg-[var(--gold)] text-black hover:bg-[var(--gold)]/90"
+          >
+            <ShieldCheck className="h-4 w-4 mr-2" />
+            {publishing ? "Đang công bố…" : "Phê duyệt & công bố"}
           </Button>
         </div>
       </header>
+
+      <section className="grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <span className="inline-flex h-2 w-2 rounded-full bg-amber-500" />
+              Bản nháp (chưa công bố)
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleDiscard}
+              disabled={busy || !data?.published || data.published.items.length === 0}
+            >
+              <RotateCcw className="h-3.5 w-3.5 mr-1" /> Huỷ thay đổi
+            </Button>
+          </div>
+          <dl className="mt-2 text-xs text-muted-foreground space-y-0.5">
+            <div>
+              Số ngân hàng:{" "}
+              <span className="text-foreground tabular-nums">{form?.items.length ?? 0}</span>
+            </div>
+            <div>Nguồn: <span className="text-foreground">{form?.source}</span></div>
+            <div>
+              Cập nhật cuối:{" "}
+              <span className="text-foreground">
+                {data?.draft.updated_at
+                  ? new Date(data.draft.updated_at).toLocaleString("vi-VN")
+                  : "—"}
+              </span>
+            </div>
+          </dl>
+          {(draftDirty || pendingApproval) && (
+            <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+              <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              {draftDirty
+                ? "Có chỉnh sửa chưa lưu. Lưu trước rồi mới phê duyệt."
+                : "Bản nháp khác bản đang công bố — chờ phê duyệt."}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+            Bản đang công bố (live)
+          </div>
+          <dl className="mt-2 text-xs text-muted-foreground space-y-0.5">
+            <div>
+              Số ngân hàng:{" "}
+              <span className="text-foreground tabular-nums">
+                {data?.published.items.length ?? 0}
+              </span>
+            </div>
+            <div>
+              Nguồn:{" "}
+              <span className="text-foreground">{data?.published.source ?? "—"}</span>
+            </div>
+            <div>
+              Công bố lúc:{" "}
+              <span className="text-foreground">
+                {data?.published.updated_at
+                  ? new Date(data.published.updated_at).toLocaleString("vi-VN")
+                  : "Chưa có bản công bố"}
+              </span>
+            </div>
+            <div>
+              Ngày tham chiếu:{" "}
+              <span className="text-foreground">
+                {data?.published.sourceDate ?? "—"}
+              </span>
+            </div>
+          </dl>
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-2 rounded-2xl border border-border bg-card p-4">
         <div>
