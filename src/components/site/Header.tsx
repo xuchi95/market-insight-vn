@@ -409,21 +409,68 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                   />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/portfolio" })}>
-                  <PieChart className="h-3.5 w-3.5 mr-2" /> Danh mục của tôi
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/cai-dat" })}>
-                  <Settings className="h-3.5 w-3.5 mr-2" /> Cài đặt tài khoản
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/cai-dat/ban-tin" })}>
-                  <Mail className="h-3.5 w-3.5 mr-2" /> Quản lý bản tin
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => signOut().then(() => navigate({ to: "/" }))}>
-                  <LogOut className="h-3.5 w-3.5 mr-2" /> Đăng xuất
-                </DropdownMenuItem>
+              <DropdownMenuContent
+                align="end"
+                sideOffset={10}
+                className="w-72 p-0 overflow-hidden rounded-2xl border-[var(--gold)]/15 bg-popover text-popover-foreground shadow-[0_24px_48px_-12px_rgba(0,0,0,0.35),0_8px_16px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5"
+              >
+                {/* Header: avatar + email + status */}
+                <div className="relative px-4 pt-4 pb-3 bg-gradient-to-br from-[color-mix(in_oklab,var(--gold)_8%,transparent)] via-transparent to-transparent border-b border-border/60">
+                  <div className="flex items-center gap-3">
+                    <span className="relative flex-shrink-0">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1A1612] ring-2 ring-[var(--gold)]/30 ring-offset-2 ring-offset-popover overflow-hidden">
+                        <span className="text-[var(--gold)] text-sm font-bold uppercase tracking-tight">
+                          {(user.email ?? "?").slice(0, 1)}
+                        </span>
+                        <span className="absolute inset-0 bg-gradient-to-tr from-white/8 to-transparent pointer-events-none" />
+                      </span>
+                      <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-popover" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/80 font-medium">Đã đăng nhập</div>
+                      <div className="text-[13px] font-semibold text-foreground truncate" title={user.email ?? ""}>{user.email}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Items */}
+                <div className="p-1.5">
+                  {[
+                    { to: "/portfolio", icon: PieChart, label: "Danh mục của tôi", desc: "Theo dõi & phân bổ tài sản" },
+                    { to: "/cai-dat", icon: Settings, label: "Cài đặt tài khoản", desc: "Bảo mật, mật khẩu, email" },
+                    { to: "/cai-dat/ban-tin", icon: Mail, label: "Quản lý bản tin", desc: "Chủ đề & tần suất nhận tin" },
+                  ].map((it) => (
+                    <DropdownMenuItem
+                      key={it.to}
+                      onClick={() => navigate({ to: it.to as never })}
+                      className="group/item gap-3 rounded-xl px-2.5 py-2 cursor-pointer focus:bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] focus:text-foreground transition-colors"
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/60 text-[var(--gold)] group-hover/item:border-[var(--gold)]/45 group-hover/item:bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] transition-colors">
+                        <it.icon className="h-3.5 w-3.5" />
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[13px] font-medium leading-tight text-foreground">{it.label}</span>
+                        <span className="block text-[11px] leading-tight text-muted-foreground mt-0.5">{it.desc}</span>
+                      </span>
+                      <ChevronDown className="h-3 w-3 -rotate-90 text-muted-foreground/50 group-hover/item:text-[var(--gold)] group-hover/item:translate-x-0.5 transition-all" strokeWidth={3} />
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+
+                <DropdownMenuSeparator className="my-0 bg-border/60" />
+
+                {/* Sign out */}
+                <div className="p-1.5">
+                  <DropdownMenuItem
+                    onClick={() => signOut().then(() => navigate({ to: "/" }))}
+                    className="group/out gap-3 rounded-xl px-2.5 py-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive transition-colors"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-destructive/25 bg-destructive/5 text-destructive group-hover/out:border-destructive/50 group-hover/out:bg-destructive/10 transition-colors">
+                      <LogOut className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="text-[13px] font-medium">Đăng xuất</span>
+                  </DropdownMenuItem>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
