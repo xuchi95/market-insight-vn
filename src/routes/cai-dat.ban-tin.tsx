@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical, Star, Plus, Trash2, BookmarkCheck } from "lucide-react";
+import { Mail, BellRing, BellOff, Pencil, Check, X, Loader2, ArrowUp, ArrowDown, GripVertical, Star, Plus, Trash2, BookmarkCheck, Copy } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Input } from "@/components/ui/input";
@@ -204,82 +204,18 @@ function SettingsCard() {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-[color-mix(in_oklab,var(--gold)_8%,transparent)] p-6">
-        <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[var(--gold)]/15 blur-3xl" />
-        <div className="relative">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[var(--gold)]">
-            <Mail className="h-3.5 w-3.5" /> Trạng thái bản tin
-          </div>
-
-          {active ? (
-            <>
-              <div className="mt-3 flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-sm font-medium text-emerald-400">
-                      <BellRing className="h-3 w-3" /> Đang nhận
-                    </span>
-                  </div>
-                  <div className="mt-2 text-lg font-medium">{active.email}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    Đăng ký từ {new Date(active.created_at).toLocaleDateString("vi-VN")}
-                  </div>
-                </div>
-              </div>
-
-              {editing ? (
-                <div className="mt-5 rounded-lg border border-border bg-background/40 p-4 space-y-3">
-                  <Label htmlFor="new-email" className="text-xs">Địa chỉ email mới</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="new-email"
-                      type="email"
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                      placeholder="email-moi@cua-ban.vn"
-                      className="flex-1"
-                    />
-                    <Button onClick={handleChange} disabled={busy}>
-                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                      <span className="ml-1.5">Xác nhận</span>
-                    </Button>
-                    <Button variant="ghost" onClick={() => { setEditing(false); setNewEmail(""); }} disabled={busy}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Địa chỉ cũ sẽ tự động bị huỷ đăng ký.
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => { setEditing(true); setNewEmail(active.email); }}
-                    disabled={busy}
-                  >
-                    <Pencil className="h-4 w-4" /> <span className="ml-1.5">Đổi địa chỉ</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleUnsubscribe(active.email)}
-                    disabled={busy}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <BellOff className="h-4 w-4" /> <span className="ml-1.5">Huỷ đăng ký</span>
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-            <SubscribeForm
-              defaultEmail={accountEmail}
-              onSubmit={handleSubscribe}
-              busy={busy}
-            />
-          )}
-        </div>
-      </section>
+      <SubscriptionStatusCard
+        active={active}
+        accountEmail={accountEmail}
+        editing={editing}
+        newEmail={newEmail}
+        setNewEmail={setNewEmail}
+        setEditing={setEditing}
+        busy={busy}
+        onChange={handleChange}
+        onUnsubscribe={handleUnsubscribe}
+        onSubscribe={handleSubscribe}
+      />
 
       <section className="rounded-2xl border border-border bg-card/40 p-6 text-sm text-muted-foreground leading-relaxed">
         <h2 className="font-display text-lg text-foreground mb-2">Bản tin gồm những gì?</h2>
@@ -409,6 +345,179 @@ function SubscribeForm({
   busy: boolean;
 }) {
   return <SubscribeFormImpl defaultEmail={defaultEmail} onSubmit={onSubmit} busy={busy} />;
+}
+
+/**
+ * Subscription status — editorial "press subscription" card.
+ * Metaphor: a printed subscriber slip from a 19th-century broadsheet —
+ * postmark eyebrow on the left, hairline gold rules, monospace credentials,
+ * labeled metadata rows, and quiet text-only actions. Avoids the generic
+ * "soft gradient card + pill badge" template.
+ */
+function SubscriptionStatusCard({
+  active, accountEmail, editing, newEmail, setNewEmail, setEditing,
+  busy, onChange, onUnsubscribe, onSubscribe,
+}: {
+  active: { email: string; created_at: string } | undefined;
+  accountEmail: string;
+  editing: boolean;
+  newEmail: string;
+  setNewEmail: (v: string) => void;
+  setEditing: (v: boolean) => void;
+  busy: boolean;
+  onChange: () => void;
+  onUnsubscribe: (email: string) => void;
+  onSubscribe: (email: string) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  async function copyEmail() {
+    if (!active) return;
+    try {
+      await navigator.clipboard.writeText(active.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {}
+  }
+
+  if (!active) {
+    return (
+      <section className="relative overflow-hidden rounded-[20px] border border-[var(--gold)]/25 bg-card p-6 sm:p-8">
+        <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-[var(--gold)] font-medium">
+          <span className="inline-block h-px w-6 bg-[var(--gold)]/50" />
+          Trạng thái bản tin
+        </div>
+        <SubscribeForm defaultEmail={accountEmail} onSubmit={onSubscribe} busy={busy} />
+      </section>
+    );
+  }
+
+  const issuedAt = new Date(active.created_at);
+  const issuedLong = issuedAt.toLocaleDateString("vi-VN", { day: "2-digit", month: "long", year: "numeric" });
+  const issuedShort = issuedAt.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const daysActive = Math.max(1, Math.floor((Date.now() - issuedAt.getTime()) / 86_400_000));
+
+  return (
+    <section
+      aria-labelledby="newsletter-status-heading"
+      className="relative overflow-hidden rounded-[20px] border border-[var(--gold)]/30 bg-[linear-gradient(180deg,color-mix(in_oklab,var(--gold)_4%,var(--card))_0%,var(--card)_60%)] shadow-[0_1px_0_color-mix(in_oklab,var(--gold)_18%,transparent)_inset,0_18px_40px_-30px_color-mix(in_oklab,var(--gold)_35%,transparent)]"
+    >
+      {/* Hairline gold rule + corner serial — masthead detail */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/55 to-transparent" />
+      <div className="pointer-events-none absolute right-5 top-4 hidden sm:flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[var(--gold)]/70 font-medium">
+        <span className="font-mono normal-case tracking-[0.15em] text-foreground/50">№ {issuedAt.getFullYear()}-{String(issuedAt.getMonth() + 1).padStart(2, "0")}</span>
+        <span className="h-px w-8 bg-[var(--gold)]/40" />
+        <span>Press Pass</span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-6 sm:gap-8 p-6 sm:p-8">
+        {/* Left: postmark / seal */}
+        <div className="flex sm:flex-col items-center sm:items-start gap-4 sm:gap-3">
+          <div className="relative h-16 w-16 shrink-0">
+            <div className="absolute inset-0 rounded-full border border-dashed border-[var(--gold)]/45" />
+            <div className="absolute inset-1 rounded-full border border-[var(--gold)]/55 bg-[color-mix(in_oklab,var(--gold)_10%,transparent)] flex items-center justify-center">
+              <Mail className="h-5 w-5 text-[var(--gold)]" />
+            </div>
+          </div>
+          <div className="hidden sm:block">
+            <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Đã đóng dấu</div>
+            <div className="font-mono text-[11px] text-foreground/70 mt-0.5">{issuedShort}</div>
+          </div>
+        </div>
+
+        {/* Right: content */}
+        <div className="min-w-0">
+          <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-[var(--gold)] font-medium">
+            <span id="newsletter-status-heading">Trạng thái đăng ký</span>
+            <span className="h-px flex-1 bg-[var(--gold)]/25" />
+            <span className="inline-flex items-center gap-1.5 normal-case tracking-normal text-emerald-500/90">
+              <span className="relative inline-flex h-1.5 w-1.5">
+                <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-60" />
+                <span className="absolute inset-0 rounded-full bg-emerald-500" />
+              </span>
+              <span className="text-[11px] font-medium">Đang nhận</span>
+            </span>
+          </div>
+
+          {!editing ? (
+            <>
+              <button
+                type="button"
+                onClick={copyEmail}
+                title="Sao chép địa chỉ"
+                className="group mt-4 inline-flex items-baseline gap-2 max-w-full"
+              >
+                <span className="font-display text-2xl sm:text-[28px] leading-tight tracking-tight text-foreground truncate">
+                  {active.email}
+                </span>
+                <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/70 group-hover:text-[var(--gold)] transition shrink-0">
+                  {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  {copied ? "đã chép" : "chép"}
+                </span>
+              </button>
+
+              {/* Metadata rows — masthead style label / value */}
+              <dl className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-8 text-sm border-t border-dashed border-[var(--gold)]/25 pt-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Phát hành</dt>
+                  <dd className="font-mono text-[13px] text-foreground/85 tabular-nums">{issuedLong}</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <dt className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Số ngày theo dõi</dt>
+                  <dd className="font-mono text-[13px] text-foreground/85 tabular-nums">{daysActive.toLocaleString("vi-VN")} ngày</dd>
+                </div>
+              </dl>
+
+              {/* Quiet, text-led actions separated by a thin rule */}
+              <div className="mt-5 flex items-center flex-wrap gap-x-5 gap-y-2 text-sm">
+                <button
+                  type="button"
+                  onClick={() => { setEditing(true); setNewEmail(active.email); }}
+                  disabled={busy}
+                  className="group inline-flex items-center gap-2 text-foreground/85 hover:text-[var(--gold)] transition disabled:opacity-50"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  <span className="border-b border-dotted border-current/40 group-hover:border-current pb-0.5">Đổi địa chỉ</span>
+                </button>
+                <span aria-hidden className="h-3 w-px bg-border" />
+                <button
+                  type="button"
+                  onClick={() => onUnsubscribe(active.email)}
+                  disabled={busy}
+                  className="group inline-flex items-center gap-2 text-destructive/85 hover:text-destructive transition disabled:opacity-50"
+                >
+                  <BellOff className="h-3.5 w-3.5" />
+                  <span className="border-b border-dotted border-current/40 group-hover:border-current pb-0.5">Huỷ đăng ký</span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="mt-5 rounded-xl border border-[var(--gold)]/30 bg-background/60 p-4 space-y-3">
+              <Label htmlFor="new-email" className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Địa chỉ email mới</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="new-email"
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="email-moi@cua-ban.vn"
+                  className="flex-1 font-mono text-sm"
+                />
+                <Button onClick={onChange} disabled={busy}>
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  <span className="ml-1.5">Xác nhận</span>
+                </Button>
+                <Button variant="ghost" onClick={() => { setEditing(false); setNewEmail(""); }} disabled={busy}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Địa chỉ cũ sẽ tự động bị huỷ đăng ký khi xác nhận.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 type Topic = "gold" | "gold-sjc" | "btc" | "eth" | "sol" | "bnb" | "usd" | "eur";
