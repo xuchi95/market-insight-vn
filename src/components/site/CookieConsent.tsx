@@ -271,28 +271,36 @@ export function CookieConsent() {
                 </p>
 
                 {/* Action stack: mobile = full-width stacked, desktop = inline */}
-                <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+                <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <button
                     type="button"
-                    onClick={() => setShowDetails(true)}
-                    className="order-3 inline-flex h-11 items-center justify-center rounded-xl border border-border bg-transparent px-4 text-sm font-semibold text-muted-foreground transition-colors hover:border-[var(--gold)]/40 hover:text-foreground sm:order-1 sm:h-10 sm:justify-self-start sm:border-0 sm:bg-transparent sm:px-2 sm:text-xs sm:uppercase sm:tracking-[0.18em]"
+                    onClick={acceptAll}
+                    className="order-1 group flex flex-col items-start gap-1 rounded-xl bg-[var(--gold)] px-4 py-3 text-left text-[var(--gold-foreground)] shadow-[0_10px_28px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-12px_color-mix(in_oklab,var(--gold)_80%,transparent)] active:translate-y-0 sm:order-2"
                   >
-                    Tuỳ chỉnh
+                    <span className="flex items-center gap-1.5 text-sm font-semibold">
+                      <Check className="h-4 w-4" />
+                      Đồng ý tất cả
+                    </span>
+                    <span className="text-[11px] leading-snug opacity-90">
+                      Bật mọi loại cookie để có trải nghiệm đầy đủ nhất, gồm cả đo lường và thông báo nhắc giá.
+                    </span>
                   </button>
                   <button
                     type="button"
                     onClick={essentialOnly}
-                    className="order-2 inline-flex h-11 items-center justify-center rounded-xl border border-border bg-card/60 px-4 text-sm font-semibold text-foreground transition-colors hover:border-[var(--gold)]/60 hover:bg-card sm:order-2 sm:h-10"
+                    className="order-2 flex flex-col items-start gap-1 rounded-xl border border-border bg-card/60 px-4 py-3 text-left text-foreground transition-colors hover:border-[var(--gold)]/60 hover:bg-card sm:order-1"
                   >
-                    Chỉ thiết yếu
+                    <span className="text-sm font-semibold">Chỉ thiết yếu</span>
+                    <span className="text-[11px] leading-snug text-muted-foreground">
+                      Chỉ giữ cookie bắt buộc cho đăng nhập &amp; bảo mật. Tắt phân tích, ghi nhớ tuỳ chọn và thông báo.
+                    </span>
                   </button>
                   <button
                     type="button"
-                    onClick={acceptAll}
-                    className="order-1 inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-[var(--gold)] px-5 text-sm font-semibold text-[var(--gold-foreground)] shadow-[0_10px_28px_-12px_color-mix(in_oklab,var(--gold)_70%,transparent)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-12px_color-mix(in_oklab,var(--gold)_80%,transparent)] active:translate-y-0 sm:order-3 sm:h-10"
+                    onClick={() => setShowDetails(true)}
+                    className="order-3 inline-flex h-10 items-center justify-center rounded-lg border border-dashed border-border bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:border-[var(--gold)]/40 hover:text-foreground sm:col-span-2"
                   >
-                    <Check className="h-4 w-4" />
-                    Đồng ý tất cả
+                    Tuỳ chỉnh từng loại cookie
                   </button>
                 </div>
               </div>
