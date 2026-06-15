@@ -202,6 +202,21 @@ const BINANCE_SYMBOL: Record<string, string> = {
   pepe: "PEPEUSDT",
   "wrapped-bitcoin": "WBTCUSDT",
   kaspa: "KASUSDT",
+  ethena: "ENAUSDT",
+  "worldcoin-wld": "WLDUSDT",
+  "sei-network": "SEIUSDT",
+  "fetch-ai": "FETUSDT",
+  "jupiter-exchange-solana": "JUPUSDT",
+  "pyth-network": "PYTHUSDT",
+  aave: "AAVEUSDT",
+  "ondo-finance": "ONDOUSDT",
+  celestia: "TIAUSDT",
+  "official-trump": "TRUMPUSDT",
+  bonk: "BONKUSDT",
+  floki: "FLOKIUSDT",
+  dogwifcoin: "WIFUSDT",
+  "book-of-meme": "BOMEUSDT",
+  notcoin: "NOTUSDT",
 };
 
 // Stablecoins pinned to $1 (Binance pair is the stable itself, no useful tick).
