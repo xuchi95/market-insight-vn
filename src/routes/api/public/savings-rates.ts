@@ -17,12 +17,22 @@ export const Route = createFileRoute("/api/public/savings-rates")({
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async () => {
         try {
-          const { data, error } = await supabaseAdmin
+          // Prefer the explicitly published snapshot; fall back to legacy 'latest'.
+          let { data, error } = await supabaseAdmin
             .from("savings_rates_snapshot")
             .select("payload, source, fetched_at, updated_at")
-            .eq("id", "latest")
+            .eq("id", "published")
             .maybeSingle();
           if (error) throw error;
+          if (!data || !data.payload) {
+            const fallback = await supabaseAdmin
+              .from("savings_rates_snapshot")
+              .select("payload, source, fetched_at, updated_at")
+              .eq("id", "latest")
+              .maybeSingle();
+            if (fallback.error) throw fallback.error;
+            data = fallback.data;
+          }
           if (data && data.payload) {
             const payload = data.payload as unknown as { items: ParsedRate[]; sourceDate?: string | null };
             if (payload.items && payload.items.length > 0) {

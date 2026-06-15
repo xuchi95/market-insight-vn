@@ -21,27 +21,72 @@ const SnapshotSchema = z.object({
 
 export type SavingsRateInput = z.infer<typeof RateSchema>;
 
-/** Admin: đọc snapshot hiện tại (latest). */
+type SnapshotMeta = {
+  items: ParsedRate[];
+  sourceDate: string | null;
+  source: string;
+  fetched_at: string | null;
+  updated_at: string | null;
+};
+
+const EMPTY_META: SnapshotMeta = {
+  items: [],
+  sourceDate: null,
+  source: "Tổng hợp",
+  fetched_at: null,
+  updated_at: null,
+};
+
+async function readSnapshot(id: "draft" | "published"): Promise<SnapshotMeta> {
+  const { data, error } = await supabaseAdmin
+    .from("savings_rates_snapshot")
+    .select("payload, source, fetched_at, updated_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return EMPTY_META;
+  const payload = (data.payload ?? { items: [] }) as unknown as {
+    items: ParsedRate[];
+    sourceDate?: string | null;
+  };
+  return {
+    items: payload.items ?? [],
+    sourceDate: payload.sourceDate ?? null,
+    source: data.source ?? "Tổng hợp",
+    fetched_at: data.fetched_at ?? null,
+    updated_at: data.updated_at ?? null,
+  };
+}
+
+async function writeSnapshot(
+  id: "draft" | "published",
+  items: ParsedRate[],
+  sourceDate: string | null,
+  source: string,
+) {
+  const now = new Date().toISOString();
+  const { error } = await supabaseAdmin.from("savings_rates_snapshot").upsert({
+    id,
+    payload: { items, sourceDate } as unknown as never,
+    source,
+    fetched_at: now,
+    updated_at: now,
+  });
+  if (error) throw new Error(error.message);
+}
+
+/** Admin: đọc cả bản nháp và bản đã công bố để hiển thị trên dashboard. */
 export const getSavingsSnapshot = createServerFn({ method: "GET" })
   .middleware([requireAdmin])
   .handler(async () => {
-    const { data, error } = await supabaseAdmin
-      .from("savings_rates_snapshot")
-      .select("payload, source, fetched_at, updated_at")
-      .eq("id", "latest")
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    const payload = (data?.payload ?? { items: [] }) as unknown as { items: ParsedRate[]; sourceDate?: string | null };
-    return {
-      items: payload.items ?? [],
-      sourceDate: payload.sourceDate ?? null,
-      source: data?.source ?? "Tổng hợp",
-      fetched_at: data?.fetched_at ?? null,
-      updated_at: data?.updated_at ?? null,
-    };
+    const [draft, published] = await Promise.all([
+      readSnapshot("draft"),
+      readSnapshot("published"),
+    ]);
+    return { draft, published };
   });
 
-/** Admin: lưu snapshot do biên tập viên chỉnh tay. */
+/** Admin: lưu snapshot do biên tập viên chỉnh tay (chỉ ghi vào bản nháp). */
 export const saveSavingsSnapshot = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
   .inputValidator((data: unknown) => {
@@ -54,19 +99,13 @@ export const saveSavingsSnapshot = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { userId } = context as { userId: string };
-    const now = new Date().toISOString();
-    const { error } = await supabaseAdmin.from("savings_rates_snapshot").upsert({
-      id: "latest",
-      payload: {
-        items: data.items,
-        sourceDate: data.sourceDate ?? null,
-      } as unknown as never,
-      source: data.source ?? "Biên tập viên",
-      fetched_at: now,
-      updated_at: now,
-    });
-    if (error) throw new Error(error.message);
-    await logAudit(userId, "savings_rates.save", "savings_rates_snapshot", "latest", {
+    await writeSnapshot(
+      "draft",
+      data.items as ParsedRate[],
+      data.sourceDate ?? null,
+      data.source ?? "Biên tập viên",
+    );
+    await logAudit(userId, "savings_rates.save_draft", "savings_rates_snapshot", "draft", {
       count: data.items.length,
       sourceDate: data.sourceDate ?? null,
     });
@@ -94,7 +133,7 @@ async function firecrawlScrape(url: string): Promise<string> {
   return md;
 }
 
-/** Admin: scrape Techcombank blog, parse, lưu vào DB. */
+/** Admin: scrape Techcombank blog, parse, lưu vào bản nháp (chưa công bố). */
 export const refreshSavingsFromTcb = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
   .handler(async ({ context }) => {
@@ -104,19 +143,8 @@ export const refreshSavingsFromTcb = createServerFn({ method: "POST" })
     if (parsed.items.length === 0) {
       throw new Error("Parser trả về 0 dòng — định dạng blog có thể đã thay đổi");
     }
-    const now = new Date().toISOString();
-    const { error } = await supabaseAdmin.from("savings_rates_snapshot").upsert({
-      id: "latest",
-      payload: {
-        items: parsed.items,
-        sourceDate: parsed.sourceDate ?? null,
-      } as unknown as never,
-      source: "Techcombank blog",
-      fetched_at: now,
-      updated_at: now,
-    });
-    if (error) throw new Error(error.message);
-    await logAudit(userId, "savings_rates.auto_refresh", "savings_rates_snapshot", "latest", {
+    await writeSnapshot("draft", parsed.items, parsed.sourceDate ?? null, "Techcombank blog");
+    await logAudit(userId, "savings_rates.auto_refresh", "savings_rates_snapshot", "draft", {
       count: parsed.items.length,
       sourceDate: parsed.sourceDate ?? null,
     });
@@ -126,4 +154,39 @@ export const refreshSavingsFromTcb = createServerFn({ method: "POST" })
       sourceDate: parsed.sourceDate ?? null,
       count: parsed.items.length,
     };
+  });
+
+/** Admin: phê duyệt bản nháp hiện tại và đẩy ra trang người dùng. */
+export const publishSavingsSnapshot = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .handler(async ({ context }) => {
+    const { userId } = context as { userId: string };
+    const draft = await readSnapshot("draft");
+    if (draft.items.length === 0) {
+      throw new Error("Bản nháp rỗng — không có gì để công bố");
+    }
+    await writeSnapshot("published", draft.items, draft.sourceDate, draft.source);
+    // Cập nhật cả 'latest' để fallback của public endpoint vẫn nhất quán
+    await writeSnapshot("latest" as "published", draft.items, draft.sourceDate, draft.source);
+    await logAudit(userId, "savings_rates.publish", "savings_rates_snapshot", "published", {
+      count: draft.items.length,
+      sourceDate: draft.sourceDate,
+    });
+    return { ok: true, count: draft.items.length };
+  });
+
+/** Admin: huỷ thay đổi trong bản nháp, sao chép lại từ bản đã công bố. */
+export const discardSavingsDraft = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .handler(async ({ context }) => {
+    const { userId } = context as { userId: string };
+    const published = await readSnapshot("published");
+    if (published.items.length === 0) {
+      throw new Error("Chưa có bản công bố nào để khôi phục");
+    }
+    await writeSnapshot("draft", published.items, published.sourceDate, published.source);
+    await logAudit(userId, "savings_rates.discard_draft", "savings_rates_snapshot", "draft", {
+      count: published.items.length,
+    });
+    return { ok: true, count: published.items.length };
   });
