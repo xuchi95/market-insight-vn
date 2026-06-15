@@ -36,10 +36,11 @@ async function doRefresh() {
     items: parsed.items,
     sourceDate: parsed.sourceDate ?? null,
   };
+  // Cron writes to the draft slot only — admin must approve to publish.
   const { error } = await supabaseAdmin
     .from("savings_rates_snapshot")
     .upsert({
-      id: "latest",
+      id: "draft",
       payload: payload as unknown as never,
       source: "Techcombank blog",
       fetched_at: new Date().toISOString(),
