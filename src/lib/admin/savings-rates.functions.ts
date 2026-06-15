@@ -31,7 +31,7 @@ export const getSavingsSnapshot = createServerFn({ method: "GET" })
       .eq("id", "latest")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    const payload = (data?.payload ?? { items: [] }) as { items: ParsedRate[]; sourceDate?: string | null };
+    const payload = (data?.payload ?? { items: [] }) as unknown as { items: ParsedRate[]; sourceDate?: string | null };
     return {
       items: payload.items ?? [],
       sourceDate: payload.sourceDate ?? null,
