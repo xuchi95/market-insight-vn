@@ -45,6 +45,21 @@ const BINANCE_SYMBOL: Record<string, string> = {
   pepe: "pepeusdt",
   "wrapped-bitcoin": "wbtcusdt",
   kaspa: "kasusdt",
+  ethena: "enausdt",
+  "worldcoin-wld": "wldusdt",
+  "sei-network": "seiusdt",
+  "fetch-ai": "fetusdt",
+  "jupiter-exchange-solana": "jupusdt",
+  "pyth-network": "pythusdt",
+  aave: "aaveusdt",
+  "ondo-finance": "ondousdt",
+  celestia: "tiausdt",
+  "official-trump": "trumpusdt",
+  bonk: "bonkusdt",
+  floki: "flokiusdt",
+  dogwifcoin: "wifusdt",
+  "book-of-meme": "bomeusdt",
+  notcoin: "notusdt",
 };
 
 export interface BinanceTick {
