@@ -45,6 +45,23 @@ const COIN_IDS = [
   "wrapped-bitcoin",
   "leo-token",
   "kaspa",
+  // Alts mới được cộng đồng yêu cầu thêm
+  "ethena",
+  "worldcoin-wld",
+  "sei-network",
+  "fetch-ai",
+  "jupiter-exchange-solana",
+  "pyth-network",
+  "aave",
+  "ondo-finance",
+  "celestia",
+  "official-trump",
+  // Memecoins
+  "bonk",
+  "floki",
+  "dogwifcoin",
+  "book-of-meme",
+  "notcoin",
 ] as const;
 
 // Free CoinGecko data refreshes every ~30-60s upstream. Re-poll often enough
