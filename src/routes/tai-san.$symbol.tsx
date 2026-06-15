@@ -95,6 +95,7 @@ const SLUG_TO_SYMBOL: Record<string, string> = {
   "wrapped-bitcoin": "wbtc",
   "leo-token": "leo",
   kaspa: "kas",
+  "pi-network": "pi",
 };
 
 // Các mã ngoại tệ hợp lệ cho trang `bank-{code}` (tỷ giá Vietcombank).
