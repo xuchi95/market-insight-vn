@@ -115,6 +115,7 @@ import { Route as AdminMwAdminVerifyOtpStatsRouteImport } from './routes/_admin/
 import { Route as AdminMwAdminUsersRouteImport } from './routes/_admin/mw-admin.users'
 import { Route as AdminMwAdminSettingsRouteImport } from './routes/_admin/mw-admin.settings'
 import { Route as AdminMwAdminSeoRouteImport } from './routes/_admin/mw-admin.seo'
+import { Route as AdminMwAdminSavingsRatesRouteImport } from './routes/_admin/mw-admin.savings-rates'
 import { Route as AdminMwAdminPriceSettingsRouteImport } from './routes/_admin/mw-admin.price-settings'
 import { Route as AdminMwAdminPopupsRouteImport } from './routes/_admin/mw-admin.popups'
 import { Route as AdminMwAdminNewsletterRouteImport } from './routes/_admin/mw-admin.newsletter'
@@ -688,6 +689,12 @@ const AdminMwAdminSeoRoute = AdminMwAdminSeoRouteImport.update({
   path: '/mw-admin/seo',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminSavingsRatesRoute =
+  AdminMwAdminSavingsRatesRouteImport.update({
+    id: '/mw-admin/savings-rates',
+    path: '/mw-admin/savings-rates',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminMwAdminPriceSettingsRoute =
   AdminMwAdminPriceSettingsRouteImport.update({
     id: '/mw-admin/price-settings',
@@ -952,6 +959,7 @@ export interface FileRoutesByFullPath {
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
   '/mw-admin/price-settings': typeof AdminMwAdminPriceSettingsRoute
+  '/mw-admin/savings-rates': typeof AdminMwAdminSavingsRatesRoute
   '/mw-admin/seo': typeof AdminMwAdminSeoRoute
   '/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/mw-admin/users': typeof AdminMwAdminUsersRoute
@@ -1092,6 +1100,7 @@ export interface FileRoutesByTo {
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
   '/mw-admin/price-settings': typeof AdminMwAdminPriceSettingsRoute
+  '/mw-admin/savings-rates': typeof AdminMwAdminSavingsRatesRoute
   '/mw-admin/seo': typeof AdminMwAdminSeoRoute
   '/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/mw-admin/users': typeof AdminMwAdminUsersRoute
@@ -1234,6 +1243,7 @@ export interface FileRoutesById {
   '/_admin/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/_admin/mw-admin/popups': typeof AdminMwAdminPopupsRoute
   '/_admin/mw-admin/price-settings': typeof AdminMwAdminPriceSettingsRoute
+  '/_admin/mw-admin/savings-rates': typeof AdminMwAdminSavingsRatesRoute
   '/_admin/mw-admin/seo': typeof AdminMwAdminSeoRoute
   '/_admin/mw-admin/settings': typeof AdminMwAdminSettingsRoute
   '/_admin/mw-admin/users': typeof AdminMwAdminUsersRoute
@@ -1376,6 +1386,7 @@ export interface FileRouteTypes {
     | '/mw-admin/newsletter'
     | '/mw-admin/popups'
     | '/mw-admin/price-settings'
+    | '/mw-admin/savings-rates'
     | '/mw-admin/seo'
     | '/mw-admin/settings'
     | '/mw-admin/users'
@@ -1516,6 +1527,7 @@ export interface FileRouteTypes {
     | '/mw-admin/newsletter'
     | '/mw-admin/popups'
     | '/mw-admin/price-settings'
+    | '/mw-admin/savings-rates'
     | '/mw-admin/seo'
     | '/mw-admin/settings'
     | '/mw-admin/users'
@@ -1657,6 +1669,7 @@ export interface FileRouteTypes {
     | '/_admin/mw-admin/newsletter'
     | '/_admin/mw-admin/popups'
     | '/_admin/mw-admin/price-settings'
+    | '/_admin/mw-admin/savings-rates'
     | '/_admin/mw-admin/seo'
     | '/_admin/mw-admin/settings'
     | '/_admin/mw-admin/users'
@@ -2578,6 +2591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminSeoRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/savings-rates': {
+      id: '/_admin/mw-admin/savings-rates'
+      path: '/mw-admin/savings-rates'
+      fullPath: '/mw-admin/savings-rates'
+      preLoaderRoute: typeof AdminMwAdminSavingsRatesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/price-settings': {
       id: '/_admin/mw-admin/price-settings'
       path: '/mw-admin/price-settings'
@@ -2830,6 +2850,7 @@ interface AdminRouteChildren {
   AdminMwAdminNewsletterRoute: typeof AdminMwAdminNewsletterRoute
   AdminMwAdminPopupsRoute: typeof AdminMwAdminPopupsRoute
   AdminMwAdminPriceSettingsRoute: typeof AdminMwAdminPriceSettingsRoute
+  AdminMwAdminSavingsRatesRoute: typeof AdminMwAdminSavingsRatesRoute
   AdminMwAdminSeoRoute: typeof AdminMwAdminSeoRoute
   AdminMwAdminSettingsRoute: typeof AdminMwAdminSettingsRoute
   AdminMwAdminUsersRoute: typeof AdminMwAdminUsersRoute
@@ -2856,6 +2877,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminNewsletterRoute: AdminMwAdminNewsletterRoute,
   AdminMwAdminPopupsRoute: AdminMwAdminPopupsRoute,
   AdminMwAdminPriceSettingsRoute: AdminMwAdminPriceSettingsRoute,
+  AdminMwAdminSavingsRatesRoute: AdminMwAdminSavingsRatesRoute,
   AdminMwAdminSeoRoute: AdminMwAdminSeoRoute,
   AdminMwAdminSettingsRoute: AdminMwAdminSettingsRoute,
   AdminMwAdminUsersRoute: AdminMwAdminUsersRoute,

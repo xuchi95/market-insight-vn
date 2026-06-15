@@ -12,6 +12,7 @@ import {
   Radio,
   TrendingUp,
   Fuel,
+  Landmark,
   Sparkles,
   ArrowUpRight,
 } from "lucide-react";
@@ -287,6 +288,7 @@ function AdminDashboard() {
                   { to: "/mw-admin/contact", label: "Liên hệ", icon: MessageSquare },
                   { to: "/mw-admin/popups", label: "Popup", icon: Megaphone },
                   { to: "/mw-admin/fuel-prices", label: "Giá xăng", icon: Fuel },
+                  { to: "/mw-admin/savings-rates", label: "Lãi suất TK", icon: Landmark },
                   { to: "/mw-admin/settings", label: "Cấu hình", icon: Sparkles },
                 ].map((l) => (
                   <Link
