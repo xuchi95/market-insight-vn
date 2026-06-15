@@ -275,14 +275,18 @@ async function buildContext(asset: AssetSlug): Promise<PriceContext> {
     const o = await safeFetchJson(`${SITE}/api/public/oil`);
     if (o?.brent) notes.push(`Brent tham chiếu: ${fmtUSD(o.brent.price)} USD/thùng.`);
   }
-  if (["btc", "eth", "sol", "bnb", "xrp"].includes(asset)) {
+  const cryptoSlugs = PREDICTABLE_ASSETS.filter((a) => a.category === "Tiền điện tử").map((a) => a.slug as string);
+  if (cryptoSlugs.includes(asset)) {
     const c = await safeFetchJson(`${SITE}/api/public/crypto`);
     if (c?.coins?.length) {
-      const map: Record<string, string> = { btc: "BTC", eth: "ETH", sol: "SOL", bnb: "BNB", xrp: "XRP" };
-      const sym = map[asset];
+      const sym = asset.toUpperCase();
       const main = c.coins.find((x: any) => String(x.symbol).toUpperCase() === sym);
       if (main) notes.push(`${main.name}: ${fmtUSD(main.price_usd)} USD (24h ${main.change_24h?.toFixed?.(2) ?? "n/a"}%, vốn hóa ${fmtUSD(main.market_cap ?? 0)} USD).`);
-      const others = c.coins.filter((x: any) => String(x.symbol).toUpperCase() !== sym).slice(0, 4);
+      // Top market-cap peers for cross-market context
+      const others = c.coins
+        .filter((x: any) => String(x.symbol).toUpperCase() !== sym)
+        .sort((a: any, b: any) => (b.market_cap ?? 0) - (a.market_cap ?? 0))
+        .slice(0, 4);
       for (const it of others) {
         notes.push(`- ${it.symbol}: ${fmtUSD(it.price_usd)} USD (24h ${it.change_24h?.toFixed?.(2) ?? "n/a"}%).`);
       }
