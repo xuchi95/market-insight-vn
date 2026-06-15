@@ -427,90 +427,29 @@ export function AdblockGuard() {
     >
       {!isBanner && (
         <>
-          <style>{`@keyframes mw-ab-pulse {
-            0% { box-shadow: 0 0 0 0 ${c.accent}aa; }
-            70% { box-shadow: 0 0 0 12px ${c.accent}00; }
-            100% { box-shadow: 0 0 0 0 ${c.accent}00; }
-          }
-          @keyframes mw-ab-sheen {
-            0% { transform: translateX(-120%); }
-            100% { transform: translateX(220%); }
-          }`}</style>
-          {/* Top gold hairline */}
+          {/* Top gold hairline — the only ornament */}
           <div
             aria-hidden
             style={{
-              position: "absolute", top: 0, left: 0, right: 0, height: 3,
-              background: `linear-gradient(90deg, transparent, ${c.accent} 20%, ${c.accent} 80%, transparent)`,
+              position: "absolute", top: 0, left: 0, right: 0, height: 1,
+              background: `linear-gradient(90deg, transparent, ${c.accent}cc, transparent)`,
             }}
           />
-          {/* Terminal corner brackets */}
-          {cornerStyles.map((s, i) => (
-            <span key={i} aria-hidden style={{ position: "absolute", width: 14, height: 14, ...s }} />
-          ))}
-          {/* Decorative chart line in background */}
-          <svg
-            aria-hidden
-            viewBox="0 0 480 180"
-            preserveAspectRatio="none"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.08, pointerEvents: "none" }}
-          >
-            <path d="M0 140 L60 120 L100 135 L150 90 L200 110 L260 60 L310 80 L360 40 L420 65 L480 25"
-              fill="none" stroke={c.accent} strokeWidth="1.5" />
-            <path d="M0 140 L60 120 L100 135 L150 90 L200 110 L260 60 L310 80 L360 40 L420 65 L480 25 L480 180 L0 180 Z"
-              fill={c.accent} fillOpacity="0.3" />
-          </svg>
-          {/* Eyebrow tag */}
-          <div
-            style={{
-              position: "relative",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: `${pad(5)}px ${pad(12)}px`,
-              borderRadius: 999,
-              border: `1px solid ${c.accent}55`,
-              background: `${c.accent}14`,
-              fontSize: px(10),
-              fontWeight: 700,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: c.accent,
-            }}
-          >
-            <span
-              aria-hidden
-              style={{
-                width: 7, height: 7, borderRadius: "50%",
-                background: c.accent,
-                animation: "mw-ab-pulse 1.6s ease-out infinite",
-              }}
-            />
-            Market Alert
-          </div>
         </>
       )}
       {settings.show_logo && !isBanner && (
         <div
           style={{
             position: "relative",
-            width: pad(72), height: pad(72),
+            width: pad(56), height: pad(56),
             display: "grid", placeItems: "center",
-            borderRadius: 18,
-            background: `radial-gradient(circle at 30% 30%, ${c.accent}33, transparent 70%)`,
+            borderRadius: 14,
           }}
         >
-          <span
-            aria-hidden
-            style={{
-              position: "absolute", inset: -6, borderRadius: 22,
-              border: `1px dashed ${c.accent}66`,
-            }}
-          />
           <img
             src={logoUrl}
             alt="MarketWatch logo"
-            style={{ width: pad(52), height: pad(52), objectFit: "contain", display: "block", position: "relative" }}
+            style={{ width: pad(48), height: pad(48), objectFit: "contain", display: "block" }}
           />
         </div>
       )}
@@ -519,32 +458,22 @@ export function AdblockGuard() {
           id="mw-adblock-title"
           style={{
             margin: 0,
-            fontSize: isBanner ? px(15) : px(22),
-            lineHeight: 1.25,
-            fontWeight: 800,
+            fontSize: isBanner ? px(15) : px(20),
+            lineHeight: 1.3,
+            fontWeight: 700,
             letterSpacing: "-0.01em",
-            color: c.accent,
+            color: c.text,
             textAlign: isBanner ? "left" : "center",
           }}
         >
           {settings.title}
         </h2>
-        {!isBanner && (
-          <div
-            aria-hidden
-            style={{
-              margin: `${pad(12)}px auto ${pad(4)}px`,
-              width: 44, height: 2,
-              background: `linear-gradient(90deg, transparent, ${c.accent}, transparent)`,
-            }}
-          />
-        )}
         <p
           style={{
-            margin: isBanner ? `${pad(8)}px 0 0` : `${pad(10)}px 0 0`,
-            fontSize: isBanner ? px(13) : px(14.5),
-            lineHeight: 1.55,
-            opacity: 0.9,
+            margin: isBanner ? `${pad(8)}px 0 0` : `${pad(12)}px 0 0`,
+            fontSize: isBanner ? px(13) : px(14),
+            lineHeight: 1.6,
+            opacity: 0.75,
             textAlign: isBanner ? "left" : "center",
           }}
         >
@@ -553,15 +482,13 @@ export function AdblockGuard() {
         {settings.secondary_message && !isBanner && (
           <p
             style={{
-              margin: `${pad(14)}px 0 0`,
+              margin: `${pad(10)}px 0 0`,
               fontSize: px(12),
-              opacity: 0.7,
+              opacity: 0.5,
               textAlign: "center",
-              fontStyle: "italic",
-              letterSpacing: "0.01em",
             }}
           >
-            — {settings.secondary_message} —
+            {settings.secondary_message}
           </p>
         )}
       </div>
@@ -572,7 +499,7 @@ export function AdblockGuard() {
           gap: pad(10),
           flexWrap: "wrap",
           justifyContent: "center",
-          marginTop: isBanner ? 0 : pad(22),
+          marginTop: isBanner ? 0 : pad(20),
           width: isBanner ? "auto" : "100%",
         }}
       >
@@ -582,30 +509,22 @@ export function AdblockGuard() {
             style={{
               position: "relative",
               overflow: "hidden",
-              background: `linear-gradient(135deg, ${c.accent} 0%, color-mix(in oklab, ${c.accent} 75%, white) 50%, ${c.accent} 100%)`,
+              background: c.accent,
               color: c.bg,
-              border: `1px solid ${c.accent}`,
-              padding: `${pad(12)}px ${pad(22)}px`,
-              borderRadius: 10,
-              fontWeight: 700,
+              border: "none",
+              padding: `${pad(11)}px ${pad(20)}px`,
+              borderRadius: 8,
+              fontWeight: 600,
               cursor: "pointer",
               fontSize: px(13),
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              boxShadow: `0 8px 24px -8px ${c.accent}aa, inset 0 1px 0 #ffffff55`,
+              letterSpacing: "0.01em",
+              transition: "opacity .2s ease",
               flex: isBanner ? "none" : 1,
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.88")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
           >
-            <span style={{ position: "relative", zIndex: 1 }}>▸ {settings.button_text}</span>
-            <span
-              aria-hidden
-              style={{
-                position: "absolute",
-                top: 0, left: 0, width: "40%", height: "100%",
-                background: "linear-gradient(90deg, transparent, #ffffff55, transparent)",
-                animation: "mw-ab-sheen 3.2s ease-in-out infinite",
-              }}
-            />
+            {settings.button_text}
           </button>
         )}
         {settings.allow_dismiss && settings.mode !== "hard" && (
@@ -614,13 +533,13 @@ export function AdblockGuard() {
             style={{
               background: "transparent",
               color: c.text,
-              border: `1px solid ${c.text}33`,
-              padding: `${pad(12)}px ${pad(18)}px`,
-              borderRadius: 10,
+              border: "none",
+              padding: `${pad(11)}px ${pad(16)}px`,
+              borderRadius: 8,
               fontWeight: 500,
               cursor: "pointer",
               fontSize: px(13),
-              letterSpacing: "0.02em",
+              opacity: 0.6,
             }}
           >
             {settings.dismiss_text || "Bỏ qua"}
