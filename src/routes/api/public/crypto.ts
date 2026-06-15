@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { getPriceChangeConfig } from "@/lib/price-change-config.server";
 
 // CoinGecko coin IDs (public free API, no key required, ~30 req/min)
 const COIN_IDS = [
@@ -54,6 +56,82 @@ const CACHE_SWR_MS = 5 * 60 * 1000;
 const UPSTREAM_TIMEOUT_MS = 6_000;
 let cache: { at: number; payload: any } | null = null;
 let inflight: Promise<any> | null = null;
+
+// === 24h % change DB fallback (mirrors gold.ts) ==========================
+// Khi upstream (CoinGecko / Binance) trả `change24h` thiếu hoặc bằng 0,
+// rơi về `price_history` thông qua RPC `closest_price_samples` —
+// dùng chung covering index `price_history_symbol_time_price_idx`
+// `(symbol, captured_at DESC) INCLUDE (price)` đã có sẵn từ gold/forex.
+const WINDOW_MS = 24 * 60 * 60 * 1000;
+const SYMBOL_PREFIX = "CRYPTO:";
+const CHANGE_PCT_TTL_MS = 60_000;
+let lastSnapshotAt = 0;
+let changeCache: { at: number; byId: Record<string, number> } | null = null;
+let changeInflight: Promise<Record<string, number>> | null = null;
+
+async function fetch24hAgoUsd(ids: string[]): Promise<Record<string, number>> {
+  const out: Record<string, number> = {};
+  if (ids.length === 0) return out;
+  try {
+    const cfg = await getPriceChangeConfig();
+    if (!cfg.enabled) return out;
+    const now = Date.now();
+    const target = new Date(now - WINDOW_MS).toISOString();
+    const symbols = ids.map((id) => `${SYMBOL_PREFIX}${id}`);
+    const { data } = await supabaseAdmin.rpc("closest_price_samples", {
+      p_symbols: symbols,
+      p_target: target,
+      p_tol_ms: cfg.windowToleranceMs,
+      p_min_age_ms: cfg.minSampleAgeMs,
+    });
+    for (const r of (data ?? []) as Array<{ symbol: string; price: number | string }>) {
+      const sym = String(r.symbol);
+      const id = sym.startsWith(SYMBOL_PREFIX) ? sym.slice(SYMBOL_PREFIX.length) : sym;
+      const p = Number(r.price);
+      if (Number.isFinite(p) && p > 0) out[id] = p;
+    }
+  } catch { /* ignore */ }
+  return out;
+}
+
+/** Ghi snapshot priceUsd cho từng coin (throttle theo config). Fire-and-forget. */
+async function recordSnapshots(coins: Array<{ id: string; priceUsd: number }>) {
+  try {
+    const cfg = await getPriceChangeConfig();
+    const now = Date.now();
+    if (now - lastSnapshotAt < cfg.snapshotMinIntervalMs) return;
+    lastSnapshotAt = now;
+    const rows = coins
+      .filter((c) => Number.isFinite(c.priceUsd) && c.priceUsd > 0)
+      .map((c) => ({ symbol: `${SYMBOL_PREFIX}${c.id}`, price: c.priceUsd }));
+    if (rows.length === 0) return;
+    void supabaseAdmin
+      .from("price_history")
+      .insert(rows)
+      .then(() => undefined, () => undefined);
+  } catch { /* ignore */ }
+}
+
+/** Tính lại bảng `change24h` từ DB (60s TTL, in-flight dedupe). */
+async function ensureChangeCache(coins: Array<{ id: string; priceUsd: number }>): Promise<Record<string, number>> {
+  const fresh = changeCache && Date.now() - changeCache.at < CHANGE_PCT_TTL_MS;
+  if (fresh) return changeCache!.byId;
+  if (changeInflight) return changeInflight;
+  changeInflight = (async () => {
+    const ids = coins.map((c) => c.id);
+    const prev = await fetch24hAgoUsd(ids);
+    const byId: Record<string, number> = {};
+    for (const c of coins) {
+      const p0 = prev[c.id];
+      if (p0 && p0 > 0 && Number.isFinite(c.priceUsd) && c.priceUsd > 0) {
+        byId[c.id] = ((c.priceUsd - p0) / p0) * 100;
+      }
+    }
+    changeCache = { at: Date.now(), byId };
+    return byId;
+  })().finally(() => { changeInflight = null; });
+  return changeInflight;
+}
 
 interface CGAsset {
   id?: string;
@@ -283,6 +361,29 @@ async function overlayLive(base: any) {
   return { ...base, coins, updatedAt: Date.now() };
 }
 
+/**
+ * Bổ sung `change24h` từ DB cho những coin upstream thiếu (0 hoặc NaN).
+ * Đồng thời ghi snapshot mới để lần sau có dữ liệu so sánh.
+ * Dùng cache 60s + RPC `closest_price_samples` nên không query DB
+ * trên mỗi request.
+ */
+async function applyDbChangeFallback(payload: any): Promise<any> {
+  const coins = payload.coins as Array<{ id: string; priceUsd: number; change24h: number }>;
+  if (!Array.isArray(coins) || coins.length === 0) return payload;
+  // Snapshot mới (throttle theo config).
+  void recordSnapshots(coins);
+  // Nếu mọi coin đã có change24h hợp lệ ≠ 0 thì khỏi đụng DB.
+  const needsFallback = coins.some((c) => !Number.isFinite(c.change24h) || c.change24h === 0);
+  if (!needsFallback) return payload;
+  const byId = await ensureChangeCache(coins);
+  const merged = coins.map((c) => {
+    if (Number.isFinite(c.change24h) && c.change24h !== 0) return c;
+    const v = byId[c.id];
+    return Number.isFinite(v) ? { ...c, change24h: v } : c;
+  });
+  return { ...payload, coins: merged };
+}
+
 function refresh(): Promise<any> {
   if (inflight) return inflight;
   inflight = buildBasePayload()
@@ -334,7 +435,8 @@ export const Route = createFileRoute("/api/public/crypto")({
           // cached CoinGecko base. Keeps marketCap/sparkline stable while
           // making priceUsd / change24h near-realtime.
           const payload = await overlayLive(base);
-          return new Response(JSON.stringify(payload), {
+          const finalPayload = await applyDbChangeFallback(payload);
+          return new Response(JSON.stringify(finalPayload), {
             status: 200,
             headers: {
               "Content-Type": "application/json",
