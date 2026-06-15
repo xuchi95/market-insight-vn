@@ -436,7 +436,7 @@ export const Route = createFileRoute("/api/public/crypto")({
           // making priceUsd / change24h near-realtime.
           const payload = await overlayLive(base);
           const finalPayload = await applyDbChangeFallback(payload);
-          return new Response(JSON.stringify(payload), {
+          return new Response(JSON.stringify(finalPayload), {
             status: 200,
             headers: {
               "Content-Type": "application/json",
@@ -445,15 +445,7 @@ export const Route = createFileRoute("/api/public/crypto")({
                 "public, max-age=5, s-maxage=5, stale-while-revalidate=60",
               ...CORS,
             },
-          }).constructor === Response ? new Response(JSON.stringify(finalPayload), {
-            status: 200,
-            headers: {
-              "Content-Type": "application/json",
-              "Cache-Control":
-                "public, max-age=5, s-maxage=5, stale-while-revalidate=60",
-              ...CORS,
-            },
-          }) : new Response(JSON.stringify(finalPayload));
+          });
         } catch (e) {
           if (cache) {
             return new Response(JSON.stringify(cache.payload), {
