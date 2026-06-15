@@ -241,11 +241,6 @@ export function CookieConsent() {
               "linear-gradient(135deg, color-mix(in oklab, var(--gold) 9%, transparent) 0%, transparent 55%)",
           }}
         >
-          {/* Mobile grab handle */}
-          <div className="flex justify-center pt-2 pb-1 sm:hidden">
-            <span className="h-1 w-10 rounded-full bg-border" />
-          </div>
-
           {/* Header bar */}
           <div className="flex items-center justify-between border-b border-border/60 px-4 py-2.5 sm:px-5">
             <div className="flex items-center gap-2">
