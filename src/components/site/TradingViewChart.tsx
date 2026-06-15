@@ -168,6 +168,8 @@ export function toTradingViewCryptoSymbol(coinSymbol: string): string {
     USDC: "BINANCE:USDCUSDT",
     DAI: "BINANCE:DAIUSDT",
     WBTC: "BINANCE:WBTCUSDT",
+    // Pi Network không có cặp trên Binance — dùng OKX:PIUSDT (thanh khoản tốt nhất)
+    PI: "OKX:PIUSDT",
   };
   if (SPECIAL[s]) return SPECIAL[s];
   return `BINANCE:${s}USDT`;
