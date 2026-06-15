@@ -718,7 +718,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
                 className="h-9 w-56 rounded-full border border-[var(--gold)]/30 bg-background/90 pl-9 pr-3 text-sm shadow-[inset_0_1px_0_color-mix(in_oklab,var(--gold)_10%,transparent),0_4px_14px_-8px_rgba(0,0,0,0.5)] focus-visible:border-[var(--gold)]/60 focus-visible:ring-1 focus-visible:ring-[var(--gold)]/60 lg:w-64"
               />
               {suggestOpen && suggestions.length > 0 && (
-                <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-72 overflow-hidden rounded-xl border border-border bg-popover/95 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="absolute right-0 top-[calc(100%+8px)] z-[60] w-72 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-[0_24px_48px_-12px_rgba(0,0,0,0.35),0_8px_16px_-8px_rgba(0,0,0,0.2)] ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-150">
                   <div className="border-b border-border/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                     Gợi ý
                   </div>
