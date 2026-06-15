@@ -211,7 +211,7 @@ export function CookieConsent() {
       {/* Full-screen blurred backdrop — always visible while the banner is open */}
       <div
         aria-hidden
-        onClick={essentialOnly}
+        onClick={close}
         className={`fixed inset-0 z-[79] bg-black/60 backdrop-blur-md transition-opacity duration-300 ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
@@ -253,7 +253,7 @@ export function CookieConsent() {
             </div>
             <button
               type="button"
-              onClick={essentialOnly}
+              onClick={close}
               className="-mr-1 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <X className="h-4 w-4" />
