@@ -62,6 +62,8 @@ const COIN_IDS = [
   "dogwifcoin",
   "book-of-meme",
   "notcoin",
+  // Pi Network (PI) — niêm yết open mainnet, được cộng đồng VN quan tâm
+  "pi-network",
 ] as const;
 
 // Free CoinGecko data refreshes every ~30-60s upstream. Re-poll often enough
