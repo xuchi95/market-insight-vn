@@ -208,46 +208,39 @@ export function CookieConsent() {
       {/* Forced-logout explanation modal */}
       {forcedLogout && <ForcedLogoutDialog onClose={() => { setForcedLogout(false); close(); }} />}
 
-      {/* Mobile backdrop — only when details panel open */}
+      {/* Full-screen blurred backdrop — always visible while the banner is open */}
       <div
         aria-hidden
         onClick={essentialOnly}
-        className={`fixed inset-0 z-[79] bg-black/50 backdrop-blur-sm transition-opacity duration-300 sm:hidden ${
-          open && showDetails ? "opacity-100" : "pointer-events-none opacity-0"
+        className={`fixed inset-0 z-[79] bg-black/60 backdrop-blur-md transition-opacity duration-300 ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
       <div
         role="dialog"
-        aria-modal={showDetails ? "true" : "false"}
+        aria-modal="true"
         aria-labelledby="mw-cookie-title"
-        className={`fixed inset-x-0 bottom-0 z-[80] sm:px-5 sm:pb-5 ${
-          showDetails ? "max-sm:top-auto" : ""
-        }`}
+        className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6"
         style={{
-          paddingBottom: "max(env(safe-area-inset-bottom), 0px)",
+          paddingBottom: "max(env(safe-area-inset-bottom), 1rem)",
         }}
       >
         <div
-          className={`mx-auto w-full max-w-3xl overflow-hidden border-t border-x-0 border-b-0 sm:border bg-[color-mix(in_oklab,var(--card)_94%,transparent)] backdrop-blur-xl
-            rounded-t-3xl sm:rounded-2xl
+          className={`mx-auto w-full max-w-3xl max-h-[90vh] overflow-hidden border bg-[color-mix(in_oklab,var(--card)_94%,transparent)] backdrop-blur-xl
+            rounded-2xl
             border-[color-mix(in_oklab,var(--gold)_30%,var(--border))]
-            shadow-[0_-20px_60px_-20px_rgba(0,0,0,0.6)] sm:shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--gold)_40%,transparent)]
+            shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--gold)_40%,transparent)]
             transform-gpu transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
             ${open
-              ? "translate-y-0 opacity-100 sm:scale-100"
-              : "translate-y-[110%] opacity-0 sm:translate-y-6 sm:scale-95"
+              ? "translate-y-0 opacity-100 scale-100"
+              : "translate-y-4 opacity-0 scale-95"
             }`}
           style={{
             backgroundImage:
               "linear-gradient(135deg, color-mix(in oklab, var(--gold) 9%, transparent) 0%, transparent 55%)",
           }}
         >
-          {/* Mobile grab handle */}
-          <div className="flex justify-center pt-2 pb-1 sm:hidden">
-            <span className="h-1 w-10 rounded-full bg-border" />
-          </div>
-
           {/* Header bar */}
           <div className="flex items-center justify-between border-b border-border/60 px-4 py-2.5 sm:px-5">
             <div className="flex items-center gap-2">
