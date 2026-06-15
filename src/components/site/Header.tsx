@@ -508,6 +508,80 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
           <div className="lg:hidden inline-flex">
             <PushNotificationButton />
           </div>
+          {/* Mobile account bottom-sheet trigger */}
+          {user && (
+            <Drawer>
+              <DrawerTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={user.email ?? "Tài khoản"}
+                  className="xl:hidden relative inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1A1612] ring-2 ring-[var(--gold)]/25 ring-offset-1 ring-offset-background active:scale-95 transition-transform"
+                >
+                  <span className="text-[var(--gold)] text-[13px] font-bold uppercase">
+                    {(user.email ?? "?").slice(0, 1)}
+                  </span>
+                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-background" />
+                </button>
+              </DrawerTrigger>
+              <DrawerContent className="xl:hidden border-[var(--gold)]/15 bg-popover">
+                <DrawerTitle className="sr-only">Tài khoản</DrawerTitle>
+                <div className="mx-auto w-full max-w-md px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+                  {/* Account header */}
+                  <div className="flex items-center gap-3 px-1 pt-1 pb-4 border-b border-border/60">
+                    <span className="relative flex-shrink-0">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A1612] ring-2 ring-[var(--gold)]/30 ring-offset-2 ring-offset-popover">
+                        <span className="text-[var(--gold)] text-base font-bold uppercase">
+                          {(user.email ?? "?").slice(0, 1)}
+                        </span>
+                      </span>
+                      <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-popover" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/80 font-medium">Đã đăng nhập</div>
+                      <div className="text-sm font-semibold text-foreground truncate" title={user.email ?? ""}>{user.email}</div>
+                    </div>
+                  </div>
+
+                  {/* Items — large touch targets */}
+                  <div className="mt-3 grid gap-1.5">
+                    {[
+                      { to: "/portfolio", icon: PieChart, label: "Danh mục của tôi", desc: "Theo dõi & phân bổ tài sản" },
+                      { to: "/cai-dat", icon: Settings, label: "Cài đặt tài khoản", desc: "Bảo mật, mật khẩu, email" },
+                      { to: "/cai-dat/ban-tin", icon: Mail, label: "Quản lý bản tin", desc: "Chủ đề & tần suất nhận tin" },
+                    ].map((it) => (
+                      <DrawerClose asChild key={it.to}>
+                        <button
+                          type="button"
+                          onClick={() => navigate({ to: it.to as never })}
+                          className="group flex w-full items-center gap-3 rounded-2xl border border-border bg-card/60 px-3 py-3 text-left active:scale-[0.98] active:bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] transition-all"
+                        >
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/60 text-[var(--gold)]">
+                            <it.icon className="h-4 w-4" />
+                          </span>
+                          <span className="flex-1 min-w-0">
+                            <span className="block text-sm font-medium text-foreground">{it.label}</span>
+                            <span className="block text-[11.5px] text-muted-foreground mt-0.5">{it.desc}</span>
+                          </span>
+                          <ChevronDown className="h-3.5 w-3.5 -rotate-90 text-muted-foreground/50" strokeWidth={3} />
+                        </button>
+                      </DrawerClose>
+                    ))}
+                  </div>
+
+                  {/* Sign out */}
+                  <DrawerClose asChild>
+                    <button
+                      type="button"
+                      onClick={() => signOut().then(() => navigate({ to: "/" }))}
+                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/25 bg-destructive/5 px-3 py-3 text-sm font-semibold text-destructive active:bg-destructive/10 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" /> Đăng xuất
+                    </button>
+                  </DrawerClose>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
           <button
             data-testid="header-mobile-menu-trigger"
             className="xl:hidden inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
