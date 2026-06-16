@@ -9,7 +9,11 @@ mkdir .desktop-build
 cd .desktop-build
 '{"name":"marketwatch-desktop-build","version":"1.0.0","private":true}' | Out-File -Encoding utf8 package.json
 npm install --no-audit --no-fund --ignore-scripts electron-builder@25
-.\node_modules\.bin\electron-builder.cmd --win --x64 --config electron-builder.yml --projectDir .. --publish never
+cd ..
+mkdir build
+copy public\favicon.ico build\icon.ico
+copy public\icon-512.png build\icon.png
+.\.desktop-build\node_modules\.bin\electron-builder.cmd --win --x64 --config electron-builder.yml --projectDir . --publish never
 ```
 
 Output: `dist-electron/MarketWatch-Setup-<version>-x64.exe`
