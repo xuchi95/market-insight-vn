@@ -1,6 +1,10 @@
 {
   "name": "tanstack_start_ts",
   "private": true,
+  "version": "1.0.0",
+  "description": "MarketWatch desktop app",
+  "author": "MarketWatch",
+  "main": "electron/main.cjs",
   "sideEffects": false,
   "type": "module",
   "scripts": {
