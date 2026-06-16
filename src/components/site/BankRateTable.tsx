@@ -97,9 +97,21 @@ export function BankRateTable() {
                     {r.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-right tabular">{r.cash ? fmtNum(r.cash, 2) : "—"}</td>
-                <td className="px-4 py-3 text-right tabular">{r.transfer ? fmtNum(r.transfer, 2) : "—"}</td>
-                <td className="px-4 py-3 text-right tabular font-semibold">{r.sell ? fmtNum(r.sell, 2) : "—"}</td>
+                <td className="px-4 py-3 text-right tabular">
+                  {r.cash ? fmtNum(r.cash, 2) : (
+                    <span title="Không niêm yết" className="cursor-help text-muted-foreground/60">—</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-right tabular">
+                  {r.transfer ? fmtNum(r.transfer, 2) : (
+                    <span title="Không niêm yết" className="cursor-help text-muted-foreground/60">—</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-right tabular font-semibold">
+                  {r.sell ? fmtNum(r.sell, 2) : (
+                    <span title="Không niêm yết" className="cursor-help text-muted-foreground/60">—</span>
+                  )}
+                </td>
               </tr>
             ))}
             {!isLoading && rows.length === 0 && !showErrorOnly && (
