@@ -1,0 +1,1 @@
+{"name":"desktop-build","version":"1.0.0","private":true,"dependencies":{"electron-builder":"^25.1.8"}}
