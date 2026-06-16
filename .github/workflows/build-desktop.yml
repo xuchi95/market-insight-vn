@@ -18,23 +18,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Install desktop build deps (isolated)
-        shell: bash
-        run: |
-          mkdir -p .desktop-build
-          cd .desktop-build
-          npm init -y >/dev/null
-          npm install --ignore-scripts electron@33 electron-builder@25
+      - name: Install desktop build deps
+        run: npm install --ignore-scripts --no-save electron@33 electron-builder@25
       - name: Build (Windows)
         if: matrix.os == 'windows-latest'
-        shell: bash
-        run: ./.desktop-build/node_modules/.bin/electron-builder --win --x64 --config electron-builder.yml --publish never
+        run: npx electron-builder --win --x64 --config electron-builder.yml --publish never
       - name: Build (macOS)
         if: matrix.os == 'macos-latest'
-        run: ./.desktop-build/node_modules/.bin/electron-builder --mac --config electron-builder.yml --publish never
+        run: npx electron-builder --mac --config electron-builder.yml --publish never
       - name: Build (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: ./.desktop-build/node_modules/.bin/electron-builder --linux --config electron-builder.yml --publish never
+        run: npx electron-builder --linux --config electron-builder.yml --publish never
       - uses: actions/upload-artifact@v4
         with:
           name: marketwatch-desktop-${{ matrix.os }}
