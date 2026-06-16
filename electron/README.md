@@ -5,8 +5,11 @@ Bọc site MarketWatch (https://marketwatch.vn) thành app desktop Windows/macOS
 ## Build trên máy Windows
 
 ```powershell
-npm install --no-save electron electron-builder
-npx electron-builder --win --x64 --config electron-builder.yml
+mkdir .desktop-build
+cd .desktop-build
+'{"name":"marketwatch-desktop-build","version":"1.0.0","private":true}' | Out-File -Encoding utf8 package.json
+npm install --no-audit --no-fund --ignore-scripts electron-builder@25
+.\node_modules\.bin\electron-builder.cmd --win --x64 --config electron-builder.yml --projectDir .. --publish never
 ```
 
 Output: `dist-electron/MarketWatch-Setup-<version>-x64.exe`
