@@ -35,8 +35,14 @@ function detectBlockedScript(url: string): Promise<boolean> {
 }
 
 const DISMISS_KEY = "mw-adblock-dismiss";
+const DISMISS_SESSION_KEY = "mw-adblock-dismiss-session";
 
 function isDismissValid(cooldownHours: number): boolean {
+  try {
+    if (sessionStorage.getItem(DISMISS_SESSION_KEY) === "1") return true;
+  } catch {
+    // Ignore storage access errors in private/restricted browsing modes.
+  }
   if (cooldownHours <= 0) return false;
   try {
     const raw = localStorage.getItem(DISMISS_KEY);
@@ -180,18 +186,27 @@ export function AdblockGuard() {
     let cancelled = false;
     const run = async () => {
       if (running.current) return;
+      if (
+        settings.mode !== "hard" &&
+        settings.allow_dismiss &&
+        isDismissValid(settings.dismiss_cooldown_hours)
+      ) {
+        setDismissed(true);
+        return;
+      }
       running.current = true;
       const isBlocked = await detectAdblock(settings);
       running.current = false;
       if (!cancelled) {
-        if (isBlocked) {
+        if (!isBlocked) {
           try {
             localStorage.removeItem(DISMISS_KEY);
+            sessionStorage.removeItem(DISMISS_SESSION_KEY);
           } catch {
             // Ignore storage access errors in private/restricted browsing modes.
           }
-          setDismissed(false);
         }
+        setDismissed(false);
         setDetected(isBlocked);
       }
     };
@@ -366,10 +381,20 @@ export function AdblockGuard() {
   const c = themeColors(settings);
   const handleRetry = async () => {
     const still = await detectAdblock(settings);
-    if (!still) setDetected(false);
+    if (!still) {
+      try {
+        localStorage.removeItem(DISMISS_KEY);
+        sessionStorage.removeItem(DISMISS_SESSION_KEY);
+      } catch {
+        // Ignore storage access errors in private/restricted browsing modes.
+      }
+      setDismissed(false);
+      setDetected(false);
+    }
   };
   const handleDismiss = () => {
     try {
+      sessionStorage.setItem(DISMISS_SESSION_KEY, "1");
       localStorage.setItem(DISMISS_KEY, String(Date.now()));
     } catch {
       // Ignore storage access errors in private/restricted browsing modes.
