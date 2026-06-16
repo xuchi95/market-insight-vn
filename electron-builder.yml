@@ -7,6 +7,7 @@ directories:
   buildResources: build
 files:
   - electron/**/*
+  - build/icon.png
   - package.json
 asar: true
 
@@ -14,7 +15,7 @@ win:
   target:
     - target: nsis
       arch: [x64]
-  icon: build/icon.ico
+  icon: icon.ico
   artifactName: MarketWatch-Setup-${version}-${arch}.${ext}
 
 nsis:
@@ -29,12 +30,12 @@ mac:
   target:
     - target: dmg
       arch: [x64, arm64]
-  icon: build/icon.icns
+  icon: icon.icns
   category: public.app-category.finance
 
 linux:
   target:
     - AppImage
     - deb
-  icon: build/icon.png
+  icon: icon.png
   category: Finance
