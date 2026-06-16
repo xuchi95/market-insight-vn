@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, Sparkles, X } from "lucide-react";
+import { CheckCircle2, MailCheck, ShieldCheck, MailOpen, X } from "lucide-react";
 
 const STORAGE_KEY = "mw_auth_welcome";
 const EVENT_NAME = "mw:auth-welcome";
@@ -98,7 +98,14 @@ export function AuthWelcomeBanner() {
 
   const title = titleFor(payload.kind, payload);
   const description = descFor(payload.kind, payload);
-  const Icon = payload.kind === "signup" ? Sparkles : CheckCircle2;
+  const Icon =
+    payload.kind === "signup"
+      ? MailCheck
+      : payload.kind === "magic_sent"
+        ? MailOpen
+        : payload.kind === "verified"
+          ? ShieldCheck
+          : CheckCircle2;
 
   return (
     <div
