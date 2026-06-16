@@ -294,7 +294,18 @@ function AdminAdblockPage() {
           <div className="rounded-lg border border-border bg-card p-4 space-y-4">
             <div className="space-y-1.5">
               <Label>Chế độ chặn</Label>
-              <Select value={form.mode} onValueChange={(v) => update("mode", v as AdblockSettings["mode"])}>
+              <Select
+                value={form.mode}
+                onValueChange={(v) => {
+                  const mode = v as AdblockSettings["mode"];
+                  setForm((f) => f && ({
+                    ...f,
+                    mode,
+                    // Tự bật "Cho phép bỏ qua" khi chuyển sang chế độ mềm/trung bình
+                    allow_dismiss: mode === "hard" ? f.allow_dismiss : true,
+                  }));
+                }}
+              >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="soft">Mềm — chỉ nhắc, không chặn</SelectItem>
