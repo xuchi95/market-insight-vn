@@ -1,6 +1,7 @@
 appId: vn.marketwatch.desktop
 productName: MarketWatch
 copyright: Copyright © 2026 MarketWatch
+electronVersion: 33.2.1
 directories:
   output: dist-electron
   buildResources: build
