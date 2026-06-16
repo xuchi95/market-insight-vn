@@ -28,7 +28,7 @@ jobs:
       - name: Build (Windows)
         if: matrix.os == 'windows-latest'
         shell: bash
-        run: ./.desktop-build/node_modules/.bin/electron-builder --win --x64 --config ../electron-builder.yml --projectDir .. --publish never
+        run: ./node_modules/.bin/electron-builder --win --x64 --config ../electron-builder.yml --projectDir .. --publish never
         working-directory: .desktop-build
       - name: Build (macOS)
         if: matrix.os == 'macos-latest'
