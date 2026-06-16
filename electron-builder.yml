@@ -1,0 +1,39 @@
+appId: vn.marketwatch.desktop
+productName: MarketWatch
+copyright: Copyright © 2026 MarketWatch
+directories:
+  output: dist-electron
+  buildResources: build
+files:
+  - electron/**/*
+  - package.json
+asar: true
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  artifactName: MarketWatch-Setup-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: MarketWatch
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  icon: build/icon.icns
+  category: public.app-category.finance
+
+linux:
+  target:
+    - AppImage
+    - deb
+  icon: build/icon.png
+  category: Finance
