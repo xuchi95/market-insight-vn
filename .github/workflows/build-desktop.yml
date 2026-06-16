@@ -14,10 +14,11 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "24"
+          package-manager-cache: false
       - name: Install desktop build deps
         shell: bash
         run: |
@@ -25,21 +26,27 @@ jobs:
           cd .desktop-build
           printf '{"name":"marketwatch-desktop-build","version":"1.0.0","private":true}\n' > package.json
           npm install --no-audit --no-fund --ignore-scripts electron-builder@25
+      - name: Verify desktop files
+        shell: bash
+        run: |
+          test -f electron-builder.yml
+          test -f electron/main.cjs
+          test -f package.json
+          test -f build/icon.ico
+          test -f build/icon.icns
+          test -f build/icon.png
       - name: Build (Windows)
         if: matrix.os == 'windows-latest'
         shell: bash
-        run: ./node_modules/.bin/electron-builder --win --x64 --config electron-builder.yml --projectDir .. --publish never
-        working-directory: .desktop-build
+        run: .desktop-build/node_modules/.bin/electron-builder --win --x64 --config electron-builder.yml --projectDir . --publish never
       - name: Build (macOS)
         if: matrix.os == 'macos-latest'
         shell: bash
-        run: ./node_modules/.bin/electron-builder --mac --config electron-builder.yml --projectDir .. --publish never
-        working-directory: .desktop-build
+        run: .desktop-build/node_modules/.bin/electron-builder --mac --config electron-builder.yml --projectDir . --publish never
       - name: Build (Linux)
         if: matrix.os == 'ubuntu-latest'
         shell: bash
-        run: ./node_modules/.bin/electron-builder --linux --config electron-builder.yml --projectDir .. --publish never
-        working-directory: .desktop-build
+        run: .desktop-build/node_modules/.bin/electron-builder --linux --config electron-builder.yml --projectDir . --publish never
       - uses: actions/upload-artifact@v4
         with:
           name: marketwatch-desktop-${{ matrix.os }}
