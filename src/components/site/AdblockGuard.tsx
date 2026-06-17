@@ -212,23 +212,29 @@ export function AdblockGuard() {
     };
     // Chạy lần đầu sau 800ms để AdSense script kịp khởi tạo nếu KHÔNG bị block.
     const initial = setTimeout(run, 800);
-    // Luôn recheck định kỳ để khi user bật lại adblock thì popup hiện trở lại.
-    const intervalMs = Math.max(3, settings.recheck_interval_sec || 5) * 1000;
-    timer.current = setInterval(run, intervalMs);
+    // recheck_interval_sec === 0 ⇒ chỉ check 1 lần khi load (theo mô tả ở admin UI).
+    // Khi > 0: recheck định kỳ + wake events để khi user bật lại adblock thì popup hiện trở lại.
+    const recheck = settings.recheck_interval_sec | 0;
     const wakeEvents = [
       "focus",
       "visibilitychange",
       "pageshow",
       "online",
-      "pointerdown",
-      "keydown",
     ] as const;
-    wakeEvents.forEach((eventName) => window.addEventListener(eventName, run, { passive: true }));
+    if (recheck > 0) {
+      const intervalMs = Math.max(3, recheck) * 1000;
+      timer.current = setInterval(run, intervalMs);
+      wakeEvents.forEach((eventName) =>
+        window.addEventListener(eventName, run, { passive: true }),
+      );
+    }
     return () => {
       cancelled = true;
       clearTimeout(initial);
       if (timer.current) clearInterval(timer.current);
-      wakeEvents.forEach((eventName) => window.removeEventListener(eventName, run));
+      if (recheck > 0) {
+        wakeEvents.forEach((eventName) => window.removeEventListener(eventName, run));
+      }
     };
   }, [settings, whitelisted]);
 
