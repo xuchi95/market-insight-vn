@@ -34,14 +34,14 @@ interface IndicatorDef {
   scale?: number;        // multiplier (e.g. IMF NGDPD is in billion USD → ×1e9)
 }
 const INDICATORS: IndicatorDef[] = [
-  { code: "NY.GDP.MKTP.KD.ZG", name: "Tăng trưởng GDP",            unit: "% / năm",   source: "imf", imfCode: "NGDP_RPCH" },
-  { code: "FP.CPI.TOTL.ZG",    name: "Lạm phát (CPI)",              unit: "% / năm",   source: "imf", imfCode: "PCPIPCH" },
-  { code: "SL.UEM.TOTL.ZS",    name: "Tỷ lệ thất nghiệp",           unit: "% lao động",source: "imf", imfCode: "LUR" },
+  { code: "NY.GDP.MKTP.KD.ZG", name: "Tăng trưởng GDP",            unit: "% / năm",   source: "imf", imfCode: "NGDP_RPCH", wbCode: "NY.GDP.MKTP.KD.ZG" },
+  { code: "FP.CPI.TOTL.ZG",    name: "Lạm phát (CPI)",              unit: "% / năm",   source: "imf", imfCode: "PCPIPCH",   wbCode: "FP.CPI.TOTL.ZG" },
+  { code: "SL.UEM.TOTL.ZS",    name: "Tỷ lệ thất nghiệp",           unit: "% lao động",source: "imf", imfCode: "LUR",       wbCode: "SL.UEM.TOTL.ZS" },
   { code: "FR.INR.LEND",       name: "Lãi suất cho vay bình quân",  unit: "% / năm",   source: "wb",  wbCode: "FR.INR.LEND" },
   { code: "FI.RES.TOTL.CD",    name: "Dự trữ ngoại hối",            unit: "USD",       source: "wb",  wbCode: "FI.RES.TOTL.CD" },
   { code: "NE.EXP.GNFS.CD",    name: "Kim ngạch xuất khẩu",         unit: "USD",       source: "wb",  wbCode: "NE.EXP.GNFS.CD" },
   { code: "NE.IMP.GNFS.CD",    name: "Kim ngạch nhập khẩu",         unit: "USD",       source: "wb",  wbCode: "NE.IMP.GNFS.CD" },
-  { code: "NY.GDP.MKTP.CD",    name: "GDP danh nghĩa",              unit: "USD",       source: "imf", imfCode: "NGDPD", scale: 1e9 },
+  { code: "NY.GDP.MKTP.CD",    name: "GDP danh nghĩa",              unit: "USD",       source: "imf", imfCode: "NGDPD", scale: 1e9, wbCode: "NY.GDP.MKTP.CD" },
 ];
 
 const CACHE_MS = 24 * 60 * 60 * 1000; // 24h — annual data
@@ -116,7 +116,9 @@ async function fetchFromIMF(def: IndicatorDef): Promise<MacroIndicator> {
 async function fetchIndicator(def: IndicatorDef): Promise<MacroIndicator> {
   if (def.source === "imf") {
     try {
-      return await fetchFromIMF(def);
+      const r = await fetchFromIMF(def);
+      if (r.history.length === 0 && def.wbCode) return fetchFromWorldBank(def);
+      return r;
     } catch (e) {
       // Fall back to World Bank using the same conceptual code when possible.
       if (def.wbCode) return fetchFromWorldBank(def);
