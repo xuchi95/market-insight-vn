@@ -166,10 +166,21 @@ export function toTradingViewCryptoSymbol(coinSymbol: string): string {
   const SPECIAL: Record<string, string> = {
     USDT: "BINANCE:USDTUSD",
     USDC: "BINANCE:USDCUSDT",
-    DAI: "BINANCE:DAIUSDT",
+    DAI: "COINBASE:DAIUSD",
     WBTC: "BINANCE:WBTCUSDT",
     // Pi Network không có cặp trên Binance — dùng OKX:PIUSDT (thanh khoản tốt nhất)
     PI: "OKX:PIUSDT",
+    // TON đã đổi tên thành GRAM (cuối 2025) nhưng Binance vẫn niêm yết là TONUSDT.
+    GRAM: "BINANCE:TONUSDT",
+    // Coin không có cặp USDT trên Binance — dùng sàn khác có thanh khoản tốt.
+    XMR: "KRAKEN:XMRUSD",
+    MKR: "COINBASE:MKRUSD",
+    LEO: "BITFINEX:LEOUSD",
+    KAS: "KUCOIN:KASUSDT",
+    // Symbol cũ trước khi rebrand — phòng dữ liệu cache còn sót.
+    TON: "BINANCE:TONUSDT",
+    MATIC: "BINANCE:POLUSDT",
+    RNDR: "BINANCE:RENDERUSDT",
   };
   if (SPECIAL[s]) return SPECIAL[s];
   return `BINANCE:${s}USDT`;
