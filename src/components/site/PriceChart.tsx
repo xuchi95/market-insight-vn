@@ -350,12 +350,21 @@ export function PriceChart({
 
   // Zoom state (indices into points array). null = full range.
   const [zoom, setZoom] = useState<{ start: number; end: number } | null>(null);
+  // Reset zoom whenever the underlying data length changes (asset/range switch, new ticks).
+  const lastLenRef = useRef(0);
+  useEffect(() => {
+    if (points.length !== lastLenRef.current) {
+      lastLenRef.current = points.length;
+      setZoom(null);
+    }
+  }, [points.length]);
+  const brushStart = zoom ? Math.max(0, Math.min(zoom.start, points.length - 1)) : 0;
+  const brushEnd = zoom ? Math.max(brushStart, Math.min(zoom.end, points.length - 1)) : Math.max(0, points.length - 1);
   const visiblePoints = useMemo(() => {
-    if (!zoom || !points.length) return points;
-    const s = Math.max(0, Math.min(zoom.start, points.length - 1));
-    const e = Math.max(s, Math.min(zoom.end, points.length - 1));
-    return points.slice(s, e + 1);
-  }, [points, zoom]);
+    if (!points.length) return points;
+    if (!zoom) return points;
+    return points.slice(brushStart, brushEnd + 1);
+  }, [points, zoom, brushStart, brushEnd]);
 
   const stats = useMemo(() => {
     const arr = visiblePoints;
