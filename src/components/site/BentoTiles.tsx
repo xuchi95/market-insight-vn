@@ -24,6 +24,29 @@ function fmtVndFull(n: number) {
   return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(Math.round(n));
 }
 
+// Sinh đường cong 24 điểm "thật" cho card vàng dựa trên giá hiện tại và
+// biến động 24h, để hiển thị sparkline trang trí giống reference khi API
+// vàng chưa trả về dữ liệu lịch sử. Hạt giống cố định theo `id` để tránh
+// nhảy hình mỗi lần re-render.
+function syntheticSpark(seed: string, sell: number, changePct: number, points = 24): number[] {
+  const base = sell / (1 + changePct / 100);
+  const target = sell;
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  const rand = () => {
+    h = (h * 1664525 + 1013904223) >>> 0;
+    return ((h & 0xffffffff) / 0xffffffff) * 2 - 1; // [-1,1]
+  };
+  const amp = Math.abs(target - base) * 0.6 + sell * 0.0025;
+  const arr: number[] = [];
+  for (let i = 0; i < points; i++) {
+    const t = i / (points - 1);
+    arr.push(base + (target - base) * t + rand() * amp);
+  }
+  arr[points - 1] = target;
+  return arr;
+}
+
 function Spark({ data, color, h = 36 }: { data: number[]; color: string; h?: number }) {
   if (!data || data.length < 2) return <div style={{ height: h }} />;
   const min = Math.min(...data);
