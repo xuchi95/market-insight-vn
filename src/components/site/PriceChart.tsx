@@ -350,12 +350,21 @@ export function PriceChart({
 
   // Zoom state (indices into points array). null = full range.
   const [zoom, setZoom] = useState<{ start: number; end: number } | null>(null);
+  // Reset zoom whenever the underlying data length changes (asset/range switch, new ticks).
+  const lastLenRef = useRef(0);
+  useEffect(() => {
+    if (points.length !== lastLenRef.current) {
+      lastLenRef.current = points.length;
+      setZoom(null);
+    }
+  }, [points.length]);
+  const brushStart = zoom ? Math.max(0, Math.min(zoom.start, points.length - 1)) : 0;
+  const brushEnd = zoom ? Math.max(brushStart, Math.min(zoom.end, points.length - 1)) : Math.max(0, points.length - 1);
   const visiblePoints = useMemo(() => {
-    if (!zoom || !points.length) return points;
-    const s = Math.max(0, Math.min(zoom.start, points.length - 1));
-    const e = Math.max(s, Math.min(zoom.end, points.length - 1));
-    return points.slice(s, e + 1);
-  }, [points, zoom]);
+    if (!points.length) return points;
+    if (!zoom) return points;
+    return points.slice(brushStart, brushEnd + 1);
+  }, [points, zoom, brushStart, brushEnd]);
 
   const stats = useMemo(() => {
     const arr = visiblePoints;
@@ -502,7 +511,7 @@ export function PriceChart({
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={visiblePoints} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
+              <AreaChart data={points} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -545,15 +554,18 @@ export function PriceChart({
                     height={24}
                     stroke="var(--primary)"
                     fill="var(--muted)"
-                    travellerWidth={8}
+                    travellerWidth={10}
+                    startIndex={brushStart}
+                    endIndex={brushEnd}
                     tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
                     onChange={(e: { startIndex?: number; endIndex?: number }) => {
-                      if (typeof e.startIndex === "number" && typeof e.endIndex === "number") {
-                        if (e.startIndex === 0 && e.endIndex === points.length - 1) {
-                          setZoom(null);
-                        } else {
-                          setZoom({ start: e.startIndex, end: e.endIndex });
-                        }
+                      if (typeof e.startIndex !== "number" || typeof e.endIndex !== "number") return;
+                      const s = e.startIndex;
+                      const en = e.endIndex;
+                      if (s === 0 && en === points.length - 1) {
+                        setZoom(null);
+                      } else if (s !== brushStart || en !== brushEnd) {
+                        setZoom({ start: s, end: en });
                       }
                     }}
                   />
