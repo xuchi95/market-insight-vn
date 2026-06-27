@@ -589,7 +589,7 @@ export const Route = createFileRoute("/api/public/crypto")({
             headers: { "Content-Type": "application/json", ...CORS },
           });
         }
-      },
+      }),
     },
   },
 });
