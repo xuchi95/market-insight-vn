@@ -93,7 +93,7 @@ function Stat({
   return (
     <div className="min-w-0">
       <div className="text-[10px] md:text-[11px] uppercase tracking-[0.16em] text-muted-foreground/80">{label}</div>
-      <div className="mt-1 tabular-nums text-lg md:text-xl leading-tight font-semibold text-foreground truncate">{value}</div>
+      <div className="mt-1 tabular-nums text-[15px] md:text-base leading-tight font-semibold text-foreground truncate">{value}</div>
       {has ? (
         <div className={`mt-0.5 text-[11px] tabular-nums ${up ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
           {up ? "+" : ""}
@@ -141,7 +141,7 @@ export function MarketSummaryCard() {
 
       <ChartArea data={data?.sparkline} />
 
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3 border-t border-border/60 pt-4">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-3 border-t border-border/60 pt-4">
         <Stat
           label="VN-Index"
           value={data?.vnIndex ? fmtNum(data.vnIndex.value, 2) : "—"}
