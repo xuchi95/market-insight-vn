@@ -108,32 +108,69 @@ export function RelatedLinks({
   const items = RELATED[current].map((k) => ALL[k]);
   return (
     <section aria-labelledby="related-links" className="space-y-5 md:space-y-6">
-      <div className="flex items-end justify-between gap-4 border-b border-border/60 pb-4">
-        <h2 id="related-links" className="font-display text-2xl md:text-3xl leading-tight tracking-tight">
-          {title}
-        </h2>
-        <span className="eyebrow opacity-70 hidden sm:inline">{items.length} chủ đề</span>
+      <div className="flex items-end justify-between gap-4 border-t border-border/60 pt-5">
+        <div className="min-w-0 space-y-1.5">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-[var(--gold)]/80">
+            <span className="inline-block h-px w-6 bg-[var(--gold)]/60" />
+            Điều hướng
+          </div>
+          <h2 id="related-links" className="font-display text-2xl md:text-3xl leading-tight tracking-tight">
+            {title}
+          </h2>
+        </div>
+        <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-muted-foreground/80 tabular shrink-0">
+          <span className="text-[var(--gold)] font-medium">{String(items.length).padStart(2, "0")}</span>
+          chủ đề
+        </span>
       </div>
       <ul className={gridClassName ?? "grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
-        {items.map(({ to, keyword, desc, eyebrow, Icon }) => (
+        {items.map(({ to, keyword, desc, eyebrow, Icon }, idx) => (
           <li key={to}>
             <Link
               to={to}
-              className="group relative flex h-full flex-col gap-3 rounded-xl border border-border/60 bg-card/60 p-4 md:p-5 transition-all hover:border-[var(--gold)]/70 hover:bg-accent/40 hover:-translate-y-0.5"
+              className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[color-mix(in_oklab,var(--gold)_14%,var(--border))] bg-card/70 transition-all duration-300 hover:border-[color-mix(in_oklab,var(--gold)_45%,var(--border))] hover:bg-card hover:-translate-y-0.5 hover:shadow-[0_18px_44px_-22px_color-mix(in_oklab,var(--gold)_45%,transparent)]"
             >
-              <div className="flex items-center justify-between">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-[var(--gold)]">
-                  <Icon className="h-[18px] w-[18px]" />
-                </span>
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-all group-hover:text-[var(--gold)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              {/* gold top hairline that animates on hover */}
+              <span
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/70 to-transparent opacity-40 transition-opacity duration-300 group-hover:opacity-100"
+              />
+              {/* corner index */}
+              <span
+                aria-hidden
+                className="absolute right-4 top-4 text-[10px] tabular tracking-[0.18em] text-muted-foreground/40 transition-colors group-hover:text-[var(--gold)]/70"
+              >
+                {String(idx + 1).padStart(2, "0")}
+              </span>
+
+              <div className="flex flex-col gap-4 p-5 md:p-6">
+                <div className="flex items-center justify-between">
+                  <span className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[color-mix(in_oklab,var(--gold)_22%,var(--border))] bg-gradient-to-br from-[color-mix(in_oklab,var(--gold)_18%,transparent)] to-transparent text-[var(--gold)] shadow-[inset_0_1px_0_color-mix(in_oklab,white_8%,transparent)] transition-transform duration-300 group-hover:scale-[1.04]">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <span className="block text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--gold)]/85">
+                    {eyebrow}
+                  </span>
+                  <span className="block font-display text-[17px] md:text-lg leading-snug text-foreground">
+                    {keyword}
+                  </span>
+                  <span className="block text-[13px] text-muted-foreground/90 leading-relaxed line-clamp-2">
+                    {desc}
+                  </span>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <span className="eyebrow opacity-80">{eyebrow}</span>
-                <span className="block font-display text-lg md:text-xl leading-snug text-foreground">
-                  {keyword}
+
+              {/* footer meta row */}
+              <div className="mt-auto flex items-center justify-between gap-3 border-t border-border/50 px-5 md:px-6 py-3 text-[11px] text-muted-foreground/80">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]/80 shadow-[0_0_0_3px_color-mix(in_oklab,var(--gold)_18%,transparent)]" />
+                  Cập nhật realtime
                 </span>
-                <span className="block text-sm text-muted-foreground leading-relaxed">
-                  {desc}
+                <span className="inline-flex items-center gap-1 font-medium text-[var(--gold)] transition-transform duration-300 group-hover:translate-x-0.5">
+                  Khám phá
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5" />
                 </span>
               </div>
             </Link>
