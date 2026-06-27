@@ -68,7 +68,7 @@ function Index() {
           <section className="py-10 md:py-14 border-b border-border">
             <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
               <div className="lg:col-span-7 animate-fade-in">
-                <h1 className="font-display font-bold text-[2.15rem] sm:text-[3.2rem] md:text-[3.75rem] lg:text-[4.4rem] leading-[1.04] tracking-[-0.018em] text-foreground text-balance">
+                <h1 className="font-display font-bold text-[2rem] sm:text-[2.5rem] md:text-[2.85rem] lg:text-[3.1rem] leading-[1.06] tracking-[-0.018em] text-foreground text-balance">
                   Theo dõi giá{" "}
                   <em className="not-italic text-[var(--gold)]">vàng,</em>
                   <br />
