@@ -493,6 +493,30 @@ export type Database = {
         }
         Relationships: []
       }
+      api_request_metrics: {
+        Row: {
+          bucket_minute: string
+          count: number
+          endpoint: string
+          errors: number
+          total_duration_ms: number
+        }
+        Insert: {
+          bucket_minute: string
+          count?: number
+          endpoint: string
+          errors?: number
+          total_duration_ms?: number
+        }
+        Update: {
+          bucket_minute?: string
+          count?: number
+          endpoint?: string
+          errors?: number
+          total_duration_ms?: number
+        }
+        Relationships: []
+      }
       app_ai_settings: {
         Row: {
           api_base_url: string | null
@@ -1569,6 +1593,16 @@ export type Database = {
           jobname: string
           runs: number
         }[]
+      }
+      bump_api_metrics: {
+        Args: {
+          p_bucket: string
+          p_count: number
+          p_endpoint: string
+          p_errors: number
+          p_total_ms: number
+        }
+        Returns: undefined
       }
       closest_price_samples: {
         Args: {
