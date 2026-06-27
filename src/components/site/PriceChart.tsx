@@ -187,19 +187,16 @@ function ChartTooltip({
   payload,
   asset,
   firstValue,
-  label,
 }: {
   active?: boolean;
   payload?: Array<{ payload?: Point }>;
   asset: Asset;
   firstValue?: number;
-  label?: number;
 }) {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
   if (!p) return null;
 
-  const isForex = asset.endsWith("-vnd");
   const isCrypto = CRYPTO_IDS.includes(asset);
   const isGold = asset === "gold-sjc";
   const unit = isCrypto ? "USD" : isGold ? "đ/chỉ" : "VND";
@@ -210,13 +207,6 @@ function ChartTooltip({
     new Intl.NumberFormat(isCrypto ? "en-US" : "vi-VN", {
       maximumFractionDigits: decimals,
       minimumFractionDigits: decimals === 2 ? 2 : 0,
-    }).format(n);
-
-  const fmtCompact = (n: number) =>
-    (isCrypto ? "$" : "") +
-    new Intl.NumberFormat(isCrypto ? "en-US" : "vi-VN", {
-      notation: "compact",
-      maximumFractionDigits: 2,
     }).format(n);
 
   const date = new Date(p.t);
@@ -243,7 +233,7 @@ function ChartTooltip({
           <span className="font-mono text-sm font-semibold text-foreground tabular">{time}</span>
           <span className="text-[11px] text-muted-foreground">{day}</span>
         </div>
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{rangeShortLabel(label)}</span>
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{rangeShortLabel(p.t)}</span>
       </div>
 
       {/* Main price */}
@@ -264,7 +254,7 @@ function ChartTooltip({
           <span className="text-[11px] sm:text-xs text-muted-foreground">So với đầu kỳ</span>
           <span className="inline-flex items-center gap-1 font-semibold tabular text-xs sm:text-sm" style={{ color: diffColor }}>
             <Arrow className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            {up ? "+" : ""}{fmtCompact(diff)}
+            {up ? "+" : ""}{fmt(diff)}
             <span className="font-normal opacity-80">({up ? "+" : ""}{pct.toFixed(2)}%)</span>
           </span>
         </div>
