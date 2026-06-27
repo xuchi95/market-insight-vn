@@ -112,8 +112,9 @@ export function MarketSummaryCard() {
   const { data } = useQuery({
     queryKey: ["market-overview"],
     queryFn: fetchOverview,
-    staleTime: 60_000,
-    refetchInterval: 60_000,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: true,
     retry: 1,
   });
 
