@@ -187,13 +187,13 @@ function ChartTooltip({
   payload,
   asset,
   firstValue,
-  prevValue,
+  label,
 }: {
   active?: boolean;
   payload?: Array<{ payload?: Point }>;
   asset: Asset;
   firstValue?: number;
-  prevValue?: number;
+  label?: number;
 }) {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
@@ -212,16 +212,19 @@ function ChartTooltip({
       minimumFractionDigits: decimals === 2 ? 2 : 0,
     }).format(n);
 
-  const time = new Date(p.t).toLocaleString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  const fmtCompact = (n: number) =>
+    (isCrypto ? "$" : "") +
+    new Intl.NumberFormat(isCrypto ? "en-US" : "vi-VN", {
+      notation: "compact",
+      maximumFractionDigits: 2,
+    }).format(n);
+
+  const date = new Date(p.t);
+  const time = date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  const day = date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 
   const hasBuySell = typeof p.buy === "number" && typeof p.sell === "number";
-  const baseline = firstValue ?? prevValue;
+  const baseline = firstValue ?? p.v;
   const diff = baseline != null ? p.v - baseline : 0;
   const pct = baseline ? (diff / baseline) * 100 : 0;
   const up = diff >= 0;
@@ -230,43 +233,73 @@ function ChartTooltip({
 
   return (
     <div
-      className="rounded-xl border border-border bg-popover/95 backdrop-blur p-2.5 sm:p-3 shadow-lg text-xs sm:text-sm min-w-[200px] sm:min-w-[240px] max-w-[88vw]"
+      className="rounded-xl border border-border bg-popover shadow-2xl p-3 sm:p-3.5 text-xs sm:text-sm min-w-[220px] sm:min-w-[260px] max-w-[92vw]"
       role="tooltip"
+      style={{ pointerEvents: "none" }}
     >
-      <div className="text-[11px] sm:text-xs text-muted-foreground mb-2 tabular">{time}</div>
-      {hasBuySell ? (
-        <div className="space-y-1">
-          <div className="flex justify-between gap-4">
-            <span className="text-muted-foreground">Mua</span>
-            <span className="font-semibold tabular text-foreground">{fmt(p.buy!)} <span className="text-[11px] font-normal text-muted-foreground">{unit}</span></span>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-muted-foreground">Bán</span>
-            <span className="font-semibold tabular text-foreground">{fmt(p.sell!)} <span className="text-[11px] font-normal text-muted-foreground">{unit}</span></span>
-          </div>
-          <div className="flex justify-between gap-4 mt-1 pt-1.5 border-t border-border/50">
-            <span className="text-muted-foreground">Trung bình</span>
-            <span className="font-semibold tabular text-primary">{fmt(p.v)} <span className="text-[11px] font-normal text-muted-foreground">{unit}</span></span>
-          </div>
+      {/* Header: timestamp */}
+      <div className="flex items-center justify-between gap-3 mb-2.5 pb-2 border-b border-border/60">
+        <div className="flex items-baseline gap-1.5">
+          <span className="font-mono text-sm font-semibold text-foreground tabular">{time}</span>
+          <span className="text-[11px] text-muted-foreground">{day}</span>
         </div>
-      ) : (
-        <div className="flex justify-between gap-4">
-          <span className="text-muted-foreground">Giá</span>
-          <span className="font-semibold tabular text-foreground">{fmt(p.v)} <span className="text-[11px] font-normal text-muted-foreground">{unit}</span></span>
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{rangeShortLabel(label)}</span>
+      </div>
+
+      {/* Main price */}
+      <div className="mb-2.5">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">{isGold ? "Giá trung bình" : "Giá"}</div>
+        <div className="font-display text-xl sm:text-2xl font-semibold tabular tracking-tight text-foreground">
+          {fmt(p.v)}
+          <span className="ml-1 text-xs sm:text-sm font-medium text-muted-foreground">{unit}</span>
+        </div>
+      </div>
+
+      {/* Change vs start of period */}
+      {baseline != null && (
+        <div
+          className="rounded-lg px-2 py-1.5 flex items-center justify-between gap-3"
+          style={{ backgroundColor: "color-mix(in oklab, " + diffColor + " 10%, transparent)" }}
+        >
+          <span className="text-[11px] sm:text-xs text-muted-foreground">So với đầu kỳ</span>
+          <span className="inline-flex items-center gap-1 font-semibold tabular text-xs sm:text-sm" style={{ color: diffColor }}>
+            <Arrow className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            {up ? "+" : ""}{fmtCompact(diff)}
+            <span className="font-normal opacity-80">({up ? "+" : ""}{pct.toFixed(2)}%)</span>
+          </span>
         </div>
       )}
-      {baseline != null && (
-        <div className="mt-2 pt-1.5 border-t border-border/50 flex items-center justify-between gap-4">
-          <span className="text-[11px] sm:text-xs text-muted-foreground">So với đầu kỳ</span>
-          <span className="inline-flex items-center gap-1 font-semibold tabular" style={{ color: diffColor }}>
-            <Arrow className="h-3 w-3" />
-            {up ? "+" : ""}{fmt(diff)}
-            <span className="text-[11px] font-normal opacity-80">({up ? "+" : ""}{pct.toFixed(2)}%)</span>
-          </span>
+
+      {/* Gold buy/sell detail */}
+      {hasBuySell && (
+        <div className="mt-2.5 grid grid-cols-2 gap-2 text-xs">
+          <div className="rounded-md border border-border/50 bg-muted/30 px-2 py-1.5">
+            <div className="text-[10px] text-muted-foreground mb-0.5">Mua</div>
+            <div className="font-semibold tabular text-foreground">{fmt(p.buy!)}</div>
+          </div>
+          <div className="rounded-md border border-border/50 bg-muted/30 px-2 py-1.5">
+            <div className="text-[10px] text-muted-foreground mb-0.5">Bán</div>
+            <div className="font-semibold tabular text-foreground">{fmt(p.sell!)}</div>
+          </div>
         </div>
       )}
     </div>
   );
+}
+
+function rangeShortLabel(t?: number): string {
+  if (!t) return "";
+  const d = new Date(t);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffM = Math.round(diffMs / 60_000);
+  if (diffM < 1) return "Vừa xong";
+  if (diffM < 60) return `${diffM} phút trước`;
+  const diffH = Math.round(diffM / 60);
+  if (diffH < 24) return `${diffH} giờ trước`;
+  const diffD = Math.round(diffH / 24);
+  if (diffD < 30) return `${diffD} ngày trước`;
+  return d.toLocaleDateString("vi-VN", { month: "short", year: "numeric" });
 }
 
 export function PriceChart({
