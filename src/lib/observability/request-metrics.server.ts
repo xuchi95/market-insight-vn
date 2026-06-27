@@ -67,18 +67,22 @@ function record(endpoint: string, durationMs: number, ok: boolean) {
 
 /**
  * Wrap a server-route handler so each invocation is counted.
- * Usage:
- *   GET: instrument("public.crypto", async ({ request }) => { ... })
+ * Typed loosely as (ctx: any) => Promise<Response> so TanStack's per-route
+ * handler context (which includes request, params, context, ...) still
+ * flows through without TS friction at the call site.
  */
-export function instrument<TArgs extends unknown[], TRes extends Response>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function instrument(
   endpoint: string,
-  handler: (...args: TArgs) => Promise<TRes>,
-): (...args: TArgs) => Promise<TRes> {
-  return async (...args: TArgs) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handler: (ctx: any) => Promise<Response>,
+): (ctx: any) => Promise<Response> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return async (ctx: any) => {
     const start = Date.now();
     let ok = true;
     try {
-      const res = await handler(...args);
+      const res = await handler(ctx);
       ok = res.status < 500;
       return res;
     } catch (e) {
