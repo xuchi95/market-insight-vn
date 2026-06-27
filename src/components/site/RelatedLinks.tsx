@@ -85,7 +85,7 @@ const ALL: Record<Exclude<PageKey, "home">, LinkItem> = {
 
 // Gợi ý liên kết liên quan cho mỗi trang (tránh tự liên kết).
 const RELATED: Record<PageKey, (keyof typeof ALL)[]> = {
-  home: ["gold", "crypto", "forex", "stocks", "savings", "economy"],
+  home: ["gold", "crypto", "forex", "stocks", "savings"],
   gold: ["forex", "converter", "crypto", "economy"],
   crypto: ["converter", "forex", "gold", "stocks"],
   forex: ["converter", "bank-rates", "savings", "economy"],
