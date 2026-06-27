@@ -221,11 +221,11 @@ const BINANCE_SYMBOL: Record<string, string> = {
   notcoin: "NOTUSDT",
 };
 
-// Stablecoins pinned to $1 (Binance pair is the stable itself, no useful tick).
+// USDT là quote currency của Binance — không có pair USDTUSDT, pin 1.
+// USDC/DAI lấy giá thật từ ngoài (USDCUSDT trên Binance, DAI từ OKX) ở
+// `fetchExtraTickers` bên dưới, không pin nữa để hiển thị peg lệch chính xác.
 const STABLE_USD: Record<string, number> = {
   tether: 1,
-  "usd-coin": 1,
-  dai: 1,
 };
 
 // Live tickers: refresh every 5s; Binance is ~1s realtime upstream.
@@ -234,6 +234,92 @@ const TICKER_TIMEOUT_MS = 3_000;
 interface LiveTick { price: number; change24h: number; volume24h: number }
 let tickerCache: { at: number; data: Map<string, LiveTick> } | null = null;
 let tickerInflight: Promise<Map<string, LiveTick>> | null = null;
+
+// Coin không có Binance pair → kéo từ OKX / Kraken (cùng cadence 5s).
+// Map: CoinGecko id -> { source, query }
+const EXTRA_SOURCES: Record<string, { source: "okx" | "kraken"; inst: string }> = {
+  "pi-network": { source: "okx", inst: "PI-USDT" },
+  "leo-token": { source: "okx", inst: "LEO-USDT" },
+  monero: { source: "kraken", inst: "XMRUSD" },
+  "usd-coin": { source: "okx", inst: "USDC-USDT" },
+  dai: { source: "okx", inst: "DAI-USDT" },
+};
+let extraCache: { at: number; data: Map<string, LiveTick> } | null = null;
+let extraInflight: Promise<Map<string, LiveTick>> | null = null;
+
+async function fetchExtraTickers(): Promise<Map<string, LiveTick>> {
+  if (extraCache && Date.now() - extraCache.at < TICKER_FRESH_MS) return extraCache.data;
+  if (extraInflight) return extraInflight;
+  extraInflight = (async () => {
+    const map = new Map<string, LiveTick>();
+    const okxIds = Object.entries(EXTRA_SOURCES).filter(([, v]) => v.source === "okx");
+    const krakenIds = Object.entries(EXTRA_SOURCES).filter(([, v]) => v.source === "kraken");
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), TICKER_TIMEOUT_MS);
+    try {
+      await Promise.all([
+        // OKX: 1 request, lọc theo instId
+        (async () => {
+          if (okxIds.length === 0) return;
+          try {
+            const r = await fetch("https://www.okx.com/api/v5/market/tickers?instType=SPOT", {
+              signal: ctrl.signal,
+              headers: { accept: "application/json" },
+            });
+            if (!r.ok) return;
+            const j: any = await r.json();
+            const want = new Map(okxIds.map(([id, v]) => [v.inst, id]));
+            for (const t of (j?.data ?? []) as any[]) {
+              const id = want.get(t.instId);
+              if (!id) continue;
+              const price = Number(t.last);
+              const open = Number(t.open24h);
+              const change = open > 0 ? ((price - open) / open) * 100 : 0;
+              if (Number.isFinite(price) && price > 0) {
+                map.set(id, { price, change24h: change, volume24h: Number(t.volCcy24h) || 0 });
+              }
+            }
+          } catch { /* ignore */ }
+        })(),
+        // Kraken: 1 request cho tất cả pair
+        (async () => {
+          if (krakenIds.length === 0) return;
+          try {
+            const pairs = krakenIds.map(([, v]) => v.inst).join(",");
+            const r = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${pairs}`, {
+              signal: ctrl.signal,
+              headers: { accept: "application/json" },
+            });
+            if (!r.ok) return;
+            const j: any = await r.json();
+            const result = j?.result ?? {};
+            for (const [id, v] of krakenIds) {
+              // Kraken trả về key kiểu XXMRZUSD; match bằng cách lấy pair đầu khớp
+              const entry = Object.entries(result).find(([k]) =>
+                String(k).toUpperCase().includes(v.inst.replace("USD", "")),
+              );
+              if (!entry) continue;
+              const data: any = entry[1];
+              const price = Number(data?.c?.[0]);
+              const open = Number(data?.o);
+              const change = open > 0 ? ((price - open) / open) * 100 : 0;
+              const vol = Number(data?.v?.[1]) * (Number(data?.p?.[1]) || price);
+              if (Number.isFinite(price) && price > 0) {
+                map.set(id, { price, change24h: change, volume24h: Number.isFinite(vol) ? vol : 0 });
+              }
+            }
+          } catch { /* ignore */ }
+        })(),
+      ]);
+      extraCache = { at: Date.now(), data: map };
+      return map;
+    } finally {
+      clearTimeout(timer);
+      extraInflight = null;
+    }
+  })();
+  try { return await extraInflight; } catch { return extraCache?.data ?? new Map(); }
+}
 
 async function fetchBinanceTickers(): Promise<Map<string, LiveTick>> {
   if (tickerCache && Date.now() - tickerCache.at < TICKER_FRESH_MS) {
@@ -372,7 +458,7 @@ async function buildPayload() {
 }
 
 async function overlayLive(base: any) {
-  const ticks = await fetchBinanceTickers();
+  const [ticks, extras] = await Promise.all([fetchBinanceTickers(), fetchExtraTickers()]);
   const usdVnd = base.usdVnd as number;
   const coins = (base.coins as any[]).map((c) => {
     const sym = BINANCE_SYMBOL[c.id];
@@ -384,6 +470,16 @@ async function overlayLive(base: any) {
         priceVnd: tick.price * usdVnd,
         change24h: Number.isFinite(tick.change24h) ? tick.change24h : c.change24h,
         volume24h: Number.isFinite(tick.volume24h) && tick.volume24h > 0 ? tick.volume24h : c.volume24h,
+      };
+    }
+    const ex = extras.get(c.id);
+    if (ex && Number.isFinite(ex.price) && ex.price > 0) {
+      return {
+        ...c,
+        priceUsd: ex.price,
+        priceVnd: ex.price * usdVnd,
+        change24h: Number.isFinite(ex.change24h) ? ex.change24h : c.change24h,
+        volume24h: Number.isFinite(ex.volume24h) && ex.volume24h > 0 ? ex.volume24h : c.volume24h,
       };
     }
     if (STABLE_USD[c.id] !== undefined) {
