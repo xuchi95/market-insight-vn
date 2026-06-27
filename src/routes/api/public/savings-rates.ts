@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SAVINGS_RATES, SAVINGS_UPDATED_AT } from "@/lib/data/savingsRates";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { ParsedRate } from "@/lib/savings/parser";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/api/public/savings-rates")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: instrument("public.savings-rates", async () => {
         try {
           // Prefer the explicitly published snapshot; fall back to legacy 'latest'.
           let { data, error } = await supabaseAdmin
@@ -70,7 +71,7 @@ export const Route = createFileRoute("/api/public/savings-rates")({
             },
           },
         );
-      },
+      }),
     },
   },
 });

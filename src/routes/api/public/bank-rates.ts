@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 interface VcbRow {
   currencyName: string;
@@ -136,7 +137,7 @@ export const Route = createFileRoute("/api/public/bank-rates")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: instrument("public.bank-rates", async () => {
         try {
           let items: RateItem[];
           let updatedAt: number;
@@ -170,7 +171,7 @@ export const Route = createFileRoute("/api/public/bank-rates")({
             { status: 502, headers: CORS },
           );
         }
-      },
+      }),
     },
   },
 });

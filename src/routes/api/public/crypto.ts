@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getPriceChangeConfig } from "@/lib/price-change-config.server";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 // CoinGecko coin IDs (public free API, no key required, ~30 req/min)
 const COIN_IDS = [
@@ -538,7 +539,7 @@ export const Route = createFileRoute("/api/public/crypto")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: instrument("public.crypto", async () => {
         try {
           // Cold start: hydrate in-memory cache from DB so we never wait on
           // CoinGecko's 3–6s upstream when a fresh isolate spins up.
@@ -588,7 +589,7 @@ export const Route = createFileRoute("/api/public/crypto")({
             headers: { "Content-Type": "application/json", ...CORS },
           });
         }
-      },
+      }),
     },
   },
 });

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 /**
  * Lãi suất điều hành SBV + tỷ giá trung tâm USD/VND.
@@ -126,7 +127,7 @@ export const Route = createFileRoute("/api/public/sbv")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: instrument("public.sbv", async () => {
         try {
           let payload: SbvPayload;
           if (cache && Date.now() - cache.at < CACHE_MS) {
@@ -147,7 +148,7 @@ export const Route = createFileRoute("/api/public/sbv")({
         } catch (err) {
           return Response.json({ error: (err as Error).message }, { status: 502, headers: CORS });
         }
-      },
+      }),
     },
   },
 });

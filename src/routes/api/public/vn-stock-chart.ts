@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 /**
  * Lấy lịch sử OHLC cho cổ phiếu VN. Primary: VNDIRECT dchart;
@@ -135,7 +136,7 @@ export const Route = createFileRoute("/api/public/vn-stock-chart")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async ({ request }) => {
+      GET: instrument("public.vn-stock-chart", async ({ request }) => {
         const url = new URL(request.url);
         const sym = (url.searchParams.get("symbol") ?? "").trim().toUpperCase();
         const days = Number(url.searchParams.get("days") ?? "90");
@@ -174,7 +175,7 @@ export const Route = createFileRoute("/api/public/vn-stock-chart")({
           if (cached) return Response.json(cached.payload, { headers: CORS });
           return Response.json({ error: (err as Error).message }, { status: 502, headers: CORS });
         }
-      },
+      }),
     },
   },
 });

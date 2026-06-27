@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 const CACHE_MS = 60 * 1000;
 const cache = new Map<string, { at: number; payload: any }>();
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/api/public/crypto-chart")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async ({ request }) => {
+      GET: instrument("public.crypto-chart", async ({ request }) => {
         const url = new URL(request.url);
         const rawId = (url.searchParams.get("id") || "").toLowerCase().replace(/[^a-z0-9-]/g, "");
         const id = ID_ALIAS[rawId] || rawId;
@@ -65,7 +66,7 @@ export const Route = createFileRoute("/api/public/crypto-chart")({
           }
           return new Response(JSON.stringify({ error: (e as Error).message }), { status: 502, headers: { "Content-Type": "application/json", ...CORS } });
         }
-      },
+      }),
     },
   },
 });

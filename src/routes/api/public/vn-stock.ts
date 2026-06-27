@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { isVnMarketOpen } from "@/lib/vn-market";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 /**
  * Lấy dữ liệu cổ phiếu VN từ SSI iBoard (iboard-api.ssi.com.vn) — public, không
@@ -252,7 +253,7 @@ export const Route = createFileRoute("/api/public/vn-stock")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async ({ request }) => {
+      GET: instrument("public.vn-stock", async ({ request }) => {
         const url = new URL(request.url);
         const raw = url.searchParams.get("symbol") ?? "";
         const sym = raw.trim().toUpperCase();
@@ -290,7 +291,7 @@ export const Route = createFileRoute("/api/public/vn-stock")({
             { status: 502, headers: CORS },
           );
         }
-      },
+      }),
     },
   },
 });

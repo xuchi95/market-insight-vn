@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 /**
  * /api/public/market-overview
@@ -96,7 +97,7 @@ export const Route = createFileRoute("/api/public/market-overview")({
   server: {
     handlers: {
       OPTIONS: () => new Response(null, { status: 204, headers: CORS }),
-      GET: async ({ request }) => {
+      GET: instrument("public.market-overview", async ({ request }) => {
         const url = new URL(request.url);
         const origin = `${url.protocol}//${url.host}`;
         const [vnIndex, usdVnd, btcDom, fng, spark] = await Promise.all([
@@ -117,7 +118,7 @@ export const Route = createFileRoute("/api/public/market-overview")({
           }),
           { status: 200, headers: CORS }
         );
-      },
+      }),
     },
   },
 });

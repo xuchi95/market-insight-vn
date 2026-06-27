@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 interface FngPoint { value: number; classification: string; timestamp: number }
 interface FngPayload {
@@ -73,7 +74,7 @@ export const Route = createFileRoute("/api/public/fear-greed")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: instrument("public.fear-greed", async () => {
         try {
           let payload: FngPayload;
           if (cache && Date.now() - cache.at < CACHE_MS) {
@@ -98,7 +99,7 @@ export const Route = createFileRoute("/api/public/fear-greed")({
             { status: 502, headers: CORS },
           );
         }
-      },
+      }),
     },
   },
 });

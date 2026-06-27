@@ -128,6 +128,7 @@ import { Route as AdminMwAdminContactRouteImport } from './routes/_admin/mw-admi
 import { Route as AdminMwAdminCodeInjectionRouteImport } from './routes/_admin/mw-admin.code-injection'
 import { Route as AdminMwAdminBroadcastsRouteImport } from './routes/_admin/mw-admin.broadcasts'
 import { Route as AdminMwAdminBanAppealsRouteImport } from './routes/_admin/mw-admin.ban-appeals'
+import { Route as AdminMwAdminApiMetricsRouteImport } from './routes/_admin/mw-admin.api-metrics'
 import { Route as AdminMwAdminApiKeysRouteImport } from './routes/_admin/mw-admin.api-keys'
 import { Route as AdminMwAdminApiKeyRequestsRouteImport } from './routes/_admin/mw-admin.api-key-requests'
 import { Route as AdminMwAdminAnalyticsRouteImport } from './routes/_admin/mw-admin.analytics'
@@ -761,6 +762,11 @@ const AdminMwAdminBanAppealsRoute = AdminMwAdminBanAppealsRouteImport.update({
   path: '/mw-admin/ban-appeals',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMwAdminApiMetricsRoute = AdminMwAdminApiMetricsRouteImport.update({
+  id: '/mw-admin/api-metrics',
+  path: '/mw-admin/api-metrics',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMwAdminApiKeysRoute = AdminMwAdminApiKeysRouteImport.update({
   id: '/mw-admin/api-keys',
   path: '/mw-admin/api-keys',
@@ -954,6 +960,7 @@ export interface FileRoutesByFullPath {
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
+  '/mw-admin/api-metrics': typeof AdminMwAdminApiMetricsRoute
   '/mw-admin/ban-appeals': typeof AdminMwAdminBanAppealsRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
@@ -1096,6 +1103,7 @@ export interface FileRoutesByTo {
   '/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
+  '/mw-admin/api-metrics': typeof AdminMwAdminApiMetricsRoute
   '/mw-admin/ban-appeals': typeof AdminMwAdminBanAppealsRoute
   '/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
@@ -1240,6 +1248,7 @@ export interface FileRoutesById {
   '/_admin/mw-admin/analytics': typeof AdminMwAdminAnalyticsRoute
   '/_admin/mw-admin/api-key-requests': typeof AdminMwAdminApiKeyRequestsRoute
   '/_admin/mw-admin/api-keys': typeof AdminMwAdminApiKeysRoute
+  '/_admin/mw-admin/api-metrics': typeof AdminMwAdminApiMetricsRoute
   '/_admin/mw-admin/ban-appeals': typeof AdminMwAdminBanAppealsRoute
   '/_admin/mw-admin/broadcasts': typeof AdminMwAdminBroadcastsRoute
   '/_admin/mw-admin/code-injection': typeof AdminMwAdminCodeInjectionRoute
@@ -1384,6 +1393,7 @@ export interface FileRouteTypes {
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
     | '/mw-admin/api-keys'
+    | '/mw-admin/api-metrics'
     | '/mw-admin/ban-appeals'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
@@ -1526,6 +1536,7 @@ export interface FileRouteTypes {
     | '/mw-admin/analytics'
     | '/mw-admin/api-key-requests'
     | '/mw-admin/api-keys'
+    | '/mw-admin/api-metrics'
     | '/mw-admin/ban-appeals'
     | '/mw-admin/broadcasts'
     | '/mw-admin/code-injection'
@@ -1669,6 +1680,7 @@ export interface FileRouteTypes {
     | '/_admin/mw-admin/analytics'
     | '/_admin/mw-admin/api-key-requests'
     | '/_admin/mw-admin/api-keys'
+    | '/_admin/mw-admin/api-metrics'
     | '/_admin/mw-admin/ban-appeals'
     | '/_admin/mw-admin/broadcasts'
     | '/_admin/mw-admin/code-injection'
@@ -2695,6 +2707,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminBanAppealsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/api-metrics': {
+      id: '/_admin/mw-admin/api-metrics'
+      path: '/mw-admin/api-metrics'
+      fullPath: '/mw-admin/api-metrics'
+      preLoaderRoute: typeof AdminMwAdminApiMetricsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/api-keys': {
       id: '/_admin/mw-admin/api-keys'
       path: '/mw-admin/api-keys'
@@ -2859,6 +2878,7 @@ interface AdminRouteChildren {
   AdminMwAdminAnalyticsRoute: typeof AdminMwAdminAnalyticsRoute
   AdminMwAdminApiKeyRequestsRoute: typeof AdminMwAdminApiKeyRequestsRoute
   AdminMwAdminApiKeysRoute: typeof AdminMwAdminApiKeysRoute
+  AdminMwAdminApiMetricsRoute: typeof AdminMwAdminApiMetricsRoute
   AdminMwAdminBanAppealsRoute: typeof AdminMwAdminBanAppealsRoute
   AdminMwAdminBroadcastsRoute: typeof AdminMwAdminBroadcastsRoute
   AdminMwAdminCodeInjectionRoute: typeof AdminMwAdminCodeInjectionRoute
@@ -2886,6 +2906,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminAnalyticsRoute: AdminMwAdminAnalyticsRoute,
   AdminMwAdminApiKeyRequestsRoute: AdminMwAdminApiKeyRequestsRoute,
   AdminMwAdminApiKeysRoute: AdminMwAdminApiKeysRoute,
+  AdminMwAdminApiMetricsRoute: AdminMwAdminApiMetricsRoute,
   AdminMwAdminBanAppealsRoute: AdminMwAdminBanAppealsRoute,
   AdminMwAdminBroadcastsRoute: AdminMwAdminBroadcastsRoute,
   AdminMwAdminCodeInjectionRoute: AdminMwAdminCodeInjectionRoute,
