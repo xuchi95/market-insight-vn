@@ -56,7 +56,7 @@ async function getBtcDominance(): Promise<Kpi> {
   return { value: v, changePct: null };
 }
 
-async function getFearGreed(origin: string): Promise<Kpi & { label?: string }> {
+async function getFearGreed(origin: string): Promise<({ value: number; changePct: number | null; label?: string }) | null> {
   const j = await safeJson<{ current?: { value: number; classification: string }; yesterday?: { value: number } }>(
     `${origin}/api/public/fear-greed`
   );

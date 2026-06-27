@@ -91,6 +91,7 @@ import { Route as ApiPublicOilHistoryRouteImport } from './routes/api/public/oil
 import { Route as ApiPublicOilRouteImport } from './routes/api/public/oil'
 import { Route as ApiPublicNewsletterWeeklyDigestRouteImport } from './routes/api/public/newsletter-weekly-digest'
 import { Route as ApiPublicMetalsRouteImport } from './routes/api/public/metals'
+import { Route as ApiPublicMarketOverviewRouteImport } from './routes/api/public/market-overview'
 import { Route as ApiPublicMacroVnRouteImport } from './routes/api/public/macro-vn'
 import { Route as ApiPublicGoldHistoryRouteImport } from './routes/api/public/gold-history'
 import { Route as ApiPublicGoldRouteImport } from './routes/api/public/gold'
@@ -563,6 +564,11 @@ const ApiPublicMetalsRoute = ApiPublicMetalsRouteImport.update({
   path: '/api/public/metals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMarketOverviewRoute = ApiPublicMarketOverviewRouteImport.update({
+  id: '/api/public/market-overview',
+  path: '/api/public/market-overview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMacroVnRoute = ApiPublicMacroVnRouteImport.update({
   id: '/api/public/macro-vn',
   path: '/api/public/macro-vn',
@@ -984,6 +990,7 @@ export interface FileRoutesByFullPath {
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/gold-history': typeof ApiPublicGoldHistoryRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
+  '/api/public/market-overview': typeof ApiPublicMarketOverviewRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/oil': typeof ApiPublicOilRoute
@@ -1125,6 +1132,7 @@ export interface FileRoutesByTo {
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/gold-history': typeof ApiPublicGoldHistoryRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
+  '/api/public/market-overview': typeof ApiPublicMarketOverviewRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/oil': typeof ApiPublicOilRoute
@@ -1268,6 +1276,7 @@ export interface FileRoutesById {
   '/api/public/gold': typeof ApiPublicGoldRoute
   '/api/public/gold-history': typeof ApiPublicGoldHistoryRoute
   '/api/public/macro-vn': typeof ApiPublicMacroVnRoute
+  '/api/public/market-overview': typeof ApiPublicMarketOverviewRoute
   '/api/public/metals': typeof ApiPublicMetalsRoute
   '/api/public/newsletter-weekly-digest': typeof ApiPublicNewsletterWeeklyDigestRoute
   '/api/public/oil': typeof ApiPublicOilRoute
@@ -1411,6 +1420,7 @@ export interface FileRouteTypes {
     | '/api/public/gold'
     | '/api/public/gold-history'
     | '/api/public/macro-vn'
+    | '/api/public/market-overview'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
     | '/api/public/oil'
@@ -1552,6 +1562,7 @@ export interface FileRouteTypes {
     | '/api/public/gold'
     | '/api/public/gold-history'
     | '/api/public/macro-vn'
+    | '/api/public/market-overview'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
     | '/api/public/oil'
@@ -1694,6 +1705,7 @@ export interface FileRouteTypes {
     | '/api/public/gold'
     | '/api/public/gold-history'
     | '/api/public/macro-vn'
+    | '/api/public/market-overview'
     | '/api/public/metals'
     | '/api/public/newsletter-weekly-digest'
     | '/api/public/oil'
@@ -1814,6 +1826,7 @@ export interface RootRouteChildren {
   ApiPublicGoldRoute: typeof ApiPublicGoldRoute
   ApiPublicGoldHistoryRoute: typeof ApiPublicGoldHistoryRoute
   ApiPublicMacroVnRoute: typeof ApiPublicMacroVnRoute
+  ApiPublicMarketOverviewRoute: typeof ApiPublicMarketOverviewRoute
   ApiPublicMetalsRoute: typeof ApiPublicMetalsRoute
   ApiPublicNewsletterWeeklyDigestRoute: typeof ApiPublicNewsletterWeeklyDigestRoute
   ApiPublicOilRoute: typeof ApiPublicOilRoute
@@ -2423,6 +2436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMetalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/market-overview': {
+      id: '/api/public/market-overview'
+      path: '/api/public/market-overview'
+      fullPath: '/api/public/market-overview'
+      preLoaderRoute: typeof ApiPublicMarketOverviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/macro-vn': {
       id: '/api/public/macro-vn'
       path: '/api/public/macro-vn'
@@ -2984,6 +3004,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGoldRoute: ApiPublicGoldRoute,
   ApiPublicGoldHistoryRoute: ApiPublicGoldHistoryRoute,
   ApiPublicMacroVnRoute: ApiPublicMacroVnRoute,
+  ApiPublicMarketOverviewRoute: ApiPublicMarketOverviewRoute,
   ApiPublicMetalsRoute: ApiPublicMetalsRoute,
   ApiPublicNewsletterWeeklyDigestRoute: ApiPublicNewsletterWeeklyDigestRoute,
   ApiPublicOilRoute: ApiPublicOilRoute,
