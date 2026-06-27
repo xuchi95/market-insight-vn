@@ -530,7 +530,8 @@ export function PriceChart({
                 <Tooltip
                   content={<ChartTooltip asset={asset} firstValue={stats?.first} />}
                   cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "3 3" }}
-                  wrapperStyle={{ outline: "none", zIndex: 50 }}
+                  wrapperStyle={{ outline: "none", zIndex: 60 }}
+                  labelStyle={{ display: "none" }}
                 />
                 {stats && (
                   <ReferenceLine y={stats.first} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.7} label={{ value: `Đầu kỳ ${fmtVal(stats.first)}`, position: "insideTopLeft", fill: "var(--muted-foreground)", fontSize: 10 }} />
