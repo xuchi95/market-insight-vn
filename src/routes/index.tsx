@@ -192,7 +192,7 @@ function Index() {
             <RelatedLinks
               current="home"
               title="Khám phá theo chủ đề"
-              gridClassName="grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+              gridClassName="grid gap-3 md:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
             />
           </section>
 
