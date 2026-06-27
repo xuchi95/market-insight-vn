@@ -149,37 +149,53 @@ function Index() {
           <section className="pb-10 md:pb-14">
             <Link
               to="/du-doan-gia-ai"
-              className="group relative block overflow-hidden rounded-2xl border border-[var(--gold)]/40 bg-card p-6 md:p-8 shadow-[0_18px_40px_-22px_rgba(0,0,0,0.5)] transition-colors hover:border-[var(--gold)]/60"
-              style={{
-                backgroundImage:
-                  "radial-gradient(420px 180px at 88% 50%, color-mix(in oklab, var(--gold) 14%, transparent), transparent 70%)",
-              }}
+              className="group relative block overflow-hidden rounded-2xl border border-[var(--gold)]/35 bg-card px-5 py-4 md:px-7 md:py-5 shadow-[0_18px_40px_-22px_rgba(0,0,0,0.5)] transition-colors hover:border-[var(--gold)]/60"
             >
+              {/* Decorative orbital "AI" graphic — right edge */}
               <span
                 aria-hidden
-                className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[var(--gold-light)] to-[var(--gold)]"
-              />
-              <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
+                className="pointer-events-none absolute inset-y-0 right-0 hidden md:block w-[260px] overflow-hidden"
+              >
+                <span className="absolute inset-0" style={{ backgroundImage: "radial-gradient(220px 120px at 78% 50%, color-mix(in oklab, var(--gold) 22%, transparent), transparent 72%)" }} />
+                <svg viewBox="0 0 260 96" className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <linearGradient id="aiOrbitStroke" x1="0" x2="1" y1="0" y2="1">
+                      <stop offset="0%" stopColor="color-mix(in oklab, var(--gold) 70%, transparent)" />
+                      <stop offset="100%" stopColor="color-mix(in oklab, var(--gold) 0%, transparent)" />
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="190" cy="48" rx="78" ry="22" fill="none" stroke="url(#aiOrbitStroke)" strokeWidth="1" transform="rotate(-18 190 48)" />
+                  <ellipse cx="190" cy="48" rx="62" ry="14" fill="none" stroke="url(#aiOrbitStroke)" strokeWidth="0.8" transform="rotate(-18 190 48)" opacity="0.7" />
+                  <ellipse cx="190" cy="48" rx="92" ry="30" fill="none" stroke="url(#aiOrbitStroke)" strokeWidth="0.6" transform="rotate(-18 190 48)" opacity="0.45" />
+                  {[[120,38],[260,60],[170,18],[230,76],[150,72]].map(([x,y],i)=>(
+                    <circle key={i} cx={x} cy={y} r={i%2?0.9:1.4} fill="color-mix(in oklab, var(--gold) 85%, transparent)" opacity={0.6+(i%2)*0.3} />
+                  ))}
+                  <text x="190" y="56" textAnchor="middle" fontFamily="Georgia, serif" fontStyle="italic" fontSize="26" fill="color-mix(in oklab, var(--gold) 85%, transparent)" fontWeight="600">AI</text>
+                </svg>
+              </span>
+
+              <div className="relative flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
                 <div
                   aria-hidden
-                  className="hidden md:grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[var(--gold)]/40 bg-gradient-to-br from-[var(--gold-light)]/30 to-[var(--gold)]/10 text-[var(--gold)] font-display text-xl shadow-[inset_0_1px_0_color-mix(in_oklab,white_50%,transparent)]"
+                  className="grid h-12 w-12 md:h-14 md:w-14 shrink-0 place-items-center rounded-2xl border border-[var(--gold)]/45 bg-gradient-to-br from-[var(--gold-light)]/25 to-[var(--gold)]/5 text-[var(--gold)] font-display italic text-xl md:text-2xl shadow-[inset_0_1px_0_color-mix(in_oklab,white_45%,transparent)]"
                 >
                   AI
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="mb-2 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">
-                    <span aria-hidden className="inline-block animate-sparkle-pulse">✦</span>
-                    Mới · Trí tuệ nhân tạo
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h2 className="font-display text-lg md:text-xl leading-tight tracking-tight text-foreground">
+                      Góc nhìn AI MarketWatch
+                    </h2>
+                    <span className="inline-flex items-center rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--gold)]">
+                      Mới
+                    </span>
                   </div>
-                  <h2 className="font-display text-xl md:text-2xl leading-tight tracking-tight text-foreground">
-                    Góc nhìn AI MarketWatch
-                  </h2>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-[58ch]">
+                  <p className="mt-1.5 text-[13px] md:text-sm text-muted-foreground leading-relaxed max-w-[60ch]">
                     AI phân tích xu hướng và đưa ra dự báo dựa trên dữ liệu lịch sử và biến động thị trường.
                   </p>
                 </div>
-                <div className="shrink-0 w-full md:w-auto">
-                  <span className="inline-flex w-full md:w-auto justify-center items-center gap-2 rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-3 md:py-2.5 text-sm font-semibold shadow-[0_1px_0_rgba(255,255,255,.18)_inset] transition-colors group-hover:bg-[var(--gold-light)]">
+                <div className="shrink-0 w-full md:w-auto md:mr-[200px]">
+                  <span className="inline-flex w-full md:w-auto justify-center items-center gap-2 rounded-lg border border-border bg-background/60 text-foreground px-4 py-2.5 text-sm font-medium transition-colors group-hover:border-[var(--gold)]/60 group-hover:text-[var(--gold)]">
                     Xem dự báo hôm nay →
                   </span>
                 </div>
