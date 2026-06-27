@@ -6,6 +6,8 @@ import { BentoTiles } from "@/components/site/BentoTiles";
 import { RelatedLinks } from "@/components/site/RelatedLinks";
 import { WatchlistPanel } from "@/components/site/WatchlistPanel";
 import { AdSlot } from "@/components/site/AdSlot";
+import { MarketSummaryCard } from "@/components/site/MarketSummaryCard";
+import { ArrowRight, Star, Radio, ShieldCheck, BarChart3, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { getInitialPrices } from "@/lib/initial-prices.functions";
 
@@ -62,26 +64,64 @@ function Index() {
       <Ticker />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-5">
-          {/* Hero — editorial masthead */}
+          {/* Hero — split: pitch + CTAs on left, MarketSummaryCard on right */}
           <section className="py-10 md:py-14 border-b border-border">
-            <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-end">
-              <div className="md:col-span-7 animate-fade-in">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+              <div className="lg:col-span-7 animate-fade-in">
                 <h1 className="font-display font-bold text-[2.15rem] sm:text-[3.2rem] md:text-[3.75rem] lg:text-[4.4rem] leading-[1.04] tracking-[-0.018em] text-foreground text-balance">
-                  Theo dõi giá
+                  Theo dõi giá{" "}
+                  <em className="not-italic text-[var(--gold)]">vàng,</em>
                   <br />
-                  <em className="not-italic text-[var(--gold)]">vàng, crypto</em> &amp;
+                  <em className="not-italic text-[var(--gold)]">crypto</em> &amp; tỷ giá{" "}
+                  <em className="not-italic text-[var(--gold)]">ngoại tệ</em>
                   <br />
-                  tỷ giá ngoại tệ.
+                  theo thời gian thực
                 </h1>
-              </div>
-              <div className="md:col-span-5 md:pb-2 animate-fade-in" style={{ animationDelay: "120ms", animationFillMode: "both" }}>
-                <p className="text-[15px] text-muted-foreground leading-relaxed text-pretty max-w-[42ch]">
-                  Công cụ trực quan hoá dữ liệu tài chính Việt Nam — giá vàng, tiền số, ngoại tệ và lãi suất, cập nhật theo từng phút.
+                <p className="mt-5 md:mt-6 text-base md:text-[17px] text-muted-foreground leading-relaxed max-w-[58ch]">
+                  Cập nhật chính xác. Phân tích chuyên sâu. Công cụ thông minh.
+                  <br />
+                  Nền tảng đáng tin cậy cho mọi quyết định tài chính.
                 </p>
-                <div className="mt-4 inline-flex items-center gap-2 text-[12px] md:text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">
-                  <span aria-hidden className="inline-block w-[22px] h-px bg-[color-mix(in_oklab,var(--gold)_70%,transparent)]" />
-                  Số {new Date().getDate()}.{String(new Date().getMonth() + 1).padStart(2, "0")} · Phiên thị trường
+
+                {/* CTAs */}
+                <div className="mt-7 flex flex-wrap items-center gap-3">
+                  <Link
+                    to="/tien-dien-tu"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-3 text-sm font-semibold shadow-[0_1px_0_rgba(255,255,255,.2)_inset,0_12px_28px_-12px_color-mix(in_oklab,var(--gold)_55%,transparent)] transition-colors hover:bg-[var(--gold-light)]"
+                  >
+                    Khám phá thị trường <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to={user ? "/" : "/auth"}
+                    hash={user ? "theo-doi" : undefined}
+                    className="inline-flex items-center gap-2 rounded-xl border border-[color-mix(in_oklab,var(--gold)_28%,var(--border))] bg-card/60 text-foreground px-5 py-3 text-sm font-semibold transition-colors hover:border-[var(--gold)]/70 hover:bg-accent/40"
+                  >
+                    Xem danh sách theo dõi <Star className="h-4 w-4 text-[var(--gold)]" />
+                  </Link>
                 </div>
+
+                {/* Trust badges */}
+                <ul className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-[12px] md:text-[12.5px] text-muted-foreground">
+                  <li className="inline-flex items-center gap-1.5">
+                    <Radio className="h-3.5 w-3.5 text-[var(--gold)]" /> Dữ liệu thời gian thực
+                  </li>
+                  <li className="inline-flex items-center gap-1.5">
+                    <ShieldCheck className="h-3.5 w-3.5 text-[var(--gold)]" /> Nguồn đáng tin cậy
+                  </li>
+                  <li className="inline-flex items-center gap-1.5">
+                    <BarChart3 className="h-3.5 w-3.5 text-[var(--gold)]" /> Phân tích chuyên sâu
+                  </li>
+                  <li className="inline-flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" /> Công cụ thông minh
+                  </li>
+                </ul>
+              </div>
+
+              <div
+                className="lg:col-span-5 animate-fade-in"
+                style={{ animationDelay: "120ms", animationFillMode: "both" }}
+              >
+                <MarketSummaryCard />
               </div>
             </div>
           </section>
@@ -90,6 +130,9 @@ function Index() {
           <section className="py-10 md:py-14">
             <div className="flex items-baseline justify-between mb-5 md:mb-6 gap-4">
               <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Bảng giá thị trường</h2>
+              <Link to="/tien-dien-tu" className="hidden sm:inline-flex items-center gap-1 text-sm text-[var(--gold)] hover:text-[var(--gold-light)] font-medium">
+                Xem tất cả →
+              </Link>
             </div>
             <BentoTiles initial={initialPrices} />
           </section>
@@ -136,7 +179,7 @@ function Index() {
           </section>
 
           {user && (
-            <section className="py-10 md:py-14 border-t border-border">
+            <section id="theo-doi" className="py-10 md:py-14 border-t border-border scroll-mt-24">
               <div className="flex items-baseline justify-between mb-5 md:mb-6">
                 <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight">Theo dõi của bạn</h2>
                 <div className="eyebrow opacity-60 hidden sm:block">Đồng bộ giữa các thiết bị</div>
@@ -146,7 +189,11 @@ function Index() {
           )}
 
           <section className="py-10 md:py-14 border-t border-border">
-            <RelatedLinks current="home" title="Khám phá theo chủ đề" />
+            <RelatedLinks
+              current="home"
+              title="Khám phá theo chủ đề"
+              gridClassName="grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+            />
           </section>
 
           {/* Trust strip — internal links to About + Data Sources for SEO discovery */}
