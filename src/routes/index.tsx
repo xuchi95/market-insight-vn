@@ -68,7 +68,7 @@ function Index() {
           <section className="py-10 md:py-14 border-b border-border">
             <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
               <div className="lg:col-span-7 animate-fade-in">
-                <h1 className="font-display font-bold text-[2.15rem] sm:text-[3.2rem] md:text-[3.75rem] lg:text-[4.4rem] leading-[1.04] tracking-[-0.018em] text-foreground text-balance">
+                <h1 className="font-display font-bold text-[2rem] sm:text-[2.5rem] md:text-[2.85rem] lg:text-[3.1rem] leading-[1.06] tracking-[-0.018em] text-foreground text-balance">
                   Theo dõi giá{" "}
                   <em className="not-italic text-[var(--gold)]">vàng,</em>
                   <br />
@@ -160,18 +160,27 @@ function Index() {
                 className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[var(--gold-light)] to-[var(--gold)]"
               />
               <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
-                <div className="flex-1">
+                <div
+                  aria-hidden
+                  className="hidden md:grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[var(--gold)]/40 bg-gradient-to-br from-[var(--gold-light)]/30 to-[var(--gold)]/10 text-[var(--gold)] font-display text-xl shadow-[inset_0_1px_0_color-mix(in_oklab,white_50%,transparent)]"
+                >
+                  AI
+                </div>
+                <div className="flex-1 min-w-0">
                   <div className="mb-2 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--gold)]">
                     <span aria-hidden className="inline-block animate-sparkle-pulse">✦</span>
                     Mới · Trí tuệ nhân tạo
                   </div>
-                  <h2 className="font-display text-2xl md:text-3xl leading-tight tracking-tight text-foreground">
-                    AI dự đoán giá vàng, xăng dầu, Bitcoin &amp; ngoại tệ
+                  <h2 className="font-display text-xl md:text-2xl leading-tight tracking-tight text-foreground">
+                    Góc nhìn AI MarketWatch
                   </h2>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-[58ch]">
+                    AI phân tích xu hướng và đưa ra dự báo dựa trên dữ liệu lịch sử và biến động thị trường.
+                  </p>
                 </div>
                 <div className="shrink-0 w-full md:w-auto">
                   <span className="inline-flex w-full md:w-auto justify-center items-center gap-2 rounded-lg bg-[var(--gold)] text-[var(--gold-foreground)] px-5 py-3 md:py-2.5 text-sm font-semibold shadow-[0_1px_0_rgba(255,255,255,.18)_inset] transition-colors group-hover:bg-[var(--gold-light)]">
-                    Thử ngay →
+                    Xem dự báo hôm nay →
                   </span>
                 </div>
               </div>
@@ -192,7 +201,7 @@ function Index() {
             <RelatedLinks
               current="home"
               title="Khám phá theo chủ đề"
-              gridClassName="grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+              gridClassName="grid gap-3 md:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
             />
           </section>
 
