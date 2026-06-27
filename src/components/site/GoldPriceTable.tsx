@@ -18,7 +18,9 @@ export function GoldPriceTable({ search }: { search?: string }) {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["gold"],
     queryFn: fetchGoldPrices,
-    refetchInterval: 60 * 1000,
+    // Giá vàng SJC/DOJI/PNJ chỉ đổi vài lần/ngày; 5 phút là quá đủ.
+    refetchInterval: 5 * 60 * 1000,
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });
   useQueryErrorToast(isError, error, "giá vàng");
