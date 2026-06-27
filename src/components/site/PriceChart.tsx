@@ -203,11 +203,12 @@ function ChartTooltip({
   const decimals = isCrypto ? 2 : asset === "jpy-vnd" || asset === "krw-vnd" ? 2 : 0;
 
   const fmt = (n: number) =>
-    (isCrypto ? "$" : "") +
     new Intl.NumberFormat(isCrypto ? "en-US" : "vi-VN", {
       maximumFractionDigits: decimals,
       minimumFractionDigits: decimals === 2 ? 2 : 0,
     }).format(n);
+
+  const withCurrency = (n: number) => (isCrypto ? "$" : "") + fmt(n);
 
   const date = new Date(p.t);
   const time = date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
@@ -240,7 +241,7 @@ function ChartTooltip({
       <div className="mb-2.5">
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">{isGold ? "Giá trung bình" : "Giá"}</div>
         <div className="font-display text-xl sm:text-2xl font-semibold tabular tracking-tight text-foreground">
-          {fmt(p.v)}
+          {withCurrency(p.v)}
           <span className="ml-1 text-xs sm:text-sm font-medium text-muted-foreground">{unit}</span>
         </div>
       </div>
@@ -254,8 +255,8 @@ function ChartTooltip({
           <span className="text-[11px] sm:text-xs text-muted-foreground">So với đầu kỳ</span>
           <span className="inline-flex items-center gap-1 font-semibold tabular text-xs sm:text-sm" style={{ color: diffColor }}>
             <Arrow className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            {up ? "+" : ""}{fmt(diff)}
-            <span className="font-normal opacity-80">({up ? "+" : ""}{pct.toFixed(2)}%)</span>
+            {up ? "+" : "-"}{withCurrency(Math.abs(diff))}
+            <span className="font-normal opacity-80">({up ? "+" : "-"}{pct.toFixed(2)}%)</span>
           </span>
         </div>
       )}
@@ -265,11 +266,11 @@ function ChartTooltip({
         <div className="mt-2.5 grid grid-cols-2 gap-2 text-xs">
           <div className="rounded-md border border-border/50 bg-muted/30 px-2 py-1.5">
             <div className="text-[10px] text-muted-foreground mb-0.5">Mua</div>
-            <div className="font-semibold tabular text-foreground">{fmt(p.buy!)}</div>
+            <div className="font-semibold tabular text-foreground">{withCurrency(p.buy!)}</div>
           </div>
           <div className="rounded-md border border-border/50 bg-muted/30 px-2 py-1.5">
             <div className="text-[10px] text-muted-foreground mb-0.5">Bán</div>
-            <div className="font-semibold tabular text-foreground">{fmt(p.sell!)}</div>
+            <div className="font-semibold tabular text-foreground">{withCurrency(p.sell!)}</div>
           </div>
         </div>
       )}
