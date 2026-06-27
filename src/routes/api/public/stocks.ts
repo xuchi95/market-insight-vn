@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 interface IndexItem {
   code: string;
@@ -282,7 +283,7 @@ export const Route = createFileRoute("/api/public/stocks")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: instrument("public.stocks", async () => {
         try {
           let items: IndexItem[];
           if (cache && Date.now() - cache.at < CACHE_MS) {
@@ -311,7 +312,7 @@ export const Route = createFileRoute("/api/public/stocks")({
             { status: 502, headers: CORS },
           );
         }
-      },
+      }),
     },
   },
 });

@@ -8,6 +8,7 @@ import {
 import { readPriceCache, writePriceCache } from "@/lib/price-cache.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getPriceChangeConfig } from "@/lib/price-change-config.server";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 // In-memory state for change computation between fetches.
 // `out` = items đã gắn `changePct` (kết quả cuối). Cache cả `out` để khỏi
@@ -431,7 +432,7 @@ function refreshInBackground() {
 export const Route = createFileRoute("/api/public/gold")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: instrument("public.gold", async () => {
         try {
           // Cold start: hydrate from DB so the request doesn't block on
           // PNJ + BTMC upstream (3–6s combined). Subsequent SWR refresh
@@ -509,7 +510,7 @@ export const Route = createFileRoute("/api/public/gold")({
             { status: 502 },
           );
         }
-      },
+      }),
     },
   },
 });

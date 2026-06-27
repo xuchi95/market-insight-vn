@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 // Giá dầu thô — Brent (ICE) & WTI (NYMEX), lấy từ Yahoo Finance.
 // Cache server-side 60s để cân bằng "realtime cảm giác" vs upstream rate-limit.
@@ -97,7 +98,7 @@ export const Route = createFileRoute("/api/public/oil")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: instrument("public.oil", async () => {
         try {
           if (!cache || Date.now() - cache.at > CACHE_MS) {
             await refresh();
@@ -125,7 +126,7 @@ export const Route = createFileRoute("/api/public/oil")({
             { status: 502, headers: { "Content-Type": "application/json", ...CORS } },
           );
         }
-      },
+      }),
     },
   },
 });

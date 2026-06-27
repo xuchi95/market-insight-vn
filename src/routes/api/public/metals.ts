@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getPriceChangeConfig } from "@/lib/price-change-config.server";
+import { instrument } from "@/lib/observability/request-metrics.server";
 
 // Gói Copper: 2,500 calls/tháng (~83/ngày).
 // Cache 30 phút => ~48 calls/ngày, ~1,440/tháng — chừa ~40% buffer cho retry/burst.
@@ -148,7 +149,7 @@ export const Route = createFileRoute("/api/public/metals")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-      GET: async () => {
+      GET: instrument("public.metals", async () => {
         try {
           if (!cache || Date.now() - cache.at > CACHE_MS) {
             await refresh();
@@ -167,7 +168,7 @@ export const Route = createFileRoute("/api/public/metals")({
             headers: { "Content-Type": "application/json", ...CORS },
           });
         }
-      },
+      }),
     },
   },
 });
