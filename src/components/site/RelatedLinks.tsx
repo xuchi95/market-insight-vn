@@ -99,9 +99,11 @@ const RELATED: Record<PageKey, (keyof typeof ALL)[]> = {
 export function RelatedLinks({
   current,
   title = "Xem thêm chủ đề liên quan",
+  gridClassName,
 }: {
   current: PageKey;
   title?: string;
+  gridClassName?: string;
 }) {
   const items = RELATED[current].map((k) => ALL[k]);
   return (
@@ -112,7 +114,7 @@ export function RelatedLinks({
         </h2>
         <span className="eyebrow opacity-70 hidden sm:inline">{items.length} chủ đề</span>
       </div>
-      <ul className="grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className={gridClassName ?? "grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
         {items.map(({ to, keyword, desc, eyebrow, Icon }) => (
           <li key={to}>
             <Link
