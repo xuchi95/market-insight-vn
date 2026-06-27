@@ -366,16 +366,9 @@ export function PriceChart({
   const isCryptoAsset = isCryptoAssetSel;
   const axisUnit = isGoldAsset ? "đ/chỉ" : isCryptoAsset ? "USD" : "VND";
 
-  const rangeLabel =
-    range === "1" ? "24 giờ qua" :
-    range === "7" ? "7 ngày qua" :
-    range === "30" ? "30 ngày qua" :
-    "12 tháng qua";
   const rangeShort =
     range === "1" ? "1D" : range === "7" ? "1W" : range === "30" ? "1M" : "1Y";
   const trendStrength = Math.abs(stats?.change ?? 0);
-  const trendWord = trendStrength < 0.3 ? "gần như đi ngang" : trendStrength < 1.5 ? (positive ? "tăng nhẹ" : "giảm nhẹ") : trendStrength < 4 ? (positive ? "tăng" : "giảm") : (positive ? "tăng mạnh" : "giảm mạnh");
-  const summary = stats ? `Trong ${rangeLabel}, giá ${trendWord} ${Math.abs(stats.change).toFixed(2)}% so với đầu kỳ.` : "";
   const TrendIcon = trendStrength < 0.3 ? Minus : positive ? TrendingUp : TrendingDown;
 
   return (
@@ -471,22 +464,6 @@ export function PriceChart({
                 </div>
               </div>
             </div>
-            <div className="mb-3 sm:mb-4 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs sm:text-sm flex items-start gap-2">
-              <TrendIcon className="h-4 w-4 mt-0.5 shrink-0" style={{ color }} />
-              <span className="text-foreground/90">{summary} <span className="text-muted-foreground">Giá đầu kỳ {fmtVal(stats.first)}.</span></span>
-            </div>
-            {/* Range position bar */}
-            <div className="mb-3 sm:mb-4">
-              <div className="flex items-center justify-between text-[11px] sm:text-xs text-muted-foreground mb-1.5 gap-2">
-                <span className="flex items-center gap-1 whitespace-nowrap"><ArrowDown className="h-3 w-3" />Thấp {fmtVal(stats.min)}</span>
-                <span className="hidden md:inline text-foreground/70">Vị trí hiện tại trong khoảng {rangeLabel}</span>
-                <span className="flex items-center gap-1 whitespace-nowrap">Cao {fmtVal(stats.max)}<ArrowUp className="h-3 w-3" /></span>
-              </div>
-              <div className="relative h-2 rounded-full bg-muted overflow-visible">
-                <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${stats.position}%`, background: `linear-gradient(90deg, var(--muted) 0%, ${color} 100%)` }} />
-                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-4 rounded-full border-2 border-background shadow" style={{ left: `${stats.position}%`, background: color }} />
-              </div>
-            </div>
           </>
         )}
         <div className="h-56 sm:h-64 md:h-72 lg:h-80 w-full">
@@ -556,29 +533,13 @@ export function PriceChart({
             </ResponsiveContainer>
           )}
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
-          <span
-            className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-medium tabular"
-            style={{ color, borderColor: `color-mix(in oklab, ${color} 40%, transparent)`, background: `color-mix(in oklab, ${color} 10%, transparent)` }}
-          >
-            <TrendIcon className="h-3 w-3" />
-            <span>{trendStrength < 0.3 ? "Đi ngang" : positive ? "Tăng" : "Giảm"} · {rangeShort}</span>
-            <span className="opacity-80">
-              {changeUnit === "pct"
-                ? `${positive ? "+" : ""}${(stats?.change ?? 0).toFixed(2)}%`
-                : `${positive ? "+" : ""}${fmtVal(stats?.changeAbs ?? 0)}`}
-            </span>
+        <div className="mt-3 flex items-center justify-between text-[11px] sm:text-xs text-muted-foreground">
+          <span className="tabular">
+            Thấp <span className="text-foreground/80 font-medium">{stats ? fmtVal(stats.min) : "—"}</span>
+            <span className="mx-2 opacity-50">·</span>
+            Cao <span className="text-foreground/80 font-medium">{stats ? fmtVal(stats.max) : "—"}</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-muted-foreground">
-            <span className="inline-block h-0 w-3 border-t-2 border-dashed border-muted-foreground/70" /> Đầu kỳ
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5" style={{ color: "var(--up)", borderColor: "color-mix(in oklab, var(--up) 35%, transparent)", background: "color-mix(in oklab, var(--up) 10%, transparent)" }}>
-            <ArrowUp className="h-3 w-3" /> Đỉnh
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5" style={{ color: "var(--down)", borderColor: "color-mix(in oklab, var(--down) 35%, transparent)", background: "color-mix(in oklab, var(--down) 10%, transparent)" }}>
-            <ArrowDown className="h-3 w-3" /> Đáy
-          </span>
-          <span className="ml-auto hidden md:inline text-muted-foreground">Di chuột để xem chi tiết · Kéo thanh dưới biểu đồ để zoom</span>
+          <span className="hidden md:inline">Di chuột để xem chi tiết · Kéo thanh dưới biểu đồ để zoom</span>
         </div>
       </div>
     </SectionCard>
