@@ -511,7 +511,7 @@ export function PriceChart({
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={visiblePoints} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
+              <AreaChart data={points} margin={{ top: 16, right: 24, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={color} stopOpacity={0.35} />
@@ -554,15 +554,18 @@ export function PriceChart({
                     height={24}
                     stroke="var(--primary)"
                     fill="var(--muted)"
-                    travellerWidth={8}
+                    travellerWidth={10}
+                    startIndex={brushStart}
+                    endIndex={brushEnd}
                     tickFormatter={(t) => new Date(t).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
                     onChange={(e: { startIndex?: number; endIndex?: number }) => {
-                      if (typeof e.startIndex === "number" && typeof e.endIndex === "number") {
-                        if (e.startIndex === 0 && e.endIndex === points.length - 1) {
-                          setZoom(null);
-                        } else {
-                          setZoom({ start: e.startIndex, end: e.endIndex });
-                        }
+                      if (typeof e.startIndex !== "number" || typeof e.endIndex !== "number") return;
+                      const s = e.startIndex;
+                      const en = e.endIndex;
+                      if (s === 0 && en === points.length - 1) {
+                        setZoom(null);
+                      } else if (s !== brushStart || en !== brushEnd) {
+                        setZoom({ start: s, end: en });
                       }
                     }}
                   />
