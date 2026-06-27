@@ -60,6 +60,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: "/mw-admin", label: "Dashboard", icon: LayoutDashboard },
       { to: "/mw-admin/analytics", label: "Analytics", icon: BarChart3 },
+      { to: "/mw-admin/api-metrics", label: "API Metrics", icon: Activity },
       { to: "/mw-admin/cron-activity", label: "Hoạt động cron", icon: Activity },
       { to: "/mw-admin/ai-usage", label: "Chi phí AI", icon: Sparkles },
       { to: "/mw-admin/adsense", label: "AdSense", icon: DollarSign },
