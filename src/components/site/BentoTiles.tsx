@@ -159,8 +159,13 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
             <dl className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs">
               <KV label="Mua vào" value={sjc?.buy} compact={compact} loading={goldLoading} />
               <KV label="Bán ra" value={sjc?.sell} compact={compact} loading={goldLoading} />
-              <KV label="Thấp nhất" value={sjc?.buy} compact={compact} loading={goldLoading} />
-              <KV label="Cao nhất" value={sjc?.sell} compact={compact} loading={goldLoading} />
+              <KV
+                label="Chênh lệch"
+                value={typeof sjc?.sell === "number" && typeof sjc?.buy === "number" ? sjc.sell - sjc.buy : undefined}
+                compact={compact}
+                loading={goldLoading}
+              />
+              <KV label="Tham chiếu" value={sjc?.buy} compact={compact} loading={goldLoading} />
             </dl>
             <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
               <span className="truncate">Cập nhật: {updatedText}</span>
