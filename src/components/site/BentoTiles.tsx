@@ -178,6 +178,15 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
                 <span>(24h)</span>
               </div>
             )}
+            <div className="mt-3 h-9 opacity-90">
+              {sjc && (
+                <Spark
+                  data={syntheticSpark(sjc.id, sjc.sell, sjc.changePct)}
+                  color={sjc.changePct >= 0 ? "var(--up)" : "var(--down)"}
+                  h={36}
+                />
+              )}
+            </div>
             <div className="my-4 h-px bg-border/70" />
             <dl className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs">
               <KV label="Mua vào" value={sjc?.buy} compact={compact} loading={goldLoading} />
