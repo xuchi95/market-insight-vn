@@ -256,7 +256,7 @@ function ChartTooltip({
           <span className="inline-flex items-center gap-1 font-semibold tabular text-xs sm:text-sm" style={{ color: diffColor }}>
             <Arrow className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             {up ? "+" : "-"}{withCurrency(Math.abs(diff))}
-            <span className="font-normal opacity-80">({up ? "+" : "-"}{pct.toFixed(2)}%)</span>
+            <span className="font-normal opacity-80">({up ? "+" : "-"}{Math.abs(pct).toFixed(2)}%)</span>
           </span>
         </div>
       )}
