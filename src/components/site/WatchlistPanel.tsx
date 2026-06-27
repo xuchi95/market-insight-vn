@@ -8,6 +8,7 @@ import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { fmtSmartVND, fmtSmartUSD } from "@/lib/format";
+import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -69,12 +70,24 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
       setLastUpdated(Date.now());
     };
     load();
-    const t = setInterval(load, 30_000);
+    const t = setInterval(load, 10_000);
     return () => {
       alive = false;
       clearInterval(t);
     };
   }, []);
+
+  // Live Binance overlay for crypto rows — bám giá theo cadence ~1.5s,
+  // bù cho REST poll 10s ở trên.
+  const cryptoIdsForLive = useMemo(
+    () =>
+      list
+        .map((it) => crypto.find((c) => c.symbol.toLowerCase() === it.symbol.toLowerCase()))
+        .filter((c): c is CryptoCoin => !!c)
+        .map((c) => c.id),
+    [list, crypto],
+  );
+  const liveTicks = useBinanceTickers(cryptoIdsForLive);
 
   const resolveQuote = useMemo(() => {
     return (item: WatchItem): Quote | null => {
@@ -93,12 +106,17 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
         };
       }
       const c = crypto.find((x) => x.symbol.toLowerCase() === sym || x.id.toLowerCase() === sym);
-      if (c) return { priceLabel: fmtSmartUSD(c.priceUsd, compact), unit: "", changePct: c.change24h };
+      if (c) {
+        const tick = liveTicks[c.id];
+        const priceUsd = tick?.priceUsd ?? c.priceUsd;
+        const change = tick?.change24h ?? c.change24h;
+        return { priceLabel: fmtSmartUSD(priceUsd, compact), unit: "", changePct: change };
+      }
       const f = fx.find((x) => x.code.toLowerCase() === sym);
       if (f) return { priceLabel: fmtSmartVND(f.mid, compact), unit: "", changePct: f.changePct };
       return null;
     };
-  }, [gold, crypto, fx, compact]);
+  }, [gold, crypto, fx, compact, liveTicks]);
 
   const isEmpty = list.length === 0;
   const overflow = compactMode && !expanded && list.length > COMPACT_LIMIT;
