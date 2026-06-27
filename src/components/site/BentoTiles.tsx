@@ -5,7 +5,6 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
 import { fetchForexRates } from "@/lib/services/forexRateService";
 import type { CryptoCoin, ForexRate, GoldPrice } from "@/lib/services/types";
-// CryptoCoin used in initial props typing
 import { fmtTrieu } from "@/lib/format";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { FormattedNumber } from "./FormattedNumber";
@@ -21,23 +20,20 @@ interface InitialPrices {
 function fmt(n: number, digits = 0) {
   return n.toLocaleString("vi-VN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
 }
-
-/** Full VND integer (no symbol): 15.380.000 */
 function fmtVndFull(n: number) {
   return new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(Math.round(n));
 }
 
-function Spark({ data, color }: { data: number[]; color: string }) {
-  if (!data || data.length < 2) return <div className="h-10" />;
+function Spark({ data, color, h = 36 }: { data: number[]; color: string; h?: number }) {
+  if (!data || data.length < 2) return <div style={{ height: h }} />;
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
   const w = 100;
-  const h = 30;
   const step = w / (data.length - 1);
   const pts = data.map((v, i) => `${(i * step).toFixed(2)},${(h - ((v - min) / range) * h).toFixed(2)}`).join(" ");
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-10" preserveAspectRatio="none">
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ height: h }} preserveAspectRatio="none">
       <polyline points={pts} fill="none" stroke={color} strokeWidth={1.2} strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
@@ -56,32 +52,43 @@ function ChangePill({ value }: { value: number }) {
 function TileFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={`relative bg-card border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] rounded-2xl p-4 md:p-5 shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] transition-colors hover:border-[color-mix(in_oklab,var(--gold)_30%,var(--border))] ${className}`}
+      className={`relative bg-card border border-[color-mix(in_oklab,var(--gold)_18%,var(--border))] rounded-2xl p-5 md:p-6 shadow-[0_1px_0_color-mix(in_oklab,white_4%,transparent)_inset,0_18px_40px_-22px_rgba(0,0,0,0.45)] transition-colors hover:border-[color-mix(in_oklab,var(--gold)_32%,var(--border))] ${className}`}
     >
       {children}
     </div>
   );
 }
 
+function AssetBadge({ kind }: { kind: "sjc" | "btc" | "eth" }) {
+  const map = {
+    sjc: { bg: "from-amber-300/30 to-amber-500/10", ring: "ring-amber-400/40", letter: "Au" },
+    btc: { bg: "from-orange-400/30 to-amber-500/10", ring: "ring-orange-400/40", letter: "₿" },
+    eth: { bg: "from-indigo-400/30 to-blue-500/10", ring: "ring-indigo-400/40", letter: "Ξ" },
+  }[kind];
+  return (
+    <span
+      aria-hidden
+      className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br ${map.bg} ring-1 ${map.ring} text-foreground/90 font-semibold`}
+    >
+      {map.letter}
+    </span>
+  );
+}
+
 export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const { compact } = useNumberFormat();
-  // null = chưa fetch xong (hiển thị "Đang cập nhật giá")
-  // []   = đã fetch nhưng rỗng (hiển thị "—")
   const [gold, setGold] = useState<GoldPrice[] | null>(initial?.gold ?? null);
   const [crypto, setCrypto] = useState<CryptoCoin[] | null>(initial?.crypto ?? null);
   const [fx, setFx] = useState<ForexRate[] | null>(initial?.fx ?? null);
 
   useEffect(() => {
     let alive = true;
-    // Fire & forget từng nguồn — nguồn nào về trước render trước, không phải
-    // chờ nguồn chậm nhất (gold cold-start có thể mất 3–6s).
     const load = () => {
       fetchGoldPrices().then((v) => alive && setGold(v)).catch(() => alive && setGold([]));
       fetchCryptoPrices().then((v) => alive && setCrypto(v)).catch(() => alive && setCrypto([]));
       fetchForexRates().then((v) => alive && setFx(v)).catch(() => alive && setFx([]));
     };
     load();
-    // Poll mỗi 10s để bảng giá nhảy số tương tự trang chi tiết coin.
     const t = setInterval(load, 10_000);
     return () => { alive = false; clearInterval(t); };
   }, []);
@@ -90,9 +97,6 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const cryptoLoading = crypto === null;
   const fxLoading = fx === null;
   const sjc = gold?.find((g) => g.id === "sjc-1l") ?? gold?.[0];
-  const doji = gold?.find((g) => g.id === "doji");
-  const pnj = gold?.find((g) => g.id === "pnj");
-  const xau = gold?.find((g) => g.id === "xauusd");
   const btc = crypto?.find((c) => c.symbol === "BTC");
   const eth = crypto?.find((c) => c.symbol === "ETH");
   const usd = fx?.find((r) => r.code === "USD");
@@ -104,131 +108,132 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   const sgd = fx?.find((r) => r.code === "SGD");
   const krw = fx?.find((r) => r.code === "KRW");
 
-  // Live price (WS Binance, flush ~10s) cho mọi coin hiển thị — y chang trang chi tiết coin.
-  const liveTicks = useBinanceTickers([
-    "bitcoin",
-    "ethereum",
-    "binancecoin",
-    "solana",
-    "ripple",
-    "dogecoin",
-  ]);
+  const liveTicks = useBinanceTickers(["bitcoin", "ethereum"]);
   const btcPrice = liveTicks.bitcoin?.priceUsd ?? btc?.priceUsd ?? 0;
   const btcChange = liveTicks.bitcoin?.change24h ?? btc?.change24h ?? 0;
-  const btcVol = liveTicks.bitcoin?.volume24h ?? btc?.volume24h ?? 0;
   const ethPrice = liveTicks.ethereum?.priceUsd ?? eth?.priceUsd ?? 0;
   const ethChange = liveTicks.ethereum?.change24h ?? eth?.change24h ?? 0;
-  const ethVol = liveTicks.ethereum?.volume24h ?? eth?.volume24h ?? 0;
+
+  const updatedText = new Date(sjc?.updatedAt ?? Date.now()).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="grid grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
-      {/* Gold — large hero tile */}
-      <TileFrame className="col-span-2 md:col-span-4 md:row-span-2 flex flex-col">
-        <Link to="/gia-vang" className="flex flex-col h-full group">
-          <div className="flex justify-between items-start mb-5 md:mb-6">
-            <div className="eyebrow">Vàng miếng SJC</div>
-            <div className="eyebrow opacity-60">Nguồn · sjc.com.vn</div>
-          </div>
-
-          <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5 mb-5 md:mb-6">
-            <div className="min-w-0">
-              <div className="text-xs text-muted-foreground mb-1.5">Giá bán ra hôm nay</div>
+    <div className="space-y-4 md:space-y-5">
+      {/* Row 1: 3 equal cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+        {/* SJC */}
+        <TileFrame className="flex flex-col">
+          <Link to="/gia-vang" className="flex flex-col h-full group">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <AssetBadge kind="sjc" />
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-foreground truncate">Vàng miếng SJC</div>
+                  <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/80 truncate">Nguồn · SJC</div>
+                </div>
+              </div>
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-[var(--gold)] shrink-0" />
+            </div>
+            <div className="mb-1">
               {sjc ? (
                 <FormattedNumber
                   value={sjc.sell}
                   format={(v) => (compact ? fmtTrieu(v) : fmtVndFull(v))}
                   unit={compact ? "tr/chỉ" : "đ/chỉ"}
                   decimals={compact ? 2 : 0}
-                  className="font-display text-4xl md:text-6xl leading-none text-foreground"
-                  unitClassName="text-sm md:text-base text-muted-foreground"
+                  className="font-display text-3xl md:text-4xl leading-none text-foreground"
+                  unitClassName="text-xs md:text-sm text-muted-foreground"
                 />
               ) : goldLoading ? (
                 <LoadingLine size="lg" />
               ) : (
-                <div className="font-display text-4xl md:text-6xl leading-none text-muted-foreground">—</div>
-              )}
-              {sjc && (
-                <div className="mt-2"><ChangePill value={sjc.changePct} /></div>
+                <div className="font-display text-3xl md:text-4xl leading-none text-muted-foreground">—</div>
               )}
             </div>
-            <div className="flex items-stretch self-end pb-1.5 rounded-lg">
-              <InlineKV label="Mua vào" loading={goldLoading} compact={compact} value={sjc?.buy} />
-              <div className="w-px bg-border mx-5 md:mx-6 self-stretch" aria-hidden />
-              <InlineKV
+            {sjc && (
+              <div className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-2">
+                <ChangePill value={sjc.changePct} />
+                <span>(24h)</span>
+              </div>
+            )}
+            <div className="my-4 h-px bg-border/70" />
+            <dl className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs">
+              <KV label="Mua vào" value={sjc?.buy} compact={compact} loading={goldLoading} />
+              <KV label="Bán ra" value={sjc?.sell} compact={compact} loading={goldLoading} />
+              <KV
                 label="Chênh lệch"
-                loading={goldLoading}
+                value={typeof sjc?.sell === "number" && typeof sjc?.buy === "number" ? sjc.sell - sjc.buy : undefined}
                 compact={compact}
-                value={sjc ? sjc.sell - sjc.buy : undefined}
+                loading={goldLoading}
               />
+              <KV label="Tham chiếu" value={sjc?.buy} compact={compact} loading={goldLoading} />
+            </dl>
+            <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
+              <span className="truncate">Cập nhật: {updatedText}</span>
+              <span className="inline-flex items-center gap-1 text-[var(--gold)] font-medium group-hover:text-[var(--gold-light)]">
+                Xem chi tiết <ArrowUpRight className="h-3 w-3" />
+              </span>
             </div>
+          </Link>
+        </TileFrame>
+
+        {/* BTC */}
+        <TileFrame>
+          <Link to="/tien-dien-tu" className="block group">
+            <CryptoTile
+              kind="btc"
+              name="Bitcoin"
+              symbol="BTC"
+              price={btcPrice}
+              change={btcChange}
+              low24h={liveTicks.bitcoin?.low24h ?? btc?.priceUsd}
+              high24h={liveTicks.bitcoin?.high24h ?? btc?.priceUsd}
+              marketCap={btc?.marketCap}
+              spark={btc?.sparkline}
+              loading={cryptoLoading}
+              has={!!btc}
+              updatedText={updatedText}
+            />
+          </Link>
+        </TileFrame>
+
+        {/* ETH */}
+        <TileFrame>
+          <Link to="/tien-dien-tu" className="block group">
+            <CryptoTile
+              kind="eth"
+              name="Ethereum"
+              symbol="ETH"
+              price={ethPrice}
+              change={ethChange}
+              low24h={liveTicks.ethereum?.low24h ?? eth?.priceUsd}
+              high24h={liveTicks.ethereum?.high24h ?? eth?.priceUsd}
+              marketCap={eth?.marketCap}
+              spark={eth?.sparkline}
+              loading={cryptoLoading}
+              has={!!eth}
+              updatedText={updatedText}
+            />
+          </Link>
+        </TileFrame>
+      </div>
+
+      {/* Row 2: Forex strip */}
+      <TileFrame>
+        <Link to="/ty-gia-ngoai-te" className="block group">
+          <div className="flex items-baseline justify-between mb-4">
+            <div className="text-sm font-semibold text-foreground">Tỷ giá ngoại tệ (VND)</div>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-[var(--gold)] transition-colors">
+              Xem chi tiết <ArrowUpRight className="h-3 w-3" />
+            </span>
           </div>
-
-          {/* Hairline separator */}
-          <div className="h-px bg-border mb-3 md:mb-4" />
-          <div className="text-xs text-muted-foreground mb-3 md:mb-4">Tham khảo các thương hiệu khác</div>
-
-          {/* Vàng khác — DOJI / PNJ / XAU/USD, 3 cột cân đối với divider dọc */}
-          <div
-            data-testid="bento-gold-mini-grid"
-            className="grid grid-cols-3 divide-x divide-border items-stretch"
-          >
-            <GoldMini label="DOJI" gold={doji} loading={goldLoading} compact={compact} />
-            <GoldMini label="PNJ" gold={pnj} loading={goldLoading} compact={compact} />
-            <GoldMini label="XAU/USD" gold={xau} loading={goldLoading} usd compact={compact} />
-          </div>
-
-          <div className="mt-5 md:mt-6 flex items-center justify-between text-sm text-[var(--gold)] opacity-90 group-hover:opacity-100">
-            <span>Xem bảng giá vàng đầy đủ</span>
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </div>
-        </Link>
-      </TileFrame>
-
-      {/* BTC */}
-      <TileFrame className="md:col-span-2">
-        <Link to="/tien-dien-tu" className="block">
-          <CryptoTile
-            name="Bitcoin"
-            price={btcPrice}
-            change={btcChange}
-            vol={btcVol}
-            spark={btc?.sparkline}
-            loading={cryptoLoading}
-            has={!!btc}
-          />
-        </Link>
-      </TileFrame>
-
-      {/* ETH */}
-      <TileFrame className="md:col-span-2">
-        <Link to="/tien-dien-tu" className="block">
-          <CryptoTile
-            name="Ethereum"
-            price={ethPrice}
-            change={ethChange}
-            vol={ethVol}
-            spark={eth?.sparkline}
-            loading={cryptoLoading}
-            has={!!eth}
-          />
-        </Link>
-      </TileFrame>
-
-      {/* Forex — full-width compact list */}
-      <TileFrame className="col-span-2 md:col-span-6">
-        <Link to="/ty-gia-ngoai-te" className="block">
-          <div className="flex items-baseline justify-between mb-5">
-            <div className="eyebrow">Ngoại tệ · Quy đổi VND</div>
-            <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)]" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-y-4 gap-x-4">
             <FxCell rate={usd} loading={fxLoading} code="USD" />
             <FxCell rate={eur} loading={fxLoading} code="EUR" />
             <FxCell rate={gbp} loading={fxLoading} code="GBP" />
             <FxCell rate={jpy} loading={fxLoading} code="JPY" digits={2} />
-            <FxCell rate={cny} loading={fxLoading} code="CNY" />
             <FxCell rate={aud} loading={fxLoading} code="AUD" />
             <FxCell rate={sgd} loading={fxLoading} code="SGD" />
+            <FxCell rate={cny} loading={fxLoading} code="CNY" />
             <FxCell rate={krw} loading={fxLoading} code="KRW" digits={2} />
           </div>
         </Link>
@@ -239,42 +244,58 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
 
 function LoadingLine({ size = "md" }: { size?: "md" | "lg" }) {
   return (
-    <div
-      className={`tabular text-muted-foreground/80 animate-pulse ${
-        size === "lg" ? "text-lg md:text-xl" : "text-sm"
-      }`}
-    >
+    <div className={`tabular text-muted-foreground/80 animate-pulse ${size === "lg" ? "text-lg md:text-xl" : "text-sm"}`}>
       Đang cập nhật giá…
     </div>
   );
 }
 
-function InlineKV({ label, value, loading, compact = true }: { label: string; value?: number; loading?: boolean; compact?: boolean }) {
+function KV({ label, value, compact, loading }: { label: string; value?: number; compact: boolean; loading?: boolean }) {
   return (
-    <div className="min-w-[88px] md:min-w-[104px] flex flex-col justify-end">
-      <div className="text-[11px] md:text-xs text-muted-foreground mb-1.5 tracking-wide">{label}</div>
-      <div className="tabular text-base md:text-lg font-semibold text-foreground leading-none">
+    <div className="flex items-center justify-between gap-3 min-w-0">
+      <span className="text-muted-foreground/80 truncate">{label}</span>
+      <span className="tabular text-foreground/90 font-medium truncate">
         {typeof value === "number" ? (
           <AnimatedNumber
             value={value}
             format={(v) => (compact ? `${fmtTrieu(v)} tr` : `${fmtVndFull(v)} đ`)}
             minChars={compact ? 6 : 10}
           />
-        ) : loading ? (
-          <span className="text-muted-foreground/80 animate-pulse text-sm">Đang cập nhật</span>
-        ) : "—"}
-      </div>
+        ) : loading ? "—" : "—"}
+      </span>
     </div>
   );
 }
 
-function CryptoTile({ name, price, change, vol, spark, loading, has }: { name: string; price: number; change: number; vol: number; spark?: number[]; loading: boolean; has: boolean }) {
+function CryptoTile({
+  kind, name, symbol, price, change, low24h, high24h, marketCap, spark, loading, has, updatedText,
+}: {
+  kind: "btc" | "eth";
+  name: string;
+  symbol: string;
+  price: number;
+  change: number;
+  low24h?: number;
+  high24h?: number;
+  marketCap?: number;
+  spark?: number[];
+  loading: boolean;
+  has: boolean;
+  updatedText: string;
+}) {
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-start justify-between mb-3">
-        <div className="eyebrow">{name}</div>
-        <ArrowUpRight className="h-3.5 w-3.5 text-[var(--gold)] opacity-70" />
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <AssetBadge kind={kind} />
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-foreground truncate">{name}</div>
+            <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/80 truncate">{symbol}</div>
+          </div>
+        </div>
+        <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-[var(--gold)] shrink-0" />
       </div>
+
       {has ? (
         <div className="flex items-baseline gap-3 flex-wrap">
           <div className="font-display text-3xl md:text-4xl leading-none text-foreground">
@@ -287,55 +308,34 @@ function CryptoTile({ name, price, change, vol, spark, loading, has }: { name: s
       ) : (
         <div className="font-display text-3xl md:text-4xl leading-none text-muted-foreground">—</div>
       )}
-      <div className="mt-4 flex items-end justify-between gap-3">
-        <div className="eyebrow opacity-60 normal-case tracking-[0.14em]">
-          KL 24h ·{" "}
-          <span className="tabular text-foreground/80 normal-case tracking-normal">
-            {has ? (
-              <AnimatedNumber value={vol / 1_000_000_000} format={(v) => `$${fmt(v, 1)}B`} noFlash minChars={5} />
-            ) : loading ? "—" : "—"}
+
+      <div className="mt-3 h-9 opacity-90">
+        {has && spark && <Spark data={spark} color={change >= 0 ? "var(--up)" : "var(--down)"} h={36} />}
+      </div>
+
+      <div className="my-4 h-px bg-border/70" />
+      <dl className="space-y-2 text-xs">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground/80">Thấp nhất (24h)</span>
+          <span className="tabular text-foreground/90 font-medium">{typeof low24h === "number" ? `$${fmt(low24h, 0)}` : "—"}</span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground/80">Cao nhất (24h)</span>
+          <span className="tabular text-foreground/90 font-medium">{typeof high24h === "number" ? `$${fmt(high24h, 0)}` : "—"}</span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground/80">Vốn hoá thị trường</span>
+          <span className="tabular text-foreground/90 font-medium">
+            {typeof marketCap === "number" ? `$${fmt(marketCap / 1_000_000_000_000, 2)}T` : "—"}
           </span>
         </div>
-        <div className="w-24 md:w-28 shrink-0 opacity-90">
-          {has && spark && <Spark data={spark} color={change >= 0 ? "var(--up)" : "var(--down)"} />}
-        </div>
+      </dl>
+      <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
+        <span className="truncate">Cập nhật: {updatedText}</span>
+        <span className="inline-flex items-center gap-1 text-[var(--gold)] font-medium group-hover:text-[var(--gold-light)]">
+          Xem chi tiết <ArrowUpRight className="h-3 w-3" />
+        </span>
       </div>
-    </div>
-  );
-}
-
-function GoldMini({ label, gold, loading, usd, compact = true }: { label: string; gold?: GoldPrice; loading?: boolean; usd?: boolean; compact?: boolean }) {
-  return (
-    <div data-testid="bento-gold-mini" data-label={label} className="px-3 md:px-4 min-w-0 flex flex-col">
-      <div className="eyebrow opacity-70">{label}</div>
-      {gold ? (
-        <>
-          <div className="tabular text-base md:text-lg leading-tight text-foreground mt-1.5 truncate">
-            {usd ? (
-              <AnimatedNumber value={gold.sell} format={(v) => `$${fmt(v, 0)}`} minChars={6} />
-            ) : (
-              <AnimatedNumber
-                value={gold.sell}
-                format={(v) => (compact ? `${fmtTrieu(v)} tr` : `${fmtVndFull(v)} đ`)}
-                minChars={compact ? 6 : 10}
-              />
-            )}
-          </div>
-          <div className={`text-[12px] tabular mt-1 inline-flex items-center gap-1 ${gold.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
-            <span aria-hidden className="text-[0.7em] leading-none">{gold.changePct >= 0 ? "▲" : "▼"}</span>
-            <AnimatedNumber
-              value={Math.abs(gold.changePct)}
-              format={(v) => `${v.toFixed(2)}%`}
-              minChars={5}
-              noFlash
-            />
-          </div>
-        </>
-      ) : (
-        <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
-          {loading ? "Đang cập nhật giá…" : "—"}
-        </div>
-      )}
     </div>
   );
 }
@@ -344,27 +344,20 @@ function FxCell({ rate, digits = 0, loading, code }: { rate?: ForexRate; digits?
   if (!rate) {
     return (
       <div className="min-w-0">
-        {code && <div className="eyebrow opacity-70">{code}/VND</div>}
-        <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">
-          {loading ? "Đang cập nhật giá…" : "—"}
-        </div>
+        {code && <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">{code}/VND</div>}
+        <div className="text-xs text-muted-foreground/70 mt-2 animate-pulse">{loading ? "Đang cập nhật…" : "—"}</div>
       </div>
     );
   }
   return (
     <div className="min-w-0">
-      <div className="eyebrow opacity-70">{rate.code}/VND</div>
-      <div className="tabular text-xl md:text-2xl leading-tight text-foreground mt-2">
+      <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/80">{rate.code}/VND</div>
+      <div className="tabular text-lg md:text-xl leading-tight text-foreground mt-1.5 truncate">
         <AnimatedNumber value={rate.mid} format={(v) => fmt(v, digits)} minChars={6} />
       </div>
-      <div className={`text-[12px] tabular mt-1.5 inline-flex items-center gap-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
+      <div className={`text-[11px] tabular mt-1 inline-flex items-center gap-1 ${rate.changePct >= 0 ? "text-[var(--up)]" : "text-[var(--down)]"}`}>
         <span aria-hidden className="text-[0.7em] leading-none">{rate.changePct >= 0 ? "▲" : "▼"}</span>
-        <AnimatedNumber
-          value={Math.abs(rate.changePct)}
-          format={(v) => `${v.toFixed(2)}%`}
-          minChars={5}
-          noFlash
-        />
+        <AnimatedNumber value={Math.abs(rate.changePct)} format={(v) => `${v.toFixed(2)}%`} minChars={5} noFlash />
       </div>
     </div>
   );
