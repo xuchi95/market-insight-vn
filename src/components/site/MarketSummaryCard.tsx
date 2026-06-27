@@ -110,9 +110,13 @@ export function MarketSummaryCard() {
   const { data } = useQuery({
     queryKey: ["market-overview"],
     queryFn: fetchOverview,
-    staleTime: 10_000,
-    refetchInterval: 10_000,
-    refetchIntervalInBackground: true,
+    // VN-Index/USD-VND/F&G đổi rất chậm (vài phút). Crypto sparkline 24h
+    // không cần realtime — tick chính của BTC đã chạy bằng WebSocket ở nơi
+    // khác. Giãn poll để giảm Worker invocation + upstream fetch cost.
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false, // không bắn request khi tab ẩn
+    refetchOnWindowFocus: true, // bù lại khi user quay về tab
     retry: 1,
   });
 
