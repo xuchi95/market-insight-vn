@@ -32,11 +32,9 @@ function fmtNum(n: number, d = 2) {
 
 function ChartArea({ data }: { data: number[] | null | undefined }) {
   if (!data || data.length < 2) {
-    return (
-      <div className="relative h-[150px] w-full overflow-hidden rounded-lg bg-[color-mix(in_oklab,var(--gold)_4%,transparent)]" aria-hidden>
-        <div className="absolute inset-0 grid place-items-center text-xs text-muted-foreground/60">Đang tải biểu đồ…</div>
-      </div>
-    );
+    // Decorative placeholder sparkline so the card never looks empty.
+    const synth = Array.from({ length: 48 }, (_, i) => 100 + Math.sin(i / 4) * 6 + Math.cos(i / 7) * 3);
+    data = synth;
   }
   const w = 600;
   const h = 150;

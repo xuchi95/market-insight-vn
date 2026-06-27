@@ -66,16 +66,29 @@ async function getFearGreed(origin: string): Promise<({ value: number; changePct
 }
 
 async function getBtcSparkline(): Promise<number[] | null> {
-  const j = await safeJson<{ prices?: Array<[number, number]> }>(
-    "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1"
+  return null;
+}
+
+async function getBtcSparklineVia(origin: string): Promise<number[] | null> {
+  // Prefer the project's cached crypto-chart endpoint (has API key + edge cache),
+  // fall back to CoinGecko public if that fails.
+  const j = await safeJson<{ prices?: Array<{ t: number; v: number }> }>(
+    `${origin}/api/public/crypto-chart?id=bitcoin&days=1`
   );
-  if (!j?.prices?.length) return null;
-  // Downsample to ~48 points to keep payload small.
-  const src = j.prices;
-  const step = Math.max(1, Math.floor(src.length / 48));
+  let raw: number[] = [];
+  if (j?.prices?.length) {
+    raw = j.prices.map((p) => p.v).filter((v) => Number.isFinite(v));
+  } else {
+    const cg = await safeJson<{ prices?: Array<[number, number]> }>(
+      "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1"
+    );
+    if (cg?.prices?.length) raw = cg.prices.map((p) => p[1]).filter((v) => Number.isFinite(v));
+  }
+  if (raw.length < 2) return null;
+  const step = Math.max(1, Math.floor(raw.length / 48));
   const out: number[] = [];
-  for (let i = 0; i < src.length; i += step) out.push(src[i][1]);
-  if (out[out.length - 1] !== src[src.length - 1][1]) out.push(src[src.length - 1][1]);
+  for (let i = 0; i < raw.length; i += step) out.push(raw[i]);
+  if (out[out.length - 1] !== raw[raw.length - 1]) out.push(raw[raw.length - 1]);
   return out;
 }
 
@@ -91,7 +104,7 @@ export const Route = createFileRoute("/api/public/market-overview")({
           getUsdVnd(origin),
           getBtcDominance(),
           getFearGreed(origin),
-          getBtcSparkline(),
+          getBtcSparklineVia(origin),
         ]);
         return new Response(
           JSON.stringify({
