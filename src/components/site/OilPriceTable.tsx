@@ -34,7 +34,9 @@ export function OilPriceTable() {
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["oil"],
     queryFn: fetchOil,
-    refetchInterval: 60_000,
+    // Giá xăng đổi theo kỳ điều hành 7 ngày — 10 phút thừa tươi.
+    refetchInterval: 10 * 60_000,
+    refetchIntervalInBackground: false,
     staleTime: 55_000,
     refetchOnWindowFocus: false,
     retry: 1,
