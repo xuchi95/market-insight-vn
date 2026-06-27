@@ -366,16 +366,9 @@ export function PriceChart({
   const isCryptoAsset = isCryptoAssetSel;
   const axisUnit = isGoldAsset ? "đ/chỉ" : isCryptoAsset ? "USD" : "VND";
 
-  const rangeLabel =
-    range === "1" ? "24 giờ qua" :
-    range === "7" ? "7 ngày qua" :
-    range === "30" ? "30 ngày qua" :
-    "12 tháng qua";
   const rangeShort =
     range === "1" ? "1D" : range === "7" ? "1W" : range === "30" ? "1M" : "1Y";
   const trendStrength = Math.abs(stats?.change ?? 0);
-  const trendWord = trendStrength < 0.3 ? "gần như đi ngang" : trendStrength < 1.5 ? (positive ? "tăng nhẹ" : "giảm nhẹ") : trendStrength < 4 ? (positive ? "tăng" : "giảm") : (positive ? "tăng mạnh" : "giảm mạnh");
-  const summary = stats ? `Trong ${rangeLabel}, giá ${trendWord} ${Math.abs(stats.change).toFixed(2)}% so với đầu kỳ.` : "";
   const TrendIcon = trendStrength < 0.3 ? Minus : positive ? TrendingUp : TrendingDown;
 
   return (
