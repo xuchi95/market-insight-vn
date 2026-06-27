@@ -70,10 +70,19 @@ export function WatchlistPanel({ compact: compactMode = false }: { compact?: boo
       setLastUpdated(Date.now());
     };
     load();
-    const t = setInterval(load, 10_000);
+    // Watchlist: 30s là đủ — WebSocket Binance vẫn overlay giá crypto
+    // ~1.5s/lần (xem khối dưới). Tắt poll khi tab ẩn để tiết kiệm Cloud.
+    const tick = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      load();
+    };
+    const t = setInterval(tick, 30_000);
+    const onVis = () => { if (!document.hidden) load(); };
+    document.addEventListener("visibilitychange", onVis);
     return () => {
       alive = false;
       clearInterval(t);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
 

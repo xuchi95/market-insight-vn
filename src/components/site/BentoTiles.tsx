@@ -107,13 +107,24 @@ export function BentoTiles({ initial }: { initial?: InitialPrices } = {}) {
   useEffect(() => {
     let alive = true;
     const load = () => {
+      // Bỏ qua khi tab ẩn để không đốt Cloud invocation cho dữ liệu user
+      // không nhìn thấy. WebSocket Binance vẫn cập nhật BTC/ETH ngay khi
+      // user quay lại tab.
+      if (typeof document !== "undefined" && document.hidden) return;
       fetchGoldPrices().then((v) => alive && setGold(v)).catch(() => alive && setGold([]));
       fetchCryptoPrices().then((v) => alive && setCrypto(v)).catch(() => alive && setCrypto([]));
       fetchForexRates().then((v) => alive && setFx(v)).catch(() => alive && setFx([]));
     };
     load();
-    const t = setInterval(load, 10_000);
-    return () => { alive = false; clearInterval(t); };
+    // 30s đủ tươi cho card tổng quan; crypto realtime đã có WS riêng.
+    const t = setInterval(load, 30_000);
+    const onVis = () => { if (!document.hidden) load(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      alive = false;
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, []);
 
   const goldLoading = gold === null;

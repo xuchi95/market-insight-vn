@@ -43,7 +43,9 @@ export function CryptoPriceTable({ search }: { search?: string }) {
   const { data, isLoading, refetch, isFetching, isError, error } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => fetchCryptoPrices(),
-    refetchInterval: 10_000,
+    // Bảng crypto: WebSocket Binance đã overlay realtime; REST 30s là đủ
+    // làm fallback cho coin không có trên Binance.
+    refetchInterval: 30_000,
     refetchIntervalInBackground: false,
   });
   useQueryErrorToast(isError, error, "giá crypto");
