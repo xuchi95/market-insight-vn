@@ -266,11 +266,15 @@ function ChartTooltip({
         <div className="mt-2.5 grid grid-cols-2 gap-2 text-xs">
           <div className="rounded-md border border-border/50 bg-muted/30 px-2 py-1.5">
             <div className="text-[10px] text-muted-foreground mb-0.5">Mua</div>
-            <div className="font-semibold tabular text-foreground">{withCurrency(p.buy!)}</div>
+            <div className="font-semibold tabular text-foreground">
+              {withCurrency(p.buy!)} <span className="text-[10px] font-normal text-muted-foreground">{unit}</span>
+            </div>
           </div>
           <div className="rounded-md border border-border/50 bg-muted/30 px-2 py-1.5">
             <div className="text-[10px] text-muted-foreground mb-0.5">Bán</div>
-            <div className="font-semibold tabular text-foreground">{withCurrency(p.sell!)}</div>
+            <div className="font-semibold tabular text-foreground">
+              {withCurrency(p.sell!)} <span className="text-[10px] font-normal text-muted-foreground">{unit}</span>
+            </div>
           </div>
         </div>
       )}
