@@ -14,7 +14,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchBankRates } from "@/lib/services/bankRateService";
 import { PriceHistory } from "@/components/site/PriceHistory";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/format";
+import { fmtCompactUSD, fmtUSD, fmtSmartUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/format";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
