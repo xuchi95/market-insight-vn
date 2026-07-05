@@ -10,7 +10,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { fetchCryptoPrices } from "@/lib/services/cryptoPriceService";
-import { fmtCompactUSD, fmtUSD, fmtVND, fmtSmartVND } from "@/lib/format";
+import { fmtCompactUSD, fmtUSD, fmtSmartUSD, fmtSmartVND } from "@/lib/format";
 import { useNumberFormat } from "@/hooks/useNumberFormat";
 import { useBinanceTickers } from "@/hooks/useBinanceTicker";
 import { AnimatedNumber } from "./AnimatedNumber";
@@ -256,7 +256,7 @@ export function CryptoPriceTable({ search }: { search?: string }) {
                   <td className="px-2 sm:px-4 py-3 text-right font-semibold whitespace-nowrap text-[13px] sm:text-base overflow-hidden">
                     <AnimatedNumber
                       value={c.priceUsd}
-                      format={(v) => fmtUSD(v, c.priceUsd < 1 ? 4 : 2)}
+                      format={(v) => fmtSmartUSD(v, false)}
                     />
                   </td>
                   <td className={`px-4 py-3 text-right text-muted-foreground ${colCls("md")}`}>
