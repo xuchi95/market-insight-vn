@@ -14,7 +14,7 @@ import { fetchGoldPrices } from "@/lib/services/goldPriceService";
 import { fetchBankRates } from "@/lib/services/bankRateService";
 import { PriceHistory } from "@/components/site/PriceHistory";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { fmtCompactUSD, fmtUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/format";
+import { fmtCompactUSD, fmtUSD, fmtSmartUSD, fmtVND, fmtTime, fmtNum, fmtTrieu } from "@/lib/format";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWatchlist, type WatchItem } from "@/hooks/useWatchlist";
@@ -866,7 +866,7 @@ function AssetDetail() {
               title={coin.name}
               pills={[coin.symbol, "Crypto"]}
               meta={[{ k: "Cặp", v: `${coin.symbol}/USDT` }, { k: "Khung", v: rangeLabel }]}
-              price={fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)}
+              price={fmtSmartUSD(coin.priceUsd, false)}
               subPrice={`≈ ${fmtVND(coin.priceVnd)}`}
               changePct={coin.change24h}
               extra={
@@ -1001,7 +1001,7 @@ function AssetDetail() {
                 <Panel className="rise d4">
                   <SectionLabel title="Thống kê thị trường" />
                   <div className="px-5 py-2">
-                    <StatRow k="Giá USD" v={fmtUSD(coin.priceUsd, coin.priceUsd < 1 ? 4 : 2)} />
+                    <StatRow k="Giá USD" v={fmtSmartUSD(coin.priceUsd, false)} />
                     <StatRow k="Giá VND" v={fmtVND(coin.priceVnd)} />
                     <StatRow k="Vốn hoá" v={fmtCompactUSD(coin.marketCap)} />
                     <StatRow k="KL giao dịch · 24h" v={fmtCompactUSD(coin.volume24h)} />
