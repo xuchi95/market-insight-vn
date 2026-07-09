@@ -65,6 +65,74 @@ function record(endpoint: string, durationMs: number, ok: boolean) {
   else scheduleFlush();
 }
 
+// ---------------------------------------------------------------------------
+// Ad-hoc per-IP rate limiting for public read endpoints.
+//
+// Lovable Cloud's Worker runtime has no shared rate-limit primitive. This is
+// an in-memory sliding window kept PER isolate — it reduces casual abuse and
+// small floods, but cannot fully stop a distributed DDoS (many isolates ×
+// many source IPs). For real DDoS protection, enable Cloudflare Rate
+// Limiting Rules / WAF at the edge on the custom domain.
+//
+// Defaults chosen for read-only price endpoints polled every ~15–30s by
+// legitimate browsers: 90 req/min/IP per endpoint (~1 every 0.7s) is well
+// above normal but chokes scripted floods.
+// ---------------------------------------------------------------------------
+
+type Bucket = { count: number; resetAt: number };
+const rateBuckets = new Map<string, Bucket>();
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 90;
+const RATE_MAX_BUCKETS = 20_000; // hard cap on memory footprint per isolate
+
+function clientIpOf(req: Request): string {
+  // Cloudflare sets CF-Connecting-IP; also honour standard forwarded headers
+  // as fallbacks. Never trust the raw remote address for rate-limit keys —
+  // downstream is always CF.
+  const h = req.headers;
+  return (
+    h.get("cf-connecting-ip") ||
+    (h.get("x-forwarded-for") ?? "").split(",")[0].trim() ||
+    h.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function takeToken(endpoint: string, ip: string, now: number): { ok: boolean; retryAfter: number } {
+  const key = `${endpoint}|${ip}`;
+  let b = rateBuckets.get(key);
+  if (!b || b.resetAt <= now) {
+    b = { count: 0, resetAt: now + RATE_WINDOW_MS };
+    rateBuckets.set(key, b);
+  }
+  b.count += 1;
+  if (b.count > RATE_MAX) {
+    return { ok: false, retryAfter: Math.max(1, Math.ceil((b.resetAt - now) / 1000)) };
+  }
+  // Opportunistic cleanup when the map grows too large.
+  if (rateBuckets.size > RATE_MAX_BUCKETS) {
+    for (const [k, v] of rateBuckets) {
+      if (v.resetAt <= now) rateBuckets.delete(k);
+      if (rateBuckets.size <= RATE_MAX_BUCKETS / 2) break;
+    }
+  }
+  return { ok: true, retryAfter: 0 };
+}
+
+function rateLimited(endpoint: string, retryAfter: number): Response {
+  return new Response(
+    JSON.stringify({ error: "rate_limited", retryAfter }),
+    {
+      status: 429,
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "retry-after": String(retryAfter),
+        "x-ratelimit-endpoint": endpoint,
+      },
+    },
+  );
+}
+
 /**
  * Wrap a server-route handler so each invocation is counted.
  * Typed loosely as (ctx: any) => Promise<Response> so TanStack's per-route
@@ -82,6 +150,18 @@ export function instrument(
     const start = Date.now();
     let ok = true;
     try {
+      // Auto-apply per-IP rate limit to public.* endpoints. `instrument` is
+      // already used on every public read handler, so this covers them all
+      // without touching each route file.
+      if (endpoint.startsWith("public.") && ctx?.request instanceof Request) {
+        const ip = clientIpOf(ctx.request);
+        const gate = takeToken(endpoint, ip, start);
+        if (!gate.ok) {
+          const res = rateLimited(endpoint, gate.retryAfter);
+          ok = false; // count as error so it shows up in metrics
+          return res;
+        }
+      }
       const res = await handler(ctx);
       ok = res.status < 500;
       return res;
