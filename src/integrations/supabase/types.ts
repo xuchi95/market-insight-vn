@@ -715,6 +715,51 @@ export type Database = {
         }
         Relationships: []
       }
+      gold_price_overrides: {
+        Row: {
+          brand: string
+          buy: number
+          created_at: string
+          effective_at: string
+          expires_at: string | null
+          gold_id: string
+          note: string | null
+          sell: number
+          type: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          brand: string
+          buy: number
+          created_at?: string
+          effective_at?: string
+          expires_at?: string | null
+          gold_id: string
+          note?: string | null
+          sell: number
+          type: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          brand?: string
+          buy?: number
+          created_at?: string
+          effective_at?: string
+          expires_at?: string | null
+          gold_id?: string
+          note?: string | null
+          sell?: number
+          type?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           confirmed_at: string | null
