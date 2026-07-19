@@ -555,6 +555,20 @@ export const Route = createFileRoute("/api/public/gold")({
             }
           }
 
+          // Áp overrides do admin đặt thủ công (nếu có). Đây là "nguồn cuối"
+          // — nếu upstream sai/chậm, admin có thể ghi đè để hiển thị đúng
+          // giá niêm yết thực tế.
+          const overrides = await loadOverrides();
+          if (overrides.length > 0) {
+            const before = items;
+            items = applyOverrides(items, overrides);
+            // Nếu có bất kỳ override nào áp dụng, `out` cache đã lỗi thời.
+            if (items !== before && cache) {
+              cache.out = undefined;
+              cache.outAt = undefined;
+            }
+          }
+
           // Baseline (giá đóng cửa hôm qua) cần cho cột "% thay đổi 24h".
           // KHÔNG await trên cold-start: việc fetch 7 ngày history có thể tốn
           // 3–7s và làm trang chủ trễ hiển thị giá. Fire-and-forget — request
