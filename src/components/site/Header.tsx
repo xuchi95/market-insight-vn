@@ -212,6 +212,11 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
   // Keep the mobile search panel mounted briefly while playing the exit
   // animation, then unmount once the transition completes.
   const [searchVisible, setSearchVisible] = useState(false);
+  // Portal render must be gated on post-hydration mount, not `typeof document`.
+  // `typeof document !== "undefined"` is `true` during client hydration too,
+  // so the portal fibers appear in the tree while SSR skipped them → mismatch.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   useEffect(() => {
     if (searchOpen) {
       setSearchVisible(true);
@@ -593,7 +598,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
       </div>
 
       {/* Mobile search sheet */}
-      {searchVisible && typeof document !== "undefined" && createPortal(
+      {searchVisible && mounted && createPortal(
         <div
           data-testid="header-mobile-search-panel"
           data-state={searchOpen ? "open" : "closed"}
@@ -770,7 +775,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </nav>
       )}
     </header>
-    {typeof document !== "undefined" && createPortal(
+    {mounted && createPortal(
     <div className="pointer-events-none fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 lg:block">
       <div
         data-testid="header-toolbar"
