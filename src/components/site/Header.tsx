@@ -598,7 +598,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
       </div>
 
       {/* Mobile search sheet */}
-      {searchVisible && typeof document !== "undefined" && createPortal(
+      {searchVisible && mounted && createPortal(
         <div
           data-testid="header-mobile-search-panel"
           data-state={searchOpen ? "open" : "closed"}
@@ -775,7 +775,7 @@ export function Header({ onSearch }: { onSearch?: (q: string) => void }) {
         </nav>
       )}
     </header>
-    {typeof document !== "undefined" && createPortal(
+    {mounted && createPortal(
     <div className="pointer-events-none fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 lg:block">
       <div
         data-testid="header-toolbar"
