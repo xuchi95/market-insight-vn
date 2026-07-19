@@ -121,6 +121,7 @@ import { Route as AdminMwAdminPriceSettingsRouteImport } from './routes/_admin/m
 import { Route as AdminMwAdminPopupsRouteImport } from './routes/_admin/mw-admin.popups'
 import { Route as AdminMwAdminNewsletterRouteImport } from './routes/_admin/mw-admin.newsletter'
 import { Route as AdminMwAdminNewsSettingsRouteImport } from './routes/_admin/mw-admin.news-settings'
+import { Route as AdminMwAdminGoldOverridesRouteImport } from './routes/_admin/mw-admin.gold-overrides'
 import { Route as AdminMwAdminFuelPricesRouteImport } from './routes/_admin/mw-admin.fuel-prices'
 import { Route as AdminMwAdminEmailPreviewRouteImport } from './routes/_admin/mw-admin.email-preview'
 import { Route as AdminMwAdminCronActivityRouteImport } from './routes/_admin/mw-admin.cron-activity'
@@ -724,6 +725,12 @@ const AdminMwAdminNewsSettingsRoute =
     path: '/mw-admin/news-settings',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminMwAdminGoldOverridesRoute =
+  AdminMwAdminGoldOverridesRouteImport.update({
+    id: '/mw-admin/gold-overrides',
+    path: '/mw-admin/gold-overrides',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminMwAdminFuelPricesRoute = AdminMwAdminFuelPricesRouteImport.update({
   id: '/mw-admin/fuel-prices',
   path: '/mw-admin/fuel-prices',
@@ -968,6 +975,7 @@ export interface FileRoutesByFullPath {
   '/mw-admin/cron-activity': typeof AdminMwAdminCronActivityRoute
   '/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
+  '/mw-admin/gold-overrides': typeof AdminMwAdminGoldOverridesRoute
   '/mw-admin/news-settings': typeof AdminMwAdminNewsSettingsRoute
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
@@ -1111,6 +1119,7 @@ export interface FileRoutesByTo {
   '/mw-admin/cron-activity': typeof AdminMwAdminCronActivityRoute
   '/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
+  '/mw-admin/gold-overrides': typeof AdminMwAdminGoldOverridesRoute
   '/mw-admin/news-settings': typeof AdminMwAdminNewsSettingsRoute
   '/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/mw-admin/popups': typeof AdminMwAdminPopupsRoute
@@ -1256,6 +1265,7 @@ export interface FileRoutesById {
   '/_admin/mw-admin/cron-activity': typeof AdminMwAdminCronActivityRoute
   '/_admin/mw-admin/email-preview': typeof AdminMwAdminEmailPreviewRoute
   '/_admin/mw-admin/fuel-prices': typeof AdminMwAdminFuelPricesRoute
+  '/_admin/mw-admin/gold-overrides': typeof AdminMwAdminGoldOverridesRoute
   '/_admin/mw-admin/news-settings': typeof AdminMwAdminNewsSettingsRoute
   '/_admin/mw-admin/newsletter': typeof AdminMwAdminNewsletterRoute
   '/_admin/mw-admin/popups': typeof AdminMwAdminPopupsRoute
@@ -1401,6 +1411,7 @@ export interface FileRouteTypes {
     | '/mw-admin/cron-activity'
     | '/mw-admin/email-preview'
     | '/mw-admin/fuel-prices'
+    | '/mw-admin/gold-overrides'
     | '/mw-admin/news-settings'
     | '/mw-admin/newsletter'
     | '/mw-admin/popups'
@@ -1544,6 +1555,7 @@ export interface FileRouteTypes {
     | '/mw-admin/cron-activity'
     | '/mw-admin/email-preview'
     | '/mw-admin/fuel-prices'
+    | '/mw-admin/gold-overrides'
     | '/mw-admin/news-settings'
     | '/mw-admin/newsletter'
     | '/mw-admin/popups'
@@ -1688,6 +1700,7 @@ export interface FileRouteTypes {
     | '/_admin/mw-admin/cron-activity'
     | '/_admin/mw-admin/email-preview'
     | '/_admin/mw-admin/fuel-prices'
+    | '/_admin/mw-admin/gold-overrides'
     | '/_admin/mw-admin/news-settings'
     | '/_admin/mw-admin/newsletter'
     | '/_admin/mw-admin/popups'
@@ -2658,6 +2671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMwAdminNewsSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/mw-admin/gold-overrides': {
+      id: '/_admin/mw-admin/gold-overrides'
+      path: '/mw-admin/gold-overrides'
+      fullPath: '/mw-admin/gold-overrides'
+      preLoaderRoute: typeof AdminMwAdminGoldOverridesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/mw-admin/fuel-prices': {
       id: '/_admin/mw-admin/fuel-prices'
       path: '/mw-admin/fuel-prices'
@@ -2886,6 +2906,7 @@ interface AdminRouteChildren {
   AdminMwAdminCronActivityRoute: typeof AdminMwAdminCronActivityRoute
   AdminMwAdminEmailPreviewRoute: typeof AdminMwAdminEmailPreviewRoute
   AdminMwAdminFuelPricesRoute: typeof AdminMwAdminFuelPricesRoute
+  AdminMwAdminGoldOverridesRoute: typeof AdminMwAdminGoldOverridesRoute
   AdminMwAdminNewsSettingsRoute: typeof AdminMwAdminNewsSettingsRoute
   AdminMwAdminNewsletterRoute: typeof AdminMwAdminNewsletterRoute
   AdminMwAdminPopupsRoute: typeof AdminMwAdminPopupsRoute
@@ -2914,6 +2935,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMwAdminCronActivityRoute: AdminMwAdminCronActivityRoute,
   AdminMwAdminEmailPreviewRoute: AdminMwAdminEmailPreviewRoute,
   AdminMwAdminFuelPricesRoute: AdminMwAdminFuelPricesRoute,
+  AdminMwAdminGoldOverridesRoute: AdminMwAdminGoldOverridesRoute,
   AdminMwAdminNewsSettingsRoute: AdminMwAdminNewsSettingsRoute,
   AdminMwAdminNewsletterRoute: AdminMwAdminNewsletterRoute,
   AdminMwAdminPopupsRoute: AdminMwAdminPopupsRoute,
@@ -3062,13 +3084,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

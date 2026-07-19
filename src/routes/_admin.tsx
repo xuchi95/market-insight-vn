@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Users, Megaphone, Mail, MailOpen, MessageSquare, Layers, Settings, Search,
   Fuel, Code2, TrendingUp, KeyRound, ShieldCheck, Inbox, Newspaper, BarChart3, Activity, Gavel,
   Menu, X, ChevronLeft, ChevronRight, LogOut, ExternalLink, Bell, User as UserIcon, Sparkles,
-  DollarSign, Shield,
+  DollarSign, Shield, Coins,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -90,6 +90,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/mw-admin/seo", label: "SEO Audit", icon: Search },
       { to: "/mw-admin/fuel-prices", label: "Giá xăng VN", icon: Fuel },
       { to: "/mw-admin/fuel-prices/history", label: "Lịch sử giá xăng", icon: Fuel },
+      { to: "/mw-admin/gold-overrides", label: "Ghi đè giá vàng", icon: Coins },
       { to: "/mw-admin/code-injection", label: "Chèn mã HTML", icon: Code2 },
       { to: "/mw-admin/price-settings", label: "Cấu hình % giá", icon: TrendingUp },
       { to: "/mw-admin/news-settings", label: "Nguồn tin crypto", icon: Newspaper },

@@ -29,6 +29,100 @@ const WINDOW_MS = 24 * 60 * 60 * 1000;
 const SYMBOL_PREFIX = "GOLD:";
 let lastSnapshotAt = 0;
 
+// =========================
+// Admin overrides
+// =========================
+// Admin có thể ghi đè giá của từng loại vàng khi upstream (PNJ/BTMC) lệch
+// hoặc chậm cập nhật (ví dụ SJC bán ra chính thức 144,5M/lượng nhưng PNJ
+// vẫn treo 144M). Overrides được đọc từ `gold_price_overrides`, cache 30s
+// để tránh query DB trên mỗi request.
+const OVERRIDES_TTL_MS = 30_000;
+let overridesCache: { at: number; items: OverrideRow[] } | null = null;
+let overridesInflight: Promise<OverrideRow[]> | null = null;
+
+interface OverrideRow {
+  gold_id: string;
+  brand: string;
+  type: string;
+  buy: number;
+  sell: number;
+  unit: string;
+  effective_at: string;
+  expires_at: string | null;
+  updated_at: string;
+}
+
+async function loadOverrides(): Promise<OverrideRow[]> {
+  const now = Date.now();
+  if (overridesCache && now - overridesCache.at < OVERRIDES_TTL_MS) {
+    return overridesCache.items;
+  }
+  if (overridesInflight) return overridesInflight;
+  overridesInflight = (async () => {
+    try {
+      const { data } = await supabaseAdmin
+        .from("gold_price_overrides")
+        .select("gold_id, brand, type, buy, sell, unit, effective_at, expires_at, updated_at");
+      const rows = (data ?? []) as OverrideRow[];
+      overridesCache = { at: Date.now(), items: rows };
+      return rows;
+    } catch {
+      // Giữ cache cũ nếu có; nếu không, trả rỗng để không chặn phản hồi.
+      return overridesCache?.items ?? [];
+    } finally {
+      overridesInflight = null;
+    }
+  })();
+  return overridesInflight;
+}
+
+function applyOverrides(items: MappedItem[], overrides: OverrideRow[]): MappedItem[] {
+  if (overrides.length === 0) return items;
+  const now = Date.now();
+  const activeById = new Map<string, OverrideRow>();
+  for (const o of overrides) {
+    const eff = Date.parse(o.effective_at);
+    if (Number.isFinite(eff) && eff > now) continue;
+    if (o.expires_at) {
+      const exp = Date.parse(o.expires_at);
+      if (Number.isFinite(exp) && exp < now) continue;
+    }
+    activeById.set(o.gold_id, o);
+  }
+  if (activeById.size === 0) return items;
+  const seen = new Set<string>();
+  const merged: MappedItem[] = items.map((it) => {
+    const o = activeById.get(it.id);
+    if (!o) return it;
+    seen.add(it.id);
+    return {
+      ...it,
+      brand: o.brand || it.brand,
+      type: o.type || it.type,
+      buy: o.buy,
+      sell: o.sell,
+      mid: midOf(o.buy, o.sell),
+      unit: o.unit || it.unit,
+      updatedAt: Math.max(it.updatedAt, Date.parse(o.updated_at) || 0),
+    };
+  });
+  // Overrides cho loại chưa có trong upstream — thêm mới.
+  for (const [id, o] of activeById) {
+    if (seen.has(id)) continue;
+    merged.push({
+      id,
+      brand: o.brand,
+      type: o.type,
+      buy: o.buy,
+      sell: o.sell,
+      mid: midOf(o.buy, o.sell),
+      unit: o.unit || "VND/chỉ",
+      updatedAt: Date.parse(o.updated_at) || now,
+    });
+  }
+  return merged;
+}
+
 interface PnjRow {
   masp: string;
   tensp: string;
@@ -458,6 +552,20 @@ export const Route = createFileRoute("/api/public/gold")({
             } catch (e) {
               if (cache) items = cache.data;
               else throw e;
+            }
+          }
+
+          // Áp overrides do admin đặt thủ công (nếu có). Đây là "nguồn cuối"
+          // — nếu upstream sai/chậm, admin có thể ghi đè để hiển thị đúng
+          // giá niêm yết thực tế.
+          const overrides = await loadOverrides();
+          if (overrides.length > 0) {
+            const before = items;
+            items = applyOverrides(items, overrides);
+            // Nếu có bất kỳ override nào áp dụng, `out` cache đã lỗi thời.
+            if (items !== before && cache) {
+              cache.out = undefined;
+              cache.outAt = undefined;
             }
           }
 
